@@ -4,7 +4,7 @@
   "description": "FrontSpot Hub: Ptushki, backend",
   "scripts": {
     "start": "npm run build && cross-env NODE_ENV=production node dist/index.js",
-    "start:dev": "ts-node-dev -r dotenv/config src/index.ts",
+    "start:dev": "ts-node-dev src/index.ts",
     "build": "npm run clean && tsc",
     "lint": "eslint src/**/*.ts",
     "lint:fix": "npm run lint -- --fix",
