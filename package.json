@@ -3,9 +3,9 @@
   "version": "0.0.1",
   "description": "FrontSpot Hub: Ptushki, backend",
   "scripts": {
-    "start": "ts-node-dev src/index.ts",
-    "build": "./node_modules/.bin/tsc",
-    "lint": "./node_modules/.bin/eslint src/**/*.ts --fix"
+    "start": "ts-node-dev -r dotenv/config src/index.ts",
+    "build": "tsc",
+    "lintfix": "eslint src/**/*.ts --fix"
   },
   "repository": {
     "type": "git",
@@ -47,7 +47,7 @@
 	},
 	"husky": {
     "hooks": {
-      "pre-commit": "npm run lint"
+      "pre-commit": "npm run lintfix"
     }
   }
 }
