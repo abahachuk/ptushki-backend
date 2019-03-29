@@ -4,6 +4,5 @@
   },
   "testRegex": "test/*\\.ts$",
   "moduleFileExtensions": ["ts", "js", "json", "node"],
-  "coverageDirectory": "./coverage/",
-  "collectCoverage": true
+  "coverageDirectory": "./coverage/"
 }
