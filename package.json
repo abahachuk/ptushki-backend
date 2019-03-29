@@ -48,8 +48,8 @@
     "ts-node-dev": "^1.0.0-pre.32",
     "tslint": "^5.14.0",
     "typescript": "^3.3.4000"
-	},
-	"husky": {
+  },
+  "husky": {
     "hooks": {
       "pre-commit": "npm run lint"
     }
