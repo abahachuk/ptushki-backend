@@ -1,18 +1,22 @@
 {
-  "parser":  "@typescript-eslint/parser", 
-  "extends":  [
-		"plugin:@typescript-eslint/recommended",
-		"plugin:import/typescript",
-		"airbnb",
-		"prettier/@typescript-eslint",
-		"plugin:prettier/recommended"
+  "parser": "@typescript-eslint/parser",
+  "extends": [
+    "plugin:@typescript-eslint/recommended",
+    "plugin:import/typescript",
+    "airbnb",
+    "prettier/@typescript-eslint",
+    "plugin:prettier/recommended"
   ],
- 	"parserOptions":  {
-    "ecmaVersion":  2018,
-    "sourceType":  "module"
-	},
-	"rules": {
-		"import/no-unresolved": ["2", {"commonjs": true}],
-		"import/prefer-default-export": "1"
-	}
+  "parserOptions": {
+    "ecmaVersion": 2018,
+    "sourceType": "module"
+  },
+  "rules": {
+    "import/no-unresolved": ["2", { "commonjs": true }],
+    "import/prefer-default-export": "1"
+  },
+  "env": {
+    "node": true,
+    "jest": true
+  }
 }
