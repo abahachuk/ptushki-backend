@@ -23,7 +23,10 @@
     "express": "^4.16.4",
     "express-session": "^1.15.6",
     "ramda": "^0.26.1",
-    "request": "^2.88.0"
+    "request": "^2.88.0",
+    "pg": "^7.9.0",
+    "reflect-metadata": "^0.1.13",
+    "typeorm": "0.2.16"
   },
   "devDependencies": {
     "@types/body-parser": "^1.17.0",
@@ -48,8 +51,8 @@
     "ts-node-dev": "^1.0.0-pre.32",
     "tslint": "^5.14.0",
     "typescript": "^3.3.4000"
-	},
-	"husky": {
+  },
+  "husky": {
     "hooks": {
       "pre-commit": "npm run lint"
     }
