@@ -63,7 +63,7 @@ export default class UsersControler extends AbstractController {
 
   private create = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
-      const user = User.create(req.body);
+      const user = await User.create(req.body);
       await this.users.save(user);
       res.json(user);
     } catch (e) {

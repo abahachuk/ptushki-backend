@@ -12,4 +12,11 @@ export default {
     synchronize: false,
     logging: false,
   },
+  userCrypto: {
+    secret: 'secret',
+    hashingIterations: 1000,
+    saltSize: 16,
+    hashLength: 32,
+    hashingMethod: 'sha512',
+  },
 };

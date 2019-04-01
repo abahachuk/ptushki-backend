@@ -1,4 +1,5 @@
 import { Entity, PrimaryGeneratedColumn, Column } from 'typeorm';
+import { getSaltAndHash } from '../serivices/user-crypto-service';
 
 export interface NewUser {
   email: string;
@@ -30,7 +31,10 @@ export class User {
   @Column()
   public lastName: string;
 
-  public static create(values: NewUser) {
-    return Object.assign(new User(), values);
+  public static async create(values: NewUser) {
+    const copyValues = Object.assign({}, values);
+    const { salt, hash } = await getSaltAndHash(values.password);
+    delete copyValues.password;
+    return Object.assign(new User(), copyValues, { hash, salt });
   }
 }
