@@ -2,7 +2,7 @@
 
 FrontSpot Hub: Ptushki, backend
 
-<b>1) npm i</b> - to install dependencies<br>
-<b>2) npm start</b> - to start dev-server<br>
-<b>3) npm run build</b> - to build app<br>
-<b>4) npm run lint</b> - to linter check<br>
+1) `npm i` - to install dependencies
+2) `npm start` - to build and start server in prod mode or `npm run start:dev` to run server in dev mode with rebuilding on changes
+3) `npm run build` - to build app
+4) `npm run lint:fix` - to lint and fix `.ts` files

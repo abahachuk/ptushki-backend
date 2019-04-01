@@ -3,7 +3,7 @@
   "extends": [
     "plugin:@typescript-eslint/recommended",
     "plugin:import/typescript",
-    "airbnb",
+    "airbnb-base",
     "prettier/@typescript-eslint",
     "plugin:prettier/recommended"
   ],
@@ -12,7 +12,7 @@
     "sourceType": "module"
   },
   "rules": {
-    "import/no-unresolved": ["2", {"commonjs": true}],
+    "import/no-unresolved": ["2", { "commonjs": true }],
     "import/prefer-default-export": "1"
   }
 }
