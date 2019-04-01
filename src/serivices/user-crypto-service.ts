@@ -5,7 +5,7 @@ import { promisify } from 'util';
 const {
   secret,
   hashingIterations,
-  // for salt is recomended more then 16 bytes
+  // for salt is recommended more then 16 bytes
   saltSize,
   // it's hash length.
   // and general recommendation is to keep it

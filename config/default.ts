@@ -13,10 +13,10 @@ export default {
     logging: false,
   },
   userCrypto: {
-    secret: 'secret',
-    hashingIterations: 1000,
-    saltSize: 16,
-    hashLength: 32,
-    hashingMethod: 'sha512',
+    secret: process.env.USER_CRYPTO_SECRET || 'secret',
+    hashingIterations: Number.parseInt(process.env.USER_CRYPTO_N_ITER, 10) || 1000,
+    saltSize: Number.parseInt(process.env.USER_CRYPTO_SALT_L, 10) || 16,
+    hashLength: Number.parseInt(process.env.USER_CRYPTO_HASH_L, 10) || 32,
+    hashingMethod: Number.parseInt(process.env.USER_CRYPTO_METHOD, 10) || 'sha512',
   },
 };
