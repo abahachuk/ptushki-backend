@@ -1,4 +1,4 @@
-const test = {
+export default {
   id: {
     in: ['body'],
     errorMessage: 'Here is your custom error for id',
@@ -11,5 +11,3 @@ const test = {
     isString: true,
   },
 };
-
-export default test;

@@ -1,0 +1,9 @@
+{
+  "transform": {
+    "^.+\\.(ts|js|html)$": "ts-jest"
+  },
+  "testMatch": ["**/tests/**/*.+(ts|js)?(x)", "**/+(*.)+(spec|test).+(ts|js)?(x)"],
+  "moduleFileExtensions": ["ts", "js", "html"],
+  "transformIgnorePatterns": ["node_modules/(?!@ngrx)"],
+  "testPathIgnorePatterns": ["/node_modules/", "/dist/", "src/*.{js}"]
+}
