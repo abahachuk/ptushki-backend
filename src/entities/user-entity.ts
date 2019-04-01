@@ -8,6 +8,14 @@ export interface NewUser {
   lastName?: string;
 }
 
+export enum UserRole {
+  Observer = 'observer',
+  Ringer = 'ringer',
+  Scientist = 'scientist',
+  Moderator = 'moderator',
+  Admin = 'admin',
+}
+
 @Entity()
 export class User {
   // eslint-disable-next-line no-useless-constructor,no-empty-function
@@ -16,7 +24,11 @@ export class User {
   @PrimaryGeneratedColumn('uuid')
   public id: string;
 
-  @Column()
+  @Column({
+    type: 'varchar',
+    length: 150,
+    unique: true,
+  })
   public email: string;
 
   @Column()
@@ -24,6 +36,13 @@ export class User {
 
   @Column()
   public salt: string;
+
+  @Column({
+    type: 'enum',
+    enum: UserRole,
+    default: UserRole.Observer,
+  })
+  public role: UserRole;
 
   @Column('varchar', { length: 64, nullable: true, default: null })
   public firstName: string | null;
