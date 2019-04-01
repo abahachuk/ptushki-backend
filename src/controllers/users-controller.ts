@@ -75,7 +75,7 @@ export default class UsersControler extends AbstractController {
     const { user }: { user: User } = req;
     try {
       await this.users.remove(user);
-      res.json({ id: user.id, removed: true });
+      res.json({ id: req.params.id, removed: true });
     } catch (e) {
       next(e);
     }
