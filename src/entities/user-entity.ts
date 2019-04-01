@@ -13,8 +13,8 @@ export class User {
   // eslint-disable-next-line no-useless-constructor,no-empty-function
   protected constructor() {}
 
-  @PrimaryGeneratedColumn()
-  public id: number;
+  @PrimaryGeneratedColumn('uuid')
+  public id: string;
 
   @Column()
   public email: string;
@@ -25,11 +25,11 @@ export class User {
   @Column()
   public salt: string;
 
-  @Column()
-  public firstName: string;
+  @Column('varchar', { length: 64, nullable: true, default: null })
+  public firstName: string | null;
 
-  @Column()
-  public lastName: string;
+  @Column('varchar', { length: 64, nullable: true, default: null })
+  public lastName: string | null;
 
   public static async create(values: NewUser) {
     const copyValues = Object.assign({}, values);
