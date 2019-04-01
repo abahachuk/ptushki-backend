@@ -1,5 +1,5 @@
 import { Entity, PrimaryGeneratedColumn, Column } from 'typeorm';
-import { getSaltAndHash } from '../serivices/user-crypto-service';
+import { getSaltAndHash } from '../services/user-crypto-service';
 
 export interface NewUser {
   email: string;
