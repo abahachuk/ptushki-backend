@@ -25,10 +25,10 @@ export default class UsersControler extends AbstractController {
     return this.router;
   }
 
-  private checkId = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+  private checkId = async (req: Request, _res: Response, next: NextFunction): Promise<void> => {
     const { id }: { id: string } = req.params;
     try {
-      if (id.length !== 24) {
+      if (id.length !== 36) {
         throw new Error(`Provided user identificator (${id}) is incorrect`);
       }
       const user = await this.users.findOne(id);
@@ -42,7 +42,7 @@ export default class UsersControler extends AbstractController {
     }
   };
 
-  private find = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+  private find = async (_req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
       const users = await this.users.find();
       res.json(users);
