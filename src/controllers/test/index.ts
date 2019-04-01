@@ -1,5 +1,6 @@
 import { Request, Response } from 'express';
 
-export const showDefaultMessage = (req: Request, res: Response): void => {
-  res.send('Hello world!');
+export const showDefaultMessage = (req: Request, res: Response) => {
+  const { hostname } = req;
+  res.send(`Hello from ${hostname}!`);
 };
