@@ -1,4 +1,3 @@
-import * as TestController from './test';
-import UsersController from './users';
+import UsersController from './users-controller';
 
-export { TestController, UsersController };
+export { UsersController };
