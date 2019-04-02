@@ -14,5 +14,9 @@
   "rules": {
     "import/no-unresolved": ["2", { "commonjs": true }],
     "import/prefer-default-export": "1"
+  },
+  "env": {
+    "jest": true,
+    "node": true
   }
 }
