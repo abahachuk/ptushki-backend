@@ -5,13 +5,14 @@ import { Application } from 'express';
 
 import createApp from './app';
 import connectDB from './db';
+import { logger } from './configs/logger';
 
 const PORT = config.get('PORT');
 
 createApp(connectDB)
   .then((app: Application) => {
     app.listen(PORT, () => {
-      console.log(`App is listened at ${PORT}`);
+      logger.info(`App is listened at ${PORT}`);
     });
   })
-  .catch(console.error);
+  .catch(logger.error);
