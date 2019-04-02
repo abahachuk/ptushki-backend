@@ -13,6 +13,7 @@
 ### Link to branch and/or PR's related
 
 <!--- https://help.github.com/articles/autolinked-references-and-urls/#issues-and-pull-requests -->
+
 `Just remove section if it isn't related to anything`
 
 - https://github.com/abahachuk/ptushki-backend/pull/XXX
