@@ -49,5 +49,4 @@ const setLogger = morgan('short', {
   },
 });
 
-
 export { logger, setLogger };
