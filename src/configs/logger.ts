@@ -1,10 +1,7 @@
-import { Request, Response } from 'express';
 import path from 'path';
 import fs from 'fs';
 import winston from 'winston';
 import morgan from 'morgan';
-
-import HttpException from '../exceptions/httpException';
 
 const logDirectory = path.join(__dirname, '..', 'logs');
 
@@ -44,14 +41,6 @@ const logger = winston.createLogger({
   ],
 });
 
-const combinedFormat = (err: HttpException, req: Request): string => {
-  return `${req.ip} - - 
-          ${req.method} 
-          ${req.originalUrl} HTTP/${req.httpVersion} 
-          ${err.status || 500} - 
-          ${req.headers['user-agent']}`;
-};
-
 const setLogger = morgan('short', {
   stream: {
     write: (meta: string) => {
@@ -60,9 +49,5 @@ const setLogger = morgan('short', {
   },
 });
 
-const combinedLogger = (err: HttpException, req: Request, res: Response): void => {
-  logger.error(combinedFormat(err, req));
-  res.status(err.status || 500).send(err);
-};
 
-export { logger, setLogger, combinedLogger };
+export { logger, setLogger };
