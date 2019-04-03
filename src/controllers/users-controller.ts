@@ -8,7 +8,7 @@ interface RequestWithUser extends Request {
 }
 
 export default class UsersController extends AbstractController {
-  protected router: Router;
+  private router: Router;
 
   private users: Repository<User>;
 
