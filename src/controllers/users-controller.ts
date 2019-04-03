@@ -17,7 +17,6 @@ export default class UsersController extends AbstractController {
     this.users = getRepository(User);
 
     this.router.get('/', this.find);
-    this.router.post('/', this.create);
     this.router.param('id', this.checkId);
     this.router.get('/:id', this.findOne);
     this.router.delete('/:id', this.remove);
@@ -55,16 +54,6 @@ export default class UsersController extends AbstractController {
   private findOne = (req: RequestWithUser, res: Response, next: NextFunction): void => {
     const { user }: { user: User } = req;
     try {
-      res.json(user);
-    } catch (e) {
-      next(e);
-    }
-  };
-
-  private create = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
-    try {
-      const user = await User.create(req.body);
-      await this.users.save(user);
       res.json(user);
     } catch (e) {
       next(e);
