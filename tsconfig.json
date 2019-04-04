@@ -18,6 +18,8 @@
     "strictNullChecks": true,
     "importHelpers": true,
     "downlevelIteration": true,
+      "emitDecoratorMetadata": true,
+      "experimentalDecorators": true,
     "forceConsistentCasingInFileNames": true,
     "noFallthroughCasesInSwitch": true,
     "removeComments": true,
