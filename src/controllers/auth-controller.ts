@@ -2,6 +2,8 @@ import { NextFunction, Request, Response, Router } from 'express';
 import { getRepository, Repository } from 'typeorm';
 import AbstractController from './abstract-controller';
 import { User } from '../entities/user-entity';
+import { validateSchema } from '../validation';
+import { Registration } from '../validation/user-schema';
 
 export default class AuthController extends AbstractController {
   private router: Router;
@@ -11,8 +13,8 @@ export default class AuthController extends AbstractController {
   public init(): Router {
     this.router = Router();
     this.users = getRepository(User);
-
-    this.router.post('/signup', this.signUp);
+    // @ts-ignore
+    this.router.post('/signup', validateSchema(Registration), this.signUp);
 
     return this.router;
   }
