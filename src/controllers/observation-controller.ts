@@ -1,8 +1,10 @@
+import config from 'config';
 import { NextFunction, Request, Response, Router } from 'express';
 import { getRepository, Repository } from 'typeorm';
 import AbstractController from './abstract-controller';
-import { UUID_LENGTH } from '../consts/controllers';
 import { RingByRecovery as Observation } from '../entities/ring-by-recovery-entity';
+
+const UUID_LENGTH = config.get('UUID_LENGTH');
 
 interface RequestWithObservation extends Request {
   observation: Observation;

@@ -1,8 +1,10 @@
+import config from 'config';
 import { NextFunction, Request, Response, Router } from 'express';
 import { getRepository, Repository } from 'typeorm';
 import AbstractController from './abstract-controller';
 import { User } from '../entities/user-entity';
-import { UUID_LENGTH } from '../consts/controllers';
+
+const UUID_LENGTH = config.get('UUID_LENGTH');
 
 interface RequestWithUser extends Request {
   user: User;
