@@ -4,13 +4,17 @@ import { RingData } from './ring-data-entity';
 
 @Entity()
 export class VerificationOfTheMetalRing implements Dictionary {
-  @PrimaryGeneratedColumn('uuid') public id: string;
+  @PrimaryGeneratedColumn('uuid')
+  public id: string;
 
-  @Column('varchar', { nullable: true, default: null }) public desc_eng: string | null;
+  @Column('varchar', { nullable: true, default: null })
+  public desc_eng: string | null;
 
-  @Column('varchar', { nullable: true, default: null }) public desc_rus: string | null;
+  @Column('varchar', { nullable: true, default: null })
+  public desc_rus: string | null;
 
-  @Column('varchar', { nullable: true, default: null }) public desc_byn: string | null;
+  @Column('varchar', { nullable: true, default: null })
+  public desc_byn: string | null;
 
   @OneToMany(() => RingData, m => m.verificationOfTheMetalRing)
   public ringData: RingData[];

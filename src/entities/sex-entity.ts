@@ -5,13 +5,17 @@ import { BasaRing } from './basa-ring-entity';
 
 @Entity()
 export class Sex implements Dictionary {
-  @PrimaryGeneratedColumn('uuid') public id: string;
+  @PrimaryGeneratedColumn('uuid')
+  public id: string;
 
-  @Column('varchar', { nullable: true, default: null }) public desc_eng: string | null;
+  @Column('varchar', { nullable: true, default: null })
+  public desc_eng: string | null;
 
-  @Column('varchar', { nullable: true, default: null }) public desc_rus: string | null;
+  @Column('varchar', { nullable: true, default: null })
+  public desc_rus: string | null;
 
-  @Column('varchar', { nullable: true, default: null }) public desc_byn: string | null;
+  @Column('varchar', { nullable: true, default: null })
+  public desc_byn: string | null;
 
   @OneToMany(() => RingData, m => m.sex)
   public ringData: RingData[];

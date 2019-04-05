@@ -9,7 +9,7 @@ export class PlaceCode {
   @Column()
   public code: string;
 
-  // < --- can be primary and check if it could be ID
+  // can be primary and check if it could be ID
   @Column('varchar', { nullable: true, default: null })
   public country: string | null;
 
