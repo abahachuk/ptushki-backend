@@ -1,5 +1,7 @@
 import { NextFunction, Request, Response, Router } from 'express';
 import { getRepository, Repository } from 'typeorm';
+import passport from 'passport';
+import jwt from 'jsonwebtoken';
 import AbstractController from './abstract-controller';
 import { User } from '../entities/user-entity';
 import { validateSchema } from '../validation';
@@ -13,8 +15,10 @@ export default class AuthController extends AbstractController {
   public init(): Router {
     this.router = Router();
     this.users = getRepository(User);
-    // @ts-ignore
-    this.router.post('/signup', validateSchema(Registration), this.signUp);
+
+    this.router.post('/signup', this.signUp);
+    this.router.post('/login', this.login);
+    this.router.get('/test', passport.authenticate('jwt', { session: false }), this.test);
 
     return this.router;
   }
@@ -27,5 +31,27 @@ export default class AuthController extends AbstractController {
     } catch (e) {
       next(e);
     }
+  };
+
+  private login = (req: Request, res: Response, next: NextFunction) => {
+    const { email, password } = req.body;
+    if (!email) {
+      res.status(422).end();
+    }
+    if (!password) {
+      res.status(422).end();
+    }
+    return passport.authenticate('local', { session: false }, (error, user: User) => {
+      if (error) {
+        res.status(403).json({ error });
+      }
+      const token = jwt.sign({ ...user }, process.env.JWT_SECRET || 'secret');
+      res.cookie('jwt', token);
+      res.json({ ...user, token });
+    })(req, res, next);
+  };
+
+  private test = (_req: Request, res: Response): void => {
+    res.json('test response');
   };
 }
