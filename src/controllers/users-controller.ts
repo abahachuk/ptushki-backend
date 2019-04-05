@@ -2,6 +2,7 @@ import { NextFunction, Request, Response, Router } from 'express';
 import { getRepository, Repository } from 'typeorm';
 import AbstractController from './abstract-controller';
 import { User } from '../entities/user-entity';
+import { UUID_LENGTH } from '../consts/controllers';
 
 interface RequestWithUser extends Request {
   user: User;
@@ -27,7 +28,7 @@ export default class UsersController extends AbstractController {
   private checkId = async (req: Request, _res: Response, next: NextFunction): Promise<void> => {
     const { id }: { id: string } = req.params;
     try {
-      if (id.length !== 36) {
+      if (id.length !== UUID_LENGTH) {
         throw new Error(`Provided user identificator (${id}) is incorrect`);
       }
       const user = await this.users.findOne(id);
