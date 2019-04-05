@@ -1,7 +1,10 @@
+import config from 'config';
 import { NextFunction, Request, Response, Router } from 'express';
 import { getRepository, Repository } from 'typeorm';
 import AbstractController from './abstract-controller';
 import { RingBy } from '../entities/ring-by-entity';
+
+const UUID_LENGTH = config.get('UUID_LENGTH');
 
 export default class RingsByController extends AbstractController {
   private router: Router;
@@ -24,7 +27,7 @@ export default class RingsByController extends AbstractController {
   private checkId = async (req: Request, _res: Response, next: NextFunction): Promise<void> => {
     const { id }: { id: string } = req.params;
     try {
-      if (id.length !== 36) {
+      if (id.length !== UUID_LENGTH) {
         throw new Error(`Provided ring identifier (${id}) is incorrect`);
       }
       const user = await this.rings.findOne(id);
