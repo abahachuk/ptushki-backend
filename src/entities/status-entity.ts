@@ -16,6 +16,6 @@ export class Status implements Dictionary {
   @Column('varchar', { nullable: true, default: null })
   public desc_byn: string | null;
 
-  @OneToMany(() => RingData, ringData => ringData.status)
+  @OneToMany(() => RingData, m => m.status)
   public ringData: RingData[];
 }

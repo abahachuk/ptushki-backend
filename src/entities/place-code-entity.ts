@@ -16,6 +16,6 @@ export class PlaceCode {
   @Column('varchar', { nullable: true, default: null })
   public region: string | null;
 
-  @OneToMany(() => RingData, ringData => ringData.placeCode)
+  @OneToMany(() => RingData, m => m.placeCode)
   public ringData: RingData[];
 }

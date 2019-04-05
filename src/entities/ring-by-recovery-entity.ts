@@ -12,7 +12,7 @@ export class RingByRecovery {
   @JoinColumn()
   public ringData: RingData;
 
-  @ManyToOne(() => User, finder => finder.ringByRecovery)
+  @ManyToOne(() => User, m => m.ringByRecovery)
   public finder: User;
 
   @OneToOne(() => RefNo)

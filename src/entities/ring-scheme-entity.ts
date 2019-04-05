@@ -19,6 +19,6 @@ export class RingingScheme {
   @Column('varchar', { nullable: true, default: null })
   public center: string | null;
 
-  @OneToMany(() => RingData, ringData => ringData.ringingScheme)
+  @OneToMany(() => RingData, m => m.ringingScheme)
   public ringData: RingData[];
 }

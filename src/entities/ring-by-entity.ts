@@ -12,9 +12,9 @@ export class RingBy {
   @JoinColumn()
   public ringData: RingData;
 
-  @ManyToOne(() => User, ringerInformation => ringerInformation.ringBy)
+  @ManyToOne(() => User, m => m.ringBy)
   public ringerInformation: User;
 
-  @ManyToOne(() => StatusOfRing, statusOfRing => statusOfRing.ringBy)
+  @ManyToOne(() => StatusOfRing, m => m.ringBy)
   public statusOfRing: StatusOfRing;
 }

@@ -16,6 +16,6 @@ export class EURINGCodeIdentifier implements Dictionary {
   @Column('varchar', { nullable: true, default: null })
   public desc_byn: string | null;
 
-  @OneToMany(() => RingData, ringData => ringData.euringCodeIdentifier)
+  @OneToMany(() => RingData, m => m.euringCodeIdentifier)
   public ringData: RingData[];
 }

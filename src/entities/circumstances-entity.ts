@@ -16,6 +16,6 @@ export class Circumstances implements Dictionary {
   @Column('varchar', { nullable: true, default: null })
   public desc_byn: string | null;
 
-  @OneToMany(() => RingData, ringData => ringData.circumstances)
+  @OneToMany(() => RingData, m => m.circumstances)
   public ringData: RingData[];
 }

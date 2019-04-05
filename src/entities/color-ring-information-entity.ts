@@ -19,6 +19,6 @@ export class ColorRingInformation {
   @Column('varchar', { nullable: true, default: null })
   public pic: string | null;
 
-  @OneToMany(() => RingData, ringData => ringData.colorRingInformation)
+  @OneToMany(() => RingData, m => m.colorRingInformation)
   public ringData: RingData[];
 }

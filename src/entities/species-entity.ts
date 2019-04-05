@@ -17,9 +17,9 @@ export class Species {
 
   @Column('varchar', { nullable: true, default: null }) public family: string | null;
 
-  @OneToMany(() => RingData, ringData => ringData.species)
+  @OneToMany(() => RingData, m => m.species)
   public ringData: RingData[];
 
-  @OneToMany(() => BasaRing, basaRing => basaRing.species)
+  @OneToMany(() => BasaRing, m => m.species)
   public basaRing: BasaRing[];
 }

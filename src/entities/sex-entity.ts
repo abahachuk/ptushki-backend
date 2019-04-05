@@ -13,9 +13,9 @@ export class Sex implements Dictionary {
 
   @Column('varchar', { nullable: true, default: null }) public desc_byn: string | null;
 
-  @OneToMany(() => RingData, ringData => ringData.sex)
+  @OneToMany(() => RingData, m => m.sex)
   public ringData: RingData[];
 
-  @OneToMany(() => BasaRing, basaRing => basaRing.species)
+  @OneToMany(() => BasaRing, m => m.species)
   public basaRing: BasaRing[];
 }

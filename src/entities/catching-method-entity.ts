@@ -16,6 +16,6 @@ export class CatchingMethod implements Dictionary {
   @Column('varchar', { nullable: true, default: null })
   public desc_byn: string | null;
 
-  @OneToMany(() => RingData, ringData => ringData.catchingMethod)
+  @OneToMany(() => RingData, m => m.catchingMethod)
   public ringData: RingData[];
 }

@@ -16,6 +16,6 @@ export class CircumstancesPresumed implements Dictionary {
   @Column('varchar', { nullable: true, default: null })
   public desc_byn: string | null;
 
-  @OneToMany(() => RingData, ringData => ringData.circumstancesPresumed)
+  @OneToMany(() => RingData, m => m.circumstancesPresumed)
   public ringData: RingData[];
 }

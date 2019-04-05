@@ -16,6 +16,6 @@ export class Condition implements Dictionary {
   @Column('varchar', { nullable: true, default: null })
   public desc_byn: string | null;
 
-  @OneToMany(() => RingData, ringData => ringData.condition)
+  @OneToMany(() => RingData, m => m.condition)
   public ringData: RingData[];
 }

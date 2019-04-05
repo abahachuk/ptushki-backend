@@ -16,6 +16,6 @@ export class MetalRingInformation implements Dictionary {
   @Column('varchar', { nullable: true, default: null })
   public desc_byn: string | null;
 
-  @OneToMany(() => RingData, ringData => ringData.metalRingInformation)
+  @OneToMany(() => RingData, m => m.metalRingInformation)
   public ringData: RingData[];
 }

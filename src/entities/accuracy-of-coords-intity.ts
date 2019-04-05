@@ -16,6 +16,6 @@ export class AccuracyOfCoords implements Dictionary {
   @Column('varchar', { nullable: true, default: null })
   public desc_byn: string | null;
 
-  @OneToMany(() => RingData, ringData => ringData.accuracyOfCoords)
+  @OneToMany(() => RingData, m => m.accuracyOfCoords)
   public ringData: RingData[];
 }

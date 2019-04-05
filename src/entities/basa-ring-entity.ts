@@ -9,16 +9,16 @@ export class BasaRing {
   @PrimaryGeneratedColumn('uuid')
   public id: string;
 
-  @ManyToOne(() => Species, species => species.basaRing)
+  @ManyToOne(() => Species, m => m.basaRing)
   public species: Species;
 
-  @ManyToOne(() => Sex, sex => sex.basaRing)
+  @ManyToOne(() => Sex, m => m.basaRing)
   public sex: Sex;
 
-  @ManyToOne(() => Age, age => age.basaRing)
+  @ManyToOne(() => Age, m => m.basaRing)
   public age: Age;
 
-  @ManyToOne(() => User, ringer => ringer.basaRing)
+  @ManyToOne(() => User, m => m.basaRing)
   public ringer: User;
 
   @Column('varchar', { nullable: true, default: null })

@@ -9,6 +9,6 @@ export class StatusOfRing {
   @Column('varchar', { nullable: true, default: null })
   public description: string | null;
 
-  @OneToMany(() => RingBy, ringBy => ringBy.statusOfRing)
+  @OneToMany(() => RingBy, m => m.statusOfRing)
   public ringBy: RingBy[];
 }

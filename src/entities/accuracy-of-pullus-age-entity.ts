@@ -16,6 +16,6 @@ export class AccuracyOfPullusAge implements Dictionary {
   @Column('varchar', { nullable: true, default: null })
   public desc_byn: string | null;
 
-  @OneToMany(() => RingData, ringData => ringData.accuracyOfPullusAge)
+  @OneToMany(() => RingData, m => m.accuracyOfPullusAge)
   public ringData: RingData[];
 }

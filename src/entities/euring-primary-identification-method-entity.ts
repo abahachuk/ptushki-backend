@@ -16,6 +16,6 @@ export class EURINGPrimaryIdentificationMethod implements Dictionary {
   @Column('varchar', { nullable: true, default: null })
   public desc_byn: string | null;
 
-  @OneToMany(() => RingData, ringData => ringData.primaryIdMethod)
+  @OneToMany(() => RingData, m => m.primaryIdMethod)
   public ringData: RingData[];
 }

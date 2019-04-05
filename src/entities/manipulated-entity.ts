@@ -16,6 +16,6 @@ export class Manipulated implements Dictionary {
   @Column('varchar', { nullable: true, default: null })
   public desc_byn: string | null;
 
-  @OneToMany(() => RingData, ringData => ringData.manipulated)
+  @OneToMany(() => RingData, m => m.manipulated)
   public ringData: RingData[];
 }

@@ -17,9 +17,9 @@ export class Age implements Dictionary {
   @Column('varchar', { nullable: true, default: null })
   public desc_byn: string | null;
 
-  @OneToMany(() => RingData, ringData => ringData.age)
+  @OneToMany(() => RingData, m => m.age)
   public ringData: RingData[];
 
-  @OneToMany(() => BasaRing, basaRing => basaRing.age)
+  @OneToMany(() => BasaRing, m => m.age)
   public basaRing: BasaRing[];
 }

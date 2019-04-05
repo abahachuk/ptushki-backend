@@ -53,13 +53,13 @@ export class User {
   @Column('varchar', { length: 64, nullable: true, default: null })
   public lastName: string | null;
 
-  @OneToMany(() => RingBy, ringBy => ringBy.ringerInformation)
+  @OneToMany(() => RingBy, m => m.ringerInformation)
   public ringBy: RingBy[];
 
-  @OneToMany(() => RingByRecovery, ringByRecovery => ringByRecovery.finder)
+  @OneToMany(() => RingByRecovery, m => m.finder)
   public ringByRecovery: RingByRecovery[];
 
-  @OneToMany(() => BasaRing, baseRing => baseRing.ringer)
+  @OneToMany(() => BasaRing, m => m.ringer)
   public basaRing: BasaRing[];
 
   public static async create(values: NewUser): Promise<User> {

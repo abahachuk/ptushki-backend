@@ -16,6 +16,6 @@ export class EURINGOtherMarksInformation implements Dictionary {
   @Column('varchar', { nullable: true, default: null })
   public desc_byn: string | null;
 
-  @OneToMany(() => RingData, ringData => ringData.otherMarksInformation)
+  @OneToMany(() => RingData, m => m.otherMarksInformation)
   public ringData: RingData[];
 }

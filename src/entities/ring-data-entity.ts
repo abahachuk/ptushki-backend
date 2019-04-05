@@ -29,10 +29,10 @@ export class RingData {
   @PrimaryGeneratedColumn('uuid')
   public id: string;
 
-  @ManyToOne(() => RingingScheme, ringingScheme => ringingScheme.ringData)
+  @ManyToOne(() => RingingScheme, m => m.ringData)
   public ringingScheme: RingingScheme;
 
-  @ManyToOne(() => EURINGPrimaryIdentificationMethod, primaryIdMethod => primaryIdMethod.ringData)
+  @ManyToOne(() => EURINGPrimaryIdentificationMethod, m => m.ringData)
   public primaryIdMethod: EURINGPrimaryIdentificationMethod;
 
   @Column('varchar', { nullable: true, default: null })
@@ -44,46 +44,46 @@ export class RingData {
   @Column('varchar', { nullable: true, default: null })
   public identification_number: number | null;
 
-  @ManyToOne(() => VerificationOfTheMetalRing, verificationOfTheMetalRing => verificationOfTheMetalRing.ringData)
+  @ManyToOne(() => VerificationOfTheMetalRing, m => m.ringData)
   public verificationOfTheMetalRing: VerificationOfTheMetalRing;
 
-  @ManyToOne(() => MetalRingInformation, metalRingInformation => metalRingInformation.ringData)
+  @ManyToOne(() => MetalRingInformation, m => m.ringData)
   public metalRingInformation: MetalRingInformation;
 
-  @ManyToOne(() => EURINGOtherMarksInformation, otherMarksInformation => otherMarksInformation.ringData)
+  @ManyToOne(() => EURINGOtherMarksInformation, m => m.ringData)
   public otherMarksInformation: EURINGOtherMarksInformation;
 
-  @ManyToOne(() => Species, species => species.ringData)
+  @ManyToOne(() => Species, m => m.ringData)
   public species: Species;
 
-  @ManyToOne(() => Manipulated, manipulated => manipulated.ringData)
+  @ManyToOne(() => Manipulated, m => m.ringData)
   public manipulated: Manipulated;
 
-  @ManyToOne(() => MovedBeforeTheCapture, movedBeforeTheCapture => movedBeforeTheCapture.ringData)
+  @ManyToOne(() => MovedBeforeTheCapture, m => m.ringData)
   public movedBeforeTheCapture: MovedBeforeTheCapture;
 
-  @ManyToOne(() => CatchingMethod, catchingMethod => catchingMethod.ringData)
+  @ManyToOne(() => CatchingMethod, m => m.ringData)
   public catchingMethod: CatchingMethod;
 
-  @ManyToOne(() => CathingLures, cathingLures => cathingLures.ringData)
+  @ManyToOne(() => CathingLures, m => m.ringData)
   public cathingLures: CathingLures;
 
-  @ManyToOne(() => Sex, sex => sex.ringData)
+  @ManyToOne(() => Sex, m => m.ringData)
   public sex: Sex;
 
-  @ManyToOne(() => Age, age => age.ringData)
+  @ManyToOne(() => Age, m => m.ringData)
   public age: Age;
 
-  @ManyToOne(() => Status, status => status.ringData)
+  @ManyToOne(() => Status, m => m.ringData)
   public status: Status;
 
-  @ManyToOne(() => Broodsize, broodsize => broodsize.ringData)
+  @ManyToOne(() => Broodsize, m => m.ringData)
   public broodsize: Status;
 
-  @ManyToOne(() => PullusAge, pullusAge => pullusAge.ringData)
+  @ManyToOne(() => PullusAge, m => m.ringData)
   public pullusAge: PullusAge;
 
-  @ManyToOne(() => AccuracyOfPullusAge, accuracyOfPullusAge => accuracyOfPullusAge.ringData)
+  @ManyToOne(() => AccuracyOfPullusAge, m => m.ringData)
   public accuracyOfPullusAge: AccuracyOfPullusAge;
 
   @Column('varchar', { nullable: true, default: null })
@@ -92,31 +92,31 @@ export class RingData {
   @Column('varchar', { nullable: true, default: null })
   public ltd: number | null;
 
-  @ManyToOne(() => PlaceCode, placeCode => placeCode.ringData)
+  @ManyToOne(() => PlaceCode, m => m.ringData)
   public placeCode: PlaceCode;
 
-  @ManyToOne(() => AccuracyOfCoords, accuracyOfCoords => accuracyOfCoords.ringData)
+  @ManyToOne(() => AccuracyOfCoords, m => m.ringData)
   public accuracyOfCoords: AccuracyOfCoords;
 
-  @ManyToOne(() => Condition, condition => condition.ringData)
+  @ManyToOne(() => Condition, m => m.ringData)
   public condition: Condition;
 
-  @ManyToOne(() => Circumstances, circumstances => circumstances.ringData)
+  @ManyToOne(() => Circumstances, m => m.ringData)
   public circumstances: Circumstances;
 
-  @ManyToOne(() => CircumstancesPresumed, circumstancesPresumed => circumstancesPresumed.ringData)
+  @ManyToOne(() => CircumstancesPresumed, m => m.ringData)
   public circumstancesPresumed: CircumstancesPresumed;
 
   @Column('varchar', { nullable: true, default: null })
   public date: Date | null;
 
-  @ManyToOne(() => AccuracyOfDate, accuracyOfDate => accuracyOfDate.ringData)
+  @ManyToOne(() => AccuracyOfDate, m => m.ringData)
   public accuracyOfDate: AccuracyOfDate;
 
-  @ManyToOne(() => EURINGCodeIdentifier, euringCodeIdentifier => euringCodeIdentifier.ringData)
+  @ManyToOne(() => EURINGCodeIdentifier, m => m.ringData)
   public euringCodeIdentifier: EURINGCodeIdentifier;
 
-  @ManyToOne(() => ColorRingInformation, colorRingInformation => colorRingInformation.ringData)
+  @ManyToOne(() => ColorRingInformation, m => m.ringData)
   public colorRingInformation: ColorRingInformation;
 
   @Column('varchar', { nullable: true, default: null })

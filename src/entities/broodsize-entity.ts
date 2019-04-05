@@ -16,6 +16,6 @@ export class Broodsize implements Dictionary {
   @Column('varchar', { nullable: true, default: null })
   public desc_byn: string | null;
 
-  @OneToMany(() => RingData, ringData => ringData.broodsize)
+  @OneToMany(() => RingData, m => m.broodsize)
   public ringData: RingData[];
 }
