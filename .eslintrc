@@ -13,7 +13,8 @@
   },
   "rules": {
     "import/no-unresolved": ["2", { "commonjs": true }],
-    "import/prefer-default-export": "1"
+    "import/prefer-default-export": "1",
+    "camelcase":"off"
   },
   "env": {
     "jest": true,

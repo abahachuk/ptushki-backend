@@ -1,5 +1,8 @@
-import { Entity, PrimaryGeneratedColumn, Column } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, OneToMany } from 'typeorm';
 import { getSaltAndHash } from '../services/user-crypto-service';
+import { RingByRecovery } from './ring-by-recovery-entity';
+import { RingBy } from './ring-by-entity';
+import { BasaRing } from './basa-ring-entity';
 
 export interface NewUser {
   email: string;
@@ -50,7 +53,16 @@ export class User {
   @Column('varchar', { length: 64, nullable: true, default: null })
   public lastName: string | null;
 
-  public static async create(values: NewUser) {
+  @OneToMany(() => RingBy, ringBy => ringBy.ringerInformation)
+  public ringBy: RingBy[];
+
+  @OneToMany(() => RingByRecovery, ringByRecovery => ringByRecovery.finder)
+  public ringByRecovery: RingByRecovery[];
+
+  @OneToMany(() => BasaRing, baseRing => baseRing.ringer)
+  public basaRing: BasaRing[];
+
+  public static async create(values: NewUser): Promise<User> {
     const copyValues = Object.assign({}, values);
     const { salt, hash } = await getSaltAndHash(values.password);
     delete copyValues.password;
