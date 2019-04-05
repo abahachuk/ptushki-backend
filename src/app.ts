@@ -2,7 +2,7 @@ import express, { Application } from 'express';
 import bodyParser from 'body-parser';
 import routes from './routes';
 import { setLogger } from './configs/logger';
-import errorHandler from './exceptions/middleware-error-handler';
+import errorHandler from './controllers/error-controller';
 
 const createApp = async (connectDb: () => Promise<any>): Promise<Application> => {
   await connectDb();

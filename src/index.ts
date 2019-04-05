@@ -6,9 +6,16 @@ import { Application } from 'express';
 import createApp from './app';
 import connectDB from './db';
 import { logger } from './configs/logger';
-import { initProssesErrorHandler } from './exceptions/process-error-handler';
 
-initProssesErrorHandler(logger);
+process.on('uncaughtException', (error: Error) => {
+  logger.error(error);
+  process.exit(1);
+});
+
+process.on('unhandledRejection', (error: Error) => {
+  logger.error(error);
+  process.exit(1);
+});
 
 const PORT = config.get('PORT');
 
