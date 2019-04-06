@@ -1,5 +1,5 @@
 import path from 'path';
-import { Builder, fixturesIterator, Loader, Parser, Resolver } from 'typeorm-fixtures-cli/dist';
+import { Builder, fixturesIterator, IFixture, Loader, Parser, Resolver } from 'typeorm-fixtures-cli/dist';
 import { createConnection, getRepository } from 'typeorm';
 import config from './prepare-db-config';
 
@@ -10,16 +10,17 @@ const load = async (): Promise<{ [index: string]: number }> => {
   const resolver = new Resolver();
   const connection = await createConnection(config);
 
+  // README this drops db and recreate scheme
   await connection.synchronize(true);
   const fixtures = resolver.resolve(loader.fixtureConfigs);
   const builder = new Builder(connection, new Parser());
 
-  /* eslint-disable no-restricted-syntax,no-await-in-loop */
-  for (const fixture of fixturesIterator(fixtures)) {
-    const entity = await builder.build(fixture);
+  const fixturing = [...fixturesIterator(fixtures)].map(async (f: IFixture) => {
+    const entity = await builder.build(f);
     await getRepository(entity.constructor.name).save(entity);
-  }
-  /* eslint-enable */
+  });
+
+  await Promise.all(fixturing);
 
   const result = fixtures.reduce((acc: any, { entity }: { entity: string }) => {
     acc[entity] = acc[entity] ? (acc[entity] += 1) : 1;
