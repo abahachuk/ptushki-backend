@@ -3,7 +3,7 @@ import { Builder, fixturesIterator, Loader, Parser, Resolver } from 'typeorm-fix
 import { createConnection, getRepository } from 'typeorm';
 import config from './prepare-db-config';
 
-const load = async () => {
+const load = async (): Promise<{ [index: string]: number }> => {
   const loader = new Loader();
   loader.load(path.resolve(process.cwd(), 'src/fixtures'));
 
@@ -21,11 +21,17 @@ const load = async () => {
   }
   /* eslint-enable */
 
+  const result = fixtures.reduce((acc: any, { entity }: { entity: string }) => {
+    acc[entity] = acc[entity] ? (acc[entity] += 1) : 1;
+    return acc;
+  }, {});
+
   await connection.close();
+  return result;
 };
 
 load()
-  .then(() => {
-    console.log('fixtures loaded');
+  .then(result => {
+    console.log('fixtures was loaded: ', result);
   })
   .catch(console.error);
