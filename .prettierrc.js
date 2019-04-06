@@ -27,5 +27,11 @@ module.exports = {
         parser: 'markdown',
       },
     },
+    {
+      files: '*.ya?ml',
+      options: {
+        parser: 'yaml',
+      },
+    },
   ],
 };
