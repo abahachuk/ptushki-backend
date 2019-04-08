@@ -3,6 +3,7 @@ import { getSaltAndHash } from '../services/user-crypto-service';
 import { RingByRecovery } from './ring-by-recovery-entity';
 import { RingBy } from './ring-by-entity';
 import { BasaRing } from './basa-ring-entity';
+import { RefreshToken } from './auth-entity';
 
 export interface NewUser {
   email: string;
@@ -46,6 +47,9 @@ export class User {
     default: UserRole.Observer,
   })
   public role: UserRole;
+
+  @OneToMany(() => RefreshToken, (token: RefreshToken) => token.user)
+  public tokens: RefreshToken[];
 
   @Column('varchar', { length: 64, nullable: true, default: null })
   public firstName: string | null;
