@@ -1,6 +1,6 @@
 import path from 'path';
 import fs from 'fs';
-import winston from 'winston';
+import winston, { format } from 'winston';
 import morgan from 'morgan';
 
 const logDirectory = path.join(__dirname, '..', 'logs');
@@ -29,17 +29,21 @@ const options = {
   infoConsole: {
     level: 'info',
     handleExceptions: true,
-    format: winston.format.simple(),
   },
 };
 
-const logger = winston.createLogger({
-  transports: [
-    new winston.transports.File(options.infoFile),
-    new winston.transports.File(options.errorFile),
-    new winston.transports.Console(options.infoConsole),
-  ],
+const displayFormat = format.printf(({ level, message, timestamp }) => {
+  return `[${timestamp}] ${level}: ${message}`;
 });
+
+const logger = winston.createLogger({
+  format: format.combine(format.timestamp(), displayFormat),
+  transports: [new winston.transports.File(options.infoFile), new winston.transports.File(options.errorFile)],
+});
+
+if (process.env.NODE_ENV !== 'production') {
+  logger.add(new winston.transports.Console(options.infoConsole));
+}
 
 const setLogger = morgan('short', {
   stream: {
