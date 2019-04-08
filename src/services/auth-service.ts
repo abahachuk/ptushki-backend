@@ -1,4 +1,4 @@
-import { Request } from 'express';
+import config from 'config';
 import passport from 'passport';
 import passportLocal from 'passport-local';
 import passportJWT from 'passport-jwt';
@@ -10,13 +10,7 @@ const LocalStrategy = passportLocal.Strategy;
 const JWTStrategy = passportJWT.Strategy;
 const ExtractJWT = passportJWT.ExtractJwt;
 
-const cookieExtractor = (reg: Request): string => {
-  let token = '';
-  if (reg.cookies) {
-    token = reg.cookies.jwt;
-  }
-  return token;
-};
+const { accessSecret } = config.get('auth');
 
 export const initPassport = (): void => {
   const repository: Repository<User> = getRepository(User);
@@ -51,8 +45,8 @@ export const initPassport = (): void => {
   passport.use(
     new JWTStrategy(
       {
-        jwtFromRequest: ExtractJWT.fromExtractors([cookieExtractor]),
-        secretOrKey: process.env.JWT_SECRET || 'secret',
+        jwtFromRequest: ExtractJWT.fromAuthHeaderAsBearerToken(),
+        secretOrKey: accessSecret,
       },
       async (jwtPayload: User, done) => {
         const user = await repository.findOne({ id: jwtPayload.id });
