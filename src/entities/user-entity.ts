@@ -68,4 +68,8 @@ export class User {
     delete copyValues.password;
     return Object.assign(new User(), copyValues, { hash, salt });
   }
+
+  public async setPassword(password: string): Promise<void> {
+    Object.assign(this, await getSaltAndHash(password));
+  }
 }

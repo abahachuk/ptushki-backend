@@ -1,10 +1,13 @@
+import config from 'config';
 import { PostgresConnectionOptions } from 'typeorm/driver/postgres/PostgresConnectionOptions';
 
 type Writeable<T> = { -readonly [P in keyof T]: T[P] };
 
-export default (config: PostgresConnectionOptions) => {
-  const preparedConfig: Writeable<PostgresConnectionOptions> = Object.assign({}, config);
-  if (config.url) {
+const dbConfigRaw: PostgresConnectionOptions = config.get('dbConfig');
+
+const prepareConfig = (dbConfig: PostgresConnectionOptions) => {
+  const preparedConfig: Writeable<PostgresConnectionOptions> = Object.assign({}, dbConfig);
+  if (dbConfig.url) {
     // all specified bellow properties take precedence over `url`
     delete preparedConfig.username;
     delete preparedConfig.password;
@@ -15,3 +18,5 @@ export default (config: PostgresConnectionOptions) => {
   }
   return preparedConfig;
 };
+
+export default prepareConfig(dbConfigRaw);

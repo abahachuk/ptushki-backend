@@ -5,6 +5,7 @@
   "scripts": {
     "start": "npm run build && cross-env NODE_ENV=production node dist/index.js",
     "start:dev": "ts-node-dev src/index.ts",
+    "fixtures": "ts-node src/db/run-fixtures.ts",
     "build": "npm run clean && tsc",
     "lint": "eslint src/**/*.ts",
     "lint:fix": "npm run lint -- --fix",
@@ -38,16 +39,17 @@
     "rimraf": "^2.6.3",
     "reflect-metadata": "^0.1.13",
     "typeorm": "0.2.16",
+    "typeorm-fixtures-cli": "^1.1.1",
     "winston": "^3.2.1"
   },
   "devDependencies": {
-    "@types/morgan": "^1.7.35",
     "@types/body-parser": "^1.17.0",
     "@types/config": "0.0.34",
     "@types/dotenv": "^6.1.0",
     "@types/express": "^4.16.1",
     "@types/express-session": "^1.15.12",
     "@types/jest": "^24.0.11",
+    "@types/morgan": "^1.7.35",
     "@types/node": "^11.11.8",
     "@types/ramda": "^0.26.5",
     "@types/request": "^2.48.1",
