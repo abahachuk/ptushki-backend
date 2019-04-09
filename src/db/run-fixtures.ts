@@ -1,3 +1,4 @@
+import 'dotenv/config';
 import path from 'path';
 import { Builder, fixturesIterator, IFixture, Loader, Parser, Resolver } from 'typeorm-fixtures-cli/dist';
 import { Connection, createConnection } from 'typeorm';

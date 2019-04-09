@@ -5,7 +5,7 @@
   "scripts": {
     "start": "npm run build && cross-env NODE_ENV=production node dist/index.js",
     "start:dev": "ts-node-dev src/index.ts",
-    "fixtures": "ts-node -r dotenv/config src/db/run-fixtures.ts",
+    "fixtures": "ts-node src/db/run-fixtures.ts",
     "build": "npm run clean && tsc",
     "lint": "eslint src/**/*.ts",
     "lint:fix": "npm run lint -- --fix",
