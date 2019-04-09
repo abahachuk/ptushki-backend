@@ -1,10 +1,7 @@
-import config from 'config';
 import { NextFunction, Request, Response, Router } from 'express';
 import { getRepository, Repository } from 'typeorm';
 import AbstractController from './abstract-controller';
 import { RingByRecovery as Observation } from '../entities/ring-by-recovery-entity';
-
-const UUID_LENGTH = config.get('UUID_LENGTH');
 
 interface RequestWithObservation extends Request {
   observation: Observation;
@@ -18,6 +15,7 @@ export default class ObservationController extends AbstractController {
   public init(): Router {
     this.router = Router();
     this.observations = getRepository(Observation);
+    this.setMainEntity(this.observations);
 
     this.router.get('/', this.find);
     this.router.param('id', this.checkId);
@@ -51,25 +49,6 @@ export default class ObservationController extends AbstractController {
     const { observation }: { observation: Observation } = req;
     try {
       res.json(observation);
-    } catch (e) {
-      next(e);
-    }
-  };
-
-  private checkId = async (req: Request, _res: Response, next: NextFunction): Promise<void> => {
-    const { id }: { id: string } = req.params;
-    try {
-      if (id.length !== UUID_LENGTH) {
-        throw new Error(`Provided Observation identificator (${id}) is incorrect`);
-      }
-
-      const observation = await this.observations.findOne(id);
-
-      if (!observation) {
-        throw new Error(`Observation with ${id} not exists`);
-      }
-      Object.assign(req, { observation });
-      next();
     } catch (e) {
       next(e);
     }
