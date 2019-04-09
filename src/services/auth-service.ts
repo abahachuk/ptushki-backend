@@ -25,10 +25,7 @@ export const initPassport = (): void => {
       async (email: string, password: string, done: (error: {} | null, user?: User) => void) => {
         try {
           const user = await repository.findOne({ email });
-          let isPasswordCorrect = false;
-          if (user) {
-            isPasswordCorrect = await isCorrect(password, user.salt, user.hash);
-          }
+          const isPasswordCorrect = user ? await isCorrect(password, user.salt, user.hash) : false;
           if (!user || !isPasswordCorrect) {
             return done({ message: 'email or password is invalid' });
           }
