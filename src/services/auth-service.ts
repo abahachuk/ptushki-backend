@@ -1,7 +1,7 @@
 import config from 'config';
 import passport from 'passport';
 import passportLocal from 'passport-local';
-import passportJWT from 'passport-jwt';
+import passportJWT, { VerifiedCallback } from 'passport-jwt';
 import { getRepository, Repository } from 'typeorm';
 import { User } from '../entities/user-entity';
 import { isCorrect } from '../services/user-crypto-service';
@@ -22,7 +22,7 @@ export const initPassport = (): void => {
         passwordField: 'password',
         session: false,
       },
-      async (email, password, done) => {
+      async (email: string, password: string, done: (error: {} | null, user?: User) => void) => {
         try {
           const user = await repository.findOne({ email });
           let isPasswordCorrect = false;
@@ -48,7 +48,7 @@ export const initPassport = (): void => {
         jwtFromRequest: ExtractJWT.fromAuthHeaderAsBearerToken(),
         secretOrKey: accessSecret,
       },
-      async (jwtPayload: User, done) => {
+      async (jwtPayload: User, done: VerifiedCallback) => {
         const user = await repository.findOne({ id: jwtPayload.id });
         if (user) {
           return done(null, user);
