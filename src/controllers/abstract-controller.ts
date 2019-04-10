@@ -11,7 +11,7 @@ export default abstract class AbstractController {
 
   protected checkId = async (req: Request, _res: Response, next: NextFunction): Promise<void> => {
     if (!this.entity) {
-      next();
+      next(new Error('Before use checkId method, please specify used entity with setMainEntity method'));
     }
     const { id }: { id: string } = req.params;
     try {
