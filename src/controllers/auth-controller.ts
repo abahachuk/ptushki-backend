@@ -1,13 +1,10 @@
 import { NextFunction, Request, Response, Router } from 'express';
 import { getRepository, Repository } from 'typeorm';
-import config from 'config';
 import passport from 'passport';
-import jwt, { VerifyErrors } from 'jsonwebtoken';
 import AbstractController from './abstract-controller';
 import { User } from '../entities/user-entity';
 import { RefreshToken } from '../entities/auth-entity';
-
-const { accessSecret, refreshSecret, accessExpires, refreshExpires } = config.get('auth');
+import { singTokens, verifyRefreshToken, auth } from '../services/auth-service';
 
 export default class AuthController extends AbstractController {
   private router: Router;
@@ -26,36 +23,31 @@ export default class AuthController extends AbstractController {
     this.router.post('/login', this.login);
     this.router.post('/refresh', this.refresh);
 
-    this.router.get('/test', passport.authenticate('jwt', { session: false }), this.test);
+    /* use auth.required to secure route */
+    this.router.get('/test', auth.required, this.test);
 
     return this.router;
   }
-
-  private singTokens = (user: User): { token: string; refreshToken: string } => {
-    const token = jwt.sign({ ...user }, accessSecret, { expiresIn: accessExpires });
-    const refreshToken = jwt.sign({ ...user }, refreshSecret, { expiresIn: refreshExpires });
-    return { token, refreshToken };
-  };
 
   private signUp = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
       const user = await User.create(req.body);
       await this.users.save(user);
-      const { token, refreshToken } = await this.singTokens(user);
-      await this.tokens.save(new RefreshToken(refreshToken, user));
-      res.json({ ...user, token, refreshToken });
+      const { token, refreshToken } = singTokens({ userId: user.id, userRole: user.role });
+      await this.tokens.save(new RefreshToken(refreshToken));
+      res.json({ user, token: `Bearer ${token}`, refreshToken });
     } catch (e) {
       next(e);
     }
   };
 
   private logout = async (req: Request, res: Response, next: NextFunction) => {
-    const { id }: { id: string } = req.body;
-    if (id) {
+    const { refreshToken }: { refreshToken: string } = req.body;
+    if (refreshToken) {
       try {
-        const tokens = await this.tokens.find({ user: { id } });
-        if (tokens.length) {
-          await this.tokens.delete(tokens.map(token => token.id));
+        const token = await this.tokens.findOne({ token: refreshToken });
+        if (token) {
+          await this.tokens.delete(token.id);
           res.status(200).end();
         }
       } catch (e) {
@@ -75,9 +67,9 @@ export default class AuthController extends AbstractController {
         res.status(403).json({ error });
       } else {
         try {
-          const { token, refreshToken } = this.singTokens(user);
-          await this.tokens.save(new RefreshToken(refreshToken, user));
-          res.json({ ...user, token: `Bearer ${token}`, refreshToken });
+          const { token, refreshToken } = singTokens({ userId: user.id, userRole: user.role });
+          await this.tokens.save(new RefreshToken(refreshToken));
+          res.json({ user, token: `Bearer ${token}`, refreshToken });
         } catch (e) {
           next(e);
         }
@@ -85,44 +77,31 @@ export default class AuthController extends AbstractController {
     })(req, res, next);
   };
 
-  private refresh = async (req: Request, res: Response, next: NextFunction) => {
-    const refreshTokenBody = req.body.refreshToken;
-    if (refreshTokenBody) {
-      const refreshTokenEntity = await this.tokens.findOne({ token: refreshTokenBody });
-      if (refreshTokenEntity) {
-        jwt.verify(refreshTokenBody, refreshSecret, async (error: VerifyErrors, refreshTokenPayload: User) => {
-          if (error) {
-            /* if token expired or something else */
-            await this.tokens.delete(refreshTokenEntity.id);
-            res.redirect('/login');
-          } else {
-            try {
-              const user = {
-                id: refreshTokenPayload.id,
-                email: refreshTokenPayload.email,
-                role: refreshTokenPayload.role,
-                firstName: refreshTokenPayload.firstName,
-                lastName: refreshTokenPayload.firstName,
-              };
-              const { token, refreshToken } = this.singTokens(user as User);
-              await this.tokens.update(refreshTokenEntity.id, new RefreshToken(refreshToken, refreshTokenPayload));
-              res.json({ ...refreshTokenPayload, token: `Bearer ${token}`, refreshToken });
-            } catch (e) {
-              next(e);
-            }
-          }
+  private refresh = async (req: Request, res: Response) => {
+    const refreshTokenFromBody: string = req.body.refreshToken;
+    const refreshTokenOrigin = await this.tokens.findOne({ token: refreshTokenFromBody });
+    if (refreshTokenFromBody && refreshTokenOrigin) {
+      try {
+        const payload = await verifyRefreshToken(refreshTokenFromBody);
+        const user = await this.users.findOne(payload.userId);
+        const { token, refreshToken } = singTokens({
+          userId: payload.userId,
+          userRole: user ? user.role : payload.userRole,
         });
-      } else {
-        res.redirect('/login');
+        await this.tokens.update(refreshTokenOrigin.id, new RefreshToken(refreshToken));
+        res.json({ token: `Bearer ${token}`, refreshToken });
+      } catch (e) {
+        /* if token expired or something else */
+        await this.tokens.delete(refreshTokenOrigin.id);
+        res.status(403).end();
       }
     } else {
-      res.redirect('/login');
+      res.status(403).end();
     }
   };
 
   private test = async (_req: Request, res: Response): Promise<void> => {
     const users = await this.users.find();
-    const refreshTokens = await this.tokens.find();
-    res.json({ users, refreshTokens });
+    res.json({ users });
   };
 }

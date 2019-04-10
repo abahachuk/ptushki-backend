@@ -1,16 +1,23 @@
 import config from 'config';
+import { getRepository, Repository } from 'typeorm';
 import passport from 'passport';
 import passportLocal from 'passport-local';
 import passportJWT, { VerifiedCallback } from 'passport-jwt';
-import { getRepository, Repository } from 'typeorm';
-import { User } from '../entities/user-entity';
+import { promisify } from 'util';
+import jwt from 'jsonwebtoken';
+import { User, UserRole } from '../entities/user-entity';
 import { isCorrect } from '../services/user-crypto-service';
 
 const LocalStrategy = passportLocal.Strategy;
 const JWTStrategy = passportJWT.Strategy;
 const ExtractJWT = passportJWT.ExtractJwt;
 
-const { accessSecret } = config.get('auth');
+const { accessSecret, refreshSecret, accessExpires, refreshExpires } = config.get('auth');
+
+export interface UserPayload {
+  userId: string;
+  userRole: UserRole;
+}
 
 export const initPassport = (): void => {
   const repository: Repository<User> = getRepository(User);
@@ -45,8 +52,8 @@ export const initPassport = (): void => {
         jwtFromRequest: ExtractJWT.fromAuthHeaderAsBearerToken(),
         secretOrKey: accessSecret,
       },
-      async (jwtPayload: User, done: VerifiedCallback) => {
-        const user = await repository.findOne({ id: jwtPayload.id });
+      async (jwtPayload: UserPayload, done: VerifiedCallback) => {
+        const user = await repository.findOne({ id: jwtPayload.userId });
         if (user) {
           return done(null, user);
         }
@@ -54,4 +61,21 @@ export const initPassport = (): void => {
       },
     ),
   );
+};
+
+const verify = promisify(jwt.verify);
+
+export const verifyRefreshToken = async (refreshToken: string): Promise<UserPayload> => {
+  const { userId, userRole } = (await verify(refreshToken, refreshSecret)) as UserPayload;
+  return { userId, userRole };
+};
+
+export const singTokens = (payload: UserPayload): { token: string; refreshToken: string } => {
+  const token = jwt.sign(payload, accessSecret, { expiresIn: accessExpires });
+  const refreshToken = jwt.sign(payload, refreshSecret, { expiresIn: refreshExpires });
+  return { token, refreshToken };
+};
+
+export const auth = {
+  required: passport.authenticate('jwt', { session: false }),
 };
