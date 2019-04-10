@@ -10,11 +10,12 @@ export default abstract class AbstractController {
   private key: string;
 
   protected checkId = async (req: Request, _res: Response, next: NextFunction): Promise<void> => {
-    if (!this.entity) {
-      throw new Error('Before use checkId method, please specify used entity with setMainEntity method');
-    }
-    const { id }: { id: string } = req.params;
     try {
+      if (!this.entity) {
+        throw new Error('Before use checkId method, please specify used entity with setMainEntity method');
+      }
+
+      const { id }: { id: string } = req.params;
       if (id.length !== UUID_LENGTH) {
         throw new Error(`Provided ${this.entity.metadata.name} identifier (${id}) is incorrect`);
       }
