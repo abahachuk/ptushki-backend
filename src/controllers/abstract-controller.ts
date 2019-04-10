@@ -22,7 +22,7 @@ export default abstract class AbstractController {
       if (!instance) {
         throw new Error(`${this.entity.metadata.name} with ${id} not exists`);
       }
-      Object.assign(req, { instance });
+      Object.assign(req, { [this.entity.metadata.tableName]: instance });
       next();
     } catch (e) {
       next(e);
