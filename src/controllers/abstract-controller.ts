@@ -7,6 +7,8 @@ const UUID_LENGTH = config.get('UUID_LENGTH');
 export default abstract class AbstractController {
   private entity: Repository<any>;
 
+  private key: string;
+
   protected checkId = async (req: Request, _res: Response, next: NextFunction): Promise<void> => {
     if (!this.entity) {
       next();
@@ -22,15 +24,18 @@ export default abstract class AbstractController {
       if (!instance) {
         throw new Error(`${this.entity.metadata.name} with ${id} not exists`);
       }
-      Object.assign(req, { [this.entity.metadata.tableName]: instance });
+      Object.assign(req, { [this.key || this.entity.metadata.tableName]: instance });
       next();
     } catch (e) {
       next(e);
     }
   };
 
-  protected setMainEntity(entity: Repository<any>) {
+  protected setMainEntity(entity: Repository<any>, key?: string) {
     this.entity = entity;
+    if (key) {
+      this.key = key;
+    }
   }
 
   public abstract init(): Router;
