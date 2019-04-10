@@ -3,6 +3,10 @@ import { getRepository, Repository } from 'typeorm';
 import AbstractController from './abstract-controller';
 import { RingBy } from '../entities/ring-by-entity';
 
+interface RequestWithRing extends Request {
+  ring: RingBy;
+}
+
 export default class RingsByController extends AbstractController {
   private router: Router;
 
@@ -11,7 +15,7 @@ export default class RingsByController extends AbstractController {
   public init(): Router {
     this.router = Router();
     this.rings = getRepository(RingBy);
-    this.setMainEntity(this.rings);
+    this.setMainEntity(this.rings, 'ring');
 
     this.router.get('/', this.findRings);
     this.router.param('id', this.checkId);
@@ -31,9 +35,8 @@ export default class RingsByController extends AbstractController {
     }
   };
 
-  private findOneRing = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
-    const { id } = req.params;
-    const ring = await this.rings.findOne(id);
+  private findOneRing = async (req: RequestWithRing, res: Response, next: NextFunction): Promise<void> => {
+    const { ring }: { ring: RingBy } = req;
     try {
       res.json(ring);
     } catch (e) {
@@ -41,10 +44,10 @@ export default class RingsByController extends AbstractController {
     }
   };
 
-  private removeRing = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
-    const { id } = req.params;
+  private removeRing = async (req: RequestWithRing, res: Response, next: NextFunction): Promise<void> => {
+    const { ring }: { ring: RingBy } = req;
     try {
-      await this.rings.remove(id);
+      await this.rings.remove(ring);
       res.json({ id: req.params.id, removed: true });
     } catch (e) {
       next(e);
