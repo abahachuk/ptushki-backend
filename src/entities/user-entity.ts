@@ -48,9 +48,6 @@ export class User {
   })
   public role: UserRole;
 
-  @OneToMany(() => RefreshToken, (token: RefreshToken) => token.user)
-  public tokens: RefreshToken[];
-
   @Column('varchar', { length: 64, nullable: true, default: null })
   public firstName: string | null;
 

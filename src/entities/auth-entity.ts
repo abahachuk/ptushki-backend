@@ -1,12 +1,10 @@
-import { Entity, PrimaryGeneratedColumn, Column, ManyToOne } from 'typeorm';
-import { User } from './user-entity';
+import { Entity, PrimaryGeneratedColumn, Column } from 'typeorm';
 
 @Entity()
 export class RefreshToken {
   // eslint-disable-next-line no-useless-constructor,no-empty-function
-  public constructor(token: string, user: User) {
+  public constructor(token: string) {
     this.token = token;
-    this.user = user;
   }
 
   @PrimaryGeneratedColumn('uuid')
@@ -14,7 +12,4 @@ export class RefreshToken {
 
   @Column({ type: 'varchar' })
   public token: string;
-
-  @ManyToOne(() => User, (user: User) => user.tokens)
-  public user: User;
 }
