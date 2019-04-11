@@ -4,7 +4,7 @@ import passport from 'passport';
 import AbstractController from './abstract-controller';
 import { User } from '../entities/user-entity';
 import { RefreshToken } from '../entities/auth-entity';
-import { singTokens, verifyRefreshToken, auth } from '../services/auth-service';
+import { signTokens, verifyRefreshToken, auth } from '../services/auth-service';
 
 export default class AuthController extends AbstractController {
   private router: Router;
@@ -33,7 +33,7 @@ export default class AuthController extends AbstractController {
     try {
       const user = await User.create(req.body);
       await this.users.save(user);
-      const { token, refreshToken } = singTokens({ userId: user.id, userRole: user.role });
+      const { token, refreshToken } = signTokens({ userId: user.id, userRole: user.role });
       await this.tokens.save(new RefreshToken(refreshToken));
       res.json({ user, token: `Bearer ${token}`, refreshToken });
     } catch (e) {
@@ -67,7 +67,7 @@ export default class AuthController extends AbstractController {
         res.status(403).json({ error });
       } else {
         try {
-          const { token, refreshToken } = singTokens({ userId: user.id, userRole: user.role });
+          const { token, refreshToken } = signTokens({ userId: user.id, userRole: user.role });
           await this.tokens.save(new RefreshToken(refreshToken));
           res.json({ user, token: `Bearer ${token}`, refreshToken });
         } catch (e) {
@@ -84,7 +84,7 @@ export default class AuthController extends AbstractController {
       try {
         const payload = await verifyRefreshToken(refreshTokenFromBody);
         const user = await this.users.findOne(payload.userId);
-        const { token, refreshToken } = singTokens({
+        const { token, refreshToken } = signTokens({
           userId: payload.userId,
           userRole: user ? user.role : payload.userRole,
         });

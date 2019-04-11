@@ -70,7 +70,7 @@ export const verifyRefreshToken = async (refreshToken: string): Promise<UserPayl
   return { userId, userRole };
 };
 
-export const singTokens = (payload: UserPayload): { token: string; refreshToken: string } => {
+export const signTokens = (payload: UserPayload): { token: string; refreshToken: string } => {
   const token = jwt.sign(payload, accessSecret, { expiresIn: accessExpires });
   const refreshToken = jwt.sign(payload, refreshSecret, { expiresIn: refreshExpires });
   return { token, refreshToken };
