@@ -1,4 +1,3 @@
-import { Connection } from 'typeorm';
 import express, { Application } from 'express';
 import bodyParser from 'body-parser';
 import routes from './routes';
@@ -6,8 +5,7 @@ import { setLogger } from './configs/logger';
 import errorHandler from './controllers/error-controller';
 import { initPassport } from './services/auth-service';
 
-const createApp = async (connectDb: () => Promise<Connection>): Promise<Application> => {
-  await connectDb();
+const createApp = async (): Promise<Application> => {
   const app = express();
   initPassport();
   app.use(setLogger);
