@@ -2,6 +2,7 @@ node_modules/
 dist/**/*
 .env
 .idea
-.vscode
+.history/
+.vscode/
 logs
 coverage
