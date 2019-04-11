@@ -1,7 +1,7 @@
 // @ts-ignore
 import 'dotenv/config';
 import config from 'config';
-import { Application } from 'express';
+import { Connection } from 'typeorm';
 
 import createApp from './app';
 import connectDB from './db';
@@ -19,10 +19,19 @@ process.on('unhandledRejection', (error: Error) => {
 
 const PORT = config.get('PORT');
 
-createApp(connectDB)
-  .then((app: Application) => {
+(async () => {
+  let connection: Connection | undefined;
+  try {
+    connection = await connectDB();
+    const app = await createApp();
     app.listen(PORT, () => {
       logger.info(`App is listened at ${PORT}`);
     });
-  })
-  .catch(logger.error);
+  } catch (e) {
+    if (connection) {
+      await connection.close();
+    }
+    logger.error(e);
+    process.exit(1);
+  }
+})();
