@@ -1,10 +1,7 @@
-import config from 'config';
 import { NextFunction, Request, Response, Router } from 'express';
 import { getRepository, Repository } from 'typeorm';
 import AbstractController from './abstract-controller';
 import { User } from '../entities/user-entity';
-
-const UUID_LENGTH = config.get('UUID_LENGTH');
 
 interface RequestWithUser extends Request {
   user: User;
@@ -18,6 +15,7 @@ export default class UsersController extends AbstractController {
   public init(): Router {
     this.router = Router();
     this.users = getRepository(User);
+    this.setMainEntity(this.users);
 
     this.router.get('/', this.find);
     this.router.param('id', this.checkId);
@@ -26,23 +24,6 @@ export default class UsersController extends AbstractController {
 
     return this.router;
   }
-
-  private checkId = async (req: Request, _res: Response, next: NextFunction): Promise<void> => {
-    const { id }: { id: string } = req.params;
-    try {
-      if (id.length !== UUID_LENGTH) {
-        throw new Error(`Provided user identificator (${id}) is incorrect`);
-      }
-      const user = await this.users.findOne(id);
-      if (!user) {
-        throw new Error(`User with ${id} not exists`);
-      }
-      Object.assign(req, { user });
-      next();
-    } catch (e) {
-      next(e);
-    }
-  };
 
   private find = async (_req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
