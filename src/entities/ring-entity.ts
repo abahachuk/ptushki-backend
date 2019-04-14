@@ -4,7 +4,7 @@ import { User } from './user-entity';
 import { StatusOfRing } from './status-of-ring-entity';
 
 @Entity()
-export class RingBy {
+export class Ring {
   @PrimaryGeneratedColumn('uuid')
   public id: string;
 

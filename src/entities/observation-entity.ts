@@ -4,7 +4,7 @@ import { User } from './user-entity';
 import { RefNo } from './ref-no-entity';
 
 @Entity()
-export class RingByRecovery {
+export class Observation {
   @PrimaryGeneratedColumn('uuid')
   public id: string;
 
