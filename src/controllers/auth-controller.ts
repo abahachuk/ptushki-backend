@@ -70,7 +70,7 @@ export default class AuthController extends AbstractController {
   private login = async (req: Request, res: Response, next: NextFunction) => {
     const { email, password } = req.body;
     if (!email || !password) {
-      res.status(400).end();
+      return res.status(400).end();
     }
     return passport.authenticate('local', { session: false }, async (error: {}, user: User) => {
       if (error) {
