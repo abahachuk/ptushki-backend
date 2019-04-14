@@ -1,15 +1,11 @@
-import { Entity, PrimaryGeneratedColumn, Column, OneToMany } from 'typeorm';
+import { Entity, PrimaryColumn, Column, OneToMany } from 'typeorm';
 import { RingData } from './ring-data-entity';
 
 @Entity()
 export class ColorRingInformation {
-  @PrimaryGeneratedColumn('uuid')
+  @PrimaryColumn()
   public id: string;
 
-  @Column()
-  public short_schem: string;
-
-  // can be primary and check if it could be ID
   @Column('varchar', { nullable: true, default: null })
   public schem: string | null;
 

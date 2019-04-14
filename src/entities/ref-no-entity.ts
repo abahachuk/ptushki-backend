@@ -1,8 +1,8 @@
-import { Entity, Column, PrimaryGeneratedColumn } from 'typeorm';
+import { Entity, Column, PrimaryColumn } from 'typeorm';
 
 @Entity()
 export class RefNo {
-  @PrimaryGeneratedColumn('uuid')
+  @PrimaryColumn()
   public id: string;
 
   @Column()

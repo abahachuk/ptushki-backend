@@ -1,10 +1,10 @@
-import { Entity, PrimaryGeneratedColumn, Column, OneToMany } from 'typeorm';
+import { Entity, PrimaryColumn, Column, OneToMany } from 'typeorm';
 import { Dictionary } from './common-interfaces';
 import { RingData } from './ring-data-entity';
 
 @Entity()
 export class Status implements Dictionary {
-  @PrimaryGeneratedColumn('uuid')
+  @PrimaryColumn()
   public id: string;
 
   @Column('varchar', { nullable: true, default: null })

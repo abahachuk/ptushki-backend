@@ -1,11 +1,11 @@
-import { Entity, PrimaryGeneratedColumn, OneToOne, JoinColumn, ManyToOne } from 'typeorm';
+import { Entity, PrimaryColumn, OneToOne, JoinColumn, ManyToOne } from 'typeorm';
 import { RingData } from './ring-data-entity';
 import { User } from './user-entity';
 import { StatusOfRing } from './status-of-ring-entity';
 
 @Entity()
 export class Ring {
-  @PrimaryGeneratedColumn('uuid')
+  @PrimaryColumn()
   public id: string;
 
   @OneToOne(() => RingData)

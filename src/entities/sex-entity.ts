@@ -1,11 +1,11 @@
-import { Entity, PrimaryGeneratedColumn, Column, OneToMany } from 'typeorm';
+import { Entity, PrimaryColumn, Column, OneToMany } from 'typeorm';
 import { Dictionary } from './common-interfaces';
 import { RingData } from './ring-data-entity';
 import { BasaRing } from './basa-ring-entity';
 
 @Entity()
 export class Sex implements Dictionary {
-  @PrimaryGeneratedColumn('uuid')
+  @PrimaryColumn()
   public id: string;
 
   @Column('varchar', { nullable: true, default: null })
