@@ -1,0 +1,6 @@
+entity: PlaceCode
+items:
+  placeCode{0..50}:
+    id: '{{address.countryCode}}{{random.number}}'
+    country: '{{address.country}}'
+    region: '{{address.state}}'

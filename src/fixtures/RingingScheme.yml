@@ -1,0 +1,7 @@
+entity: RingingScheme
+processor: ./RingingSchemeProcessor
+items:
+  ringingScheme{0..30}:
+    id: '{{address.countryCode}}{{random.number}}'
+    country: '{{address.country}}'
+    center: '{{address.state}}'
