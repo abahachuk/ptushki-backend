@@ -1,5 +1,5 @@
 import { Entity, PrimaryColumn, Column, OneToMany } from 'typeorm';
-import { RingData } from './ring-data-entity';
+import { Ring } from './ring-entity';
 
 @Entity()
 export class ColorRingInformation {
@@ -15,6 +15,6 @@ export class ColorRingInformation {
   @Column('varchar', { nullable: true, default: null })
   public pic: string | null;
 
-  @OneToMany(() => RingData, m => m.colorRingInformation)
-  public ringData: RingData[];
+  @OneToMany(() => Ring, m => m.colorRingInformation)
+  public ring: Ring[];
 }

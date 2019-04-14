@@ -1,5 +1,5 @@
 import { Entity, PrimaryColumn, Column, OneToMany } from 'typeorm';
-import { RingData } from './ring-data-entity';
+import { Ring } from './ring-entity';
 
 @Entity()
 export class PlaceCode {
@@ -12,6 +12,6 @@ export class PlaceCode {
   @Column('varchar', { nullable: true, default: null })
   public region: string | null;
 
-  @OneToMany(() => RingData, m => m.placeCode)
-  public ringData: RingData[];
+  @OneToMany(() => Ring, m => m.placeCode)
+  public ring: Ring[];
 }

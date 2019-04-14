@@ -34,26 +34,5 @@ export class BasaRing {
   public coordinates: string | null;
 
   @Column('varchar', { nullable: true, default: null })
-  public lat: string | null;
-
-  @Column('varchar', { nullable: true, default: null })
-  public lon: string | null;
-
-  @Column('varchar', { nullable: true, default: null })
-  public co_la_de: string | null;
-
-  @Column('varchar', { nullable: true, default: null })
-  public co_la_mi: string | null;
-
-  @Column('varchar', { nullable: true, default: null })
-  public co_lo_de: string | null;
-
-  @Column('varchar', { nullable: true, default: null })
-  public co_lo_mi: string | null;
-
-  @Column('varchar', { nullable: true, default: null })
-  public map: string | null;
-
-  @Column('varchar', { nullable: true, default: null })
-  public notes: string | null;
+  public note: string | null;
 }

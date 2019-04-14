@@ -1,6 +1,7 @@
 import { Entity, PrimaryColumn, Column, OneToMany } from 'typeorm';
-import { RingData } from './ring-data-entity';
+import { Ring } from './ring-entity';
 import { BasaRing } from './basa-ring-entity';
+import { Observation } from './observation-entity';
 
 @Entity()
 export class Species {
@@ -8,7 +9,7 @@ export class Species {
   public id: number;
 
   @Column('varchar', { nullable: true, default: null })
-  public six_l_code: string | null;
+  public belCode: number;
 
   @Column('varchar', { nullable: true, default: null })
   public species: string | null;
@@ -19,8 +20,11 @@ export class Species {
   @Column('varchar', { nullable: true, default: null })
   public family: string | null;
 
-  @OneToMany(() => RingData, m => m.species)
-  public ringData: RingData[];
+  @OneToMany(() => Ring, m => m.speciesScheme)
+  public ring: Ring[];
+
+  @OneToMany(() => Observation, m => m.speciesMentioned)
+  public observation: Observation[];
 
   @OneToMany(() => BasaRing, m => m.species)
   public basaRing: BasaRing[];

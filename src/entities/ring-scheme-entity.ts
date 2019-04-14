@@ -1,5 +1,5 @@
 import { Entity, PrimaryColumn, Column, OneToMany } from 'typeorm';
-import { RingData } from './ring-data-entity';
+import { Ring } from './ring-entity';
 
 @Entity()
 export class RingingScheme {
@@ -15,6 +15,6 @@ export class RingingScheme {
   @Column('varchar', { nullable: true, default: null })
   public center: string | null;
 
-  @OneToMany(() => RingData, m => m.ringingScheme)
-  public ringData: RingData[];
+  @OneToMany(() => Ring, m => m.ringingScheme)
+  public ring: Ring[];
 }

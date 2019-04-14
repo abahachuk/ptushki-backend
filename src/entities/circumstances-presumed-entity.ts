@@ -1,6 +1,6 @@
 import { Entity, PrimaryColumn, Column, OneToMany } from 'typeorm';
 import { Dictionary } from './common-interfaces';
-import { RingData } from './ring-data-entity';
+import { Ring } from './ring-entity';
 
 @Entity()
 export class CircumstancesPresumed implements Dictionary {
@@ -16,6 +16,6 @@ export class CircumstancesPresumed implements Dictionary {
   @Column('varchar', { nullable: true, default: null })
   public desc_byn: string | null;
 
-  @OneToMany(() => RingData, m => m.circumstancesPresumed)
-  public ringData: RingData[];
+  @OneToMany(() => Ring, m => m.circumstancesPresumed)
+  public ring: Ring[];
 }
