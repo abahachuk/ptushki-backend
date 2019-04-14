@@ -31,10 +31,7 @@ export default class AuthController extends AbstractController {
 
   private signUp = async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const { email, password, firstName, lastName } = req.body;
-      if (!email || !password || !firstName || !lastName) {
-        return res.status(400).end();
-      }
+      const { email } = req.body;
       const existUser = await this.users.findOne({ email });
       if (existUser) {
         return res.status(400).end();
