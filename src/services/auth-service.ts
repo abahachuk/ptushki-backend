@@ -76,6 +76,4 @@ export const signTokens = (payload: UserPayload): { token: string; refreshToken:
   return { token, refreshToken };
 };
 
-export const auth = {
-  required: passport.authenticate('jwt', { session: false }),
-};
+export const authRequired = passport.authenticate('jwt', { session: false });
