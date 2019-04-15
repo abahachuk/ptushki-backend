@@ -48,70 +48,55 @@ export default class AuthController extends AbstractController {
     }
     try {
       const token = await this.tokens.findOne({ token: refreshToken });
-      if (token) {
-        if (closeAllSessions) {
-          await this.tokens.delete({ userId: token.userId });
-          return res.send({ ok: true });
-        }
-        await this.tokens.delete({ token: refreshToken });
-        return res.send({ ok: true });
+      if (!token) {
+        return res.status(400).end();
       }
-      return res.status(400).end();
+      await this.tokens.delete(closeAllSessions ? { userId: token.userId } : { token: refreshToken });
+      return res.send({ ok: true });
     } catch (e) {
       return next(e);
     }
   };
 
   private login = async (req: Request, res: Response, next: NextFunction) => {
-    const { email, password } = req.body;
-    if (!email || !password) {
-      return res.status(400).end();
-    }
     return passport.authenticate('local', { session: false }, async (error: {}, user: User) => {
       if (error) {
-        res.status(401).json({ error });
-      } else {
-        try {
-          const { token, refreshToken } = signTokens({ userId: user.id, userRole: user.role });
-          await this.tokens.save(new RefreshToken(refreshToken, user.id));
-          res.json({ user, token: `Bearer ${token}`, refreshToken });
-        } catch (e) {
-          next(e);
-        }
+        return res.status(401).json({ error });
+      }
+      if (!user) {
+        return res.status(403).json({ error });
+      }
+      try {
+        const { token, refreshToken } = signTokens({ userId: user.id, userRole: user.role });
+        await this.tokens.save(new RefreshToken(refreshToken, user.id));
+        return res.json({ user, token: `Bearer ${token}`, refreshToken });
+      } catch (e) {
+        return next(e);
       }
     })(req, res, next);
   };
 
   private refresh = async (req: Request, res: Response) => {
     const refreshTokenFromBody: string = req.body.refreshToken;
-    if (refreshTokenFromBody) {
-      const refreshTokenOrigin = await this.tokens.findOne({ token: refreshTokenFromBody });
-      if (refreshTokenOrigin) {
-        try {
-          const [payload, user] = await Promise.all([
-            verifyRefreshToken(refreshTokenFromBody),
-            this.users.findOne(refreshTokenOrigin.userId),
-          ]);
-          if (!user) {
-            await this.tokens.delete({ token: refreshTokenOrigin.token });
-            return res.status(403).end();
-          }
-          await this.tokens.delete({ token: refreshTokenOrigin.token });
-          const { token, refreshToken } = signTokens({
-            userId: payload.userId,
-            userRole: user.role,
-          });
-          await this.tokens.save(new RefreshToken(refreshToken, user.id));
-          return res.json({ token: `Bearer ${token}`, refreshToken });
-        } catch (e) {
-          /* if token expired or something else */
-          await this.tokens.delete({ token: refreshTokenOrigin.token });
-          return res.status(403).end();
-        }
+    if (!refreshTokenFromBody) {
+      return res.status(400).end();
+    }
+    try {
+      const { token: oldToken, userId } = (await this.tokens.findOne({ token: refreshTokenFromBody })) as RefreshToken;
+      if (!oldToken) {
+        return res.status(403).end();
       }
+      await this.tokens.delete({ token: oldToken });
+      const [, user] = await Promise.all([verifyRefreshToken(refreshTokenFromBody), this.users.findOne(userId)]);
+      if (!user) {
+        return res.status(403).end();
+      }
+      const { token, refreshToken } = signTokens({ userId, userRole: user.role });
+      await this.tokens.save(new RefreshToken(refreshToken, user.id));
+      return res.json({ token: `Bearer ${token}`, refreshToken });
+    } catch (e) {
       return res.status(403).end();
     }
-    return res.status(400).end();
   };
 
   private test = async (_req: Request, res: Response): Promise<void> => {
