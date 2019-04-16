@@ -3,7 +3,6 @@ import { getSaltAndHash } from '../services/user-crypto-service';
 import { RingByRecovery } from './ring-by-recovery-entity';
 import { RingBy } from './ring-by-entity';
 import { BasaRing } from './basa-ring-entity';
-import { RefreshToken } from './auth-entity';
 
 export interface NewUser {
   email: string;
