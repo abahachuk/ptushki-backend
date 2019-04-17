@@ -134,9 +134,9 @@ export class Ring {
   @Column('varchar', { nullable: true, default: null })
   public note: string | null;
 
-  @ManyToOne(() => User, m => m.ringBy)
+  @ManyToOne(() => User, m => m.ring)
   public ringerInformation: User;
 
-  @ManyToOne(() => StatusOfRing, m => m.ringBy)
+  @ManyToOne(() => StatusOfRing, m => m.ring)
   public statusOfRing: StatusOfRing;
 }

@@ -13,7 +13,7 @@ export class Observation {
   @ManyToOne(() => Ring, m => m.observation)
   public ring: Ring;
 
-  @ManyToOne(() => User, m => m.ringByRecovery)
+  @ManyToOne(() => User, m => m.observation)
   public finder: User;
 
   @ManyToOne(() => Species, m => m.observation)

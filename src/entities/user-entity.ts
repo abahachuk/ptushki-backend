@@ -54,10 +54,10 @@ export class User {
   public lastName: string | null;
 
   @OneToMany(() => Ring, m => m.ringerInformation)
-  public ringBy: Ring[];
+  public ring: Ring[];
 
   @OneToMany(() => Observation, m => m.finder)
-  public ringByRecovery: Observation[];
+  public observation: Observation[];
 
   @OneToMany(() => BasaRing, m => m.ringer)
   public basaRing: BasaRing[];

@@ -10,5 +10,5 @@ export class StatusOfRing {
   public description: string | null;
 
   @OneToMany(() => Ring, m => m.statusOfRing)
-  public ringBy: Ring[];
+  public ring: Ring[];
 }
