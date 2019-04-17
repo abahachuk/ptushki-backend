@@ -2,6 +2,7 @@ import { NextFunction, Request, Response, Router } from 'express';
 import { getRepository, Repository } from 'typeorm';
 import passport from 'passport';
 import AbstractController from './abstract-controller';
+import AuditController from './audit-controller';
 import { User } from '../entities/user-entity';
 import { RefreshToken } from '../entities/auth-entity';
 import { signTokens, verifyRefreshToken, authRequired } from '../services/auth-service';
@@ -13,10 +14,14 @@ export default class AuthController extends AbstractController {
 
   private tokens: Repository<RefreshToken>;
 
+  private audit: AuditController;
+
   public init(): Router {
     this.router = Router();
     this.users = getRepository(User);
     this.tokens = getRepository(RefreshToken);
+
+    this.audit = new AuditController();
 
     this.router.post('/signup', this.signUp);
     this.router.post('/logout', this.logout);
@@ -35,6 +40,7 @@ export default class AuthController extends AbstractController {
       await this.users.save(user);
       const { token, refreshToken } = signTokens({ userId: user.id, userRole: user.role });
       await this.tokens.save(new RefreshToken(refreshToken, user.id));
+      await this.audit.add(null, user.id, 'registration', '');
       return res.json({ user, token: `Bearer ${token}`, refreshToken });
     } catch (e) {
       return next(e);
@@ -52,6 +58,7 @@ export default class AuthController extends AbstractController {
         return res.status(400).end();
       }
       await this.tokens.delete(closeAllSessions ? { userId: token.userId } : { token: refreshToken });
+      await this.audit.add(null, token.userId, 'logout', '');
       return res.send({ ok: true });
     } catch (e) {
       return next(e);
@@ -69,6 +76,7 @@ export default class AuthController extends AbstractController {
       try {
         const { token, refreshToken } = signTokens({ userId: user.id, userRole: user.role });
         await this.tokens.save(new RefreshToken(refreshToken, user.id));
+        await this.audit.add(null, user.id, 'login', '');
         return res.json({ user, token: `Bearer ${token}`, refreshToken });
       } catch (e) {
         return next(e);
@@ -101,6 +109,5 @@ export default class AuthController extends AbstractController {
 
   private test = async (_req: Request, res: Response): Promise<void> => {
     const users = await this.users.find();
-    res.json({ users });
   };
 }

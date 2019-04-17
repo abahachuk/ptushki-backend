@@ -1,0 +1,34 @@
+entity: AuditEventsAction
+items:
+  event0:
+    name: 'login'
+    desc_rus: 'Пользователь: Вход в систему. Начало сессии.'
+    desc_eng: 'User: Log in. Start session.'
+  event1:
+    name: 'logout'
+    desc_rus: 'Пользователь: Выход из системы. Окончание сессии.'
+    desc_eng: 'User: Log out. End session.'
+  event2:
+    name: 'registration'
+    desc_rus: 'Пользователь: Регистрация.'
+    desc_eng: 'User: Registration.'
+  event3:
+    name: 'passChange'
+    desc_rus: 'Пользователь: Смена пароля.'
+    desc_eng: 'User: Change password.'
+  event4:
+    name: 'isBlocked'
+    desc_rus: 'Пользователь: Заблокированное состояние.'
+    desc_eng: 'User: Blocked.'
+  event5:
+    name: 'isUnblocked'
+    desc_rus: 'Пользователь: Разблокированное состояние.'
+    desc_eng: 'User: Unblocked.'
+  event6:
+    name: 'badLogin'
+    desc_rus: 'Неудачный вход в систему.'
+    desc_eng: 'User: Failed login.'
+  event7:
+    name: 'restorePass'
+    desc_rus: 'Пользователь: Восстановление пароля.'
+    desc_eng: 'User: Restore password.'
