@@ -109,5 +109,6 @@ export default class AuthController extends AbstractController {
 
   private test = async (_req: Request, res: Response): Promise<void> => {
     const users = await this.users.find();
+    res.json({ users });
   };
 }
