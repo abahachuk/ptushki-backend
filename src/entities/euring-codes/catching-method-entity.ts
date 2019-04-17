@@ -1,20 +1,21 @@
 import { Entity, PrimaryColumn, Column, OneToMany } from 'typeorm';
-import { Ring } from './ring-entity';
+import { Dictionary } from './common-interfaces';
+import { Ring } from '../ring-entity';
 
 @Entity()
-export class ColorRingInformation {
+export class CatchingMethod implements Dictionary {
   @PrimaryColumn()
   public id: string;
 
   @Column('varchar', { nullable: true, default: null })
-  public schem: string | null;
+  public desc_eng: string | null;
 
   @Column('varchar', { nullable: true, default: null })
-  public descr: string | null;
+  public desc_rus: string | null;
 
   @Column('varchar', { nullable: true, default: null })
-  public pic: string | null;
+  public desc_byn: string | null;
 
-  @OneToMany(() => Ring, m => m.colorRingInformation)
+  @OneToMany(() => Ring, m => m.catchingMethod)
   public ring: Ring[];
 }

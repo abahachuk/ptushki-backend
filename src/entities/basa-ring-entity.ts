@@ -1,7 +1,7 @@
 import { Entity, PrimaryColumn, Column, ManyToOne } from 'typeorm';
-import { Species } from './species-entity';
-import { Sex } from './sex-entity';
-import { Age } from './age-entity';
+import { Species } from './euring-codes/species-entity';
+import { Sex } from './euring-codes/sex-entity';
+import { Age } from './euring-codes/age-entity';
 import { User } from './user-entity';
 
 @Entity()

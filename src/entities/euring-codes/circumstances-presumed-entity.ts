@@ -1,9 +1,9 @@
 import { Entity, PrimaryColumn, Column, OneToMany } from 'typeorm';
 import { Dictionary } from './common-interfaces';
-import { Ring } from './ring-entity';
+import { Ring } from '../ring-entity';
 
 @Entity()
-export class AccuracyOfPullusAge implements Dictionary {
+export class CircumstancesPresumed implements Dictionary {
   @PrimaryColumn()
   public id: number;
 
@@ -16,6 +16,6 @@ export class AccuracyOfPullusAge implements Dictionary {
   @Column('varchar', { nullable: true, default: null })
   public desc_byn: string | null;
 
-  @OneToMany(() => Ring, m => m.accuracyOfPullusAge)
+  @OneToMany(() => Ring, m => m.circumstancesPresumed)
   public ring: Ring[];
 }

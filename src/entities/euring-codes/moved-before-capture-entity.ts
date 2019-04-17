@@ -1,6 +1,6 @@
 import { Entity, PrimaryColumn, Column, OneToMany } from 'typeorm';
 import { Dictionary } from './common-interfaces';
-import { Ring } from './ring-entity';
+import { Ring } from '../ring-entity';
 
 @Entity()
 export class MovedBeforeTheCapture implements Dictionary {

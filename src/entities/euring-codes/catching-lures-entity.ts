@@ -1,11 +1,11 @@
 import { Entity, PrimaryColumn, Column, OneToMany } from 'typeorm';
 import { Dictionary } from './common-interfaces';
-import { Ring } from './ring-entity';
+import { Ring } from '../ring-entity';
 
 @Entity()
-export class Broodsize implements Dictionary {
+export class CathingLures implements Dictionary {
   @PrimaryColumn()
-  public id: number;
+  public id: string;
 
   @Column('varchar', { nullable: true, default: null })
   public desc_eng: string | null;
@@ -16,6 +16,6 @@ export class Broodsize implements Dictionary {
   @Column('varchar', { nullable: true, default: null })
   public desc_byn: string | null;
 
-  @OneToMany(() => Ring, m => m.broodsize)
+  @OneToMany(() => Ring, m => m.cathingLures)
   public ring: Ring[];
 }

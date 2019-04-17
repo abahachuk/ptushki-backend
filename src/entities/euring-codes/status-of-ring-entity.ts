@@ -1,5 +1,5 @@
 import { Entity, PrimaryColumn, Column, OneToMany } from 'typeorm';
-import { Ring } from './ring-entity';
+import { Ring } from '../ring-entity';
 
 @Entity()
 export class StatusOfRing {

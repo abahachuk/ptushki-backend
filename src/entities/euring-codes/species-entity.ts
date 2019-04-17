@@ -1,24 +1,26 @@
 import { Entity, PrimaryColumn, Column, OneToMany } from 'typeorm';
-import { Dictionary } from './common-interfaces';
-import { Ring } from './ring-entity';
-import { BasaRing } from './basa-ring-entity';
-import { Observation } from './observation-entity';
+import { Ring } from '../ring-entity';
+import { BasaRing } from '../basa-ring-entity';
+import { Observation } from '../observation-entity';
 
 @Entity()
-export class Sex implements Dictionary {
+export class Species {
   @PrimaryColumn()
-  public id: string;
+  public id: number;
 
   @Column('varchar', { nullable: true, default: null })
-  public desc_eng: string | null;
+  public belCode: number;
 
   @Column('varchar', { nullable: true, default: null })
-  public desc_rus: string | null;
+  public species: string | null;
 
   @Column('varchar', { nullable: true, default: null })
-  public desc_byn: string | null;
+  public ordo: string | null;
 
-  @OneToMany(() => Ring, m => m.sexScheme)
+  @Column('varchar', { nullable: true, default: null })
+  public family: string | null;
+
+  @OneToMany(() => Ring, m => m.speciesScheme)
   public ring: Ring[];
 
   @OneToMany(() => Observation, m => m.speciesMentioned)
