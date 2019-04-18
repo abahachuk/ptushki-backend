@@ -1,4 +1,4 @@
-import { Entity, PrimaryColumn, Column, ManyToOne } from 'typeorm';
+import { Entity, Column, PrimaryGeneratedColumn, ManyToOne } from 'typeorm';
 import { Species } from './euring-codes/species-entity';
 import { Sex } from './euring-codes/sex-entity';
 import { Age } from './euring-codes/age-entity';
@@ -6,8 +6,11 @@ import { User } from './user-entity';
 
 @Entity()
 export class BasaRing {
-  @PrimaryColumn()
+  @PrimaryGeneratedColumn('uuid')
   public id: string;
+
+  @Column('varchar')
+  public ringNumber: string;
 
   @ManyToOne(() => Species, m => m.basaRing)
   public species: Species;

@@ -1,4 +1,4 @@
-import { Entity, PrimaryColumn, Column, ManyToOne, OneToMany } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, OneToMany } from 'typeorm';
 import { AccuracyOfCoords } from './euring-codes/accuracy-of-coords-intity';
 import { Sex } from './euring-codes/sex-entity';
 import { Age } from './euring-codes/age-entity';
@@ -28,8 +28,11 @@ import { Observation } from './observation-entity';
 
 @Entity()
 export class Ring {
-  @PrimaryColumn()
+  @PrimaryGeneratedColumn('uuid')
   public id: string;
+
+  @Column('varchar')
+  public ringNumber: string;
 
   @OneToMany(() => Observation, m => m.ring)
   public observation: Observation[];

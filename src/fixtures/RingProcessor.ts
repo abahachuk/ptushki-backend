@@ -23,7 +23,7 @@ export default class RingProcessor implements IProcessor<Ring> {
     const dots = '.'.repeat(10 - (identificationSeries.length + 5));
     return {
       ...object,
-      id: `${identificationSeries} ${identificationNumber}`,
+      ringNumber: `${identificationSeries} ${identificationNumber}`,
       identificationSeries,
       dots,
       identificationNumber,

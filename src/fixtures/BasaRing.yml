@@ -1,7 +1,7 @@
 entity: BasaRing
 items:
   basaRing{0..100}:
-    id: '{{random.alphaNumeric}}{{random.alphaNumeric}} {{random.number}}'
+    ringNumber: '{{random.alphaNumeric}}{{random.alphaNumeric}} {{random.number}}'
     species: '@species*'
     sex: '@sex*'
     age: '@age*'
