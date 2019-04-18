@@ -22,7 +22,6 @@ import { Circumstances } from './euring-codes/circumstances-entity';
 import { CircumstancesPresumed } from './euring-codes/circumstances-presumed-entity';
 import { AccuracyOfDate } from './euring-codes/accuracy-of-date-entity';
 import { EURINGCodeIdentifier } from './euring-codes/euring-code-identifier-entity';
-import { ColorRingInformation } from './euring-codes/color-ring-information-entity';
 import { User } from './user-entity';
 import { StatusOfRing } from './euring-codes/status-of-ring-entity';
 import { Observation } from './observation-entity';
@@ -118,9 +117,6 @@ export class Ring {
 
   @ManyToOne(() => EURINGCodeIdentifier, m => m.ring)
   public euringCodeIdentifier: EURINGCodeIdentifier;
-
-  @ManyToOne(() => ColorRingInformation, m => m.ring)
-  public colorRingInformation: ColorRingInformation;
 
   @Column('varchar', { nullable: true, default: null })
   public derivedDataDistance: string | null;

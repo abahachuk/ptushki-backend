@@ -26,7 +26,6 @@ items:
     circumstancesPresumed: '@circumstancesPresumed*'
     accuracyOfDate: '@accuracyOfDate*'
     euringCodeIdentifier: '@euringCodeIdentifier*'
-    colorRingInformation: '@colorRingInformation*'
     derivedDataDistance: '{{lorem.words}}'
     derivedDataDirection: '{{lorem.words}}'
     derivedDataElapsedTime: '{{lorem.words}}'

@@ -1,7 +1,0 @@
-entity: ColorRingInformation
-items:
-  colorRingInformation{0..10}:
-    id: '{{random.alphaNumeric}}{{random.number}}'
-    schem: '{{lorem.sentence}}'
-    descr: '{{lorem.sentence}}'
-    pic: '{{lorem.word}}'
