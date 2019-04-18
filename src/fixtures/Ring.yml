@@ -11,7 +11,7 @@ items:
     manipulated: '@manipulated*'
     movedBeforeTheCapture: '@movedBeforeTheCapture*'
     catchingMethod: '@catchingMethod*'
-    cathingLures: '@cathingLures*'
+    catchingLures: '@catchingLures*'
     sexScheme: '@sex*'
     ageScheme: '@age*'
     status: '@status*'

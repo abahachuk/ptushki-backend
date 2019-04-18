@@ -11,7 +11,7 @@ import { Species } from './euring-codes/species-entity';
 import { Manipulated } from './euring-codes/manipulated-entity';
 import { MovedBeforeTheCapture } from './euring-codes/moved-before-capture-entity';
 import { CatchingMethod } from './euring-codes/catching-method-entity';
-import { CathingLures } from './euring-codes/catching-lures-entity';
+import { CatchingLures } from './euring-codes/catching-lures-entity';
 import { Status } from './euring-codes/status-entity';
 import { Broodsize } from './euring-codes/broodsize-entity';
 import { PullusAge } from './euring-codes/pullus-age-entity';
@@ -73,8 +73,8 @@ export class Ring {
   @ManyToOne(() => CatchingMethod, m => m.ring)
   public catchingMethod: CatchingMethod;
 
-  @ManyToOne(() => CathingLures, m => m.ring)
-  public cathingLures: CathingLures;
+  @ManyToOne(() => CatchingLures, m => m.ring)
+  public catchingLures: CatchingLures;
 
   @ManyToOne(() => Sex, m => m.ring)
   public sexScheme: Sex;

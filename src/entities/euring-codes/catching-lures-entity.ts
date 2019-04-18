@@ -3,7 +3,7 @@ import { Dictionary } from './common-interfaces';
 import { Ring } from '../ring-entity';
 
 @Entity()
-export class CathingLures implements Dictionary {
+export class CatchingLures implements Dictionary {
   @PrimaryColumn()
   public id: string;
 
@@ -16,6 +16,6 @@ export class CathingLures implements Dictionary {
   @Column('varchar', { nullable: true, default: null })
   public desc_byn: string | null;
 
-  @OneToMany(() => Ring, m => m.cathingLures)
+  @OneToMany(() => Ring, m => m.catchingLures)
   public ring: Ring[];
 }

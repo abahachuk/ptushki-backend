@@ -1,6 +1,6 @@
-entity: CathingLures
+entity: CatchingLures
 items:
-  cathingLures{0..10}:
+  catchingLures{0..10}:
     id: '{{random.alphaNumeric}}{{random.number}}'
     desc_eng: '{{lorem.sentence}}'
     desc_rus: '{{lorem.sentence}}'
