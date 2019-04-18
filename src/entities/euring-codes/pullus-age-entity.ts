@@ -5,7 +5,7 @@ import { Ring } from '../ring-entity';
 @Entity()
 export class PullusAge implements Dictionary {
   @PrimaryColumn()
-  public id: number;
+  public id: string;
 
   @Column('varchar', { nullable: true, default: null })
   public desc_eng: string | null;

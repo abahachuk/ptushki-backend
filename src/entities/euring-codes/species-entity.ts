@@ -6,7 +6,7 @@ import { Observation } from '../observation-entity';
 @Entity()
 export class Species {
   @PrimaryColumn()
-  public id: number;
+  public id: string;
 
   @Column('varchar', { nullable: true, default: null })
   public belCode: number;
