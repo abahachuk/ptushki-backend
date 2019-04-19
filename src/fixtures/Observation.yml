@@ -1,0 +1,14 @@
+entity: Observation
+items:
+  observation{0..50}:
+    ring: '@ring*'
+    finder: '@user*'
+    speciesMentioned: '@species*'
+    sexMentioned: '@sex*'
+    ageMentioned: '@age*'
+    derivedDataDistance: '{{lorem.words}}'
+    derivedDataDirection: '{{lorem.words}}'
+    derivedDataElapsedTime: '{{lorem.words}}'
+    colorRing: '{{lorem.words}}'
+    note: '{{lorem.words}}'
+    verified: '{{random.boolean}}'

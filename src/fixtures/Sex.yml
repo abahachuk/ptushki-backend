@@ -1,0 +1,7 @@
+entity: Sex
+items:
+  sex{0..3}:
+    id: '{{random.alphaNumeric}}{{random.number}}'
+    desc_eng: '{{lorem.sentence}}'
+    desc_rus: '{{lorem.sentence}}'
+    desc_byn: '{{lorem.sentence}}'

@@ -1,13 +1,16 @@
-import { Entity, PrimaryGeneratedColumn, Column, ManyToOne } from 'typeorm';
-import { Species } from './species-entity';
-import { Sex } from './sex-entity';
-import { Age } from './age-entity';
+import { Entity, Column, PrimaryGeneratedColumn, ManyToOne } from 'typeorm';
+import { Species } from './euring-codes/species-entity';
+import { Sex } from './euring-codes/sex-entity';
+import { Age } from './euring-codes/age-entity';
 import { User } from './user-entity';
 
 @Entity()
 export class BasaRing {
   @PrimaryGeneratedColumn('uuid')
   public id: string;
+
+  @Column('varchar')
+  public ringNumber: string;
 
   @ManyToOne(() => Species, m => m.basaRing)
   public species: Species;
@@ -34,26 +37,5 @@ export class BasaRing {
   public coordinates: string | null;
 
   @Column('varchar', { nullable: true, default: null })
-  public lat: string | null;
-
-  @Column('varchar', { nullable: true, default: null })
-  public lon: string | null;
-
-  @Column('varchar', { nullable: true, default: null })
-  public co_la_de: string | null;
-
-  @Column('varchar', { nullable: true, default: null })
-  public co_la_mi: string | null;
-
-  @Column('varchar', { nullable: true, default: null })
-  public co_lo_de: string | null;
-
-  @Column('varchar', { nullable: true, default: null })
-  public co_lo_mi: string | null;
-
-  @Column('varchar', { nullable: true, default: null })
-  public map: string | null;
-
-  @Column('varchar', { nullable: true, default: null })
-  public notes: string | null;
+  public note: string | null;
 }

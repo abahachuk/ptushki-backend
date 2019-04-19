@@ -1,0 +1,5 @@
+entity: StatusOfRing
+items:
+  statusOfRing{0..3}:
+    id: '{{random.number}}'
+    description: '{{lorem.word}}'
