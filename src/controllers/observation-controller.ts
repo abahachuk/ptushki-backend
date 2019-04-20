@@ -7,6 +7,10 @@ interface RequestWithObservation extends Request {
   observation: Observation;
 }
 
+/**
+ * @rootPath= /observations
+ * @description= Observation operations
+ */
 export default class ObservationController extends AbstractController {
   private router: Router;
 
@@ -25,6 +29,12 @@ export default class ObservationController extends AbstractController {
     return this.router;
   }
 
+  /**
+   * @summary= remove observation
+   * @method= delete
+   * @path= /{id}
+   * @response= { id: String, removed: Boolean }
+   */
   private remove = async (req: RequestWithObservation, res: Response, next: NextFunction): Promise<void> => {
     const { observation }: { observation: Observation } = req;
     try {
@@ -35,6 +45,12 @@ export default class ObservationController extends AbstractController {
     }
   };
 
+  /**
+   * @summary= get observation
+   * @method= get
+   * @path= /
+   * @response= { "items": { "$ref": "#/definitions/RingByRecovery" }, "type": "array" }
+   */
   private find = async (_req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
       const observations = await this.observations.find();
@@ -45,6 +61,12 @@ export default class ObservationController extends AbstractController {
     }
   };
 
+  /**
+   * @summary= get observation by id
+   * @method= get
+   * @path= /{id}
+   * @response= #/definitions/RingByRecovery
+   */
   private findOne = (req: RequestWithObservation, res: Response, next: NextFunction): void => {
     const { observation }: { observation: Observation } = req;
     try {
