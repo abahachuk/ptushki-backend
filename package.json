@@ -12,7 +12,8 @@
     "clean": "rimraf ./dist",
     "test": "jest --config ./jest.config.json",
     "test:coverage": "npm run test -- --coverage",
-    "test:watch": "npm run test -- --watch"
+    "test:watch": "npm run test -- --watch",
+    "swagger:create": "node tools/swagger/index.js"
   },
   "repository": {
     "type": "git",
