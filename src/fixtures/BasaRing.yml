@@ -1,0 +1,13 @@
+entity: BasaRing
+items:
+  basaRing{0..100}:
+    ringNumber: '{{random.alphaNumeric}}{{random.alphaNumeric}} {{random.number}}'
+    species: '@species*'
+    sex: '@sex*'
+    age: '@age*'
+    ringer: '@user*'
+    region: '{{address.state}}'
+    district: '{{address.city}}'
+    place: '{{address.streetName}}'
+    coordinates: '{{address.latitude}} {{address.longitude}}'
+    note: '{{lorem.words}}'

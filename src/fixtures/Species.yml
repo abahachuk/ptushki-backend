@@ -1,0 +1,8 @@
+entity: Species
+items:
+  species{0..50}:
+    id: '{{random.number}}'
+    belCode: '{{address.countryCode}}{{address.countryCode}}{{address.countryCode}}'
+    species: '{{lorem.words}}'
+    ordo: '{{lorem.word}}'
+    family: '{{lorem.words}}'

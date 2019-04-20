@@ -1,7 +1,7 @@
 import { Entity, PrimaryGeneratedColumn, Column, OneToMany } from 'typeorm';
 import { getSaltAndHash } from '../services/user-crypto-service';
-import { RingByRecovery } from './ring-by-recovery-entity';
-import { RingBy } from './ring-by-entity';
+import { Observation } from './observation-entity';
+import { Ring } from './ring-entity';
 import { BasaRing } from './basa-ring-entity';
 
 export interface NewUser {
@@ -53,11 +53,11 @@ export class User {
   @Column('varchar', { length: 64, nullable: true, default: null })
   public lastName: string | null;
 
-  @OneToMany(() => RingBy, m => m.ringerInformation)
-  public ringBy: RingBy[];
+  @OneToMany(() => Ring, m => m.ringerInformation)
+  public ring: Ring[];
 
-  @OneToMany(() => RingByRecovery, m => m.finder)
-  public ringByRecovery: RingByRecovery[];
+  @OneToMany(() => Observation, m => m.finder)
+  public observation: Observation[];
 
   @OneToMany(() => BasaRing, m => m.ringer)
   public basaRing: BasaRing[];

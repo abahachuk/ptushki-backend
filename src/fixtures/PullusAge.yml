@@ -1,0 +1,7 @@
+entity: PullusAge
+items:
+  pullusAge{0..50}:
+    id: '{{random.number}}'
+    desc_eng: '{{lorem.sentence}}'
+    desc_rus: '{{lorem.sentence}}'
+    desc_byn: '{{lorem.sentence}}'
