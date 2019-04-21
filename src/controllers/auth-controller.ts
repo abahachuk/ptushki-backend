@@ -5,6 +5,7 @@ import AbstractController from './abstract-controller';
 import { User } from '../entities/user-entity';
 import { RefreshToken } from '../entities/auth-entity';
 import { signTokens, verifyRefreshToken, authRequired } from '../services/auth-service';
+import { isCorrect } from '../services/user-crypto-service';
 
 export default class AuthController extends AbstractController {
   private router: Router;
@@ -22,6 +23,7 @@ export default class AuthController extends AbstractController {
     this.router.post('/logout', this.logout);
     this.router.post('/login', this.login);
     this.router.post('/refresh', this.refresh);
+    this.router.post('/changePassword', authRequired, this.changePassword);
 
     /* use auth.required to secure route */
     this.router.get('/test', authRequired, this.test);
@@ -94,6 +96,25 @@ export default class AuthController extends AbstractController {
       const { token, refreshToken } = signTokens({ userId, userRole: user.role });
       await this.tokens.save(new RefreshToken(refreshToken, user.id));
       return res.json({ token: `Bearer ${token}`, refreshToken });
+    } catch (e) {
+      return res.status(403).end();
+    }
+  };
+
+  private changePassword = async (req: Request, res: Response) => {
+    const { oldPassword, newPassword } = req.body;
+    const user = req.user as User;
+    if (!oldPassword || !newPassword || !user) {
+      return res.status(400).end();
+    }
+    const isPasswordCorrect = user ? await isCorrect(oldPassword, user.salt, user.hash) : false;
+    if (!isPasswordCorrect) {
+      return res.status(400).end();
+    }
+    user.setPassword(newPassword);
+    try {
+      await this.users.save(user);
+      return res.send({ ok: true });
     } catch (e) {
       return res.status(403).end();
     }
