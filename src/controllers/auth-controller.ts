@@ -111,8 +111,8 @@ export default class AuthController extends AbstractController {
     if (!isPasswordCorrect) {
       return res.status(400).end();
     }
-    user.setPassword(newPassword);
     try {
+      await user.setPassword(newPassword);
       await this.users.save(user);
       return res.send({ ok: true });
     } catch (e) {
