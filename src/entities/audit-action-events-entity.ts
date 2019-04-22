@@ -1,8 +1,7 @@
 import { Entity, PrimaryGeneratedColumn, Column } from 'typeorm';
-import { Dictionary } from './common-interfaces';
 
 @Entity()
-export class AuditEventsAction implements Dictionary {
+export class AuditEventsAction {
   @PrimaryGeneratedColumn('uuid')
   public id: string;
 

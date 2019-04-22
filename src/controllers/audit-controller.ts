@@ -21,18 +21,19 @@ class AuditController {
     this.tokens = getRepository(RefreshToken);
   }
 
-  private getUser = async (token: string, id: string): Promise<User> => {
-    let userId = id;
+  private getUser = async (token: string, id: string) => {
+    let userIdent = id;
 
-    if (!userId) {
-      const tokenRecord = await this.tokens.findOne({ token });
+    if (!userIdent) {
+      const tokenRow = await this.tokens.findOne({ token });
 
-      if (tokenRecord) {
-        userId = tokenRecord.userId;
+      if (tokenRow) {
+        const { userId } = tokenRow;
+        userIdent = userId;
       }
     }
 
-    return (await this.users.findOne({ id: userId })) as User;
+    return this.users.findOne({ id: userIdent });
   };
 
   public add = async (token: any, userId: string, eventName: string, result: string): Promise<void> => {
