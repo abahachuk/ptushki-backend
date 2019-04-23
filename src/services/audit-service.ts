@@ -11,10 +11,10 @@ const getUser = async (token: string, id: string) => {
   let userIdent = id;
 
   if (!userIdent) {
-    const tokenRow = await tokens.findOne({ token });
+    const tokenInstance = await tokens.findOne({ token });
 
-    if (tokenRow) {
-      const { userId } = tokenRow;
+    if (tokenInstance) {
+      const { userId } = tokenInstance;
       userIdent = userId;
     }
   }
