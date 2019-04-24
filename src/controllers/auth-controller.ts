@@ -2,10 +2,10 @@ import { NextFunction, Request, Response, Router } from 'express';
 import { getRepository, Repository } from 'typeorm';
 import passport from 'passport';
 import AbstractController from './abstract-controller';
-import { User } from '../entities/user-entity';
+import { User, UserRole } from '../entities/user-entity';
 import { RefreshToken } from '../entities/auth-entity';
-import { signTokens, verifyRefreshToken, authRequired } from '../services/auth-service';
 import { isCorrect } from '../services/user-crypto-service';
+import { signTokens, verifyRefreshToken, auth } from '../services/auth-service';
 
 export default class AuthController extends AbstractController {
   private router: Router;
@@ -23,10 +23,10 @@ export default class AuthController extends AbstractController {
     this.router.post('/logout', this.logout);
     this.router.post('/login', this.login);
     this.router.post('/refresh', this.refresh);
-    this.router.post('/change-password', authRequired, this.changePassword);
+    this.router.post('/change-password', auth.required, this.changePassword);
 
     /* use auth.required to secure route */
-    this.router.get('/test', authRequired, this.test);
+    this.router.get('/test', auth.required, auth.role(UserRole.Observer), this.test);
 
     return this.router;
   }
