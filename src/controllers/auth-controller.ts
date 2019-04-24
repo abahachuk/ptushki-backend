@@ -2,9 +2,10 @@ import { NextFunction, Request, Response, Router } from 'express';
 import { getRepository, Repository } from 'typeorm';
 import passport from 'passport';
 import AbstractController from './abstract-controller';
-import { User } from '../entities/user-entity';
+import { User, UserRole } from '../entities/user-entity';
 import { RefreshToken } from '../entities/auth-entity';
-import { signTokens, verifyRefreshToken, authRequired } from '../services/auth-service';
+import { isCorrect } from '../services/user-crypto-service';
+import { signTokens, verifyRefreshToken, auth } from '../services/auth-service';
 
 export default class AuthController extends AbstractController {
   private router: Router;
@@ -22,9 +23,10 @@ export default class AuthController extends AbstractController {
     this.router.post('/logout', this.logout);
     this.router.post('/login', this.login);
     this.router.post('/refresh', this.refresh);
+    this.router.post('/change-password', auth.required, this.changePassword);
 
     /* use auth.required to secure route */
-    this.router.get('/test', authRequired, this.test);
+    this.router.get('/test', auth.required, auth.role(UserRole.Observer), this.test);
 
     return this.router;
   }
@@ -94,6 +96,25 @@ export default class AuthController extends AbstractController {
       const { token, refreshToken } = signTokens({ userId, userRole: user.role });
       await this.tokens.save(new RefreshToken(refreshToken, user.id));
       return res.json({ token: `Bearer ${token}`, refreshToken });
+    } catch (e) {
+      return res.status(403).end();
+    }
+  };
+
+  private changePassword = async (req: Request, res: Response) => {
+    const { oldPassword, newPassword } = req.body;
+    const user = req.user as User;
+    if (!oldPassword || !newPassword || !user) {
+      return res.status(400).end();
+    }
+    const isPasswordCorrect = await isCorrect(oldPassword, user.salt, user.hash);
+    if (!isPasswordCorrect) {
+      return res.status(400).end();
+    }
+    try {
+      await user.setPassword(newPassword);
+      await this.users.save(user);
+      return res.send({ ok: true });
     } catch (e) {
       return res.status(403).end();
     }
