@@ -1,7 +1,7 @@
 import { NextFunction, Request, Response, Router } from 'express';
 import { getRepository, Repository } from 'typeorm';
 import AbstractController from './abstract-controller';
-import { RingByRecovery as Observation } from '../entities/ring-by-recovery-entity';
+import { Observation } from '../entities/observation-entity';
 
 interface RequestWithObservation extends Request {
   observation: Observation;
