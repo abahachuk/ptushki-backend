@@ -104,7 +104,7 @@ export default class AuthController extends AbstractController {
   private changePassword = async (req: Request, res: Response) => {
     const { oldPassword, newPassword } = req.body;
     const user = req.user as User;
-    if (!oldPassword || !newPassword) {
+    if (!oldPassword || !newPassword || !user) {
       return res.status(400).end();
     }
     const isPasswordCorrect = await isCorrect(oldPassword, user.salt, user.hash);
