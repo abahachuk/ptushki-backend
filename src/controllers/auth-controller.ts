@@ -118,6 +118,7 @@ export default class AuthController extends AbstractController {
     try {
       await user.setPassword(newPassword);
       await this.users.save(user);
+      await addAudit('passChange', '', null, user.id);
       return res.send({ ok: true });
     } catch (e) {
       return res.status(403).end();
