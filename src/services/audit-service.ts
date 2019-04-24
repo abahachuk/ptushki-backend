@@ -27,12 +27,12 @@ const addAudit = async (eventName: string, result: string, token: any, userId: s
   const auditEvents: Repository<AuditEventsAction> = getRepository(AuditEventsAction);
 
   try {
-    const eventInstance = await auditEvents.findOne({ name: eventName });
-    const userInstance = await getUser(token, userId);
+    const event = await auditEvents.findOne({ name: eventName });
+    const user = await getUser(token, userId);
 
     await audits.save({
-      user: userInstance,
-      action: eventInstance,
+      user,
+      action: event,
       result,
     });
   } catch (e) {
