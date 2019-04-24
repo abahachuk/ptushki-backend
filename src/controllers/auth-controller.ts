@@ -23,7 +23,7 @@ export default class AuthController extends AbstractController {
     this.router.post('/logout', this.logout);
     this.router.post('/login', this.login);
     this.router.post('/refresh', this.refresh);
-    this.router.post('/changePassword', authRequired, this.changePassword);
+    this.router.post('/change-password', authRequired, this.changePassword);
 
     /* use auth.required to secure route */
     this.router.get('/test', authRequired, this.test);
@@ -104,10 +104,10 @@ export default class AuthController extends AbstractController {
   private changePassword = async (req: Request, res: Response) => {
     const { oldPassword, newPassword } = req.body;
     const user = req.user as User;
-    if (!oldPassword || !newPassword || !user) {
+    if (!oldPassword || !newPassword) {
       return res.status(400).end();
     }
-    const isPasswordCorrect = user ? await isCorrect(oldPassword, user.salt, user.hash) : false;
+    const isPasswordCorrect = await isCorrect(oldPassword, user.salt, user.hash);
     if (!isPasswordCorrect) {
       return res.status(400).end();
     }
