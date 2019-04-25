@@ -12,16 +12,24 @@ export class BasaRing {
   @Column('varchar')
   public ringNumber: string;
 
-  @ManyToOne(() => Species, m => m.basaRing)
+  @ManyToOne(() => Species, m => m.basaRing, {
+    eager: true,
+  })
   public species: Species;
 
-  @ManyToOne(() => Sex, m => m.basaRing)
+  @ManyToOne(() => Sex, m => m.basaRing, {
+    eager: true,
+  })
   public sex: Sex;
 
-  @ManyToOne(() => Age, m => m.basaRing)
+  @ManyToOne(() => Age, m => m.basaRing, {
+    eager: true,
+  })
   public age: Age;
 
-  @ManyToOne(() => User, m => m.basaRing)
+  @ManyToOne(() => User, m => m.basaRing, {
+    eager: true,
+  })
   public ringer: User;
 
   @Column('varchar', { nullable: true, default: null })
