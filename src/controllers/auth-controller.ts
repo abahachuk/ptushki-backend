@@ -6,6 +6,7 @@ import { User, UserRole } from '../entities/user-entity';
 import { RefreshToken } from '../entities/auth-entity';
 import { isCorrect } from '../services/user-crypto-service';
 import { signTokens, verifyRefreshToken, auth } from '../services/auth-service';
+import { addAudit } from '../services/audit-service';
 
 export default class AuthController extends AbstractController {
   private router: Router;
@@ -37,6 +38,7 @@ export default class AuthController extends AbstractController {
       await this.users.save(user);
       const { token, refreshToken } = signTokens({ userId: user.id, userRole: user.role });
       await this.tokens.save(new RefreshToken(refreshToken, user.id));
+      await addAudit('registration', '', null, user.id);
       return res.json({ user, token: `Bearer ${token}`, refreshToken });
     } catch (e) {
       return next(e);
@@ -54,6 +56,7 @@ export default class AuthController extends AbstractController {
         return res.status(400).end();
       }
       await this.tokens.delete(closeAllSessions ? { userId: token.userId } : { token: refreshToken });
+      await addAudit('logout', '', null, token.userId);
       return res.send({ ok: true });
     } catch (e) {
       return next(e);
@@ -71,6 +74,7 @@ export default class AuthController extends AbstractController {
       try {
         const { token, refreshToken } = signTokens({ userId: user.id, userRole: user.role });
         await this.tokens.save(new RefreshToken(refreshToken, user.id));
+        await addAudit('login', '', null, user.id);
         return res.json({ user, token: `Bearer ${token}`, refreshToken });
       } catch (e) {
         return next(e);
@@ -114,6 +118,7 @@ export default class AuthController extends AbstractController {
     try {
       await user.setPassword(newPassword);
       await this.users.save(user);
+      await addAudit('passChange', '', null, user.id);
       return res.send({ ok: true });
     } catch (e) {
       return res.status(403).end();
