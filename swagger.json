@@ -5,27 +5,433 @@
     "version": "1.0.0",
     "title": "Ptushki API"
   },
-  "host": "localhost",
+  "tags": [
+    {
+      "name": "Auth controller",
+      "description": "Authentication operations"
+    },
+    {
+      "name": "Observation controller",
+      "description": "Observation operations"
+    },
+    {
+      "name": "User controller",
+      "description": "User operations"
+    },
+    {
+      "name": "RingsBy controller",
+      "description": "RingsBy operations"
+    }
+  ],
   "schemes": ["http"],
+  "paths": {
+    "/observations": {
+      "get": {
+        "tags": ["Observation controller"],
+        "summary": "Get all observations",
+        "produces": ["application/json"],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/Observation"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/observations/{id}": {
+      "get": {
+        "tags": ["Observation controller"],
+        "produces": ["application/json"],
+        "summary": "Get observation by id",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "ID of observation",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "$ref": "#/definitions/Observation"
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": ["Observation controller"],
+        "summary": "Remove observation by provided id",
+        "produces": ["application/json"],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "ID of observation",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "$ref": "#/definitions/RemoveByIdResponse"
+            }
+          }
+        }
+      }
+    },
+    "/rings-by": {
+      "get": {
+        "summary": "get all rings",
+        "tags": ["RingsBy controller"],
+        "produces": ["application/json"],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/Ring"
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "summary": "add new ring",
+        "tags": ["RingsBy controller"],
+        "produces": ["application/json"],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "$ref": "#/definitions/Ring"
+            }
+          }
+        }
+      }
+    },
+    "/rings-by/{id}": {
+      "get": {
+        "tags": ["RingsBy controller"],
+        "produces": ["application/json"],
+        "summary": "Get ring by provided id",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "ID of ring",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "$ref": "#/definitions/Ring"
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": ["RingsBy controller"],
+        "summary": "Remove ring by provided id",
+        "produces": ["application/json"],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "ID of observation",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "$ref": "#/definitions/RemoveByIdResponse"
+            }
+          }
+        }
+      }
+    },
+    "/users": {
+      "get": {
+        "summary": "get all users",
+        "tags": ["User controller"],
+        "produces": ["application/json"],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/User"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/users/{id}": {
+      "get": {
+        "tags": ["User controller"],
+        "produces": ["application/json"],
+        "summary": "Get user by id",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "ID of user",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "$ref": "#/definitions/User"
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": ["User controller"],
+        "summary": "Remove user by provided id",
+        "produces": ["application/json"],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "ID of user",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "$ref": "#/definitions/RemoveByIdResponse"
+            }
+          }
+        }
+      }
+    },
+    "/auth/signup": {
+      "post": {
+        "tags": ["Auth controller"],
+        "summary": "Register new User",
+        "consumes": ["application/json"],
+        "produces": ["application/json"],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "body",
+            "description": "User object that needs to be added to the database",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "email": {
+                  "type": "string"
+                },
+                "password": {
+                  "type": "string"
+                },
+                "firstName?": {
+                  "type": "string"
+                },
+                "lastName?": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "$ref": "#/definitions/AuthResponse"
+            }
+          }
+        }
+      }
+    },
+    "/auth/logout": {
+      "post": {
+        "tags": ["Auth controller"],
+        "summary": "logout user by provided token",
+        "produces": ["application/json"],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "body",
+            "description": "provided token and options",
+            "required": false,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "refreshToken": {
+                  "type": "string"
+                },
+                "closeAllSessions": {
+                  "type": "boolean"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "ok": {
+                  "type": "boolean"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "No refresh token provided | no data was found by provided token."
+          }
+        }
+      }
+    },
+    "/auth/login": {
+      "post": {
+        "tags": ["Auth controller"],
+        "summary": "login user by provided credentials",
+        "produces": ["application/json"],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "$ref": "#/definitions/AuthResponse"
+            }
+          },
+          "401": {
+            "description": "passport error occurred",
+            "schema": {
+              "type": "object"
+            }
+          },
+          "403": {
+            "description": "No user was found",
+            "schema": {
+              "type": "object"
+            }
+          }
+        }
+      }
+    },
+    "/auth/refresh": {
+      "post": {
+        "tags": ["Auth controller"],
+        "summary": "Refresh token for current user",
+        "produces": ["application/json"],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "body",
+            "description": "refresh token",
+            "required": false,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "refreshToken": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "token": {
+                  "type": "string"
+                },
+                "refreshToken": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "no refresh token provided"
+          },
+          "403": {
+            "description": "No old token was found | no user was found | failed to save token"
+          }
+        }
+      }
+    }
+  },
   "definitions": {
-    "AccuracyOfCoords": {
+    "AuthResponse": {
+      "type": "object",
+      "properties": {
+        "user": {
+          "$ref": "#/definitions/User"
+        },
+        "token": {
+          "type": "string"
+        },
+        "refreshToken": {
+          "type": "string"
+        }
+      }
+    },
+    "RemoveByIdResponse": {
       "type": "object",
       "properties": {
         "id": {
           "type": "string"
         },
+        "removed": {
+          "type": "boolean"
+        }
+      }
+    },
+    "AccuracyOfCoords": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "number"
+        },
         "desc_eng": {
-          "type": "string | null"
+          "type": "string"
         },
         "desc_rus": {
-          "type": "string | null"
+          "type": "string"
         },
         "desc_byn": {
-          "type": "string | null"
+          "type": "string"
         },
-        "ringData": {
+        "ring": {
           "type": "array",
-          "items": "#/definitions/RingData"
+          "items": {
+            "$ref": "#/definitions/Ring"
+          }
         }
       }
     },
@@ -33,20 +439,22 @@
       "type": "object",
       "properties": {
         "id": {
-          "type": "string"
+          "type": "number"
         },
         "desc_eng": {
-          "type": "string | null"
+          "type": "string"
         },
         "desc_rus": {
-          "type": "string | null"
+          "type": "string"
         },
         "desc_byn": {
-          "type": "string | null"
+          "type": "string"
         },
-        "ringData": {
+        "ring": {
           "type": "array",
-          "items": "#/definitions/RingData"
+          "items": {
+            "$ref": "#/definitions/Ring"
+          }
         }
       }
     },
@@ -54,20 +462,22 @@
       "type": "object",
       "properties": {
         "id": {
-          "type": "string"
+          "type": "number"
         },
         "desc_eng": {
-          "type": "string | null"
+          "type": "string"
         },
         "desc_rus": {
-          "type": "string | null"
+          "type": "string"
         },
         "desc_byn": {
-          "type": "string | null"
+          "type": "string"
         },
-        "ringData": {
+        "ring": {
           "type": "array",
-          "items": "#/definitions/RingData"
+          "items": {
+            "$ref": "#/definitions/Ring"
+          }
         }
       }
     },
@@ -78,21 +488,509 @@
           "type": "string"
         },
         "desc_eng": {
-          "type": "string | null"
+          "type": "string"
         },
         "desc_rus": {
-          "type": "string | null"
+          "type": "string"
         },
         "desc_byn": {
-          "type": "string | null"
+          "type": "string"
         },
-        "ringData": {
+        "ring": {
           "type": "array",
-          "items": "#/definitions/RingData"
+          "items": {
+            "$ref": "#/definitions/Ring"
+          }
+        },
+        "observation": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Observation"
+          }
         },
         "basaRing": {
           "type": "array",
-          "items": "#/definitions/BasaRing"
+          "items": {
+            "$ref": "#/definitions/BasaRing"
+          }
+        }
+      }
+    },
+    "Broodsize": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "desc_eng": {
+          "type": "string"
+        },
+        "desc_rus": {
+          "type": "string"
+        },
+        "desc_byn": {
+          "type": "string"
+        },
+        "ring": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Ring"
+          }
+        }
+      }
+    },
+    "CatchingLures": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "desc_eng": {
+          "type": "string"
+        },
+        "desc_rus": {
+          "type": "string"
+        },
+        "desc_byn": {
+          "type": "string"
+        },
+        "ring": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Ring"
+          }
+        }
+      }
+    },
+    "CatchingMethod": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "desc_eng": {
+          "type": "string"
+        },
+        "desc_rus": {
+          "type": "string"
+        },
+        "desc_byn": {
+          "type": "string"
+        },
+        "ring": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Ring"
+          }
+        }
+      }
+    },
+    "Circumstances": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "desc_eng": {
+          "type": "string"
+        },
+        "desc_rus": {
+          "type": "string"
+        },
+        "desc_byn": {
+          "type": "string"
+        },
+        "ring": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Ring"
+          }
+        }
+      }
+    },
+    "CircumstancesPresumed": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "number"
+        },
+        "desc_eng": {
+          "type": "string"
+        },
+        "desc_rus": {
+          "type": "string"
+        },
+        "desc_byn": {
+          "type": "string"
+        },
+        "ring": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Ring"
+          }
+        }
+      }
+    },
+    "Condition": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "number"
+        },
+        "desc_eng": {
+          "type": "string"
+        },
+        "desc_rus": {
+          "type": "string"
+        },
+        "desc_byn": {
+          "type": "string"
+        },
+        "ring": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Ring"
+          }
+        }
+      }
+    },
+    "EURINGCodeIdentifier": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "number"
+        },
+        "desc_eng": {
+          "type": "string"
+        },
+        "desc_rus": {
+          "type": "string"
+        },
+        "desc_byn": {
+          "type": "string"
+        },
+        "ring": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Ring"
+          }
+        }
+      }
+    },
+    "EURINGOtherMarksInformation": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "desc_eng": {
+          "type": "string"
+        },
+        "desc_rus": {
+          "type": "string"
+        },
+        "desc_byn": {
+          "type": "string"
+        },
+        "ring": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Ring"
+          }
+        }
+      }
+    },
+    "EURINGPrimaryIdentificationMethod": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "desc_eng": {
+          "type": "string"
+        },
+        "desc_rus": {
+          "type": "string"
+        },
+        "desc_byn": {
+          "type": "string"
+        },
+        "ring": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Ring"
+          }
+        }
+      }
+    },
+    "Manipulated": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "desc_eng": {
+          "type": "string"
+        },
+        "desc_rus": {
+          "type": "string"
+        },
+        "desc_byn": {
+          "type": "string"
+        },
+        "ring": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Ring"
+          }
+        }
+      }
+    },
+    "MetalRingInformation": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "number"
+        },
+        "desc_eng": {
+          "type": "string"
+        },
+        "desc_rus": {
+          "type": "string"
+        },
+        "desc_byn": {
+          "type": "string"
+        },
+        "ring": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Ring"
+          }
+        }
+      }
+    },
+    "MovedBeforeTheCapture": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "number"
+        },
+        "desc_eng": {
+          "type": "string"
+        },
+        "desc_rus": {
+          "type": "string"
+        },
+        "desc_byn": {
+          "type": "string"
+        },
+        "ring": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Ring"
+          }
+        }
+      }
+    },
+    "PlaceCode": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "country": {
+          "type": "string"
+        },
+        "region": {
+          "type": "string"
+        },
+        "ring": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Ring"
+          }
+        }
+      }
+    },
+    "PullusAge": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "desc_eng": {
+          "type": "string"
+        },
+        "desc_rus": {
+          "type": "string"
+        },
+        "desc_byn": {
+          "type": "string"
+        },
+        "ring": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Ring"
+          }
+        }
+      }
+    },
+    "RingingScheme": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "status": {
+          "type": "string"
+        },
+        "country": {
+          "type": "string"
+        },
+        "center": {
+          "type": "string"
+        },
+        "ring": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Ring"
+          }
+        }
+      }
+    },
+    "Sex": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "desc_eng": {
+          "type": "string"
+        },
+        "desc_rus": {
+          "type": "string"
+        },
+        "desc_byn": {
+          "type": "string"
+        },
+        "ring": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Ring"
+          }
+        },
+        "observation": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Observation"
+          }
+        },
+        "basaRing": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/BasaRing"
+          }
+        }
+      }
+    },
+    "Species": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "belCode": {
+          "type": "number"
+        },
+        "species": {
+          "type": "string"
+        },
+        "ordo": {
+          "type": "string"
+        },
+        "family": {
+          "type": "string"
+        },
+        "ring": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Ring"
+          }
+        },
+        "observation": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Observation"
+          }
+        },
+        "basaRing": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/BasaRing"
+          }
+        }
+      }
+    },
+    "Status": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "desc_eng": {
+          "type": "string"
+        },
+        "desc_rus": {
+          "type": "string"
+        },
+        "desc_byn": {
+          "type": "string"
+        },
+        "ring": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Ring"
+          }
+        }
+      }
+    },
+    "StatusOfRing": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        },
+        "ring": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Ring"
+          }
+        }
+      }
+    },
+    "VerificationOfTheMetalRing": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "number"
+        },
+        "desc_eng": {
+          "type": "string"
+        },
+        "desc_rus": {
+          "type": "string"
+        },
+        "desc_byn": {
+          "type": "string"
+        },
+        "ring": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Ring"
+          }
         }
       }
     },
@@ -116,670 +1014,195 @@
         "id": {
           "type": "string"
         },
+        "ringNumber": {
+          "type": "string"
+        },
         "species": {
-          "type": "#/definitions/Species"
+          "$ref": "#/definitions/Species"
         },
         "sex": {
-          "type": "#/definitions/Sex"
+          "$ref": "#/definitions/Sex"
         },
         "age": {
-          "type": "#/definitions/Age"
+          "$ref": "#/definitions/Age"
         },
         "ringer": {
-          "type": "#/definitions/User"
+          "$ref": "#/definitions/User"
         },
         "region": {
-          "type": "string | null"
+          "type": "string"
         },
         "district": {
-          "type": "string | null"
+          "type": "string"
         },
         "place": {
-          "type": "string | null"
+          "type": "string"
         },
         "coordinates": {
-          "type": "string | null"
-        },
-        "lat": {
-          "type": "string | null"
-        },
-        "lon": {
-          "type": "string | null"
-        },
-        "co_la_de": {
-          "type": "string | null"
-        },
-        "co_la_mi": {
-          "type": "string | null"
-        },
-        "co_lo_de": {
-          "type": "string | null"
-        },
-        "co_lo_mi": {
-          "type": "string | null"
-        },
-        "map": {
-          "type": "string | null"
-        },
-        "notes": {
-          "type": "string | null"
-        }
-      }
-    },
-    "Broodsize": {
-      "type": "object",
-      "properties": {
-        "id": {
           "type": "string"
-        },
-        "desc_eng": {
-          "type": "string | null"
-        },
-        "desc_rus": {
-          "type": "string | null"
-        },
-        "desc_byn": {
-          "type": "string | null"
-        },
-        "ringData": {
-          "type": "array",
-          "items": "#/definitions/RingData"
-        }
-      }
-    },
-    "CathingLures": {
-      "type": "object",
-      "properties": {
-        "id": {
-          "type": "string"
-        },
-        "desc_eng": {
-          "type": "string | null"
-        },
-        "desc_rus": {
-          "type": "string | null"
-        },
-        "desc_byn": {
-          "type": "string | null"
-        },
-        "ringData": {
-          "type": "array",
-          "items": "#/definitions/RingData"
-        }
-      }
-    },
-    "CatchingMethod": {
-      "type": "object",
-      "properties": {
-        "id": {
-          "type": "string"
-        },
-        "desc_eng": {
-          "type": "string | null"
-        },
-        "desc_rus": {
-          "type": "string | null"
-        },
-        "desc_byn": {
-          "type": "string | null"
-        },
-        "ringData": {
-          "type": "array",
-          "items": "#/definitions/RingData"
-        }
-      }
-    },
-    "Circumstances": {
-      "type": "object",
-      "properties": {
-        "id": {
-          "type": "string"
-        },
-        "desc_eng": {
-          "type": "string | null"
-        },
-        "desc_rus": {
-          "type": "string | null"
-        },
-        "desc_byn": {
-          "type": "string | null"
-        },
-        "ringData": {
-          "type": "array",
-          "items": "#/definitions/RingData"
-        }
-      }
-    },
-    "CircumstancesPresumed": {
-      "type": "object",
-      "properties": {
-        "id": {
-          "type": "string"
-        },
-        "desc_eng": {
-          "type": "string | null"
-        },
-        "desc_rus": {
-          "type": "string | null"
-        },
-        "desc_byn": {
-          "type": "string | null"
-        },
-        "ringData": {
-          "type": "array",
-          "items": "#/definitions/RingData"
-        }
-      }
-    },
-    "ColorRingInformation": {
-      "type": "object",
-      "properties": {
-        "id": {
-          "type": "string"
-        },
-        "short_schem": {
-          "type": "string"
-        },
-        "schem": {
-          "type": "string | null"
-        },
-        "descr": {
-          "type": "string | null"
-        },
-        "pic": {
-          "type": "string | null"
-        },
-        "ringData": {
-          "type": "array",
-          "items": "#/definitions/RingData"
-        }
-      }
-    },
-    "": {
-      "type": "object",
-      "properties": {}
-    },
-    "Condition": {
-      "type": "object",
-      "properties": {
-        "id": {
-          "type": "string"
-        },
-        "desc_eng": {
-          "type": "string | null"
-        },
-        "desc_rus": {
-          "type": "string | null"
-        },
-        "desc_byn": {
-          "type": "string | null"
-        },
-        "ringData": {
-          "type": "array",
-          "items": "#/definitions/RingData"
-        }
-      }
-    },
-    "EURINGCodeIdentifier": {
-      "type": "object",
-      "properties": {
-        "id": {
-          "type": "string"
-        },
-        "desc_eng": {
-          "type": "string | null"
-        },
-        "desc_rus": {
-          "type": "string | null"
-        },
-        "desc_byn": {
-          "type": "string | null"
-        },
-        "ringData": {
-          "type": "array",
-          "items": "#/definitions/RingData"
-        }
-      }
-    },
-    "EURINGOtherMarksInformation": {
-      "type": "object",
-      "properties": {
-        "id": {
-          "type": "string"
-        },
-        "desc_eng": {
-          "type": "string | null"
-        },
-        "desc_rus": {
-          "type": "string | null"
-        },
-        "desc_byn": {
-          "type": "string | null"
-        },
-        "ringData": {
-          "type": "array",
-          "items": "#/definitions/RingData"
-        }
-      }
-    },
-    "EURINGPrimaryIdentificationMethod": {
-      "type": "object",
-      "properties": {
-        "id": {
-          "type": "string"
-        },
-        "desc_eng": {
-          "type": "string | null"
-        },
-        "desc_rus": {
-          "type": "string | null"
-        },
-        "desc_byn": {
-          "type": "string | null"
-        },
-        "ringData": {
-          "type": "array",
-          "items": "#/definitions/RingData"
-        }
-      }
-    },
-    "Manipulated": {
-      "type": "object",
-      "properties": {
-        "id": {
-          "type": "string"
-        },
-        "desc_eng": {
-          "type": "string | null"
-        },
-        "desc_rus": {
-          "type": "string | null"
-        },
-        "desc_byn": {
-          "type": "string | null"
-        },
-        "ringData": {
-          "type": "array",
-          "items": "#/definitions/RingData"
-        }
-      }
-    },
-    "MetalRingInformation": {
-      "type": "object",
-      "properties": {
-        "id": {
-          "type": "string"
-        },
-        "desc_eng": {
-          "type": "string | null"
-        },
-        "desc_rus": {
-          "type": "string | null"
-        },
-        "desc_byn": {
-          "type": "string | null"
-        },
-        "ringData": {
-          "type": "array",
-          "items": "#/definitions/RingData"
-        }
-      }
-    },
-    "MovedBeforeTheCapture": {
-      "type": "object",
-      "properties": {
-        "id": {
-          "type": "string"
-        },
-        "desc_eng": {
-          "type": "string | null"
-        },
-        "desc_rus": {
-          "type": "string | null"
-        },
-        "desc_byn": {
-          "type": "string | null"
-        },
-        "ringData": {
-          "type": "array",
-          "items": "#/definitions/RingData"
-        }
-      }
-    },
-    "PlaceCode": {
-      "type": "object",
-      "properties": {
-        "id": {
-          "type": "string"
-        },
-        "code": {
-          "type": "string"
-        },
-        "country": {
-          "type": "string | null"
-        },
-        "region": {
-          "type": "string | null"
-        },
-        "ringData": {
-          "type": "array",
-          "items": "#/definitions/RingData"
-        }
-      }
-    },
-    "PullusAge": {
-      "type": "object",
-      "properties": {
-        "id": {
-          "type": "string"
-        },
-        "desc_eng": {
-          "type": "string | null"
-        },
-        "desc_rus": {
-          "type": "string | null"
-        },
-        "desc_byn": {
-          "type": "string | null"
-        },
-        "ringData": {
-          "type": "array",
-          "items": "#/definitions/RingData"
-        }
-      }
-    },
-    "RefNo": {
-      "type": "object",
-      "properties": {
-        "id": {
-          "type": "string"
-        },
-        "zapros": {
-          "type": "boolean"
-        },
-        "otvet": {
-          "type": "boolean"
-        },
-        "informaciya": {
-          "type": "boolean"
-        },
-        "svedenija_informatoru": {
-          "type": "string | null"
-        },
-        "zapros_file": {
-          "type": "string | null"
-        },
-        "otvet_file": {
-          "type": "string | null"
-        },
-        "informaciya_file": {
-          "type": "string | null"
-        },
-        "other_file": {
-          "type": "string | null"
         },
         "note": {
-          "type": "string | null"
+          "type": "string"
         }
       }
     },
-    "RingBy": {
+    "Observation": {
       "type": "object",
       "properties": {
         "id": {
           "type": "string"
         },
-        "ringData": {
-          "type": "#/definitions/RingData"
-        },
-        "ringerInformation": {
-          "type": "#/definitions/User"
-        },
-        "statusOfRing": {
-          "type": "#/definitions/StatusOfRing"
-        }
-      }
-    },
-    "RingByRecovery": {
-      "type": "object",
-      "properties": {
-        "id": {
-          "type": "string"
-        },
-        "ringData": {
-          "type": "#/definitions/RingData"
+        "ring": {
+          "$ref": "#/definitions/Ring"
         },
         "finder": {
-          "type": "#/definitions/User"
+          "$ref": "#/definitions/User"
         },
-        "refNo": {
-          "type": "#/definitions/User"
-        }
-      }
-    },
-    "RingData": {
-      "type": "object",
-      "properties": {
-        "id": {
+        "speciesMentioned": {
+          "$ref": "#/definitions/Species"
+        },
+        "sexMentioned": {
+          "$ref": "#/definitions/Sex"
+        },
+        "ageMentioned": {
+          "$ref": "#/definitions/Age"
+        },
+        "derivedDataDistance": {
           "type": "string"
         },
-        "ringingScheme": {
-          "type": "#/definitions/RingingScheme"
+        "derivedDataDirection": {
+          "type": "string"
         },
-        "primaryIdMethod": {
-          "type": "#/definitions/EURINGPrimaryIdentificationMethod"
+        "derivedDataElapsedTime": {
+          "type": "string"
         },
-        "identification_series": {
-          "type": "string | null"
-        },
-        "dots": {
-          "type": "string | null"
-        },
-        "identification_number": {
-          "type": "number | null"
-        },
-        "verificationOfTheMetalRing": {
-          "type": "#/definitions/VerificationOfTheMetalRing"
-        },
-        "metalRingInformation": {
-          "type": "#/definitions/MetalRingInformation"
-        },
-        "otherMarksInformation": {
-          "type": "#/definitions/EURINGOtherMarksInformation"
-        },
-        "species": {
-          "type": "#/definitions/Species"
-        },
-        "manipulated": {
-          "type": "#/definitions/Manipulated"
-        },
-        "movedBeforeTheCapture": {
-          "type": "#/definitions/MovedBeforeTheCapture"
-        },
-        "catchingMethod": {
-          "type": "#/definitions/CatchingMethod"
-        },
-        "cathingLures": {
-          "type": "#/definitions/CathingLures"
-        },
-        "sex": {
-          "type": "#/definitions/Sex"
-        },
-        "age": {
-          "type": "#/definitions/Age"
-        },
-        "status": {
-          "type": "#/definitions/Status"
-        },
-        "broodsize": {
-          "type": "#/definitions/Status"
-        },
-        "pullusAge": {
-          "type": "#/definitions/PullusAge"
-        },
-        "accuracyOfPullusAge": {
-          "type": "#/definitions/AccuracyOfPullusAge"
-        },
-        "lng": {
-          "type": "number | null"
-        },
-        "ltd": {
-          "type": "number | null"
-        },
-        "placeCode": {
-          "type": "#/definitions/PlaceCode"
-        },
-        "accuracyOfCoords": {
-          "type": "#/definitions/AccuracyOfCoords"
-        },
-        "condition": {
-          "type": "#/definitions/Condition"
-        },
-        "circumstances": {
-          "type": "#/definitions/Circumstances"
-        },
-        "circumstancesPresumed": {
-          "type": "#/definitions/CircumstancesPresumed"
-        },
-        "date": {
-          "type": "Date | null"
-        },
-        "accuracyOfDate": {
-          "type": "#/definitions/AccuracyOfDate"
-        },
-        "euringCodeIdentifier": {
-          "type": "#/definitions/EURINGCodeIdentifier"
-        },
-        "colorRingInformation": {
-          "type": "#/definitions/ColorRingInformation"
-        },
-        "derived_data_distance": {
-          "type": "string | null"
-        },
-        "derived_data_direction": {
-          "type": "string | null"
-        },
-        "derived_data_elapsed_time": {
-          "type": "string | null"
+        "colorRing": {
+          "type": "string"
         },
         "note": {
-          "type": "string | null"
+          "type": "string"
+        },
+        "verified": {
+          "type": "boolean"
         }
       }
     },
-    "RingingScheme": {
+    "Ring": {
       "type": "object",
       "properties": {
         "id": {
           "type": "string"
         },
-        "code": {
+        "ringNumber": {
           "type": "string"
         },
-        "status": {
-          "type": "string"
-        },
-        "country": {
-          "type": "string | null"
-        },
-        "center": {
-          "type": "string | null"
-        },
-        "ringData": {
+        "observation": {
           "type": "array",
-          "items": "#/definitions/RingData"
-        }
-      }
-    },
-    "Sex": {
-      "type": "object",
-      "properties": {
-        "id": {
+          "items": {
+            "$ref": "#/definitions/Observation"
+          }
+        },
+        "ringingScheme": {
+          "$ref": "#/definitions/RingingScheme"
+        },
+        "euringPrimaryIdMethod": {
+          "$ref": "#/definitions/EURINGPrimaryIdentificationMethod"
+        },
+        "identificationSeries": {
           "type": "string"
         },
-        "desc_eng": {
-          "type": "string | null"
-        },
-        "desc_rus": {
-          "type": "string | null"
-        },
-        "desc_byn": {
-          "type": "string | null"
-        },
-        "ringData": {
-          "type": "array",
-          "items": "#/definitions/RingData"
-        },
-        "basaRing": {
-          "type": "array",
-          "items": "#/definitions/BasaRing"
-        }
-      }
-    },
-    "Species": {
-      "type": "object",
-      "properties": {
-        "id": {
+        "dots": {
           "type": "string"
         },
-        "euring_code": {
+        "identificationNumber": {
           "type": "number"
         },
-        "six_l_code": {
-          "type": "string | null"
+        "verificationOfTheMetalRing": {
+          "$ref": "#/definitions/VerificationOfTheMetalRing"
         },
-        "species": {
-          "type": "string | null"
+        "metalRingInformation": {
+          "$ref": "#/definitions/MetalRingInformation"
         },
-        "ordo": {
-          "type": "string | null"
+        "euringOtherMarksInformation": {
+          "$ref": "#/definitions/EURINGOtherMarksInformation"
         },
-        "family": {
-          "type": "string | null"
+        "speciesScheme": {
+          "$ref": "#/definitions/Species"
         },
-        "ringData": {
-          "type": "array",
-          "items": "#/definitions/RingData"
+        "manipulated": {
+          "$ref": "#/definitions/Manipulated"
         },
-        "basaRing": {
-          "type": "array",
-          "items": "#/definitions/BasaRing"
-        }
-      }
-    },
-    "Status": {
-      "type": "object",
-      "properties": {
-        "id": {
+        "movedBeforeTheCapture": {
+          "$ref": "#/definitions/MovedBeforeTheCapture"
+        },
+        "catchingMethod": {
+          "$ref": "#/definitions/CatchingMethod"
+        },
+        "catchingLures": {
+          "$ref": "#/definitions/CatchingLures"
+        },
+        "sexScheme": {
+          "$ref": "#/definitions/Sex"
+        },
+        "ageScheme": {
+          "$ref": "#/definitions/Age"
+        },
+        "status": {
+          "$ref": "#/definitions/Status"
+        },
+        "broodsize": {
+          "$ref": "#/definitions/Broodsize"
+        },
+        "pullusAge": {
+          "$ref": "#/definitions/PullusAge"
+        },
+        "accuracyOfPullusAge": {
+          "$ref": "#/definitions/AccuracyOfPullusAge"
+        },
+        "coordinates": {
           "type": "string"
         },
-        "desc_eng": {
-          "type": "string | null"
+        "placeCode": {
+          "$ref": "#/definitions/PlaceCode"
         },
-        "desc_rus": {
-          "type": "string | null"
+        "accuracyOfCoords": {
+          "$ref": "#/definitions/AccuracyOfCoords"
         },
-        "desc_byn": {
-          "type": "string | null"
+        "condition": {
+          "$ref": "#/definitions/Condition"
         },
-        "ringData": {
-          "type": "array",
-          "items": "#/definitions/RingData"
-        }
-      }
-    },
-    "StatusOfRing": {
-      "type": "object",
-      "properties": {
-        "id": {
+        "circumstances": {
+          "$ref": "#/definitions/Circumstances"
+        },
+        "circumstancesPresumed": {
+          "$ref": "#/definitions/CircumstancesPresumed"
+        },
+        "date": {
+          "$ref": "#/definitions/Date"
+        },
+        "accuracyOfDate": {
+          "$ref": "#/definitions/AccuracyOfDate"
+        },
+        "euringCodeIdentifier": {
+          "$ref": "#/definitions/EURINGCodeIdentifier"
+        },
+        "derivedDataDistance": {
           "type": "string"
         },
-        "description": {
-          "type": "string | null"
+        "derivedDataDirection": {
+          "type": "string"
         },
-        "ringBy": {
-          "type": "array",
-          "items": "#/definitions/RingBy"
+        "derivedDataElapsedTime": {
+          "type": "string"
+        },
+        "note": {
+          "type": "string"
+        },
+        "ringerInformation": {
+          "$ref": "#/definitions/User"
+        },
+        "statusOfRing": {
+          "$ref": "#/definitions/StatusOfRing"
         }
       }
     },
@@ -799,120 +1222,44 @@
           "type": "string"
         },
         "role": {
-          "type": "UserRole"
+          "$ref": "#/definitions/UserRole"
         },
         "firstName": {
-          "type": "string | null"
+          "type": "string"
         },
         "lastName": {
-          "type": "string | null"
+          "type": "string"
         },
-        "ringBy": {
+        "ring": {
           "type": "array",
-          "items": "#/definitions/RingBy"
+          "items": {
+            "$ref": "#/definitions/Ring"
+          }
         },
-        "ringByRecovery": {
+        "observation": {
           "type": "array",
-          "items": "#/definitions/RingByRecovery"
+          "items": {
+            "$ref": "#/definitions/Observation"
+          }
         },
         "basaRing": {
           "type": "array",
-          "items": "#/definitions/BasaRing"
+          "items": {
+            "$ref": "#/definitions/BasaRing"
+          }
         }
       }
     },
-    "VerificationOfTheMetalRing": {
+    "UserRole": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "enum": ["observer", "ringer", "scientist", "moderator", "admin"]
+      }
+    },
+    "Date": {
       "type": "object",
-      "properties": {
-        "id": {
-          "type": "string"
-        },
-        "desc_eng": {
-          "type": "string | null"
-        },
-        "desc_rus": {
-          "type": "string | null"
-        },
-        "desc_byn": {
-          "type": "string | null"
-        },
-        "ringData": {
-          "type": "array",
-          "items": "#/definitions/RingData"
-        }
-      }
-    }
-  },
-  "tags": [
-    {
-      "name": "ObservationController",
-      "description": "Observation operations"
-    }
-  ],
-  "paths": {
-    "/observations/{id}": {
-      "delete": {
-        "tags": ["ObservationController"],
-        "summary": "remove observation",
-        "description": "",
-        "produces": ["application/json"],
-        "responses": {
-          "200": {
-            "description": "{ id: String, removed: Boolean }"
-          }
-        },
-        "parameters": [
-          {
-            "name": "id",
-            "description": "id",
-            "in": "path",
-            "required": true,
-            "type": "string"
-          }
-        ]
-      },
-      "get": {
-        "tags": ["ObservationController"],
-        "summary": "get observation by id",
-        "description": "",
-        "produces": ["application/json"],
-        "responses": {
-          "200": {
-            "description": "Successful operation",
-            "schema": {
-              "$ref": "#/definitions/RingByRecovery"
-            }
-          }
-        },
-        "parameters": [
-          {
-            "name": "id",
-            "description": "id",
-            "in": "path",
-            "required": true,
-            "type": "string"
-          }
-        ]
-      }
-    },
-    "/observations": {
-      "get": {
-        "tags": ["ObservationController"],
-        "summary": "get observation",
-        "description": "",
-        "produces": ["application/json"],
-        "responses": {
-          "200": {
-            "description": "Successful operation",
-            "schema": {
-              "items": {
-                "$ref": "#/definitions/RingByRecovery"
-              },
-              "type": "array"
-            }
-          }
-        }
-      }
+      "description": "https://developer.mozilla.org/ru/docs/Web/JavaScript/Reference/Global_Objects/Date"
     }
   }
 }
