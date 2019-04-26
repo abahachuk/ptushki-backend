@@ -4,6 +4,7 @@ import { Builder, fixturesIterator, IFixture, Loader, Parser, Resolver } from 't
 import { Connection, createConnection } from 'typeorm';
 import config from './prepare-db-config';
 import { executeInThreadedQueue } from '../utils/async-queue';
+import cleanAndWriteLine from '../utils/clean-write-line';
 
 const load = async (connection: Connection): Promise<{ [index: string]: number }> => {
   const loader = new Loader();
@@ -16,13 +17,7 @@ const load = async (connection: Connection): Promise<{ [index: string]: number }
   const fixturing = [...fixturesIterator(fixtures)].map((f: IFixture, i: number, arr: IFixture[]) => async () => {
     const entity = await builder.build(f);
     await connection.getRepository(entity.constructor.name).save(entity);
-    if (i !== 0) {
-      process.stdout.write('\r\x1b[K');
-    }
-    process.stdout.write(`loaded fixtures: ${i + 1}/${arr.length}`);
-    if (i === arr.length - 1) {
-      process.stdout.write('\r\x1b[K');
-    }
+    cleanAndWriteLine(i, arr.length, 'fixtures loaded:');
   });
 
   await executeInThreadedQueue(fixturing, 5);
