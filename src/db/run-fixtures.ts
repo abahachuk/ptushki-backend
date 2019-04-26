@@ -13,9 +13,16 @@ const load = async (connection: Connection): Promise<{ [index: string]: number }
   const fixtures = resolver.resolve(loader.fixtureConfigs);
   const builder = new Builder(connection, new Parser());
 
-  const fixturing = [...fixturesIterator(fixtures)].map((f: IFixture) => async () => {
+  const fixturing = [...fixturesIterator(fixtures)].map((f: IFixture, i: number, arr: IFixture[]) => async () => {
     const entity = await builder.build(f);
     await connection.getRepository(entity.constructor.name).save(entity);
+    if (i !== 0) {
+      process.stdout.write('\r\x1b[K');
+    }
+    process.stdout.write(`loaded fixtures: ${i + 1}/${arr.length}`);
+    if (i === arr.length - 1) {
+      process.stdout.write('\r\x1b[K');
+    }
   });
 
   await executeInThreadedQueue(fixturing, 5);
@@ -38,8 +45,8 @@ let connection: Connection | undefined;
     // README this drops db and recreate scheme
     await connection.synchronize(true);
     const result = await load(connection);
-    console.log('loaded fixtures: ', result);
     console.timeEnd('taken time');
+    console.log('loaded fixtures: ', result);
   } catch (e) {
     if (connection) {
       await connection.close();
