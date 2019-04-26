@@ -37,10 +37,14 @@ export class Ring {
   @OneToMany(() => Observation, m => m.ring)
   public observation: Observation[];
 
-  @ManyToOne(() => RingingScheme, m => m.ring)
+  @ManyToOne(() => RingingScheme, m => m.ring, {
+    eager: true,
+  })
   public ringingScheme: RingingScheme;
 
-  @ManyToOne(() => EURINGPrimaryIdentificationMethod, m => m.ring)
+  @ManyToOne(() => EURINGPrimaryIdentificationMethod, m => m.ring, {
+    eager: true,
+  })
   public euringPrimaryIdMethod: EURINGPrimaryIdentificationMethod;
 
   @Column('varchar', { nullable: true, default: null })
@@ -52,73 +56,115 @@ export class Ring {
   @Column('varchar', { nullable: true, default: null })
   public identificationNumber: number | null;
 
-  @ManyToOne(() => VerificationOfTheMetalRing, m => m.ring)
+  @ManyToOne(() => VerificationOfTheMetalRing, m => m.ring, {
+    eager: true,
+  })
   public verificationOfTheMetalRing: VerificationOfTheMetalRing;
 
-  @ManyToOne(() => MetalRingInformation, m => m.ring)
+  @ManyToOne(() => MetalRingInformation, m => m.ring, {
+    eager: true,
+  })
   public metalRingInformation: MetalRingInformation;
 
-  @ManyToOne(() => EURINGOtherMarksInformation, m => m.ring)
+  @ManyToOne(() => EURINGOtherMarksInformation, m => m.ring, {
+    eager: true,
+  })
   public euringOtherMarksInformation: EURINGOtherMarksInformation;
 
-  @ManyToOne(() => Species, m => m.ring)
+  @ManyToOne(() => Species, m => m.ring, {
+    eager: true,
+  })
   public speciesScheme: Species;
 
-  @ManyToOne(() => Manipulated, m => m.ring)
+  @ManyToOne(() => Manipulated, m => m.ring, {
+    eager: true,
+  })
   public manipulated: Manipulated;
 
-  @ManyToOne(() => MovedBeforeTheCapture, m => m.ring)
+  @ManyToOne(() => MovedBeforeTheCapture, m => m.ring, {
+    eager: true,
+  })
   public movedBeforeTheCapture: MovedBeforeTheCapture;
 
-  @ManyToOne(() => CatchingMethod, m => m.ring)
+  @ManyToOne(() => CatchingMethod, m => m.ring, {
+    eager: true,
+  })
   public catchingMethod: CatchingMethod;
 
-  @ManyToOne(() => CatchingLures, m => m.ring)
+  @ManyToOne(() => CatchingLures, m => m.ring, {
+    eager: true,
+  })
   public catchingLures: CatchingLures;
 
-  @ManyToOne(() => Sex, m => m.ring)
+  @ManyToOne(() => Sex, m => m.ring, {
+    eager: true,
+  })
   public sexScheme: Sex;
 
-  @ManyToOne(() => Age, m => m.ring)
+  @ManyToOne(() => Age, m => m.ring, {
+    eager: true,
+  })
   public ageScheme: Age;
 
-  @ManyToOne(() => Status, m => m.ring)
+  @ManyToOne(() => Status, m => m.ring, {
+    eager: true,
+  })
   public status: Status;
 
-  @ManyToOne(() => Broodsize, m => m.ring)
+  @ManyToOne(() => Broodsize, m => m.ring, {
+    eager: true,
+  })
   public broodsize: Broodsize;
 
-  @ManyToOne(() => PullusAge, m => m.ring)
+  @ManyToOne(() => PullusAge, m => m.ring, {
+    eager: true,
+  })
   public pullusAge: PullusAge;
 
-  @ManyToOne(() => AccuracyOfPullusAge, m => m.ring)
+  @ManyToOne(() => AccuracyOfPullusAge, m => m.ring, {
+    eager: true,
+  })
   public accuracyOfPullusAge: AccuracyOfPullusAge;
 
   @Column('varchar', { nullable: true, default: null })
   public coordinates: string;
 
-  @ManyToOne(() => PlaceCode, m => m.ring)
+  @ManyToOne(() => PlaceCode, m => m.ring, {
+    eager: true,
+  })
   public placeCode: PlaceCode;
 
-  @ManyToOne(() => AccuracyOfCoords, m => m.ring)
+  @ManyToOne(() => AccuracyOfCoords, m => m.ring, {
+    eager: true,
+  })
   public accuracyOfCoords: AccuracyOfCoords;
 
-  @ManyToOne(() => Condition, m => m.ring)
+  @ManyToOne(() => Condition, m => m.ring, {
+    eager: true,
+  })
   public condition: Condition;
 
-  @ManyToOne(() => Circumstances, m => m.ring)
+  @ManyToOne(() => Circumstances, m => m.ring, {
+    eager: true,
+  })
   public circumstances: Circumstances;
 
-  @ManyToOne(() => CircumstancesPresumed, m => m.ring)
+  @ManyToOne(() => CircumstancesPresumed, m => m.ring, {
+    eager: true,
+  })
   public circumstancesPresumed: CircumstancesPresumed;
 
   @Column('varchar', { nullable: true, default: null })
   public date: Date | null;
 
-  @ManyToOne(() => AccuracyOfDate, m => m.ring)
+  @ManyToOne(() => AccuracyOfDate, m => m.ring, {
+    eager: true,
+  })
   public accuracyOfDate: AccuracyOfDate;
 
-  @ManyToOne(() => EURINGCodeIdentifier, m => m.ring)
+  @ManyToOne(() => EURINGCodeIdentifier, m => m.ring, {
+    eager: true,
+  })
   public euringCodeIdentifier: EURINGCodeIdentifier;
 
   @Column('varchar', { nullable: true, default: null })
@@ -133,9 +179,13 @@ export class Ring {
   @Column('varchar', { nullable: true, default: null })
   public note: string | null;
 
-  @ManyToOne(() => User, m => m.ring)
+  @ManyToOne(() => User, m => m.ring, {
+    eager: true,
+  })
   public ringerInformation: User;
 
-  @ManyToOne(() => StatusOfRing, m => m.ring)
+  @ManyToOne(() => StatusOfRing, m => m.ring, {
+    eager: true,
+  })
   public statusOfRing: StatusOfRing;
 }

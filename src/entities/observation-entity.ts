@@ -10,19 +10,29 @@ export class Observation {
   @PrimaryGeneratedColumn('uuid')
   public id: string;
 
-  @ManyToOne(() => Ring, m => m.observation)
+  @ManyToOne(() => Ring, m => m.observation, {
+    eager: true,
+  })
   public ring: Ring;
 
-  @ManyToOne(() => User, m => m.observation)
+  @ManyToOne(() => User, m => m.observation, {
+    eager: true,
+  })
   public finder: User;
 
-  @ManyToOne(() => Species, m => m.observation)
+  @ManyToOne(() => Species, m => m.observation, {
+    eager: true,
+  })
   public speciesMentioned: Species;
 
-  @ManyToOne(() => Sex, m => m.observation)
+  @ManyToOne(() => Sex, m => m.observation, {
+    eager: true,
+  })
   public sexMentioned: Sex;
 
-  @ManyToOne(() => Age, m => m.observation)
+  @ManyToOne(() => Age, m => m.observation, {
+    eager: true,
+  })
   public ageMentioned: Age;
 
   @Column('varchar', { nullable: true, default: null })
