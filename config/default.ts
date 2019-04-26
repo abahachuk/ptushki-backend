@@ -1,5 +1,6 @@
 export default {
   PORT: Number.parseInt(process.env.PORT as string, 10) || 3001,
+  HOST: 'localhost',
   UUID_LENGTH: 36,
   dbConfig: {
     type: 'postgres',
