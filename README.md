@@ -43,6 +43,17 @@ npm run fixtures
 
 It will creates examples all entities and users. **All** users come with password `1234`. For convenience there are also some users **with emails which match their roles:** admin@mail.com, observer@mail.com, ringer@mail.com, scientist@mail.com, moderator@mail.com.
 
+### API Structure
+
+Main app routes are
+
+- `users/`
+- `auth/`
+- `observations/` and
+- `rings/`
+
+Although it would be best to **start the diggin by going to the OpenAPI documentation located at `swagger/`**
+
 ## Running the tests & linting
 
 Project is committing to ESLint coding styles with formatting via Prettier.
