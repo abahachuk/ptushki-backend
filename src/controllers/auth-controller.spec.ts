@@ -102,7 +102,7 @@ describe('Auth', () => {
       expect(res.body.refreshToken).toEqual(expect.any(String));
     });
 
-    it('get 404 if user trying to refresh old token again', async () => {
+    it('get 403 if user trying to refresh old token again', async () => {
       const { refreshToken } = signTokens({ userId, userRole: UserRole.Admin });
       await tokensDb.save(new RefreshToken(refreshToken, userId));
 
@@ -111,7 +111,7 @@ describe('Auth', () => {
         .set('Accept', 'application/json')
         .send({ refreshToken });
 
-      expect(res.status).toEqual(404);
+      expect(res.status).toEqual(403);
       expect(res.body.accessToken).toEqual(expect.any(String));
       expect(res.body.refreshToken).toEqual(expect.any(String));
 
@@ -120,7 +120,7 @@ describe('Auth', () => {
         .set('Accept', 'application/json')
         .send({ refreshToken });
 
-      expect(res2.status).toEqual(404);
+      expect(res2.status).toEqual(403);
     });
 
     it('get 401 if refreshToken is expired', async () => {
@@ -191,6 +191,21 @@ describe('Auth', () => {
         .post('/auth/logout')
         .set('Accept', 'application/json')
         .send();
+
+      expect(res.status).toEqual(403);
+    });
+
+    it('get 403 if refreshToken is expired', async () => {
+      const { refreshToken } = signTokens(
+        { userId, userRole: UserRole.Admin },
+        { accessExpiresIn: 1, refreshExpiresIn: 1 },
+      );
+      await tokensDb.save(new RefreshToken(refreshToken, userId));
+
+      const res = await request(app)
+        .post('/auth/logout')
+        .set('Accept', 'application/json')
+        .send({ refreshToken });
 
       expect(res.status).toEqual(403);
     });
