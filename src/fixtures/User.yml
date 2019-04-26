@@ -2,7 +2,7 @@ entity: User
 processor: ./UserProcessor
 items:
   user0:
-    email: '{{internet.email}}'
+    email: 'admin@mail.com'
     password: '1234'
     role: 'admin'
   user{1..10}:
@@ -10,4 +10,20 @@ items:
     lastName: '{{name.lastName}}'
     email: '{{internet.email}}'
     password: '1234'
+  user11:
+    email: 'observer@mail.com'
+    password: '1234'
+    role: 'observer'
+  user12:
+    email: 'ringer@mail.com'
+    password: '1234'
+    role: 'ringer'
+  user13:
+    email: 'scientist@mail.com'
+    password: '1234'
+    role: 'scientist'
+  user14:
+    email: 'moderator@mail.com'
+    password: '1234'
+    role: 'moderator'
 
