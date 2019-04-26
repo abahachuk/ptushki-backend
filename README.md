@@ -8,12 +8,12 @@ These instructions will running on your local machine for development and testin
 
 ### Prerequisites
 
-To run, you will need an installed node, preferably 10 version. However, it is much more convenient to use nvm or its analogues.
-You will also need an postgres instance running locally either directly or in a docker-container, or, easiest of all, you can get a free instance on elephantsql.com -- it will take no more than 5 minutes.
+To run, you will need an installed node, preferably 10 version. However, it is much more convenient to use [nvm](https://github.com/nvm-sh/nvm#installation-and-update) or its analogues.
+You will also need an postgres instance running locally either directly or in a docker-container, or, easiest of all, you can get a free instance on [elephantsql.com](https://www.elephantsql.com/) -- it will take no more than 5 minutes.
 
 ### Installing
 
-When run locally make sure that you added postgres instance creds in .env file. To know which variables to use you have to look in `./config/default.js`. In simplest case you `.env` should be look like:
+When run locally make sure that you added postgres instance creds in `.env` file. To know which variables to use you have to look in `./config/default.js`. In simplest case your `.env` should be look like:
 
 ```dotenv
 PG_URL=postgres://ljfsdl:llfdoDS40_KUppp@dkwjjds.db.elephantsql.com:5432/ljfsdl
@@ -47,7 +47,7 @@ npm run fixtures
 
 **Be attentive:** it drops db and schemes.
 
-It will creates examples all entities and users. **All** users come with password `1234`. For convenience there are also some users **with emails which match their roles:** admin@mail.com, observer@mail.com, ringer@mail.com, scientist@mail.com, moderator@mail.com.
+It will creates examples of all entities and users. **All** users come with password `1234`. For convenience there are also some users **with emails which match their roles:** admin@mail.com, observer@mail.com, ringer@mail.com, scientist@mail.com, moderator@mail.com.
 
 ### API Structure
 
@@ -78,13 +78,13 @@ npm run lint:fix
 
 if you want to simultaneously fix them.
 
-Also project has test which can be run with command
+Also project has tests which can be run with command
 
 ```
 npm test
 ```
 
-With adding modificators `:coverage` or `:watch` should be runned corresponding coomands. Dont forget about `run` .
+With adding modifications `:coverage` or `:watch` should be run corresponding commands. Don't forget about `run` after `npm`.
 
 ## Deployment
 
