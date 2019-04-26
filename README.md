@@ -22,6 +22,12 @@ PG_URL=postgres://ljfsdl:llfdoDS40_KUppp@dkwjjds.db.elephantsql.com:5432/ljfsdl
 So now you ready to **start** from:
 
 ```
+npm i
+```
+
+and then
+
+```
 npm start
 ```
 
