@@ -1,12 +1,12 @@
 import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, OneToMany } from 'typeorm';
-import { AccuracyOfCoords } from './euring-codes/accuracy-of-coords-intity';
+import { AccuracyOfCoords } from './euring-codes/accuracy-of-coordinates-entity';
 import { Sex } from './euring-codes/sex-entity';
 import { Age } from './euring-codes/age-entity';
-import { RingingScheme } from './euring-codes/ring-scheme-entity';
-import { EURINGPrimaryIdentificationMethod } from './euring-codes/euring-primary-identification-method-entity';
-import { VerificationOfTheMetalRing } from './euring-codes/verification-of-metal-ring-entity';
+import { RingingScheme } from './euring-codes/ringing-scheme-entity';
+import { EURINGPrimaryIdentificationMethod } from './euring-codes/primary-identification-method-entity';
+import { VerificationOfTheMetalRing } from './euring-codes/verification-of-the-metal-ring-entity';
 import { MetalRingInformation } from './euring-codes/metal-ring-information-entity';
-import { EURINGOtherMarksInformation } from './euring-codes/euring-other-marks-information-entity';
+import { EURINGOtherMarksInformation } from './euring-codes/other-marks-information-entity';
 import { Species } from './euring-codes/species-entity';
 import { Manipulated } from './euring-codes/manipulated-entity';
 import { MovedBeforeTheCapture } from './euring-codes/moved-before-capture-entity';
