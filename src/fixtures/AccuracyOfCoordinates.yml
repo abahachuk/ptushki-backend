@@ -1,6 +1,6 @@
-entity: AccuracyOfCoords
+entity: AccuracyOfCoordinates
 items:
-  accuracyOfCoords{0..10}:
+  accuracyOfCoordinates{0..10}:
     id: '{{random.number}}'
     desc_eng: '{{lorem.sentence}}'
     desc_rus: '{{lorem.sentence}}'

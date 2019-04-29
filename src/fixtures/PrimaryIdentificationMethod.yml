@@ -1,6 +1,6 @@
-entity: EURINGPrimaryIdentificationMethod
+entity: PrimaryIdentificationMethod
 items:
-  euringPrimaryIdentificationMethod{0..10}:
+  primaryIdentificationMethod{0..10}:
     id: '{{random.alphaNumeric}}{{random.number}}'
     desc_eng: '{{lorem.sentence}}'
     desc_rus: '{{lorem.sentence}}'

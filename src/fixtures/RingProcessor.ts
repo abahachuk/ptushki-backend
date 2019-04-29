@@ -20,13 +20,9 @@ export default class RingProcessor implements IProcessor<Ring> {
   public preProcess(_name: string, object: any): any {
     const identificationSeries = makeid(Math.random() > 0.5 ? 1 : 2);
     const identificationNumber = randomInteger(5);
-    const dots = '.'.repeat(10 - (identificationSeries.length + 5));
     return {
       ...object,
-      ringNumber: `${identificationSeries} ${identificationNumber}`,
-      identificationSeries,
-      dots,
-      identificationNumber,
+      identificationNumber: `${identificationSeries} ${identificationNumber}`,
     };
   }
 }

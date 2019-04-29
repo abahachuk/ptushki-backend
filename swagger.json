@@ -412,7 +412,7 @@
         }
       }
     },
-    "AccuracyOfCoords": {
+    "AccuracyOfCoordinates": {
       "type": "object",
       "properties": {
         "id": {
@@ -516,7 +516,7 @@
         }
       }
     },
-    "Broodsize": {
+    "BroodSize": {
       "type": "object",
       "properties": {
         "id": {
@@ -677,7 +677,7 @@
         }
       }
     },
-    "EURINGOtherMarksInformation": {
+    "OtherMarksInformation": {
       "type": "object",
       "properties": {
         "id": {
@@ -700,7 +700,7 @@
         }
       }
     },
-    "EURINGPrimaryIdentificationMethod": {
+    "PrimaryIdentificationMethod": {
       "type": "object",
       "properties": {
         "id": {
@@ -1067,19 +1067,19 @@
         "ageMentioned": {
           "$ref": "#/definitions/Age"
         },
-        "derivedDataDistance": {
+        "distance": {
           "type": "string"
         },
-        "derivedDataDirection": {
+        "direction": {
           "type": "string"
         },
-        "derivedDataElapsedTime": {
+        "elapsedTime": {
           "type": "string"
         },
         "colorRing": {
           "type": "string"
         },
-        "note": {
+        "remarks": {
           "type": "string"
         },
         "verified": {
@@ -1093,7 +1093,7 @@
         "id": {
           "type": "string"
         },
-        "ringNumber": {
+        "identificationNumber": {
           "type": "string"
         },
         "observation": {
@@ -1105,17 +1105,8 @@
         "ringingScheme": {
           "$ref": "#/definitions/RingingScheme"
         },
-        "euringPrimaryIdMethod": {
-          "$ref": "#/definitions/EURINGPrimaryIdentificationMethod"
-        },
-        "identificationSeries": {
-          "type": "string"
-        },
-        "dots": {
-          "type": "string"
-        },
-        "identificationNumber": {
-          "type": "number"
+        "primaryIdentificationMethod": {
+          "$ref": "#/definitions/PrimaryIdentificationMethod"
         },
         "verificationOfTheMetalRing": {
           "$ref": "#/definitions/VerificationOfTheMetalRing"
@@ -1123,8 +1114,8 @@
         "metalRingInformation": {
           "$ref": "#/definitions/MetalRingInformation"
         },
-        "euringOtherMarksInformation": {
-          "$ref": "#/definitions/EURINGOtherMarksInformation"
+        "otherMarksInformation": {
+          "$ref": "#/definitions/OtherMarksInformation"
         },
         "speciesScheme": {
           "$ref": "#/definitions/Species"
@@ -1150,8 +1141,8 @@
         "status": {
           "$ref": "#/definitions/Status"
         },
-        "broodsize": {
-          "$ref": "#/definitions/Broodsize"
+        "broodSize": {
+          "$ref": "#/definitions/BroodSize"
         },
         "pullusAge": {
           "$ref": "#/definitions/PullusAge"
@@ -1159,14 +1150,14 @@
         "accuracyOfPullusAge": {
           "$ref": "#/definitions/AccuracyOfPullusAge"
         },
-        "coordinates": {
+        "geographicalCoordinates": {
           "type": "string"
         },
         "placeCode": {
           "$ref": "#/definitions/PlaceCode"
         },
-        "accuracyOfCoords": {
-          "$ref": "#/definitions/AccuracyOfCoords"
+        "accuracyOfCoordinates": {
+          "$ref": "#/definitions/AccuracyOfCoordinates"
         },
         "condition": {
           "$ref": "#/definitions/Condition"
@@ -1195,7 +1186,7 @@
         "derivedDataElapsedTime": {
           "type": "string"
         },
-        "note": {
+        "remarks": {
           "type": "string"
         },
         "ringerInformation": {

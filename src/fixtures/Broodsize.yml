@@ -1,6 +1,6 @@
-entity: Broodsize
+entity: BroodSize
 items:
-  broodsize{0..20}:
+  broodSize{0..20}:
     id: '{{random.number}}'
     desc_eng: '{{lorem.sentence}}'
     desc_rus: '{{lorem.sentence}}'
