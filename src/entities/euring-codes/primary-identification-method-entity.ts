@@ -2,8 +2,9 @@ import { Entity, PrimaryColumn, Column, OneToMany } from 'typeorm';
 import { Dictionary } from './common-interfaces';
 import { Ring } from '../ring-entity';
 
+// Related table in access 'Primary identification mehod'
 @Entity()
-export class EURINGPrimaryIdentificationMethod implements Dictionary {
+export class PrimaryIdentificationMethod implements Dictionary {
   @PrimaryColumn()
   public id: string;
 
@@ -16,6 +17,6 @@ export class EURINGPrimaryIdentificationMethod implements Dictionary {
   @Column('varchar', { nullable: true, default: null })
   public desc_byn: string | null;
 
-  @OneToMany(() => Ring, m => m.euringPrimaryIdMethod)
+  @OneToMany(() => Ring, m => m.primaryIdentificationMethod)
   public ring: Ring[];
 }

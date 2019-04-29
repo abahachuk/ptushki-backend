@@ -2,6 +2,7 @@ import { Entity, PrimaryColumn, Column, OneToMany } from 'typeorm';
 import { Dictionary } from './common-interfaces';
 import { Ring } from '../ring-entity';
 
+// Related table in access 'Circumstances presumed'
 @Entity()
 export class CircumstancesPresumed implements Dictionary {
   @PrimaryColumn()

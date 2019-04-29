@@ -4,6 +4,7 @@ import { Ring } from '../ring-entity';
 import { BasaRing } from '../basa-ring-entity';
 import { Observation } from '../observation-entity';
 
+// Related tables in access are 'Age' and 'Age by Schem' (they are similar)
 @Entity()
 export class Age implements Dictionary {
   @PrimaryColumn()

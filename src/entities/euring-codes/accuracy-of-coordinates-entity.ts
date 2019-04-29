@@ -2,8 +2,9 @@ import { Entity, PrimaryColumn, Column, OneToMany } from 'typeorm';
 import { Dictionary } from './common-interfaces';
 import { Ring } from '../ring-entity';
 
+// Related table in access 'Accuracy of co-ordinates'
 @Entity()
-export class AccuracyOfCoords implements Dictionary {
+export class AccuracyOfCoordinates implements Dictionary {
   @PrimaryColumn()
   public id: number;
 
@@ -16,6 +17,6 @@ export class AccuracyOfCoords implements Dictionary {
   @Column('varchar', { nullable: true, default: null })
   public desc_byn: string | null;
 
-  @OneToMany(() => Ring, m => m.accuracyOfCoords)
+  @OneToMany(() => Ring, m => m.accuracyOfCoordinates)
   public ring: Ring[];
 }

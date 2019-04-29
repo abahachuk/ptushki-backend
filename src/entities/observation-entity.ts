@@ -35,21 +35,27 @@ export class Observation {
   })
   public ageMentioned: Age;
 
+  // Related field in access 'Derived data distance'
   @Column('varchar', { nullable: true, default: null })
-  public derivedDataDistance: string | null;
+  public distance: string | null;
 
+  // Related field in access 'Derived data directions'
   @Column('varchar', { nullable: true, default: null })
-  public derivedDataDirection: string | null;
+  public direction: string | null;
 
+  // Related field in access 'Derived data elapsed time'
   @Column('varchar', { nullable: true, default: null })
-  public derivedDataElapsedTime: string | null;
+  public elapsedTime: string | null;
 
+  // Not presented in euring standart
   @Column('varchar', { nullable: true, default: null })
   public colorRing: string | null;
 
+  // Related field in access 'Note'
   @Column('varchar', { nullable: true, default: null })
-  public note: string | null;
+  public remarks: string | null;
 
+  // Not presented in euring standart
   @Column('boolean', { default: false })
   public verified: boolean;
 }

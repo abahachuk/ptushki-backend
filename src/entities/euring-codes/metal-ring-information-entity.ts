@@ -2,6 +2,7 @@ import { Entity, PrimaryColumn, Column, OneToMany } from 'typeorm';
 import { Dictionary } from './common-interfaces';
 import { Ring } from '../ring-entity';
 
+// Related table in access 'Metal ring information'
 @Entity()
 export class MetalRingInformation implements Dictionary {
   @PrimaryColumn()

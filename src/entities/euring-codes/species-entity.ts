@@ -3,6 +3,7 @@ import { Ring } from '../ring-entity';
 import { BasaRing } from '../basa-ring-entity';
 import { Observation } from '../observation-entity';
 
+// Related tables in access 'Species' and 'Species by Schem'
 @Entity()
 export class Species {
   @PrimaryColumn()

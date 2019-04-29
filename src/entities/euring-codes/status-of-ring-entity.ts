@@ -1,6 +1,7 @@
 import { Entity, PrimaryColumn, Column, OneToMany } from 'typeorm';
 import { Ring } from '../ring-entity';
 
+// Related table in access 'Status of ring'
 @Entity()
 export class StatusOfRing {
   @PrimaryColumn()

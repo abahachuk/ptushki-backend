@@ -4,6 +4,7 @@ import { Ring } from '../ring-entity';
 import { BasaRing } from '../basa-ring-entity';
 import { Observation } from '../observation-entity';
 
+// Related tables in access 'Sex' and 'Sex by schem'
 @Entity()
 export class Sex implements Dictionary {
   @PrimaryColumn()

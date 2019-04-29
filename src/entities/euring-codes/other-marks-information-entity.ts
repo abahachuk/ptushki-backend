@@ -2,8 +2,9 @@ import { Entity, PrimaryColumn, Column, OneToMany } from 'typeorm';
 import { Dictionary } from './common-interfaces';
 import { Ring } from '../ring-entity';
 
+// Related table in access 'Other marks information EUR'
 @Entity()
-export class EURINGOtherMarksInformation implements Dictionary {
+export class OtherMarksInformation implements Dictionary {
   @PrimaryColumn()
   public id: string;
 
@@ -16,6 +17,6 @@ export class EURINGOtherMarksInformation implements Dictionary {
   @Column('varchar', { nullable: true, default: null })
   public desc_byn: string | null;
 
-  @OneToMany(() => Ring, m => m.euringOtherMarksInformation)
+  @OneToMany(() => Ring, m => m.otherMarksInformation)
   public ring: Ring[];
 }
