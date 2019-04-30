@@ -432,6 +432,12 @@
           "items": {
             "$ref": "#/definitions/Ring"
           }
+        },
+        "observation": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Observation"
+          }
         }
       }
     },
@@ -454,6 +460,12 @@
           "type": "array",
           "items": {
             "$ref": "#/definitions/Ring"
+          }
+        },
+        "observation": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Observation"
           }
         }
       }
@@ -478,6 +490,12 @@
           "items": {
             "$ref": "#/definitions/Ring"
           }
+        },
+        "observation": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Observation"
+          }
         }
       }
     },
@@ -496,13 +514,25 @@
         "desc_byn": {
           "type": "string"
         },
-        "ring": {
+        "ringMentioned": {
           "type": "array",
           "items": {
             "$ref": "#/definitions/Ring"
           }
         },
-        "observation": {
+        "ringConcluded": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Ring"
+          }
+        },
+        "observationMentioned": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Observation"
+          }
+        },
+        "observationConcluded": {
           "type": "array",
           "items": {
             "$ref": "#/definitions/Observation"
@@ -559,6 +589,12 @@
           "items": {
             "$ref": "#/definitions/Ring"
           }
+        },
+        "observation": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Observation"
+          }
         }
       }
     },
@@ -581,6 +617,12 @@
           "type": "array",
           "items": {
             "$ref": "#/definitions/Ring"
+          }
+        },
+        "observation": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Observation"
           }
         }
       }
@@ -605,6 +647,12 @@
           "items": {
             "$ref": "#/definitions/Ring"
           }
+        },
+        "observation": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Observation"
+          }
         }
       }
     },
@@ -628,6 +676,12 @@
           "items": {
             "$ref": "#/definitions/Ring"
           }
+        },
+        "observation": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Observation"
+          }
         }
       }
     },
@@ -650,6 +704,12 @@
           "type": "array",
           "items": {
             "$ref": "#/definitions/Ring"
+          }
+        },
+        "observation": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Observation"
           }
         }
       }
@@ -743,6 +803,12 @@
           "items": {
             "$ref": "#/definitions/Ring"
           }
+        },
+        "observation": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Observation"
+          }
         }
       }
     },
@@ -789,6 +855,12 @@
           "items": {
             "$ref": "#/definitions/Ring"
           }
+        },
+        "observation": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Observation"
+          }
         }
       }
     },
@@ -832,6 +904,12 @@
           "items": {
             "$ref": "#/definitions/Ring"
           }
+        },
+        "observation": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Observation"
+          }
         }
       }
     },
@@ -873,13 +951,25 @@
         "desc_byn": {
           "type": "string"
         },
-        "ring": {
+        "ringMentioned": {
           "type": "array",
           "items": {
             "$ref": "#/definitions/Ring"
           }
         },
-        "observation": {
+        "ringConcluded": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Ring"
+          }
+        },
+        "observationMentioned": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Observation"
+          }
+        },
+        "observationConcluded": {
           "type": "array",
           "items": {
             "$ref": "#/definitions/Observation"
@@ -911,13 +1001,25 @@
         "family": {
           "type": "string"
         },
-        "ring": {
+        "ringMentioned": {
           "type": "array",
           "items": {
             "$ref": "#/definitions/Ring"
           }
         },
-        "observation": {
+        "ringConcluded": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Ring"
+          }
+        },
+        "observationMentioned": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Observation"
+          }
+        },
+        "observationConcluded": {
           "type": "array",
           "items": {
             "$ref": "#/definitions/Observation"
@@ -950,6 +1052,12 @@
           "type": "array",
           "items": {
             "$ref": "#/definitions/Ring"
+          }
+        },
+        "observation": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Observation"
           }
         }
       }
@@ -1061,11 +1169,62 @@
         "speciesMentioned": {
           "$ref": "#/definitions/Species"
         },
+        "speciesConcluded": {
+          "$ref": "#/definitions/Species"
+        },
         "sexMentioned": {
+          "$ref": "#/definitions/Sex"
+        },
+        "sexConcluded": {
           "$ref": "#/definitions/Sex"
         },
         "ageMentioned": {
           "$ref": "#/definitions/Age"
+        },
+        "ageConcluded": {
+          "$ref": "#/definitions/Age"
+        },
+        "manipulated": {
+          "$ref": "#/definitions/Manipulated"
+        },
+        "movedBeforeTheCapture": {
+          "$ref": "#/definitions/MovedBeforeTheCapture"
+        },
+        "catchingMethod": {
+          "$ref": "#/definitions/CatchingMethod"
+        },
+        "catchingLures": {
+          "$ref": "#/definitions/CatchingLures"
+        },
+        "status": {
+          "$ref": "#/definitions/Status"
+        },
+        "pullusAge": {
+          "$ref": "#/definitions/PullusAge"
+        },
+        "accuracyOfPullusAge": {
+          "$ref": "#/definitions/AccuracyOfPullusAge"
+        },
+        "geographicalCoordinates": {
+          "type": "string"
+        },
+        "accuracyOfCoordinates": {
+          "$ref": "#/definitions/AccuracyOfCoordinates"
+        },
+        "condition": {
+          "$ref": "#/definitions/Condition"
+        },
+        "circumstances": {
+          "$ref": "#/definitions/Circumstances"
+        },
+        "circumstancesPresumed": {
+          "$ref": "#/definitions/CircumstancesPresumed"
+        },
+        "date": {
+          "$ref": "#/definitions/Date"
+        },
+        "accuracyOfDate": {
+          "$ref": "#/definitions/AccuracyOfDate"
         },
         "distance": {
           "type": "string"
@@ -1077,6 +1236,9 @@
           "type": "string"
         },
         "colorRing": {
+          "type": "string"
+        },
+        "placeName": {
           "type": "string"
         },
         "remarks": {
@@ -1117,7 +1279,10 @@
         "otherMarksInformation": {
           "$ref": "#/definitions/OtherMarksInformation"
         },
-        "speciesScheme": {
+        "speciesMentioned": {
+          "$ref": "#/definitions/Species"
+        },
+        "speciesConcluded": {
           "$ref": "#/definitions/Species"
         },
         "manipulated": {
@@ -1132,10 +1297,16 @@
         "catchingLures": {
           "$ref": "#/definitions/CatchingLures"
         },
-        "sexScheme": {
+        "sexMentioned": {
           "$ref": "#/definitions/Sex"
         },
-        "ageScheme": {
+        "sexConcluded": {
+          "$ref": "#/definitions/Sex"
+        },
+        "ageMentioned": {
+          "$ref": "#/definitions/Age"
+        },
+        "ageConcluded": {
           "$ref": "#/definitions/Age"
         },
         "status": {
@@ -1176,15 +1347,6 @@
         },
         "euringCodeIdentifier": {
           "$ref": "#/definitions/EURINGCodeIdentifier"
-        },
-        "derivedDataDistance": {
-          "type": "string"
-        },
-        "derivedDataDirection": {
-          "type": "string"
-        },
-        "derivedDataElapsedTime": {
-          "type": "string"
         },
         "remarks": {
           "type": "string"
