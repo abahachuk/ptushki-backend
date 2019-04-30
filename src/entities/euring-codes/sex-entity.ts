@@ -19,11 +19,17 @@ export class Sex implements Dictionary {
   @Column('varchar', { nullable: true, default: null })
   public desc_byn: string | null;
 
-  @OneToMany(() => Ring, m => m.sexScheme)
-  public ring: Ring[];
+  @OneToMany(() => Ring, m => m.sexMentioned)
+  public ringMentioned: Ring[];
 
-  @OneToMany(() => Observation, m => m.speciesMentioned)
-  public observation: Observation[];
+  @OneToMany(() => Ring, m => m.sexConcluded)
+  public ringConcluded: Ring[];
+
+  @OneToMany(() => Observation, m => m.sexMentioned)
+  public observationMentioned: Observation[];
+
+  @OneToMany(() => Observation, m => m.sexConcluded)
+  public observationConcluded: Observation[];
 
   @OneToMany(() => BasaRing, m => m.species)
   public basaRing: BasaRing[];

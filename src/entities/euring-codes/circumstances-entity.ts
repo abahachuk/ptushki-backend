@@ -1,6 +1,7 @@
 import { Entity, PrimaryColumn, Column, OneToMany } from 'typeorm';
 import { Dictionary } from './common-interfaces';
 import { Ring } from '../ring-entity';
+import { Observation } from '../observation-entity';
 
 // Related table in access 'Circumstances'
 @Entity()
@@ -19,4 +20,7 @@ export class Circumstances implements Dictionary {
 
   @OneToMany(() => Ring, m => m.circumstances)
   public ring: Ring[];
+
+  @OneToMany(() => Observation, m => m.circumstances)
+  public observation: Observation[];
 }

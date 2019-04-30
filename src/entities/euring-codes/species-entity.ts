@@ -21,11 +21,17 @@ export class Species {
   @Column('varchar', { nullable: true, default: null })
   public family: string | null;
 
-  @OneToMany(() => Ring, m => m.speciesScheme)
-  public ring: Ring[];
+  @OneToMany(() => Ring, m => m.speciesMentioned)
+  public ringMentioned: Ring[];
+
+  @OneToMany(() => Ring, m => m.speciesConcluded)
+  public ringConcluded: Ring[];
 
   @OneToMany(() => Observation, m => m.speciesMentioned)
-  public observation: Observation[];
+  public observationMentioned: Observation[];
+
+  @OneToMany(() => Observation, m => m.speciesConcluded)
+  public observationConcluded: Observation[];
 
   @OneToMany(() => BasaRing, m => m.species)
   public basaRing: BasaRing[];

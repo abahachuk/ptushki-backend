@@ -64,10 +64,15 @@ export class Ring {
   })
   public otherMarksInformation: OtherMarksInformation;
 
-  @ManyToOne(() => Species, m => m.ring, {
+  @ManyToOne(() => Species, m => m.ringMentioned, {
     eager: true,
   })
-  public speciesScheme: Species;
+  public speciesMentioned: Species;
+
+  @ManyToOne(() => Species, m => m.ringConcluded, {
+    eager: true,
+  })
+  public speciesConcluded: Species;
 
   @ManyToOne(() => Manipulated, m => m.ring, {
     eager: true,
@@ -89,15 +94,25 @@ export class Ring {
   })
   public catchingLures: CatchingLures;
 
-  @ManyToOne(() => Sex, m => m.ring, {
+  @ManyToOne(() => Sex, m => m.ringMentioned, {
     eager: true,
   })
-  public sexScheme: Sex;
+  public sexMentioned: Sex;
 
-  @ManyToOne(() => Age, m => m.ring, {
+  @ManyToOne(() => Sex, m => m.ringConcluded, {
     eager: true,
   })
-  public ageScheme: Age;
+  public sexConcluded: Sex;
+
+  @ManyToOne(() => Age, m => m.ringMentioned, {
+    eager: true,
+  })
+  public ageMentioned: Age;
+
+  @ManyToOne(() => Age, m => m.ringConcluded, {
+    eager: true,
+  })
+  public ageConcluded: Age;
 
   @ManyToOne(() => Status, m => m.ring, {
     eager: true,
@@ -160,15 +175,6 @@ export class Ring {
     eager: true,
   })
   public euringCodeIdentifier: EURINGCodeIdentifier;
-
-  @Column('varchar', { nullable: true, default: null })
-  public derivedDataDistance: string | null;
-
-  @Column('varchar', { nullable: true, default: null })
-  public derivedDataDirection: string | null;
-
-  @Column('varchar', { nullable: true, default: null })
-  public derivedDataElapsedTime: string | null;
 
   // Related field in access 'Note'
   @Column('varchar', { nullable: true, default: null })

@@ -19,11 +19,17 @@ export class Age implements Dictionary {
   @Column('varchar', { nullable: true, default: null })
   public desc_byn: string | null;
 
-  @OneToMany(() => Ring, m => m.ageScheme)
-  public ring: Ring[];
+  @OneToMany(() => Ring, m => m.ageMentioned)
+  public ringMentioned: Ring[];
 
-  @OneToMany(() => Observation, m => m.speciesMentioned)
-  public observation: Observation[];
+  @OneToMany(() => Ring, m => m.ageConcluded)
+  public ringConcluded: Ring[];
+
+  @OneToMany(() => Observation, m => m.ageMentioned)
+  public observationMentioned: Observation[];
+
+  @OneToMany(() => Observation, m => m.ageConcluded)
+  public observationConcluded: Observation[];
 
   @OneToMany(() => BasaRing, m => m.age)
   public basaRing: BasaRing[];
