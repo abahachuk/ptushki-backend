@@ -20,16 +20,16 @@ export class Age implements Dictionary {
   public desc_byn: string | null;
 
   @OneToMany(() => Ring, m => m.ageMentioned)
-  public ringMentioned: Ring[];
+  public mentionedInRing: Ring[];
 
   @OneToMany(() => Ring, m => m.ageConcluded)
-  public ringConcluded: Ring[];
+  public concludedInRing: Ring[];
 
   @OneToMany(() => Observation, m => m.ageMentioned)
-  public observationMentioned: Observation[];
+  public mentionedInObservation: Observation[];
 
   @OneToMany(() => Observation, m => m.ageConcluded)
-  public observationConcluded: Observation[];
+  public concludedInObservation: Observation[];
 
   @OneToMany(() => BasaRing, m => m.age)
   public basaRing: BasaRing[];

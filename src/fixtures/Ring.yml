@@ -21,7 +21,7 @@ items:
     broodSize: '@broodSize*'
     pullusAge: '@pullusAge*'
     accuracyOfPullusAge: '@accuracyOfPullusAge*'
-    geographiclCoordinates: '{{address.latitude}} {{address.longitude}}'
+    geographicalCoordinates: '{{address.latitude}} {{address.longitude}}'
     placeCode: '@placeCode*'
     accuracyOfCoordinates: '@accuracyOfCoordinates*'
     condition: '@condition*'

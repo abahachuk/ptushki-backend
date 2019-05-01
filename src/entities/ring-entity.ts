@@ -64,12 +64,12 @@ export class Ring {
   })
   public otherMarksInformation: OtherMarksInformation;
 
-  @ManyToOne(() => Species, m => m.ringMentioned, {
+  @ManyToOne(() => Species, m => m.mentionedInRing, {
     eager: true,
   })
   public speciesMentioned: Species;
 
-  @ManyToOne(() => Species, m => m.ringConcluded, {
+  @ManyToOne(() => Species, m => m.concludedInRing, {
     eager: true,
   })
   public speciesConcluded: Species;
@@ -94,22 +94,22 @@ export class Ring {
   })
   public catchingLures: CatchingLures;
 
-  @ManyToOne(() => Sex, m => m.ringMentioned, {
+  @ManyToOne(() => Sex, m => m.mentionedInRing, {
     eager: true,
   })
   public sexMentioned: Sex;
 
-  @ManyToOne(() => Sex, m => m.ringConcluded, {
+  @ManyToOne(() => Sex, m => m.concludedInRing, {
     eager: true,
   })
   public sexConcluded: Sex;
 
-  @ManyToOne(() => Age, m => m.ringMentioned, {
+  @ManyToOne(() => Age, m => m.mentionedInRing, {
     eager: true,
   })
   public ageMentioned: Age;
 
-  @ManyToOne(() => Age, m => m.ringConcluded, {
+  @ManyToOne(() => Age, m => m.concludedInRing, {
     eager: true,
   })
   public ageConcluded: Age;

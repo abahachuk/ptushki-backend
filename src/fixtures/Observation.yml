@@ -16,7 +16,7 @@ items:
     status: '@status*'
     pullusAge: '@pullusAge*'
     accuracyOfPullusAge: '@accuracyOfPullusAge*'
-    geographiclCoordinates: '{{address.latitude}} {{address.longitude}}'
+    geographicalCoordinates: '{{address.latitude}} {{address.longitude}}'
     accuracyOfCoordinates: '@accuracyOfCoordinates*'
     condition: '@condition*'
     circumstances: '@circumstances*'

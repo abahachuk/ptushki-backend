@@ -514,25 +514,25 @@
         "desc_byn": {
           "type": "string"
         },
-        "ringMentioned": {
+        "mentionedInRing": {
           "type": "array",
           "items": {
             "$ref": "#/definitions/Ring"
           }
         },
-        "ringConcluded": {
+        "concludedInRing": {
           "type": "array",
           "items": {
             "$ref": "#/definitions/Ring"
           }
         },
-        "observationMentioned": {
+        "mentionedInObservation": {
           "type": "array",
           "items": {
             "$ref": "#/definitions/Observation"
           }
         },
-        "observationConcluded": {
+        "concludedInObservation": {
           "type": "array",
           "items": {
             "$ref": "#/definitions/Observation"
@@ -951,25 +951,25 @@
         "desc_byn": {
           "type": "string"
         },
-        "ringMentioned": {
+        "mentionedInRing": {
           "type": "array",
           "items": {
             "$ref": "#/definitions/Ring"
           }
         },
-        "ringConcluded": {
+        "concludedInRing": {
           "type": "array",
           "items": {
             "$ref": "#/definitions/Ring"
           }
         },
-        "observationMentioned": {
+        "mentionedInObservation": {
           "type": "array",
           "items": {
             "$ref": "#/definitions/Observation"
           }
         },
-        "observationConcluded": {
+        "concludedInObservation": {
           "type": "array",
           "items": {
             "$ref": "#/definitions/Observation"
@@ -1001,25 +1001,25 @@
         "family": {
           "type": "string"
         },
-        "ringMentioned": {
+        "mentionedInRing": {
           "type": "array",
           "items": {
             "$ref": "#/definitions/Ring"
           }
         },
-        "ringConcluded": {
+        "concludedInRing": {
           "type": "array",
           "items": {
             "$ref": "#/definitions/Ring"
           }
         },
-        "observationMentioned": {
+        "mentionedInObservation": {
           "type": "array",
           "items": {
             "$ref": "#/definitions/Observation"
           }
         },
-        "observationConcluded": {
+        "concludedInObservation": {
           "type": "array",
           "items": {
             "$ref": "#/definitions/Observation"

@@ -32,32 +32,32 @@ export class Observation {
   })
   public finder: User;
 
-  @ManyToOne(() => Species, m => m.observationMentioned, {
+  @ManyToOne(() => Species, m => m.mentionedInObservation, {
     eager: true,
   })
   public speciesMentioned: Species;
 
-  @ManyToOne(() => Species, m => m.observationConcluded, {
+  @ManyToOne(() => Species, m => m.concludedInObservation, {
     eager: true,
   })
   public speciesConcluded: Species;
 
-  @ManyToOne(() => Sex, m => m.observationMentioned, {
+  @ManyToOne(() => Sex, m => m.mentionedInObservation, {
     eager: true,
   })
   public sexMentioned: Sex;
 
-  @ManyToOne(() => Sex, m => m.observationConcluded, {
+  @ManyToOne(() => Sex, m => m.concludedInObservation, {
     eager: true,
   })
   public sexConcluded: Species;
 
-  @ManyToOne(() => Age, m => m.observationMentioned, {
+  @ManyToOne(() => Age, m => m.mentionedInObservation, {
     eager: true,
   })
   public ageMentioned: Age;
 
-  @ManyToOne(() => Age, m => m.observationConcluded, {
+  @ManyToOne(() => Age, m => m.concludedInObservation, {
     eager: true,
   })
   public ageConcluded: Age;

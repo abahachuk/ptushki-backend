@@ -20,16 +20,16 @@ export class Sex implements Dictionary {
   public desc_byn: string | null;
 
   @OneToMany(() => Ring, m => m.sexMentioned)
-  public ringMentioned: Ring[];
+  public mentionedInRing: Ring[];
 
   @OneToMany(() => Ring, m => m.sexConcluded)
-  public ringConcluded: Ring[];
+  public concludedInRing: Ring[];
 
   @OneToMany(() => Observation, m => m.sexMentioned)
-  public observationMentioned: Observation[];
+  public mentionedInObservation: Observation[];
 
   @OneToMany(() => Observation, m => m.sexConcluded)
-  public observationConcluded: Observation[];
+  public concludedInObservation: Observation[];
 
   @OneToMany(() => BasaRing, m => m.species)
   public basaRing: BasaRing[];

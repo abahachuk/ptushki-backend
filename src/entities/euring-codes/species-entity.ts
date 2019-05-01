@@ -22,16 +22,16 @@ export class Species {
   public family: string | null;
 
   @OneToMany(() => Ring, m => m.speciesMentioned)
-  public ringMentioned: Ring[];
+  public mentionedInRing: Ring[];
 
   @OneToMany(() => Ring, m => m.speciesConcluded)
-  public ringConcluded: Ring[];
+  public concludedInRing: Ring[];
 
   @OneToMany(() => Observation, m => m.speciesMentioned)
-  public observationMentioned: Observation[];
+  public mentionedInObservation: Observation[];
 
   @OneToMany(() => Observation, m => m.speciesConcluded)
-  public observationConcluded: Observation[];
+  public concludedInObservation: Observation[];
 
   @OneToMany(() => BasaRing, m => m.species)
   public basaRing: BasaRing[];
