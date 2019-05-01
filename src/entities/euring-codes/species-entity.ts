@@ -3,6 +3,7 @@ import { Ring } from '../ring-entity';
 import { BasaRing } from '../basa-ring-entity';
 import { Observation } from '../observation-entity';
 
+// Related tables in access 'Species' and 'Species by Schem'
 @Entity()
 export class Species {
   @PrimaryColumn()
@@ -20,11 +21,17 @@ export class Species {
   @Column('varchar', { nullable: true, default: null })
   public family: string | null;
 
-  @OneToMany(() => Ring, m => m.speciesScheme)
-  public ring: Ring[];
+  @OneToMany(() => Ring, m => m.speciesMentioned)
+  public mentionedInRing: Ring[];
+
+  @OneToMany(() => Ring, m => m.speciesConcluded)
+  public concludedInRing: Ring[];
 
   @OneToMany(() => Observation, m => m.speciesMentioned)
-  public observation: Observation[];
+  public mentionedInObservation: Observation[];
+
+  @OneToMany(() => Observation, m => m.speciesConcluded)
+  public concludedInObservation: Observation[];
 
   @OneToMany(() => BasaRing, m => m.species)
   public basaRing: BasaRing[];

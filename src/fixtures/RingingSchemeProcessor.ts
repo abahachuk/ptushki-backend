@@ -1,5 +1,5 @@
 import { IProcessor } from 'typeorm-fixtures-cli';
-import { RingingScheme } from '../entities/euring-codes/ring-scheme-entity';
+import { RingingScheme } from '../entities/euring-codes/ringing-scheme-entity';
 
 /* eslint-disable class-methods-use-this */
 export default class RingingSchemeProcessor implements IProcessor<RingingScheme> {

@@ -1,19 +1,19 @@
 import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, OneToMany } from 'typeorm';
-import { AccuracyOfCoords } from './euring-codes/accuracy-of-coords-intity';
+import { AccuracyOfCoordinates } from './euring-codes/accuracy-of-coordinates-entity';
 import { Sex } from './euring-codes/sex-entity';
 import { Age } from './euring-codes/age-entity';
-import { RingingScheme } from './euring-codes/ring-scheme-entity';
-import { EURINGPrimaryIdentificationMethod } from './euring-codes/euring-primary-identification-method-entity';
-import { VerificationOfTheMetalRing } from './euring-codes/verification-of-metal-ring-entity';
+import { RingingScheme } from './euring-codes/ringing-scheme-entity';
+import { PrimaryIdentificationMethod } from './euring-codes/primary-identification-method-entity';
+import { VerificationOfTheMetalRing } from './euring-codes/verification-of-the-metal-ring-entity';
 import { MetalRingInformation } from './euring-codes/metal-ring-information-entity';
-import { EURINGOtherMarksInformation } from './euring-codes/euring-other-marks-information-entity';
+import { OtherMarksInformation } from './euring-codes/other-marks-information-entity';
 import { Species } from './euring-codes/species-entity';
 import { Manipulated } from './euring-codes/manipulated-entity';
 import { MovedBeforeTheCapture } from './euring-codes/moved-before-capture-entity';
 import { CatchingMethod } from './euring-codes/catching-method-entity';
 import { CatchingLures } from './euring-codes/catching-lures-entity';
 import { Status } from './euring-codes/status-entity';
-import { Broodsize } from './euring-codes/broodsize-entity';
+import { BroodSize } from './euring-codes/broodsize-entity';
 import { PullusAge } from './euring-codes/pullus-age-entity';
 import { AccuracyOfPullusAge } from './euring-codes/accuracy-of-pullus-age-entity';
 import { PlaceCode } from './euring-codes/place-code-entity';
@@ -31,8 +31,10 @@ export class Ring {
   @PrimaryGeneratedColumn('uuid')
   public id: string;
 
+  // Related fields in access 'Ring number', Identification series', 'Dots' and 'Identification number'.
+  // Need to sum series, dots and id number in order to get Ring number. See documentation.
   @Column('varchar')
-  public ringNumber: string;
+  public identificationNumber: string;
 
   @OneToMany(() => Observation, m => m.ring)
   public observation: Observation[];
@@ -42,19 +44,10 @@ export class Ring {
   })
   public ringingScheme: RingingScheme;
 
-  @ManyToOne(() => EURINGPrimaryIdentificationMethod, m => m.ring, {
+  @ManyToOne(() => PrimaryIdentificationMethod, m => m.ring, {
     eager: true,
   })
-  public euringPrimaryIdMethod: EURINGPrimaryIdentificationMethod;
-
-  @Column('varchar', { nullable: true, default: null })
-  public identificationSeries: string | null;
-
-  @Column('varchar', { nullable: true, default: null })
-  public dots: string | null;
-
-  @Column('varchar', { nullable: true, default: null })
-  public identificationNumber: number | null;
+  public primaryIdentificationMethod: PrimaryIdentificationMethod;
 
   @ManyToOne(() => VerificationOfTheMetalRing, m => m.ring, {
     eager: true,
@@ -66,15 +59,20 @@ export class Ring {
   })
   public metalRingInformation: MetalRingInformation;
 
-  @ManyToOne(() => EURINGOtherMarksInformation, m => m.ring, {
+  @ManyToOne(() => OtherMarksInformation, m => m.ring, {
     eager: true,
   })
-  public euringOtherMarksInformation: EURINGOtherMarksInformation;
+  public otherMarksInformation: OtherMarksInformation;
 
-  @ManyToOne(() => Species, m => m.ring, {
+  @ManyToOne(() => Species, m => m.mentionedInRing, {
     eager: true,
   })
-  public speciesScheme: Species;
+  public speciesMentioned: Species;
+
+  @ManyToOne(() => Species, m => m.concludedInRing, {
+    eager: true,
+  })
+  public speciesConcluded: Species;
 
   @ManyToOne(() => Manipulated, m => m.ring, {
     eager: true,
@@ -96,25 +94,35 @@ export class Ring {
   })
   public catchingLures: CatchingLures;
 
-  @ManyToOne(() => Sex, m => m.ring, {
+  @ManyToOne(() => Sex, m => m.mentionedInRing, {
     eager: true,
   })
-  public sexScheme: Sex;
+  public sexMentioned: Sex;
 
-  @ManyToOne(() => Age, m => m.ring, {
+  @ManyToOne(() => Sex, m => m.concludedInRing, {
     eager: true,
   })
-  public ageScheme: Age;
+  public sexConcluded: Sex;
+
+  @ManyToOne(() => Age, m => m.mentionedInRing, {
+    eager: true,
+  })
+  public ageMentioned: Age;
+
+  @ManyToOne(() => Age, m => m.concludedInRing, {
+    eager: true,
+  })
+  public ageConcluded: Age;
 
   @ManyToOne(() => Status, m => m.ring, {
     eager: true,
   })
   public status: Status;
 
-  @ManyToOne(() => Broodsize, m => m.ring, {
+  @ManyToOne(() => BroodSize, m => m.ring, {
     eager: true,
   })
-  public broodsize: Broodsize;
+  public broodSize: BroodSize;
 
   @ManyToOne(() => PullusAge, m => m.ring, {
     eager: true,
@@ -126,18 +134,19 @@ export class Ring {
   })
   public accuracyOfPullusAge: AccuracyOfPullusAge;
 
+  // Related fields in access 'Lat deg', 'Lat min', 'Lat sec', 'Lon deg', 'Lon min', 'Lon sec',
   @Column('varchar', { nullable: true, default: null })
-  public coordinates: string;
+  public geographicalCoordinates: string;
 
   @ManyToOne(() => PlaceCode, m => m.ring, {
     eager: true,
   })
   public placeCode: PlaceCode;
 
-  @ManyToOne(() => AccuracyOfCoords, m => m.ring, {
+  @ManyToOne(() => AccuracyOfCoordinates, m => m.ring, {
     eager: true,
   })
-  public accuracyOfCoords: AccuracyOfCoords;
+  public accuracyOfCoordinates: AccuracyOfCoordinates;
 
   @ManyToOne(() => Condition, m => m.ring, {
     eager: true,
@@ -167,23 +176,17 @@ export class Ring {
   })
   public euringCodeIdentifier: EURINGCodeIdentifier;
 
+  // Related field in access 'Note'
   @Column('varchar', { nullable: true, default: null })
-  public derivedDataDistance: string | null;
+  public remarks: string | null;
 
-  @Column('varchar', { nullable: true, default: null })
-  public derivedDataDirection: string | null;
-
-  @Column('varchar', { nullable: true, default: null })
-  public derivedDataElapsedTime: string | null;
-
-  @Column('varchar', { nullable: true, default: null })
-  public note: string | null;
-
+  // Not presented in euring standart
   @ManyToOne(() => User, m => m.ring, {
     eager: true,
   })
   public ringerInformation: User;
 
+  // Not presented in euring standart
   @ManyToOne(() => StatusOfRing, m => m.ring, {
     eager: true,
   })
