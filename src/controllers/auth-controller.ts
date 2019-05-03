@@ -37,6 +37,9 @@ export default class AuthController extends AbstractController {
       await this.tokens.save(new RefreshToken(refreshToken, user.id));
       return res.json({ user, token: `Bearer ${token}`, refreshToken });
     } catch (e) {
+      if (e.code === '23505') {
+        e.status = 400;
+      }
       return next(e);
     }
   };
