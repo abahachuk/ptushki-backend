@@ -87,7 +87,7 @@ describe('Auth', () => {
     });
   });
 
-  describe('on refresh route user have to:', async () => {
+  describe('on refresh route user have to:', () => {
     it('get 200 and update accessToken if he has refreshToken', async () => {
       const { refreshToken } = signTokens({ userId, userRole: UserRole.Admin });
       await tokensDb.save(new RefreshToken(refreshToken, userId));
