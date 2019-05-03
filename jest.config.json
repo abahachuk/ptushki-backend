@@ -7,5 +7,6 @@
   "transformIgnorePatterns": ["node_modules/(?!@ngrx)"],
   "testPathIgnorePatterns": ["/node_modules/", "/dist/", "src/*.{js}"],
   "coverageDirectory": "./coverage/",
+  "testEnvironment": "node",
   "setupFiles": ["./jestLoadConfig.ts"]
 }
