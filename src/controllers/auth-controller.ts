@@ -1,6 +1,8 @@
 import { NextFunction, Request, Response, Router } from 'express';
 import { getRepository, Repository } from 'typeorm';
 import passport from 'passport';
+import { TokenExpiredError } from 'jsonwebtoken';
+
 import AbstractController from './abstract-controller';
 import { User } from '../entities/user-entity';
 import { RefreshToken } from '../entities/auth-entity';
@@ -85,20 +87,23 @@ export default class AuthController extends AbstractController {
       return res.status(400).end();
     }
     try {
-      const { token: oldToken, userId } = (await this.tokens.findOne({ token: refreshTokenFromBody })) as RefreshToken;
-      if (!oldToken) {
-        return res.status(403).end();
+      const { affected } = await this.tokens.delete({ token: refreshTokenFromBody });
+      if (!affected) {
+        return res.status(401).end();
       }
-      await this.tokens.delete({ token: oldToken });
-      const [, user] = await Promise.all([verifyRefreshToken(refreshTokenFromBody), this.users.findOne(userId)]);
+      const { userId } = await verifyRefreshToken(refreshTokenFromBody);
+      const user = await this.users.findOne(userId);
       if (!user) {
-        return res.status(403).end();
+        return res.status(401).end();
       }
       const { token, refreshToken } = signTokens({ userId, userRole: user.role });
       await this.tokens.save(new RefreshToken(refreshToken, user.id));
       return res.json({ token: `Bearer ${token}`, refreshToken });
     } catch (e) {
-      return res.status(403).end();
+      if (e instanceof TokenExpiredError) {
+        return res.status(401).end();
+      }
+      return res.status(400).end();
     }
   };
 
