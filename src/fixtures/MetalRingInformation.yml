@@ -1,0 +1,7 @@
+entity: MetalRingInformation
+items:
+  metalRingInformation{0..10}:
+    id: '{{random.number}}'
+    desc_eng: '{{lorem.sentence}}'
+    desc_rus: '{{lorem.sentence}}'
+    desc_byn: '{{lorem.sentence}}'

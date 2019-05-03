@@ -1,20 +1,20 @@
 import { NextFunction, Request, Response, Router } from 'express';
 import { getRepository, Repository } from 'typeorm';
 import AbstractController from './abstract-controller';
-import { RingBy } from '../entities/ring-by-entity';
+import { Ring } from '../entities/ring-entity';
 
 interface RequestWithRing extends Request {
-  ring: RingBy;
+  ring: Ring;
 }
 
 export default class RingsByController extends AbstractController {
   private router: Router;
 
-  private rings: Repository<RingBy>;
+  private rings: Repository<Ring>;
 
   public init(): Router {
     this.router = Router();
-    this.rings = getRepository(RingBy);
+    this.rings = getRepository(Ring);
     this.setMainEntity(this.rings, 'ring');
 
     this.router.get('/', this.findRings);
@@ -36,7 +36,7 @@ export default class RingsByController extends AbstractController {
   };
 
   private findOneRing = async (req: RequestWithRing, res: Response, next: NextFunction): Promise<void> => {
-    const { ring }: { ring: RingBy } = req;
+    const { ring }: { ring: Ring } = req;
     try {
       res.json(ring);
     } catch (e) {
@@ -45,7 +45,7 @@ export default class RingsByController extends AbstractController {
   };
 
   private removeRing = async (req: RequestWithRing, res: Response, next: NextFunction): Promise<void> => {
-    const { ring }: { ring: RingBy } = req;
+    const { ring }: { ring: Ring } = req;
     try {
       await this.rings.remove(ring);
       res.json({ id: req.params.id, removed: true });

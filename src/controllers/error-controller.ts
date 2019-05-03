@@ -4,7 +4,11 @@ import { logger } from '../configs/logger';
 export default (err: any, _req: Request, res: Response, next: NextFunction): void => {
   if (err) {
     try {
-      logger.error(JSON.stringify(err));
+      if (!Object.keys(err).length) {
+        logger.error(err);
+      } else {
+        logger.error(JSON.stringify(err));
+      }
     } catch {
       logger.error(err.message);
     }
