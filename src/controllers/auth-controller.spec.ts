@@ -4,24 +4,29 @@ import { Connection, getRepository, Repository } from 'typeorm';
 import createApp from '../app';
 import connectDB from '../db';
 import { signTokens } from '../services/auth-service';
-import { UserRole } from '../entities/user-entity';
+import { UserRole, User } from '../entities/user-entity';
 import { RefreshToken } from '../entities/auth-entity';
 
 let connection: Connection | undefined;
 let app: Application;
 
-const email = 'test@mail.com';
-const password = '12345';
-const userId = 'ce6d8013-12bf-4788-a585-d2a79cfeb177';
+const urls: { [index: string]: string } = {
+  login: '/auth/login',
+  signup: '/auth/signup',
+  refresh: '/auth/refresh',
+  logout: '/auth/logout',
+};
 
 jest.setTimeout(30000);
 
-let tokensDb: Repository<RefreshToken>;
+let tokenRepository: Repository<RefreshToken>;
+let userRepository: Repository<User>;
 
 beforeAll(async () => {
   connection = await connectDB();
   app = await createApp();
-  tokensDb = await getRepository(RefreshToken);
+  tokenRepository = getRepository(RefreshToken);
+  userRepository = getRepository(User);
 });
 
 afterAll(async () => {
@@ -33,9 +38,12 @@ afterAll(async () => {
 
 describe('Auth', () => {
   describe('on signup route user have to:', () => {
+    const email = 'signup-test@mail.com';
+    const password = '12345';
+
     it('be able to signup with email & password', async () => {
       const res = await request(app)
-        .post('/auth/signup')
+        .post(urls.signup)
         .set('Accept', 'application/json')
         .send({ password, email });
 
@@ -47,7 +55,7 @@ describe('Auth', () => {
 
     it('be not able to signup with the same email twice', async () => {
       const res = await request(app)
-        .post('/auth/signup')
+        .post(urls.signup)
         .set('Accept', 'application/json')
         .send({ password, email });
 
@@ -56,9 +64,17 @@ describe('Auth', () => {
   });
 
   describe('on login route user have to:', () => {
+    const email = 'login-test@mail.com';
+    const password = '12345';
+
+    beforeAll(async () => {
+      const user = await User.create({ email, password });
+      await userRepository.save(user);
+    });
+
     it('login with true credentials and get tokens', async () => {
       const res = await request(app)
-        .post('/auth/login')
+        .post(urls.login)
         .set('Accept', 'application/json')
         .send({ password, email });
 
@@ -70,7 +86,7 @@ describe('Auth', () => {
 
     it('get 401 on invalid password', async () => {
       const res = await request(app)
-        .post('/auth/login')
+        .post(urls.login)
         .set('Accept', 'application/json')
         .send({ password: 'Invalid', email });
 
@@ -79,7 +95,7 @@ describe('Auth', () => {
 
     it('get 401 on invalid email', async () => {
       const res = await request(app)
-        .post('/auth/login')
+        .post(urls.login)
         .set('Accept', 'application/json')
         .send({ password, email: 'invalid email' });
 
@@ -89,11 +105,12 @@ describe('Auth', () => {
 
   describe('on refresh route user have to:', () => {
     it('get 200 and update accessToken if he has refreshToken', async () => {
-      const { refreshToken } = signTokens({ userId, userRole: UserRole.Admin });
-      await tokensDb.save(new RefreshToken(refreshToken, userId));
+      const { refreshToken } = signTokens({ userId: 'todo', userRole: UserRole.Admin });
+      await tokenRepository.save(new RefreshToken(refreshToken, 'todo'));
+      console.log(refreshToken);
 
       const res = await request(app)
-        .post('/auth/refresh')
+        .post(urls.refresh)
         .set('Accept', 'application/json')
         .send({ refreshToken });
 
@@ -103,20 +120,20 @@ describe('Auth', () => {
     });
 
     it('get 403 if user trying to refresh old token again', async () => {
-      const { refreshToken } = signTokens({ userId, userRole: UserRole.Admin });
-      await tokensDb.save(new RefreshToken(refreshToken, userId));
+      const { refreshToken } = signTokens({ userId: 'todo', userRole: UserRole.Admin });
+      await tokenRepository.save(new RefreshToken(refreshToken, 'todo'));
 
       const res = await request(app)
-        .post('/auth/refresh')
+        .post(urls.refresh)
         .set('Accept', 'application/json')
         .send({ refreshToken });
 
-      expect(res.status).toEqual(403);
+      expect(res.status).toEqual(200);
       expect(res.body.accessToken).toEqual(expect.any(String));
       expect(res.body.refreshToken).toEqual(expect.any(String));
 
       const res2 = await request(app)
-        .post('/auth/refresh')
+        .post(urls.refresh)
         .set('Accept', 'application/json')
         .send({ refreshToken });
 
@@ -125,13 +142,13 @@ describe('Auth', () => {
 
     it('get 401 if refreshToken is expired', async () => {
       const { refreshToken } = signTokens(
-        { userId, userRole: UserRole.Admin },
+        { userId: 'todo', userRole: UserRole.Admin },
         { accessExpiresIn: 1, refreshExpiresIn: 1 },
       );
-      await tokensDb.save(new RefreshToken(refreshToken, userId));
+      await tokenRepository.save(new RefreshToken(refreshToken, 'todo'));
 
       const res = await request(app)
-        .post('/auth/refresh')
+        .post(urls.refresh)
         .set('Accept', 'application/json')
         .send({ refreshToken });
 
@@ -142,7 +159,7 @@ describe('Auth', () => {
       const refreshToken = 'invalidToken';
 
       const res = await request(app)
-        .post('/auth/refresh')
+        .post(urls.refresh)
         .set('Accept', 'application/json')
         .send({ refreshToken });
 
@@ -151,7 +168,7 @@ describe('Auth', () => {
 
     it('should not refresh tokens without refreshToken', async () => {
       const res = await request(app)
-        .post('/auth/refresh')
+        .post(urls.refresh)
         .set('Accept', 'application/json')
         .send();
 
@@ -161,17 +178,17 @@ describe('Auth', () => {
 
   describe('on logout route user have to:', () => {
     it('get 200 and reset accessToken + refreshToken if accessToken is valid', async () => {
-      const { refreshToken } = signTokens({ userId, userRole: UserRole.Admin });
-      await tokensDb.save(new RefreshToken(refreshToken, userId));
+      const { refreshToken } = signTokens({ userId: 'todo', userRole: UserRole.Admin });
+      await tokenRepository.save(new RefreshToken(refreshToken, 'todo'));
 
       const res = await request(app)
-        .post('/auth/logout')
+        .post(urls.logout)
         .set('Accept', 'application/json')
         .send({ refreshToken });
 
       expect(res.status).toEqual(200);
 
-      const token = await tokensDb.findOne({ token: refreshToken });
+      const token = await tokenRepository.findOne({ token: refreshToken });
       expect(token).toEqual(undefined);
     });
 
@@ -179,7 +196,7 @@ describe('Auth', () => {
       const refreshToken = 'invalidToken';
 
       const res = await request(app)
-        .post('/auth/logout')
+        .post(urls.logout)
         .set('Accept', 'application/json')
         .send({ refreshToken });
 
@@ -188,7 +205,7 @@ describe('Auth', () => {
 
     it('get 403 if refreshToken is not provided', async () => {
       const res = await request(app)
-        .post('/auth/logout')
+        .post(urls.logout)
         .set('Accept', 'application/json')
         .send();
 
@@ -197,13 +214,13 @@ describe('Auth', () => {
 
     it('get 403 if refreshToken is expired', async () => {
       const { refreshToken } = signTokens(
-        { userId, userRole: UserRole.Admin },
+        { userId: 'todo', userRole: UserRole.Admin },
         { accessExpiresIn: 1, refreshExpiresIn: 1 },
       );
-      await tokensDb.save(new RefreshToken(refreshToken, userId));
+      await tokenRepository.save(new RefreshToken(refreshToken, 'todo'));
 
       const res = await request(app)
-        .post('/auth/logout')
+        .post(urls.logout)
         .set('Accept', 'application/json')
         .send({ refreshToken });
 
