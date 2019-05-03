@@ -44,10 +44,11 @@
     "reflect-metadata": "^0.1.13",
     "request": "^2.88.0",
     "rimraf": "^2.6.3",
+    "swagger-ui-express": "^4.0.2",
+    "tslib": "^1.9.3",
     "typeorm": "0.2.16",
     "typeorm-fixtures-cli": "^1.1.1",
-    "winston": "^3.2.1",
-    "swagger-ui-express": "^4.0.2"
+    "winston": "^3.2.1"
   },
   "devDependencies": {
     "@types/body-parser": "^1.17.0",
