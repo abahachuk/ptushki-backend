@@ -3,11 +3,11 @@
   "version": "0.0.1",
   "description": "FrontSpot Hub: Ptushki, backend",
   "scripts": {
-    "start": "cross-env NODE_ENV=production node dist/src/index.js",
+    "start": "npm run build && cross-env NODE_ENV=production node dist/src/index.js",
     "start:dev": "ts-node-dev src/index.ts",
-    "fixtures": "ts-node src/db/run-fixtures.ts",
+    "fixtures": "npx ts-node src/db/run-fixtures.ts",
     "setup-postgres": "docker-compose up",
-    "build": "npm run clean && tsc",
+    "build": "npm run clean && npx tsc",
     "lint": "eslint src/**/*.ts",
     "lint:fix": "npm run lint -- --fix",
     "clean": "rimraf ./dist",
@@ -78,6 +78,7 @@
     "lint-staged": "^8.1.5",
     "prettier": "^1.16.4",
     "ts-jest": "^24.0.1",
+    "ts-node": "^8.1.0",
     "ts-node-dev": "^1.0.0-pre.32",
     "typescript": "^3.3.4000"
   },
