@@ -1,6 +1,6 @@
 export default {
   dbConfig: {
-    entities: ['dist/entities/**/*.js'],
+    entities: ['dist/src/entities/**/*.js'],
     synchronize: true,
   },
 };
