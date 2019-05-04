@@ -5,6 +5,8 @@ import passportLocal from 'passport-local';
 import passportJWT, { VerifiedCallback } from 'passport-jwt';
 import { promisify } from 'util';
 import jwt from 'jsonwebtoken';
+import { Request, Response } from 'express';
+
 import { User, UserRole } from '../entities/user-entity';
 import { isCorrect } from '../services/user-crypto-service';
 
@@ -29,18 +31,19 @@ export const initPassport = (): void => {
         passwordField: 'password',
         session: false,
       },
-      async (email: string, password: string, done: (error: {} | null, user?: User) => void) => {
+      async (email: string, password: string, done: (error: null | Error, user?: User) => void) => {
         try {
           const user = await repository.findOne({ email });
           const isPasswordCorrect = user ? await isCorrect(password, user.salt, user.hash) : false;
           if (!user || !isPasswordCorrect) {
-            return done({ message: 'email or password is invalid' });
+            const error = Object.assign(new Error('Email or password is invalid'), { status: 401 });
+            return done(error);
           }
           delete user.hash;
           delete user.salt;
           return done(null, user);
         } catch (e) {
-          return done({ message: 'error' });
+          return done(new Error('Authorization Error'));
         }
       },
     ),
@@ -69,6 +72,14 @@ export const verifyRefreshToken = async (refreshToken: string): Promise<UserPayl
   const { userId, userRole } = (await verify(refreshToken, refreshSecret)) as UserPayload;
   return { userId, userRole };
 };
+
+export const authenticateLocal = (req: Request, res: Response): Promise<User | Error> =>
+  new Promise((resolve, reject) => {
+    passport.authenticate('local', { session: false }, (err: Error, user: User) => {
+      if (err) reject(err);
+      resolve(user);
+    })(req, res);
+  });
 
 export const signTokens = (
   payload: UserPayload,

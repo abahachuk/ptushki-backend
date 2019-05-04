@@ -1,12 +1,11 @@
 import { NextFunction, Request, Response, Router } from 'express';
 import { getRepository, Repository } from 'typeorm';
-import passport from 'passport';
 import { TokenExpiredError, JsonWebTokenError } from 'jsonwebtoken';
 
 import AbstractController from './abstract-controller';
 import { User } from '../entities/user-entity';
 import { RefreshToken } from '../entities/auth-entity';
-import { signTokens, verifyRefreshToken, authRequired } from '../services/auth-service';
+import { signTokens, verifyRefreshToken, authRequired, authenticateLocal } from '../services/auth-service';
 
 export default class AuthController extends AbstractController {
   private router: Router;
@@ -71,21 +70,14 @@ export default class AuthController extends AbstractController {
   };
 
   private login = async (req: Request, res: Response, next: NextFunction) => {
-    return passport.authenticate('local', { session: false }, async (error: {}, user: User) => {
-      if (error) {
-        return res.status(401).json({ error });
-      }
-      if (!user) {
-        return res.status(403).json({ error });
-      }
-      try {
-        const { token, refreshToken } = signTokens({ userId: user.id, userRole: user.role });
-        await this.tokens.save(new RefreshToken(refreshToken, user.id));
-        return res.json({ user, token, refreshToken });
-      } catch (e) {
-        return next(e);
-      }
-    })(req, res, next);
+    try {
+      const user: User = (await authenticateLocal(req, res)) as User;
+      const { token, refreshToken } = signTokens({ userId: user.id, userRole: user.role });
+      await this.tokens.save(new RefreshToken(refreshToken, user.id));
+      return res.json({ user, token, refreshToken });
+    } catch (e) {
+      return next(e);
+    }
   };
 
   private refresh = async (req: Request, res: Response, next: NextFunction) => {
