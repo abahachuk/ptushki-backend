@@ -1,11 +1,11 @@
 import config from 'config';
+import { Request, Response, NextFunction } from 'express';
 import { getRepository, Repository } from 'typeorm';
 import passport from 'passport';
 import passportLocal from 'passport-local';
 import passportJWT, { VerifiedCallback } from 'passport-jwt';
 import { promisify } from 'util';
 import jwt from 'jsonwebtoken';
-import { Request, Response } from 'express';
 
 import { User, UserRole } from '../entities/user-entity';
 import { isCorrect } from '../services/user-crypto-service';
@@ -66,6 +66,30 @@ export const initPassport = (): void => {
   );
 };
 
+type AccessLevels = { [key in UserRole]: number };
+
+export const userAccessLevels: AccessLevels = {
+  observer: 1,
+  ringer: 2,
+  scientist: 4,
+  moderator: 8,
+  admin: 16,
+};
+
+/* eslint-disable */
+export const userAccessLevelsMask: AccessLevels = {
+  observer:
+    userAccessLevels.observer |
+    userAccessLevels.ringer |
+    userAccessLevels.scientist |
+    userAccessLevels.moderator |
+    userAccessLevels.admin,
+  ringer: userAccessLevels.ringer | userAccessLevels.scientist | userAccessLevels.moderator | userAccessLevels.admin,
+  scientist: userAccessLevels.scientist | userAccessLevels.moderator | userAccessLevels.admin,
+  moderator: userAccessLevels.moderator | userAccessLevels.admin,
+  admin: userAccessLevels.admin,
+};
+
 const verify = promisify(jwt.verify);
 
 export const verifyRefreshToken = async (refreshToken: string): Promise<UserPayload> => {
@@ -93,4 +117,21 @@ export const signTokens = (
   return { token, refreshToken };
 };
 
-export const authRequired = passport.authenticate('jwt', { session: false });
+const checkUserRole = (userRole: UserRole) => {
+  return (req: Request, res: Response, next: NextFunction) => {
+    const user = req.user as User;
+    if (!user) {
+      return res.status(400).end();
+    }
+    if (userAccessLevels[user.role] & userAccessLevelsMask[userRole]) {
+      return next();
+    }
+    return res.status(403).end();
+  };
+};
+/* eslint-enable */
+
+export const auth = {
+  required: passport.authenticate('jwt', { session: false }),
+  role: checkUserRole,
+};

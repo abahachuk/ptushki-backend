@@ -1,0 +1,10 @@
+version: '3'
+services:
+  ptushki-postgres:
+    image: postgres:11
+    environment:
+      POSTGRES_PASSWORD: 'password'
+      POSTGRES_USER: 'username'
+      POSTGRES_DB: 'ptushki'
+    ports:
+      - '5432:5432'

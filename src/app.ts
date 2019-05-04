@@ -1,9 +1,11 @@
+import config from 'config';
 import express, { Application } from 'express';
 import bodyParser from 'body-parser';
 import routes from './routes';
 import { setLogger } from './configs/logger';
 import errorHandler from './controllers/error-controller';
 import { initPassport } from './services/auth-service';
+import setupSwagger from './swaggerSetup';
 
 const createApp = async (): Promise<Application> => {
   const app = express();
@@ -13,6 +15,7 @@ const createApp = async (): Promise<Application> => {
   app.use(bodyParser.urlencoded({ extended: true }));
   app.use(routes());
   app.use(errorHandler);
+  setupSwagger(app, { host: `${config.get('HOST')}:${config.get('PORT')}` });
   return app;
 };
 

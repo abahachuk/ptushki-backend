@@ -3,9 +3,11 @@ import { getRepository, Repository } from 'typeorm';
 import { TokenExpiredError, JsonWebTokenError } from 'jsonwebtoken';
 
 import AbstractController from './abstract-controller';
-import { User } from '../entities/user-entity';
+import { User, UserRole } from '../entities/user-entity';
 import { RefreshToken } from '../entities/auth-entity';
-import { signTokens, verifyRefreshToken, authRequired, authenticateLocal } from '../services/auth-service';
+import { signTokens, verifyRefreshToken, auth, authenticateLocal } from '../services/auth-service';
+import { isCorrect } from '../services/user-crypto-service';
+import { addAudit } from '../services/audit-service';
 import { CustomError } from '../utils/CustomError';
 
 export default class AuthController extends AbstractController {
@@ -24,10 +26,11 @@ export default class AuthController extends AbstractController {
     this.router.post('/logout', this.logout);
     this.router.post('/login', this.login);
     this.router.post('/refresh', this.refresh);
+    this.router.post('/change-password', auth.required, this.changePassword);
 
     /* use auth.required to secure route */
     if (process.env.NODE_ENV !== 'production') {
-      this.router.get('/test', authRequired, this.test);
+      this.router.get('/test', auth.required, auth.role(UserRole.Observer), this.test);
     }
 
     return this.router;
@@ -39,6 +42,7 @@ export default class AuthController extends AbstractController {
       await this.users.save(user);
       const { token, refreshToken } = signTokens({ userId: user.id, userRole: user.role });
       await this.tokens.save(new RefreshToken(refreshToken, user.id));
+      await addAudit('registration', '', null, user.id);
       return res.json({ user, token, refreshToken });
     } catch (e) {
       if (e.code === '23505') {
@@ -59,12 +63,13 @@ export default class AuthController extends AbstractController {
       if (!refreshTokenFromBody) {
         throw new CustomError('Refresh token is required', 400);
       }
-      await verifyRefreshToken(refreshTokenFromBody);
+      const { userId } = await verifyRefreshToken(refreshTokenFromBody);
       const refreshToken = await this.tokens.findOne({ token: refreshTokenFromBody });
       if (!refreshToken) {
         throw new CustomError('Token already was used or never existed', 401);
       }
-      await this.tokens.delete(closeAllSessions ? { userId: refreshToken.userId } : { token: refreshTokenFromBody });
+      await this.tokens.delete(closeAllSessions ? { userId } : { token: refreshTokenFromBody });
+      await addAudit('logout', '', null, userId);
       return res.send({ ok: true });
     } catch (e) {
       // README goes first as it is subclass of JsonWebTokenError
@@ -116,6 +121,26 @@ export default class AuthController extends AbstractController {
         return next(new CustomError('Token invalid', 401));
       }
       return next(e);
+    }
+  };
+
+  private changePassword = async (req: Request, res: Response) => {
+    const { oldPassword, newPassword } = req.body;
+    const user = req.user as User;
+    if (!oldPassword || !newPassword || !user) {
+      return res.status(400).end();
+    }
+    const isPasswordCorrect = await isCorrect(oldPassword, user.salt, user.hash);
+    if (!isPasswordCorrect) {
+      return res.status(400).end();
+    }
+    try {
+      await user.setPassword(newPassword);
+      await this.users.save(user);
+      await addAudit('passChange', '', null, user.id);
+      return res.send({ ok: true });
+    } catch (e) {
+      return res.status(403).end();
     }
   };
 

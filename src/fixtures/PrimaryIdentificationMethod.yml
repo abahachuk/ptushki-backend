@@ -1,0 +1,7 @@
+entity: PrimaryIdentificationMethod
+items:
+  primaryIdentificationMethod{0..10}:
+    id: '{{random.alphaNumeric}}{{random.number}}'
+    desc_eng: '{{lorem.sentence}}'
+    desc_rus: '{{lorem.sentence}}'
+    desc_byn: '{{lorem.sentence}}'

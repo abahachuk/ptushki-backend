@@ -7,16 +7,6 @@ import createApp from './app';
 import connectDB from './db';
 import { logger } from './configs/logger';
 
-process.on('uncaughtException', (error: Error) => {
-  logger.error(error);
-  process.exit(1);
-});
-
-process.on('unhandledRejection', (error: Error) => {
-  logger.error(error);
-  process.exit(1);
-});
-
 const PORT = config.get('PORT');
 
 (async () => {
@@ -35,3 +25,13 @@ const PORT = config.get('PORT');
     process.exit(1);
   }
 })();
+
+process.on('uncaughtException', (error: Error) => {
+  logger.error(error);
+  process.exit(1);
+});
+
+process.on('unhandledRejection', (error: Error) => {
+  logger.error(error);
+  process.exit(1);
+});
