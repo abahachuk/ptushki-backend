@@ -65,6 +65,7 @@ export default class AuthController extends AbstractController {
       await this.tokens.delete(closeAllSessions ? { userId: refreshToken.userId } : { token: refreshTokenFromBody });
       return res.send({ ok: true });
     } catch (e) {
+      // README goes first as it is subclass of JsonWebTokenError
       if (e instanceof TokenExpiredError) {
         return next(new CustomError('Token expired', 401));
       }
@@ -105,6 +106,7 @@ export default class AuthController extends AbstractController {
       await this.tokens.save(new RefreshToken(refreshToken, user.id));
       return res.json({ token, refreshToken });
     } catch (e) {
+      // README goes first as it is subclass of JsonWebTokenError
       if (e instanceof TokenExpiredError) {
         return next(new CustomError('Token expired', 401));
       }
