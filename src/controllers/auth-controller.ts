@@ -26,7 +26,9 @@ export default class AuthController extends AbstractController {
     this.router.post('/refresh', this.refresh);
 
     /* use auth.required to secure route */
-    this.router.get('/test', authRequired, this.test);
+    if (process.env.NODE_ENV !== 'production') {
+      this.router.get('/test', authRequired, this.test);
+    }
 
     return this.router;
   }
