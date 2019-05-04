@@ -1,7 +1,7 @@
 import { NextFunction, Request, Response, Router } from 'express';
 import { getRepository, Repository } from 'typeorm';
 import passport from 'passport';
-import { TokenExpiredError } from 'jsonwebtoken';
+import { TokenExpiredError, JsonWebTokenError } from 'jsonwebtoken';
 
 import AbstractController from './abstract-controller';
 import { User } from '../entities/user-entity';
@@ -47,18 +47,25 @@ export default class AuthController extends AbstractController {
   };
 
   private logout = async (req: Request, res: Response, next: NextFunction) => {
-    const { refreshToken, closeAllSessions = false }: { refreshToken: string; closeAllSessions: boolean } = req.body;
-    if (!refreshToken) {
+    const {
+      refreshToken: refreshTokenFromBody,
+      closeAllSessions = false,
+    }: { refreshToken: string; closeAllSessions: boolean } = req.body;
+    if (!refreshTokenFromBody) {
       return res.status(400).end();
     }
     try {
-      const token = await this.tokens.findOne({ token: refreshToken });
-      if (!token) {
-        return res.status(400).end();
+      await verifyRefreshToken(refreshTokenFromBody);
+      const refreshToken = await this.tokens.findOne({ token: refreshTokenFromBody });
+      if (!refreshToken) {
+        return res.status(401).end();
       }
-      await this.tokens.delete(closeAllSessions ? { userId: token.userId } : { token: refreshToken });
+      await this.tokens.delete(closeAllSessions ? { userId: refreshToken.userId } : { token: refreshTokenFromBody });
       return res.send({ ok: true });
     } catch (e) {
+      if ([TokenExpiredError, JsonWebTokenError].some(err => e instanceof err)) {
+        return res.status(401).end();
+      }
       return next(e);
     }
   };
@@ -81,7 +88,7 @@ export default class AuthController extends AbstractController {
     })(req, res, next);
   };
 
-  private refresh = async (req: Request, res: Response) => {
+  private refresh = async (req: Request, res: Response, next: NextFunction) => {
     const refreshTokenFromBody: string = req.body.refreshToken;
     if (!refreshTokenFromBody) {
       return res.status(400).end();
@@ -100,10 +107,10 @@ export default class AuthController extends AbstractController {
       await this.tokens.save(new RefreshToken(refreshToken, user.id));
       return res.json({ token: `Bearer ${token}`, refreshToken });
     } catch (e) {
-      if (e instanceof TokenExpiredError) {
+      if ([TokenExpiredError, JsonWebTokenError].some(err => e instanceof err)) {
         return res.status(401).end();
       }
-      return res.status(400).end();
+      return next(e);
     }
   };
 

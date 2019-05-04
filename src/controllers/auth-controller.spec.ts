@@ -182,9 +182,19 @@ describe('Auth', () => {
   });
 
   describe('on logout route user have to:', () => {
-    it('get 200 and reset accessToken + refreshToken if accessToken is valid', async () => {
-      const { refreshToken } = signTokens({ userId: 'todo', userRole: UserRole.Admin });
-      await tokenRepository.save(new RefreshToken(refreshToken, 'todo'));
+    let user: User;
+    let userId: string;
+    const email = 'logout-test@mail.com';
+    const password = '12345';
+
+    beforeAll(async () => {
+      user = await User.create({ email, password });
+      user = await userRepository.save(user);
+      ({ id: userId } = user);
+    });
+    it('get 200 and reset refreshToken', async () => {
+      const { refreshToken } = signTokens({ userId, userRole: UserRole.Admin });
+      await tokenRepository.save(new RefreshToken(refreshToken, userId));
 
       const res = await request(app)
         .post(urls.logout)
@@ -193,11 +203,15 @@ describe('Auth', () => {
 
       expect(res.status).toEqual(200);
 
-      const token = await tokenRepository.findOne({ token: refreshToken });
-      expect(token).toEqual(undefined);
+      const res2 = await request(app)
+        .post(urls.refresh)
+        .set('Accept', 'application/json')
+        .send({ refreshToken });
+
+      expect(res2.status).toEqual(401);
     });
 
-    it('get 403 if refreshToken is invalid', async () => {
+    it('get 401 if refreshToken is invalid', async () => {
       const refreshToken = 'invalidToken';
 
       const res = await request(app)
@@ -205,31 +219,28 @@ describe('Auth', () => {
         .set('Accept', 'application/json')
         .send({ refreshToken });
 
-      expect(res.status).toEqual(403);
+      expect(res.status).toEqual(401);
     });
 
-    it('get 403 if refreshToken is not provided', async () => {
+    it('get 400 if refreshToken is not provided', async () => {
       const res = await request(app)
         .post(urls.logout)
         .set('Accept', 'application/json')
         .send();
 
-      expect(res.status).toEqual(403);
+      expect(res.status).toEqual(400);
     });
 
-    it('get 403 if refreshToken is expired', async () => {
-      const { refreshToken } = signTokens(
-        { userId: 'todo', userRole: UserRole.Admin },
-        { accessExpiresIn: 1, refreshExpiresIn: 1 },
-      );
-      await tokenRepository.save(new RefreshToken(refreshToken, 'todo'));
+    it('get 401 if refreshToken is expired', async () => {
+      const { refreshToken } = signTokens({ userId, userRole: UserRole.Admin }, { refreshExpiresIn: '-1s' });
+      await tokenRepository.save(new RefreshToken(refreshToken, userId));
 
       const res = await request(app)
         .post(urls.logout)
         .set('Accept', 'application/json')
         .send({ refreshToken });
 
-      expect(res.status).toEqual(403);
+      expect(res.status).toEqual(401);
     });
   });
 });
