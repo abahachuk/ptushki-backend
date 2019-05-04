@@ -9,6 +9,7 @@ import { Request, Response } from 'express';
 
 import { User, UserRole } from '../entities/user-entity';
 import { isCorrect } from '../services/user-crypto-service';
+import { CustomError } from '../utils/CustomError';
 
 const LocalStrategy = passportLocal.Strategy;
 const JWTStrategy = passportJWT.Strategy;
@@ -31,19 +32,18 @@ export const initPassport = (): void => {
         passwordField: 'password',
         session: false,
       },
-      async (email: string, password: string, done: (error: null | Error, user?: User) => void) => {
+      async (email: string, password: string, done: (error: null | CustomError, user?: User) => void) => {
         try {
           const user = await repository.findOne({ email });
           const isPasswordCorrect = user ? await isCorrect(password, user.salt, user.hash) : false;
           if (!user || !isPasswordCorrect) {
-            const error = Object.assign(new Error('Email or password is invalid'), { status: 401 });
-            return done(error);
+            return done(new CustomError('Email or password is invalid', 401));
           }
           delete user.hash;
           delete user.salt;
           return done(null, user);
         } catch (e) {
-          return done(new Error('Authorization Error'));
+          return done(new CustomError('Authorization Error', 401));
         }
       },
     ),

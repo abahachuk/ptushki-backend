@@ -6,6 +6,7 @@ import AbstractController from './abstract-controller';
 import { User } from '../entities/user-entity';
 import { RefreshToken } from '../entities/auth-entity';
 import { signTokens, verifyRefreshToken, authRequired, authenticateLocal } from '../services/auth-service';
+import { CustomError } from '../utils/CustomError';
 
 export default class AuthController extends AbstractController {
   private router: Router;
@@ -39,7 +40,8 @@ export default class AuthController extends AbstractController {
       return res.json({ user, token, refreshToken });
     } catch (e) {
       if (e.code === '23505') {
-        e.status = 400;
+        // README with any new user uniq constraint this will become invalid statement
+        return next(new CustomError('Such email already exists', 400));
       }
       return next(e);
     }
@@ -50,20 +52,24 @@ export default class AuthController extends AbstractController {
       refreshToken: refreshTokenFromBody,
       closeAllSessions = false,
     }: { refreshToken: string; closeAllSessions: boolean } = req.body;
-    if (!refreshTokenFromBody) {
-      return res.status(400).end();
-    }
+
     try {
+      if (!refreshTokenFromBody) {
+        throw new CustomError('Refresh token is required', 400);
+      }
       await verifyRefreshToken(refreshTokenFromBody);
       const refreshToken = await this.tokens.findOne({ token: refreshTokenFromBody });
       if (!refreshToken) {
-        return res.status(401).end();
+        throw new CustomError('Token already was used or never existed', 401);
       }
       await this.tokens.delete(closeAllSessions ? { userId: refreshToken.userId } : { token: refreshTokenFromBody });
       return res.send({ ok: true });
     } catch (e) {
-      if ([TokenExpiredError, JsonWebTokenError].some(err => e instanceof err)) {
-        return res.status(401).end();
+      if (e instanceof TokenExpiredError) {
+        return next(new CustomError('Token expired', 401));
+      }
+      if (e instanceof JsonWebTokenError) {
+        return next(new CustomError('Token invalid', 401));
       }
       return next(e);
     }
@@ -82,25 +88,28 @@ export default class AuthController extends AbstractController {
 
   private refresh = async (req: Request, res: Response, next: NextFunction) => {
     const refreshTokenFromBody: string = req.body.refreshToken;
-    if (!refreshTokenFromBody) {
-      return res.status(400).end();
-    }
     try {
+      if (!refreshTokenFromBody) {
+        throw new CustomError('Refresh token is required', 400);
+      }
       const { affected } = await this.tokens.delete({ token: refreshTokenFromBody });
       if (!affected) {
-        return res.status(401).end();
+        throw new CustomError('Token already was used or never existed', 401);
       }
       const { userId } = await verifyRefreshToken(refreshTokenFromBody);
       const user = await this.users.findOne(userId);
       if (!user) {
-        return res.status(401).end();
+        throw new CustomError('Non-existent user cannot be authorized', 401);
       }
       const { token, refreshToken } = signTokens({ userId, userRole: user.role });
       await this.tokens.save(new RefreshToken(refreshToken, user.id));
       return res.json({ token, refreshToken });
     } catch (e) {
-      if ([TokenExpiredError, JsonWebTokenError].some(err => e instanceof err)) {
-        return res.status(401).end();
+      if (e instanceof TokenExpiredError) {
+        return next(new CustomError('Token expired', 401));
+      }
+      if (e instanceof JsonWebTokenError) {
+        return next(new CustomError('Token invalid', 401));
       }
       return next(e);
     }
