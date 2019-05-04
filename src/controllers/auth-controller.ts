@@ -31,6 +31,7 @@ export default class AuthController extends AbstractController {
     /* use auth.required to secure route */
     if (process.env.NODE_ENV !== 'production') {
       this.router.get('/test', auth.required, auth.role(UserRole.Observer), this.test);
+      this.router.get('/admin-test', auth.required, auth.role(UserRole.Admin), this.adminTest);
     }
 
     return this.router;
@@ -144,8 +145,11 @@ export default class AuthController extends AbstractController {
     }
   };
 
-  private test = async (_req: Request, res: Response): Promise<void> => {
-    const users = await this.users.find();
-    res.json({ users });
+  private test = (_req: Request, res: Response): void => {
+    res.json({ ok: true });
+  };
+
+  private adminTest = (_req: Request, res: Response): void => {
+    res.json({ ok: true });
   };
 }

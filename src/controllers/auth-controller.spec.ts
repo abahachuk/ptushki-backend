@@ -4,10 +4,10 @@ import { Connection, getRepository, Repository } from 'typeorm';
 import createApp from '../app';
 import connectDB from '../db';
 import { signTokens } from '../services/auth-service';
-import { UserRole, User } from '../entities/user-entity';
+import { UserRole, User, NewUser } from '../entities/user-entity';
 import { RefreshToken } from '../entities/auth-entity';
 
-const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
+const delay = (ms: number): Promise<void> => new Promise(resolve => setTimeout(resolve, ms));
 
 let connection: Connection | undefined;
 let app: Application;
@@ -18,6 +18,7 @@ const urls: { [index: string]: string } = {
   refresh: '/auth/refresh',
   logout: '/auth/logout',
   test: '/auth/test',
+  adminTest: '/auth/admin-test',
 };
 
 jest.setTimeout(30000);
@@ -375,6 +376,53 @@ describe('Auth', () => {
             .send({ refreshToken }),
         ),
       )).forEach(({ status }, i) => expect(status).toEqual(i === clientToLogout ? 401 : 200));
+    });
+  });
+
+  describe('on protected routes', () => {
+    let observer: User;
+    let admin: User;
+    const observerEmail = 'observer@mail.com';
+    const adminEmail = 'admin@mail.com';
+    const password = '12345';
+    let tokenPairs: { token: string; refreshToken: string }[] = [];
+
+    beforeAll(async () => {
+      [observer, admin] = await Promise.all(
+        [{ email: observerEmail, password }, { email: adminEmail, password, role: UserRole.Admin }].map(
+          (creds: NewUser) => User.create(creds).then(newUser => userRepository.save(newUser)),
+        ),
+      );
+      tokenPairs = [observer, admin].map(({ id, role }) => signTokens({ userId: id, userRole: role }));
+    });
+
+    it('should allow to any authenticated user to access route with minimal access required (Observer level)', async () => {
+      (await Promise.all(
+        tokenPairs.map(({ token }) =>
+          request(app)
+            .get(urls.test)
+            .set('Accept', 'application/json')
+            .set('Authorization', token),
+        ),
+      )).forEach(({ status }) => expect(status).toEqual(200));
+    });
+
+    it("shouldn't allow to access admin's route for observer", async () => {
+      const observerToken = tokenPairs[0].token;
+      const { status } = await request(app)
+        .get(urls.adminTest)
+        .set('Accept', 'application/json')
+        .set('Authorization', observerToken);
+      expect(status).toEqual(403);
+    });
+
+    it("should allow to access admin's route for admin", async () => {
+      const adminToken = tokenPairs[1].token;
+      const { status } = await request(app)
+        .get(urls.adminTest)
+        .set('Accept', 'application/json')
+        .set('Authorization', adminToken);
+      expect(status).toEqual(200);
     });
   });
 });
