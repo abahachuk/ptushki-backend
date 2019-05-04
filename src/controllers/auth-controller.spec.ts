@@ -41,7 +41,7 @@ afterAll(async () => {
 });
 
 describe('Auth', () => {
-  describe('on signup route user have to:', () => {
+  describe('on signup route user should:', () => {
     const email = 'signup-test@mail.com';
     const password = '12345';
 
@@ -57,7 +57,7 @@ describe('Auth', () => {
       expect(res.body.refreshToken).toEqual(expect.any(String));
     });
 
-    it('be not able to signup with the same email twice', async () => {
+    it('not be able to signup with the same email twice', async () => {
       const res = await request(app)
         .post(urls.signup)
         .set('Accept', 'application/json')
@@ -67,7 +67,7 @@ describe('Auth', () => {
     });
   });
 
-  describe('on login route user have to:', () => {
+  describe('on login route user should:', () => {
     const email = 'login-test@mail.com';
     const password = '12345';
 
@@ -88,7 +88,7 @@ describe('Auth', () => {
       expect(res.body.refreshToken).toEqual(expect.any(String));
     });
 
-    it('get 401 on invalid password', async () => {
+    it('not login with invalid password and get 401', async () => {
       const res = await request(app)
         .post(urls.login)
         .set('Accept', 'application/json')
@@ -97,7 +97,7 @@ describe('Auth', () => {
       expect(res.status).toEqual(401);
     });
 
-    it('get 401 on invalid email', async () => {
+    it('not login with invalid email and get 401', async () => {
       const res = await request(app)
         .post(urls.login)
         .set('Accept', 'application/json')
@@ -107,7 +107,7 @@ describe('Auth', () => {
     });
   });
 
-  describe('on refresh route user have to:', () => {
+  describe('on refresh route user should:', () => {
     let user: User;
     let userId: string;
     const email = 'refresh-test@mail.com';
@@ -119,7 +119,7 @@ describe('Auth', () => {
       ({ id: userId } = user);
     });
 
-    it('get 200 and update accessToken if he has refreshToken', async () => {
+    it('be able to refresh tokens when send valid refresh token and get 200', async () => {
       const { refreshToken } = signTokens({ userId, userRole: UserRole.Admin });
       await tokenRepository.save(new RefreshToken(refreshToken, userId));
 
@@ -133,7 +133,7 @@ describe('Auth', () => {
       expect(res.body.refreshToken).toEqual(expect.any(String));
     });
 
-    it('get 401 if user trying to refresh old token again', async () => {
+    it('not be able to refresh tokens when sending refresh token twice and get 401', async () => {
       const { refreshToken } = signTokens({ userId, userRole: UserRole.Admin });
       await tokenRepository.save(new RefreshToken(refreshToken, userId));
 
@@ -152,7 +152,7 @@ describe('Auth', () => {
       expect(res2.status).toEqual(401);
     });
 
-    it('get 401 if refreshToken is expired', async () => {
+    it('not be able to refresh tokens if token is expired and get 401', async () => {
       const { refreshToken } = signTokens({ userId, userRole: UserRole.Admin }, { refreshExpiresIn: '-1s' });
       await tokenRepository.save(new RefreshToken(refreshToken, userId));
 
@@ -164,7 +164,7 @@ describe('Auth', () => {
       expect(res.status).toEqual(401);
     });
 
-    it('get 401 if refreshToken is invalid', async () => {
+    it('not be able to refresh tokens if token is malformed or faked and get 401', async () => {
       const refreshToken = 'invalidToken';
 
       const res = await request(app)
@@ -175,7 +175,7 @@ describe('Auth', () => {
       expect(res.status).toEqual(401);
     });
 
-    it('should not refresh tokens without refreshToken', async () => {
+    it('not be able to refresh tokens without refreshToken and get 400', async () => {
       const res = await request(app)
         .post(urls.refresh)
         .set('Accept', 'application/json')
@@ -185,7 +185,7 @@ describe('Auth', () => {
     });
   });
 
-  describe('on logout route user have to:', () => {
+  describe('on logout route user should:', () => {
     let user: User;
     let userId: string;
     const email = 'logout-test@mail.com';
@@ -196,7 +196,8 @@ describe('Auth', () => {
       user = await userRepository.save(user);
       ({ id: userId } = user);
     });
-    it('get 200 and reset refreshToken', async () => {
+
+    it('logout with valid refresh token and unvalidate it', async () => {
       const { refreshToken } = signTokens({ userId, userRole: UserRole.Admin });
       await tokenRepository.save(new RefreshToken(refreshToken, userId));
 
@@ -215,7 +216,7 @@ describe('Auth', () => {
       expect(res2.status).toEqual(401);
     });
 
-    it('get 401 if refreshToken is invalid', async () => {
+    it('fail to logout if refreshToken is malformed or faked, and get 401', async () => {
       const refreshToken = 'invalidToken';
 
       const res = await request(app)
@@ -226,7 +227,7 @@ describe('Auth', () => {
       expect(res.status).toEqual(401);
     });
 
-    it('get 400 if refreshToken is not provided', async () => {
+    it("fail to logout if refreshToken isn't provided, and get 400", async () => {
       const res = await request(app)
         .post(urls.logout)
         .set('Accept', 'application/json')
@@ -235,7 +236,7 @@ describe('Auth', () => {
       expect(res.status).toEqual(400);
     });
 
-    it('get 401 if refreshToken is expired', async () => {
+    it('fail to logout if refreshToken is expired, and get 401', async () => {
       const { refreshToken } = signTokens({ userId, userRole: UserRole.Admin }, { refreshExpiresIn: '-1s' });
       await tokenRepository.save(new RefreshToken(refreshToken, userId));
 
@@ -248,7 +249,7 @@ describe('Auth', () => {
     });
   });
 
-  describe('on multidevices', () => {
+  describe('on multidevices user should:', () => {
     let user: User;
     let userId: string;
     let userRole: UserRole;
@@ -261,7 +262,7 @@ describe('Auth', () => {
       ({ id: userId, role: userRole } = user);
     });
 
-    it('should be able to login. And then refresh his access independently', async () => {
+    it('login independently. And then refresh his access independently on each', async () => {
       const logins = await Promise.all(
         [0, 1100].map(n =>
           // README jsonwebtoken cant handle ms precision for timestamps
@@ -296,7 +297,7 @@ describe('Auth', () => {
       });
     });
 
-    it('should be able to logout from all devices (if change password etc.)', async () => {
+    it('logout from all devices (if change password etc.). And not be able to refresh tokens on each device then', async () => {
       const tokenPairs: { token: string; refreshToken: string }[] = [];
       // eslint-disable-next-line no-restricted-syntax
       for (const value of [0, 1100, 2200]) {
@@ -337,7 +338,7 @@ describe('Auth', () => {
       )).forEach(({ status }) => expect(status).toEqual(401));
     });
 
-    it('should be able to logout independently by each token', async () => {
+    it('logout independently by each token', async () => {
       const tokenPairs: { token: string; refreshToken: string }[] = [];
       // eslint-disable-next-line no-restricted-syntax
       for (const value of [0, 1100, 2200]) {
@@ -379,7 +380,7 @@ describe('Auth', () => {
     });
   });
 
-  describe('on protected routes', () => {
+  describe('protected routes should:', () => {
     let observer: User;
     let admin: User;
     const observerEmail = 'observer@mail.com';
@@ -396,7 +397,7 @@ describe('Auth', () => {
       tokenPairs = [observer, admin].map(({ id, role }) => signTokens({ userId: id, userRole: role }));
     });
 
-    it('should allow to any authenticated user to access route with minimal access required (Observer level)', async () => {
+    it('allow to any authenticated user access route with minimal access required (Observer level)', async () => {
       (await Promise.all(
         tokenPairs.map(({ token }) =>
           request(app)
@@ -407,7 +408,7 @@ describe('Auth', () => {
       )).forEach(({ status }) => expect(status).toEqual(200));
     });
 
-    it("shouldn't allow to access admin's route for observer", async () => {
+    it("not allow access admin's route for observer", async () => {
       const observerToken = tokenPairs[0].token;
       const { status } = await request(app)
         .get(urls.adminTest)
@@ -416,7 +417,7 @@ describe('Auth', () => {
       expect(status).toEqual(403);
     });
 
-    it("should allow to access admin's route for admin", async () => {
+    it("allow access admin's route for admin", async () => {
       const adminToken = tokenPairs[1].token;
       const { status } = await request(app)
         .get(urls.adminTest)
