@@ -338,10 +338,7 @@
             }
           },
           "401": {
-            "description": "Email or password is invalid | Authorization Error",
-            "schema": {
-              "type": "object"
-            }
+            "description": "Email or password is invalid | Authorization Error"
           },
           "500": {
             "description": "Internal Server Error"
