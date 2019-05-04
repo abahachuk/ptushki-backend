@@ -77,7 +77,7 @@ export const signTokens = (
     refreshExpiresIn = refreshExpires,
   }: { accessExpiresIn?: number | string; refreshExpiresIn?: number | string } = {},
 ): { token: string; refreshToken: string } => {
-  const token = jwt.sign(payload, accessSecret, { expiresIn: accessExpiresIn });
+  const token = `Bearer ${jwt.sign(payload, accessSecret, { expiresIn: accessExpiresIn })}`;
   const refreshToken = jwt.sign(payload, refreshSecret, { expiresIn: refreshExpiresIn });
   return { token, refreshToken };
 };

@@ -37,7 +37,7 @@ export default class AuthController extends AbstractController {
       await this.users.save(user);
       const { token, refreshToken } = signTokens({ userId: user.id, userRole: user.role });
       await this.tokens.save(new RefreshToken(refreshToken, user.id));
-      return res.json({ user, token: `Bearer ${token}`, refreshToken });
+      return res.json({ user, token, refreshToken });
     } catch (e) {
       if (e.code === '23505') {
         e.status = 400;
@@ -81,7 +81,7 @@ export default class AuthController extends AbstractController {
       try {
         const { token, refreshToken } = signTokens({ userId: user.id, userRole: user.role });
         await this.tokens.save(new RefreshToken(refreshToken, user.id));
-        return res.json({ user, token: `Bearer ${token}`, refreshToken });
+        return res.json({ user, token, refreshToken });
       } catch (e) {
         return next(e);
       }
@@ -105,7 +105,7 @@ export default class AuthController extends AbstractController {
       }
       const { token, refreshToken } = signTokens({ userId, userRole: user.role });
       await this.tokens.save(new RefreshToken(refreshToken, user.id));
-      return res.json({ token: `Bearer ${token}`, refreshToken });
+      return res.json({ token, refreshToken });
     } catch (e) {
       if ([TokenExpiredError, JsonWebTokenError].some(err => e instanceof err)) {
         return res.status(401).end();
