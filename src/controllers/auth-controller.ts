@@ -92,11 +92,11 @@ export default class AuthController extends AbstractController {
       if (!refreshTokenFromBody) {
         throw new CustomError('Refresh token is required', 400);
       }
+      const { userId } = await verifyRefreshToken(refreshTokenFromBody);
       const { affected } = await this.tokens.delete({ token: refreshTokenFromBody });
       if (!affected) {
         throw new CustomError('Token already was used or never existed', 401);
       }
-      const { userId } = await verifyRefreshToken(refreshTokenFromBody);
       const user = await this.users.findOne(userId);
       if (!user) {
         throw new CustomError('Non-existent user cannot be authorized', 401);
