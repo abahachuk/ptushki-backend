@@ -7,7 +7,7 @@ import { Observation } from '../observation-entity';
 @Entity()
 export class AccuracyOfPullusAge implements Dictionary {
   @PrimaryColumn()
-  public id: number;
+  public id: string;
 
   @Column('varchar', { nullable: true, default: null })
   public desc_eng: string | null;

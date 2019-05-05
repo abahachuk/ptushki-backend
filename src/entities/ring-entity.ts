@@ -136,7 +136,7 @@ export class Ring {
 
   // Related fields in access 'Lat deg', 'Lat min', 'Lat sec', 'Lon deg', 'Lon min', 'Lon sec',
   @Column('varchar', { nullable: true, default: null })
-  public geographicalCoordinates: string;
+  public geographicalCoordinates: string | null;
 
   @ManyToOne(() => PlaceCode, m => m.ring, {
     eager: true,

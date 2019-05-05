@@ -112,7 +112,7 @@ export class Observation {
 
   // Related fields in access 'Lat deg', 'Lat min', 'Lat sec', 'Lon deg', 'Lon min', 'Lon sec',
   @Column('varchar', { nullable: true, default: null })
-  public geographicalCoordinates: string;
+  public geographicalCoordinates: string | null;
 
   @ManyToOne(() => AccuracyOfCoordinates, m => m.observation, {
     eager: true,
@@ -151,7 +151,7 @@ export class Observation {
 
   // Related fields in access 'Place'
   @Column('varchar', { nullable: true, default: null })
-  public placeName: string;
+  public placeName: string | null;
 
   // Related field in access 'Note'
   @Column('varchar', { nullable: true, default: null })

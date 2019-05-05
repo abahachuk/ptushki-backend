@@ -10,7 +10,7 @@ export class Species {
   public id: string;
 
   @Column('varchar', { nullable: true, default: null })
-  public belCode: number;
+  public belCode: string | null;
 
   @Column('varchar', { nullable: true, default: null })
   public species: string | null;
