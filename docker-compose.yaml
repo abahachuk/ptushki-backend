@@ -1,5 +1,13 @@
-version: '3'
+version: '2'
 services:
+
+  ptushki-rest:
+    build: .
+    depends_on:
+      - ptushki-postgres
+    ports:
+      - "3001:3001"
+
   ptushki-postgres:
     image: postgres:11
     environment:
