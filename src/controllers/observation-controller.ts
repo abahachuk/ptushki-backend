@@ -2,22 +2,14 @@ import { NextFunction, Request, Response, Router } from 'express';
 import { getRepository, Repository } from 'typeorm';
 import AbstractController from './abstract-controller';
 import { Observation } from '../entities/observation-entity';
-// import { auth } from '../services/auth-service';
-
-// const DEFAULT_QUERY = '*';
-const DEFAULT_PAGE_NUMBER = '0';
-const DEFAULT_PAGE_SIZE = '5';
+import { parseQueryParams, ObservationQuery } from '../services/observation-service';
 
 interface RequestWithObservation extends Request {
   observation: Observation;
 }
 
 interface RequestWithPageParams extends Request {
-  query: {
-    search: string;
-    pageNumber: string;
-    pageSize: string;
-  };
+  query: ObservationQuery;
 }
 
 export default class ObservationController extends AbstractController {
@@ -52,24 +44,14 @@ export default class ObservationController extends AbstractController {
 
   private findObservations = async (req: RequestWithPageParams, res: Response, next: NextFunction): Promise<void> => {
     try {
-      const {
-        // search = DEFAULT_QUERY,
-        pageNumber = DEFAULT_PAGE_NUMBER,
-        pageSize = DEFAULT_PAGE_SIZE,
-      } = req.query;
-
-      const number = Number.parseInt(pageNumber, 10);
-      const size = Number.parseInt(pageSize, 10);
-
-      const observationsPromise = this.observations.find({
-        skip: number * size,
-        take: size,
-      });
+      const params = parseQueryParams(req.query);
+      const observationsPromise = this.observations.find(params);
       const [observations, count] = await Promise.all([observationsPromise, this.observations.count()]);
       res.json({
         content: observations,
-        pageNumber: number,
-        pageSize: size,
+        // aggregations: getAggregations(),
+        pageNumber: params.number,
+        pageSize: params.size,
         totalElements: count,
       });
     } catch (e) {
