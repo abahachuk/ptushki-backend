@@ -1,8 +1,20 @@
 import config from 'config';
 import { Router, NextFunction, Request, Response } from 'express';
 import { Repository } from 'typeorm';
+import { validate } from 'class-validator';
 
 const UUID_LENGTH = config.get('UUID_LENGTH');
+
+class ValidationError {
+  public message: any;
+
+  public status: number;
+
+  public constructor(message: any, status: number) {
+    this.message = message;
+    this.status = status;
+  }
+}
 
 export default abstract class AbstractController {
   private entity: Repository<any>;
@@ -36,6 +48,22 @@ export default abstract class AbstractController {
     this.entity = entity;
     if (key) {
       this.key = key;
+    }
+  }
+
+  // Argument 'data' it is a new data, and argument existedData is optional and needed for refreshing existing data in db
+  protected async validate(data: any, existedData: any = {}) {
+    const createdModel = await this.entity.create(Object.assign(existedData, data));
+    const errors = await validate(createdModel);
+    if (errors.length) {
+      const parsedErrors = errors.reduce(
+        (acc, error) => ({
+          ...acc,
+          [error.property]: Object.values(error.constraints),
+        }),
+        {},
+      );
+      throw new ValidationError(parsedErrors, 422);
     }
   }
 
