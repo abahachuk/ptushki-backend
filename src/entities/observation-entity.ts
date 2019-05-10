@@ -17,6 +17,10 @@ import { Condition } from './euring-codes/condition-entity';
 import { Circumstances } from './euring-codes/circumstances-entity';
 import { CircumstancesPresumed } from './euring-codes/circumstances-presumed-entity';
 
+export interface NewObservation {
+  finder: User;
+}
+
 @Entity()
 export class Observation {
   @PrimaryGeneratedColumn('uuid')
@@ -156,4 +160,8 @@ export class Observation {
   // Not presented in euring standart
   @Column('boolean', { default: false })
   public verified: boolean;
+
+  public static async create(observation: NewObservation): Promise<Observation> {
+    return Object.assign(new Observation(), observation);
+  }
 }
