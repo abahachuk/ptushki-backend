@@ -1,4 +1,5 @@
 import { Entity, PrimaryGeneratedColumn, Column, OneToMany } from 'typeorm';
+import { IsEmail, MinLength, MaxLength, IsEnum, IsString, IsOptional } from 'class-validator';
 import { getSaltAndHash } from '../services/user-crypto-service';
 import { Observation } from './observation-entity';
 import { Ring } from './ring-entity';
@@ -27,6 +28,8 @@ export class User {
   @PrimaryGeneratedColumn('uuid')
   public id: string;
 
+  @IsEmail()
+  @MaxLength(64)
   @Column({
     type: 'varchar',
     length: 150,
@@ -40,6 +43,7 @@ export class User {
   @Column()
   public salt: string;
 
+  @IsEnum(UserRole)
   @Column({
     type: 'enum',
     enum: UserRole,
@@ -47,9 +51,16 @@ export class User {
   })
   public role: UserRole;
 
+  @IsOptional()
+  @IsString()
+  @MinLength(1)
+  @MaxLength(64)
   @Column('varchar', { length: 64, nullable: true, default: null })
   public firstName: string | null;
 
+  @IsOptional()
+  @MinLength(1)
+  @MaxLength(64)
   @Column('varchar', { length: 64, nullable: true, default: null })
   public lastName: string | null;
 
