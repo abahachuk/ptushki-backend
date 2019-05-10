@@ -1,30 +1,32 @@
 import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, OneToMany } from 'typeorm';
-import { AccuracyOfCoordinates } from './euring-codes/accuracy-of-coordinates-entity';
-import { Sex } from './euring-codes/sex-entity';
-import { Age } from './euring-codes/age-entity';
-import { RingingScheme } from './euring-codes/ringing-scheme-entity';
-import { PrimaryIdentificationMethod } from './euring-codes/primary-identification-method-entity';
-import { VerificationOfTheMetalRing } from './euring-codes/verification-of-the-metal-ring-entity';
-import { MetalRingInformation } from './euring-codes/metal-ring-information-entity';
-import { OtherMarksInformation } from './euring-codes/other-marks-information-entity';
-import { Species } from './euring-codes/species-entity';
-import { Manipulated } from './euring-codes/manipulated-entity';
-import { MovedBeforeTheCapture } from './euring-codes/moved-before-capture-entity';
-import { CatchingMethod } from './euring-codes/catching-method-entity';
-import { CatchingLures } from './euring-codes/catching-lures-entity';
-import { Status } from './euring-codes/status-entity';
-import { BroodSize } from './euring-codes/broodsize-entity';
-import { PullusAge } from './euring-codes/pullus-age-entity';
-import { AccuracyOfPullusAge } from './euring-codes/accuracy-of-pullus-age-entity';
-import { PlaceCode } from './euring-codes/place-code-entity';
-import { Condition } from './euring-codes/condition-entity';
-import { Circumstances } from './euring-codes/circumstances-entity';
-import { CircumstancesPresumed } from './euring-codes/circumstances-presumed-entity';
-import { AccuracyOfDate } from './euring-codes/accuracy-of-date-entity';
-import { EURINGCodeIdentifier } from './euring-codes/euring-code-identifier-entity';
-import { User } from './user-entity';
-import { StatusOfRing } from './euring-codes/status-of-ring-entity';
+import {
+  AccuracyOfCoordinates,
+  Sex,
+  Age,
+  RingingScheme,
+  PrimaryIdentificationMethod,
+  VerificationOfTheMetalRing,
+  MetalRingInformation,
+  OtherMarksInformation,
+  Species,
+  Manipulated,
+  MovedBeforeTheCapture,
+  CatchingMethod,
+  CatchingLures,
+  Status,
+  BroodSize,
+  PullusAge,
+  AccuracyOfPullusAge,
+  PlaceCode,
+  Condition,
+  Circumstances,
+  CircumstancesPresumed,
+  AccuracyOfDate,
+  EURINGCodeIdentifier,
+  StatusOfRing,
+} from './euring-codes';
 import { Observation } from './observation-entity';
+import { User } from './user-entity';
 
 @Entity()
 export class Ring {
