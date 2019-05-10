@@ -24,7 +24,7 @@ export default {
   auth: {
     accessSecret: process.env.JWT_ACCESS_TOKEN_SECRET || 'secret',
     refreshSecret: process.env.JWT_REFRESH_TOKEN_SECRET || 'secret',
-    accessExpires: Number.parseInt(process.env.JWT_ACCESS_TOKEN_EXPIRES as string, 10) || '5m',
-    refreshExpires: process.env.JWT_REFRESH_TOKEN_EXPIRES || '30 days',
+    accessExpires: Number.parseInt(process.env.JWT_ACCESS_TOKEN_EXPIRES as string, 10) || '1h',
+    refreshExpires: process.env.JWT_REFRESH_TOKEN_EXPIRES || '30d',
   },
 };
