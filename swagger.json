@@ -267,6 +267,12 @@
             "schema": {
               "$ref": "#/definitions/AuthResponse"
             }
+          },
+          "400": {
+            "description": "Such email already exists"
+          },
+          "500": {
+            "description": "Internal Server Error"
           }
         }
       }
@@ -308,7 +314,13 @@
             }
           },
           "400": {
-            "description": "No refresh token provided | no data was found by provided token."
+            "description": "Refresh token is required"
+          },
+          "401": {
+            "description": "Token already was used or never existed | Token expired | Token invalid"
+          },
+          "500": {
+            "description": "Internal Server Error"
           }
         }
       }
@@ -326,16 +338,10 @@
             }
           },
           "401": {
-            "description": "passport error occurred",
-            "schema": {
-              "type": "object"
-            }
+            "description": "Email or password is invalid | Authorization Error"
           },
-          "403": {
-            "description": "No user was found",
-            "schema": {
-              "type": "object"
-            }
+          "500": {
+            "description": "Internal Server Error"
           }
         }
       }
@@ -377,10 +383,13 @@
             }
           },
           "400": {
-            "description": "no refresh token provided"
+            "description": "Refresh token is required"
           },
-          "403": {
-            "description": "No old token was found | no user was found | failed to save token"
+          "401": {
+            "description": "Token already was used or never existed | Token expired | Token invalid | Non-existent user cannot be authorized"
+          },
+          "500": {
+            "description": "Internal Server Error"
           }
         }
       }

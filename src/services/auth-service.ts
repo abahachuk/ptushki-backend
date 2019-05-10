@@ -6,8 +6,10 @@ import passportLocal from 'passport-local';
 import passportJWT, { VerifiedCallback } from 'passport-jwt';
 import { promisify } from 'util';
 import jwt from 'jsonwebtoken';
+
 import { User, UserRole } from '../entities/user-entity';
 import { isCorrect } from '../services/user-crypto-service';
+import { CustomError } from '../utils/CustomError';
 
 const LocalStrategy = passportLocal.Strategy;
 const JWTStrategy = passportJWT.Strategy;
@@ -30,18 +32,18 @@ export const initPassport = (): void => {
         passwordField: 'password',
         session: false,
       },
-      async (email: string, password: string, done: (error: {} | null, user?: User) => void) => {
+      async (email: string, password: string, done: (error: null | CustomError, user?: User) => void) => {
         try {
           const user = await repository.findOne({ email });
           const isPasswordCorrect = user ? await isCorrect(password, user.salt, user.hash) : false;
           if (!user || !isPasswordCorrect) {
-            return done({ message: 'email or password is invalid' });
+            return done(new CustomError('Email or password is invalid', 401));
           }
           delete user.hash;
           delete user.salt;
           return done(null, user);
         } catch (e) {
-          return done({ message: 'error' });
+          return done(new CustomError('Authorization Error', 401));
         }
       },
     ),
@@ -95,9 +97,23 @@ export const verifyRefreshToken = async (refreshToken: string): Promise<UserPayl
   return { userId, userRole };
 };
 
-export const signTokens = (payload: UserPayload): { token: string; refreshToken: string } => {
-  const token = jwt.sign(payload, accessSecret, { expiresIn: accessExpires });
-  const refreshToken = jwt.sign(payload, refreshSecret, { expiresIn: refreshExpires });
+export const authenticateLocal = (req: Request, res: Response): Promise<User | Error> =>
+  new Promise((resolve, reject) => {
+    passport.authenticate('local', { session: false }, (err: Error, user: User) => {
+      if (err) reject(err);
+      resolve(user);
+    })(req, res);
+  });
+
+export const signTokens = (
+  payload: UserPayload,
+  {
+    accessExpiresIn = accessExpires,
+    refreshExpiresIn = refreshExpires,
+  }: { accessExpiresIn?: number | string; refreshExpiresIn?: number | string } = {},
+): { token: string; refreshToken: string } => {
+  const token = `Bearer ${jwt.sign(payload, accessSecret, { expiresIn: accessExpiresIn })}`;
+  const refreshToken = jwt.sign(payload, refreshSecret, { expiresIn: refreshExpiresIn });
   return { token, refreshToken };
 };
 
