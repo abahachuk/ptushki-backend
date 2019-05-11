@@ -11,10 +11,10 @@ export class Species implements Dictionary {
   public id: string;
 
   @Column('varchar', { nullable: true, default: null })
-  public belCode: number;
+  public letterCode: string | null;
 
-  @Column('varchar', { nullable: true, default: null })
-  public species: string | null;
+  @Column()
+  public species: string;
 
   @Column('varchar', { nullable: true, default: null })
   public ordo: string | null;
