@@ -13,6 +13,7 @@ import {
   IsNumberString,
   IsBoolean,
 } from 'class-validator';
+import { IsAlphaWithHyphen, IsAlphanumericWithHyphen, IsNumberStringWithHyphen } from '../validation/custom-decorators';
 import { equalLength } from '../validation/validation-messages';
 import { User } from './user-entity';
 import { Ring } from './ring-entity';
@@ -137,16 +138,14 @@ export class Observation {
   })
   public movedBeforeTheCapture: MovedBeforeTheCapture;
 
-  @IsOptional()
-  @IsAlpha()
+  @IsAlphaWithHyphen()
   @Length(1, 1, { message: equalLength(1) })
   @ManyToOne(() => CatchingMethod, m => m.observation, {
     eager: true,
   })
   public catchingMethod: CatchingMethod;
 
-  @IsOptional()
-  @IsAlpha()
+  @IsAlphaWithHyphen()
   @Length(1, 1, { message: equalLength(1) })
   @ManyToOne(() => CatchingLures, m => m.observation, {
     eager: true,
@@ -178,24 +177,21 @@ export class Observation {
   })
   public accuracyOfCoordinates: AccuracyOfCoordinates;
 
-  @IsOptional()
-  @IsAlpha()
+  @IsAlphaWithHyphen()
   @Length(1, 1, { message: equalLength(1) })
   @ManyToOne(() => Status, m => m.observation, {
     eager: true,
   })
   public status: Status;
 
-  @IsOptional()
-  @IsNumberString()
+  @IsNumberStringWithHyphen()
   @Length(2, 2, { message: equalLength(2) })
   @ManyToOne(() => PullusAge, m => m.observation, {
     eager: true,
   })
   public pullusAge: PullusAge;
 
-  @IsOptional()
-  @IsAlphanumeric()
+  @IsAlphanumericWithHyphen()
   @Length(1, 1, { message: equalLength(1) })
   @ManyToOne(() => AccuracyOfPullusAge, m => m.observation, {
     eager: true,

@@ -1,5 +1,6 @@
 import { Entity, PrimaryColumn, Column, OneToMany } from 'typeorm';
-import { Length, IsAlphanumeric, IsOptional, IsString } from 'class-validator';
+import { Length, IsOptional, IsString } from 'class-validator';
+import { IsAlphanumericWithHyphen } from '../../validation/custom-decorators';
 import { equalLength } from '../../validation/validation-messages';
 import { Dictionary } from './common-interfaces';
 import { Ring } from '../ring-entity';
@@ -8,7 +9,7 @@ import { Observation } from '../observation-entity';
 // Related table in access 'Accuracy of pullus age'
 @Entity()
 export class AccuracyOfPullusAge implements Dictionary {
-  @IsAlphanumeric()
+  @IsAlphanumericWithHyphen()
   @Length(1, 1, { message: equalLength(1) })
   @PrimaryColumn()
   public id: string;

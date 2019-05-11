@@ -12,6 +12,7 @@ import {
   Max,
   IsNumberString,
 } from 'class-validator';
+import { IsAlphaWithHyphen, IsAlphanumericWithHyphen, IsNumberStringWithHyphen } from '../validation/custom-decorators';
 import { equalLength } from '../validation/validation-messages';
 import { AccuracyOfCoordinates } from './euring-codes/accuracy-of-coordinates-entity';
 import { Sex } from './euring-codes/sex-entity';
@@ -48,7 +49,10 @@ export class Ring {
   // Related fields in access 'Ring number', Identification series', 'Dots' and 'Identification number'.
   // Need to sum series, dots and id number in order to get Ring number. See documentation.
   @Length(10, 10, { message: equalLength(10) })
-  @Column('varchar')
+  @Column({
+    type: 'varchar',
+    unique: true,
+  })
   public identificationNumber: string;
 
   @OneToMany(() => Observation, m => m.ring)
@@ -120,16 +124,14 @@ export class Ring {
   })
   public movedBeforeTheCapture: MovedBeforeTheCapture;
 
-  @IsOptional()
-  @IsAlpha()
+  @IsAlphaWithHyphen()
   @Length(1, 1, { message: equalLength(1) })
   @ManyToOne(() => CatchingMethod, m => m.ring, {
     eager: true,
   })
   public catchingMethod: CatchingMethod;
 
-  @IsOptional()
-  @IsAlpha()
+  @IsAlphaWithHyphen()
   @Length(1, 1, { message: equalLength(1) })
   @ManyToOne(() => CatchingLures, m => m.ring, {
     eager: true,
@@ -164,32 +166,28 @@ export class Ring {
   })
   public ageConcluded: Age;
 
-  @IsOptional()
-  @IsAlpha()
+  @IsAlphaWithHyphen()
   @Length(1, 1, { message: equalLength(1) })
   @ManyToOne(() => Status, m => m.ring, {
     eager: true,
   })
   public status: Status;
 
-  @IsOptional()
-  @IsNumberString()
+  @IsNumberStringWithHyphen()
   @Length(2, 2, { message: equalLength(2) })
   @ManyToOne(() => BroodSize, m => m.ring, {
     eager: true,
   })
   public broodSize: BroodSize;
 
-  @IsOptional()
-  @IsNumberString()
+  @IsNumberStringWithHyphen()
   @Length(2, 2, { message: equalLength(2) })
   @ManyToOne(() => PullusAge, m => m.ring, {
     eager: true,
   })
   public pullusAge: PullusAge;
 
-  @IsOptional()
-  @IsAlphanumeric()
+  @IsAlphanumericWithHyphen()
   @Length(1, 1, { message: equalLength(1) })
   @ManyToOne(() => AccuracyOfPullusAge, m => m.ring, {
     eager: true,

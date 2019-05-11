@@ -1,5 +1,6 @@
 import { Entity, PrimaryColumn, Column, OneToMany } from 'typeorm';
-import { Length, IsAlpha, IsOptional, IsString } from 'class-validator';
+import { Length, IsOptional, IsString } from 'class-validator';
+import { IsAlphaWithHyphen } from '../../validation/custom-decorators';
 import { equalLength } from '../../validation/validation-messages';
 import { Dictionary } from './common-interfaces';
 import { Ring } from '../ring-entity';
@@ -8,7 +9,7 @@ import { Observation } from '../observation-entity';
 // Related table in access 'Cathing lures'
 @Entity()
 export class CatchingLures implements Dictionary {
-  @IsAlpha()
+  @IsAlphaWithHyphen()
   @Length(1, 1, { message: equalLength(1) })
   @PrimaryColumn()
   public id: string;
