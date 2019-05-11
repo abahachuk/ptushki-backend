@@ -483,7 +483,7 @@
       "type": "object",
       "properties": {
         "id": {
-          "type": "number"
+          "type": "string"
         },
         "desc_eng": {
           "type": "string"
@@ -998,7 +998,7 @@
         "id": {
           "type": "string"
         },
-        "belCode": {
+        "letterCode": {
           "type": "number"
         },
         "species": {
@@ -1008,6 +1008,15 @@
           "type": "string"
         },
         "family": {
+          "type": "string"
+        },
+        "desc_eng": {
+          "type": "string"
+        },
+        "desc_rus": {
+          "type": "string"
+        },
+        "desc_byn": {
           "type": "string"
         },
         "mentionedInRing": {
@@ -1077,14 +1086,20 @@
         "id": {
           "type": "string"
         },
-        "description": {
-          "type": "string"
-        },
         "ring": {
           "type": "array",
           "items": {
             "$ref": "#/definitions/Ring"
           }
+        },
+        "desc_eng": {
+          "type": "string"
+        },
+        "desc_rus": {
+          "type": "string"
+        },
+        "desc_byn": {
+          "type": "string"
         }
       }
     },
