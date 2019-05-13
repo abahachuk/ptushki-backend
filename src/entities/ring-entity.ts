@@ -35,7 +35,7 @@ export class Ring {
 
   // Related fields in access 'Ring number', Identification series', 'Dots' and 'Identification number'.
   // Need to sum series, dots and id number in order to get Ring number. See documentation.
-  @Column('varchar')
+  @Column('varchar', { unique: true })
   public identificationNumber: string;
 
   @OneToMany(() => Observation, m => m.ring)
