@@ -1,74 +1,12 @@
 import 'dotenv/config';
-// eslint-disable-next-line import/no-extraneous-dependencies
-import ADODB from 'node-adodb';
-import { Connection, createConnection, getRepository, Repository } from 'typeorm';
+import { Connection, createConnection } from 'typeorm';
+
+import './access-connection';
 import config from '../prepare-db-config';
-import { EURINGs } from './EURING-access-tables';
-import { ringMapper, RingMapper } from './rings-access-table';
-import { Ring } from '../../entities/ring-entity';
-
-const accessConnection = ADODB.open(
-  'Provider=Microsoft.ACE.OLEDB.12.0;Data Source=MBCRB(2007-30.01.2012).mdb;Persist Security Info=False;',
-);
-
-async function getEuring(table: string): Promise<any[]> {
-  try {
-    const { Entity, mapping } = EURINGs[table];
-    const keys: string[] = [...mapping.keys()];
-    const content: { [index: string]: any }[] = await accessConnection.query(`SELECT * FROM ${table}`);
-    return content.map((item: { [index: string]: any }) =>
-      Object.assign(
-        new Entity(),
-        keys.reduce((acc: { [index: string]: string }, key: string) => {
-          const value = item[mapping.get(key) as string];
-          if (value) {
-            acc[key] = value;
-          }
-          return acc;
-        }, {}),
-      ),
-    );
-  } catch (error) {
-    console.error(table, error);
-    return [];
-  }
-}
-
-async function loadEURING(instances: any[], tableName: string): Promise<void> {
-  const { Entity } = EURINGs[tableName];
-  const repository: Repository<any> = getRepository(Entity);
-  await repository.insert(instances);
-  console.log(tableName, ' inserted');
-}
-
-async function getRings(): Promise<Ring[]> {
-  const limit = 100;
-  const dbRings: any[] = await accessConnection.query(`SELECT TOP ${limit} * FROM Ringby`);
-  const rings: Ring[] = dbRings
-    .map((dbRing: any) => {
-      try {
-        const ring = Object.keys(ringMapper).reduce(
-          (acc: { [index in keyof RingMapper]: any }, key: keyof RingMapper) => {
-            const map = ringMapper[key];
-            acc[key] = typeof map === 'function' ? map(dbRing) : dbRing[map];
-            return acc;
-          },
-          {},
-        );
-        return ring;
-      } catch (e) {
-        return null;
-      }
-    })
-    .filter(ring => !!ring)
-    .map(mapped => Object.assign(new Ring(), mapped));
-  return rings;
-}
-
-async function loadRings(instances: any[]): Promise<void> {
-  const repository: Repository<any> = getRepository(Ring);
-  await repository.insert(instances);
-}
+import { EURINGs, EuringAccessTable } from './euring-access-table';
+import { ringMapper } from './rings-access-table';
+import { getEntityRecords } from './access-entity-methods';
+import { prepareToUploadEURING, uploadEURING, uploadRings } from './handlers';
 
 let db: Connection | undefined;
 
@@ -76,18 +14,25 @@ let db: Connection | undefined;
   try {
     db = await createConnection(config);
     await db.synchronize(true);
+    console.time('EURING codes');
     // eslint-disable-next-line no-restricted-syntax
-    for (const tableName of Object.keys(EURINGs)) {
+    for (const tableName of Object.keys(EURINGs) as EuringAccessTable[]) {
       // eslint-disable-next-line no-await-in-loop
-      const instances = await getEuring(tableName);
-      if (instances.length) {
+      const records = await prepareToUploadEURING(tableName);
+      if (records.length) {
         // eslint-disable-next-line no-await-in-loop
-        await loadEURING(instances, tableName);
+        await uploadEURING(records, tableName);
       }
     }
+    console.timeEnd('EURING codes');
 
-    const rings = await getRings();
-    await loadRings(rings);
+    console.time('Rings');
+    // eslint-disable-next-line no-restricted-syntax
+    for await (const dbRings of getEntityRecords('Ringby', 'RN')) {
+      const rings = ringMapper(dbRings);
+      await uploadRings(rings);
+    }
+    console.timeEnd('Rings');
   } catch (e) {
     console.log(e);
   }

@@ -44,9 +44,9 @@ const geographicalCoordinates = (item: any): string | null => {
 };
 
 type Omit<T, K extends keyof T> = Pick<T, Exclude<keyof T, K>>;
-export type RingMapper = { [index in keyof Omit<Ring, 'id' | 'observation'>]: ((item: any) => any) | string };
+export type RingMap = { [index in keyof Omit<Ring, 'id' | 'observation'>]: ((item: any) => any) | string };
 
-export const ringMapper: RingMapper = {
+export const ringMap: RingMap = {
   identificationNumber,
   ringingScheme: 'Ringing Scheme',
   primaryIdentificationMethod: 'Primary identification method',
@@ -100,3 +100,25 @@ export const ringMapper: RingMapper = {
   // Mark{1-6}
   // Age old
 };
+
+const ringKeys = Object.keys(ringMap);
+
+export function ringMapper(dbRecords: any[]): Ring[] {
+  const rings: Ring[] = dbRecords
+    .map((dbRing: any) => {
+      try {
+        const ring = ringKeys.reduce((acc: { [index in keyof RingMap]: any }, key: keyof RingMap) => {
+          const map = ringMap[key];
+          acc[key] = typeof map === 'function' ? map(dbRing) : dbRing[map];
+          return acc;
+        }, {});
+        return ring;
+      } catch (e) {
+        console.log(`Ring ${dbRing.RN} can't be mapped: skipped`);
+        return null;
+      }
+    })
+    .filter(ring => !!ring)
+    .map(mapped => Object.assign(new Ring(), mapped));
+  return rings;
+}
