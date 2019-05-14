@@ -57,6 +57,7 @@ export default class RingsByController extends AbstractController {
   private addRing = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     const data = req.body;
     try {
+      await this.validate(data);
       const result = await this.rings.save(data);
       res.json(result);
     } catch (e) {
