@@ -1,5 +1,5 @@
 import { getRepository, Repository } from 'typeorm';
-import { EuringAccessTable, EURINGs, mapEURINGCode } from './euring-access-table';
+import { EuringAccessTable, EURINGs, mapEURINGCode } from './euring-access-tables';
 import { entitySelectAll } from './access-entity-methods';
 import { Ring } from '../../entities/ring-entity';
 

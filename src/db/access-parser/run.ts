@@ -3,7 +3,7 @@ import { Connection, createConnection } from 'typeorm';
 
 import './access-connection';
 import config from '../prepare-db-config';
-import { EURINGs, EuringAccessTable } from './euring-access-table';
+import { EURINGs, EuringAccessTable } from './euring-access-tables';
 import { ringMapper } from './rings-access-table';
 import { getEntityRecords } from './access-entity-methods';
 import { prepareToUploadEURING, uploadEURING, uploadRings } from './handlers';
