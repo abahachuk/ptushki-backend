@@ -4,6 +4,7 @@ import ADODB from 'node-adodb';
 import { Connection, createConnection, getRepository, Repository } from 'typeorm';
 import config from '../prepare-db-config';
 import { EURINGs } from './EURING-access-tables';
+import { logger } from '../../configs/logger';
 
 const accessConnection = ADODB.open(
   'Provider=Microsoft.ACE.OLEDB.12.0;Data Source=MBCRB(2007-30.01.2012).mdb;Persist Security Info=False;',
@@ -27,7 +28,7 @@ async function query(table: string): Promise<any[]> {
       ),
     );
   } catch (error) {
-    console.error(table, error);
+    logger.error(table, error);
     return [];
   }
 }
@@ -53,7 +54,7 @@ let db: Connection | undefined;
         await load(instances, tableName);
       }
     }
-  } catch (e) {
-    console.log(e);
+  } catch (error) {
+    logger.error(error);
   }
 })();
