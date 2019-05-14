@@ -1,9 +1,10 @@
 import { Ring } from '../../entities/ring-entity';
+import { logger } from '../../configs/logger';
 
 const identificationNumber = (item: any): string => {
   const { 'Identification series': series, 'Identification number': number } = item;
   if (!series || !number) {
-    throw new Error('');
+    throw new Error(`Ring ${item.RN} haven't or series or number`);
   }
   return `${series}${'.'.repeat(10 - series.length - number.length)}${number}`;
 };
@@ -114,7 +115,7 @@ export function ringMapper(dbRecords: any[]): Ring[] {
         }, {});
         return ring;
       } catch (e) {
-        console.log(`Ring ${dbRing.RN} can't be mapped: skipped`);
+        logger.error(`Ring ${dbRing.RN} can't be mapped: skipped`);
         return null;
       }
     })

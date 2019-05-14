@@ -2,13 +2,14 @@ import { getRepository, Repository } from 'typeorm';
 import { EuringAccessTable, EURINGs, mapEURINGCode } from './euring-access-tables';
 import { entitySelectAll } from './access-entity-methods';
 import { Ring } from '../../entities/ring-entity';
+import { logger } from '../../configs/logger';
 
 export async function prepareToUploadEURING(table: EuringAccessTable): Promise<any[]> {
   try {
     const content: any[] = await entitySelectAll(table);
     return mapEURINGCode(table, content);
   } catch (error) {
-    console.error(table, error);
+    logger.error(table, error);
     return [];
   }
 }
@@ -17,7 +18,7 @@ export async function uploadEURING(instances: any[], tableName: EuringAccessTabl
   const { Entity } = EURINGs[tableName];
   const repository: Repository<any> = getRepository(Entity);
   await repository.insert(instances);
-  console.log(tableName, ' inserted');
+  logger.info(tableName, ' inserted');
 }
 
 export async function uploadRings(rings: Ring[]): Promise<void> {
@@ -25,12 +26,12 @@ export async function uploadRings(rings: Ring[]): Promise<void> {
     const repository: Repository<Ring> = getRepository(Ring);
     await repository.insert(rings);
   } catch (e) {
-    console.log(
+    logger.info(
       `Failed when tried to insert rings: [ ${rings
         .map(r => r.identificationNumber)
         .slice(0, 5)
         .join()}... ]`,
     );
-    console.log(e);
+    logger.error(e);
   }
 }
