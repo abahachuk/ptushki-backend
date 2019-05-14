@@ -1,4 +1,6 @@
 import { Entity, PrimaryColumn, Column, OneToMany } from 'typeorm';
+import { Length, IsNumberString, IsOptional, IsString } from 'class-validator';
+import { equalLength } from '../../validation/validation-messages';
 import { Dictionary } from './common-interfaces';
 import { Ring } from '../ring-entity';
 import { BasaRing } from '../basa-ring-entity';
@@ -7,18 +9,27 @@ import { Observation } from '../observation-entity';
 // Related tables in access 'Species' and 'Species by Schem'
 @Entity()
 export class Species implements Dictionary {
+  @IsNumberString()
+  @Length(5, 5, { message: equalLength(5) })
   @PrimaryColumn()
   public id: string;
 
+  @IsOptional()
+  @IsString()
   @Column('varchar', { nullable: true, default: null })
   public letterCode: string | null;
 
+  @IsString()
   @Column()
   public species: string;
 
+  @IsOptional()
+  @IsString()
   @Column('varchar', { nullable: true, default: null })
   public ordo: string | null;
 
+  @IsOptional()
+  @IsString()
   @Column('varchar', { nullable: true, default: null })
   public family: string | null;
 

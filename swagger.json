@@ -999,7 +999,7 @@
           "type": "string"
         },
         "letterCode": {
-          "type": "number"
+          "type": "string"
         },
         "species": {
           "type": "string"

@@ -7,6 +7,7 @@ import { EURINGs, EuringAccessTable } from './euring-access-table';
 import { ringMapper } from './rings-access-table';
 import { getEntityRecords } from './access-entity-methods';
 import { prepareToUploadEURING, uploadEURING, uploadRings } from './handlers';
+import { logger } from '../../configs/logger';
 
 let db: Connection | undefined;
 
@@ -33,7 +34,7 @@ let db: Connection | undefined;
       await uploadRings(rings);
     }
     console.timeEnd('Rings');
-  } catch (e) {
-    console.log(e);
+  } catch (error) {
+    logger.error(error);
   }
 })();
