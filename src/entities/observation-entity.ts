@@ -17,21 +17,24 @@ import { IsAlphaWithHyphen, IsAlphanumericWithHyphen, IsNumberStringWithHyphen }
 import { equalLength } from '../validation/validation-messages';
 import { User } from './user-entity';
 import { Ring } from './ring-entity';
-import { Sex } from './euring-codes/sex-entity';
-import { Age } from './euring-codes/age-entity';
-import { Species } from './euring-codes/species-entity';
-import { Manipulated } from './euring-codes/manipulated-entity';
-import { MovedBeforeTheCapture } from './euring-codes/moved-before-capture-entity';
-import { CatchingMethod } from './euring-codes/catching-method-entity';
-import { CatchingLures } from './euring-codes/catching-lures-entity';
-import { AccuracyOfDate } from './euring-codes/accuracy-of-date-entity';
-import { AccuracyOfCoordinates } from './euring-codes/accuracy-of-coordinates-entity';
-import { Status } from './euring-codes/status-entity';
-import { PullusAge } from './euring-codes/pullus-age-entity';
-import { AccuracyOfPullusAge } from './euring-codes/accuracy-of-pullus-age-entity';
-import { Condition } from './euring-codes/condition-entity';
-import { Circumstances } from './euring-codes/circumstances-entity';
-import { CircumstancesPresumed } from './euring-codes/circumstances-presumed-entity';
+import {
+  Sex,
+  Age,
+  Species,
+  Manipulated,
+  MovedBeforeTheCapture,
+  CatchingMethod,
+  CatchingLures,
+  AccuracyOfDate,
+  AccuracyOfCoordinates,
+  Status,
+  PullusAge,
+  AccuracyOfPullusAge,
+  Condition,
+  Circumstances,
+  CircumstancesPresumed,
+  PlaceCode,
+} from './euring-codes';
 
 export interface NewObservation {
   finder: User;
@@ -168,6 +171,13 @@ export class Observation {
   @Length(15, 15, { message: equalLength(15) })
   @Column('varchar', { nullable: true, default: null })
   public geographicalCoordinates: string | null;
+
+  @IsAlphanumeric()
+  @Length(4, 4, { message: equalLength(4) })
+  @ManyToOne(() => PlaceCode, m => m.ring, {
+    eager: true,
+  })
+  public placeCode: PlaceCode;
 
   @IsInt()
   @Min(0)
