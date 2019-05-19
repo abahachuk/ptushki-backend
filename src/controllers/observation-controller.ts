@@ -2,7 +2,7 @@ import { NextFunction, Request, Response, Router } from 'express';
 import { getRepository, Repository } from 'typeorm';
 import AbstractController from './abstract-controller';
 import { Observation } from '../entities/observation-entity';
-import { parseQueryParams, ObservationQuery } from '../services/observation-service';
+import { parseQueryParams, ObservationQuery, getAggregations } from '../services/observation-service';
 
 interface RequestWithObservation extends Request {
   observation: Observation;
@@ -24,7 +24,6 @@ export default class ObservationController extends AbstractController {
 
     this.router.get('/', this.findObservations);
     this.router.post('/', this.addObservation);
-
     this.router.param('id', this.checkId);
     this.router.get('/:id', this.findOne);
     this.router.delete('/:id', this.remove);
@@ -32,24 +31,19 @@ export default class ObservationController extends AbstractController {
     return this.router;
   }
 
-  private remove = async (req: RequestWithObservation, res: Response, next: NextFunction): Promise<void> => {
-    const { observation }: { observation: Observation } = req;
-    try {
-      await this.observations.remove(observation);
-      res.json({ id: req.params.id, removed: true });
-    } catch (e) {
-      next(e);
-    }
-  };
-
   private findObservations = async (req: RequestWithPageParams, res: Response, next: NextFunction): Promise<void> => {
     try {
       const params = parseQueryParams(req.query);
+      const aggregationPromise = getAggregations(this.observations);
       const observationsPromise = this.observations.find(params);
-      const [observations, count] = await Promise.all([observationsPromise, this.observations.count()]);
+      const [observations, count, aggregations] = await Promise.all([
+        observationsPromise,
+        this.observations.count(),
+        aggregationPromise,
+      ]);
       res.json({
         content: observations,
-        // aggregations: getAggregations(),
+        aggregations,
         pageNumber: params.number,
         pageSize: params.size,
         totalElements: count,
@@ -80,6 +74,16 @@ export default class ObservationController extends AbstractController {
     const { observation }: { observation: Observation } = req;
     try {
       res.json(observation);
+    } catch (e) {
+      next(e);
+    }
+  };
+
+  private remove = async (req: RequestWithObservation, res: Response, next: NextFunction): Promise<void> => {
+    const { observation }: { observation: Observation } = req;
+    try {
+      await this.observations.remove(observation);
+      res.json({ id: req.params.id, removed: true });
     } catch (e) {
       next(e);
     }

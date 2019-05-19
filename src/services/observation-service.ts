@@ -1,17 +1,15 @@
-import { FindManyOptions } from 'typeorm';
+import { FindManyOptions, Repository } from 'typeorm';
 import { Observation } from '../entities/observation-entity';
-
 /*
   query example:
 
-  ?serach=*
+  ?search=*
   &pageNumber=0
   &pagesize=10
   &sortingColumn=colorRing
   &sortingDirection=ASC
   &finder=id1,id2,id3
-  &sex=id1
-  &ring=id1,id2,id3
+  &colorRing=red,green
   &verified=true
 
 */
@@ -37,6 +35,24 @@ interface FindOptions<Observation> extends FindManyOptions<Observation> {
   size: number;
 }
 
+const reduceWithCount = (arr: any[], columnName: string) => ({
+  [columnName]: arr.reduce((acc, row) => Object.assign(acc, { [row[columnName]]: row.count }), {}),
+});
+
+const aggregationForeignKeys: ((repsitory: Repository<Observation>) => Promise<{ [x: string]: any }>)[] = [
+  repsitory => {
+    return repsitory
+      .createQueryBuilder('observation')
+      .select(['CONCAT(finder."firstName", \'_\', finder."lastName") AS "finder"', 'count(*)'])
+      .innerJoin('observation.finder', 'finder')
+      .groupBy('finder."id"')
+      .getRawMany()
+      .then(res => reduceWithCount(res, 'finder'));
+  },
+];
+
+const aggregationColumns: string[] = ['distance', 'direction', 'date', 'colorRing', 'placeName', 'remarks', 'verified'];
+
 export const parseQueryParams = (query: ObservationQuery): FindOptions<Observation> => {
   const {
     // search = DEFAULT_QUERY,
@@ -60,4 +76,20 @@ export const parseQueryParams = (query: ObservationQuery): FindOptions<Observati
     size,
     loadEagerRelations: false, // temporary, for dev purposes
   };
+};
+
+export const getAggregations = async (repsitory: Repository<Observation>) => {
+  const promisesByForeignKeys = aggregationForeignKeys.map(action => action(repsitory));
+  const promiseByColumns = aggregationColumns.map(column =>
+    repsitory
+      .createQueryBuilder('observation')
+      .select(`"${column}"`)
+      .addSelect(`count("${column}")`)
+      .groupBy(`"${column}"`)
+      .getRawMany()
+      .then(res => reduceWithCount(res, column)),
+  );
+  const res = await Promise.all([...promiseByColumns, ...promisesByForeignKeys]);
+  // const res = await Promise.all(promiseByColumns);
+  return res.reduce((acc, item) => Object.assign(acc, item), {});
 };
