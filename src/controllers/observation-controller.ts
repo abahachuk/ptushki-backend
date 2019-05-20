@@ -2,7 +2,7 @@ import { NextFunction, Request, Response, Router } from 'express';
 import { getRepository, Repository } from 'typeorm';
 import AbstractController from './abstract-controller';
 import { Observation } from '../entities/observation-entity';
-import { parseQueryParams, ObservationQuery, getAggregations } from '../services/observation-service';
+import { parseQueryParams, ObservationQuery, getAggregations, parseWhereParams } from '../services/observation-service';
 
 interface RequestWithObservation extends Request {
   observation: Observation;
@@ -23,6 +23,7 @@ export default class ObservationController extends AbstractController {
     this.setMainEntity(this.observations, 'observation');
 
     this.router.get('/', this.findObservations);
+    this.router.get('/aggregations', this.getAggregations);
     this.router.post('/', this.addObservation);
     this.router.param('id', this.checkId);
     this.router.get('/:id', this.findOne);
@@ -33,23 +34,30 @@ export default class ObservationController extends AbstractController {
 
   private findObservations = async (req: RequestWithPageParams, res: Response, next: NextFunction): Promise<void> => {
     try {
-      const params = parseQueryParams(req.query);
-      const aggregationPromise = getAggregations(this.observations);
-      const observationsPromise = this.observations.find(params);
-      const [observations, count, aggregations] = await Promise.all([
-        observationsPromise,
-        this.observations.count(),
-        aggregationPromise,
-      ]);
+      const paramsSearch = parseQueryParams(req.query);
+      const paramsAggregation = parseWhereParams(req.query);
+
+      // console.log(JSON.stringify(Object.assign({}, paramsSearch, paramsAggregation), null, 2));
+
+      const observations = await this.observations.findAndCount(Object.assign(paramsSearch, paramsAggregation));
+
       res.json({
-        content: observations,
-        aggregations,
-        pageNumber: params.number,
-        pageSize: params.size,
-        totalElements: count,
+        content: observations[0],
+        pageNumber: paramsSearch.number,
+        pageSize: paramsSearch.size,
+        totalElements: observations[1],
       });
-    } catch (e) {
-      next(e);
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  private getAggregations = async (_req: Request, res: Response, next: NextFunction) => {
+    try {
+      const aggregations = await getAggregations(this.observations);
+      res.json({ ...aggregations });
+    } catch (error) {
+      next(error);
     }
   };
 

@@ -1,4 +1,4 @@
-import { FindManyOptions, Repository } from 'typeorm';
+import { FindManyOptions, Repository, FindConditions, FindOneOptions } from 'typeorm';
 import { Observation } from '../entities/observation-entity';
 /*
   query example:
@@ -26,7 +26,6 @@ export interface ObservationSearch {
 
 export type ObservationQuery = ObservationSearch & ObservationAggregations;
 
-// const DEFAULT_QUERY = '*';
 const DEFAULT_PAGE_NUMBER = 0;
 const DEFAULT_PAGE_SIZE = 5;
 
@@ -39,28 +38,40 @@ const reduceWithCount = (arr: any[], columnName: string) => ({
   [columnName]: arr.reduce((acc, row) => Object.assign(acc, { [row[columnName]]: row.count }), {}),
 });
 
+const aggregationColumns: string[] = ['distance', 'direction', 'date', 'colorRing', 'placeName', 'remarks', 'verified'];
+const aggregationSearch: string[] = ['search', 'pageNumber', 'pageSize', 'sortingColumn', 'sortingDirection'];
+
 const aggregationForeignKeys: ((repsitory: Repository<Observation>) => Promise<{ [x: string]: any }>)[] = [
-  repsitory => {
-    return repsitory
+  async repsitory => {
+    const res = await repsitory
       .createQueryBuilder('observation')
       .select(['CONCAT(finder."firstName", \'_\', finder."lastName") AS "finder"', 'count(*)'])
       .innerJoin('observation.finder', 'finder')
       .groupBy('finder."id"')
-      .getRawMany()
-      .then(res => reduceWithCount(res, 'finder'));
+      .getRawMany();
+    return reduceWithCount(res, 'finder');
   },
 ];
 
-const aggregationColumns: string[] = ['distance', 'direction', 'date', 'colorRing', 'placeName', 'remarks', 'verified'];
+export const parseWhereParams = (query: ObservationAggregations): FindOneOptions<Observation> => {
+  const where: FindConditions<Observation>[] = [];
+
+  const params = Object.entries(query)
+    .filter(entrie => !aggregationSearch.includes(entrie[0]))
+    .map(entrie => ({ [entrie[0]]: entrie[1].split(',') }))
+    .reduce((acc, item) => Object.assign(acc, item), {});
+
+  Object.entries(params).forEach(entrie => {
+    entrie[1].forEach(item => {
+      where.push({ [entrie[0]]: item });
+    });
+  });
+
+  return { where };
+};
 
 export const parseQueryParams = (query: ObservationQuery): FindOptions<Observation> => {
-  const {
-    // search = DEFAULT_QUERY,
-    pageNumber,
-    pageSize,
-    sortingColumn,
-    sortingDirection = 'ASC',
-  } = query;
+  const { pageNumber, pageSize, sortingColumn, sortingDirection = 'ASC' } = query;
 
   const number = Number.parseInt(pageNumber as string, 10) || DEFAULT_PAGE_NUMBER;
   const size = Number.parseInt(pageSize as string, 10) || DEFAULT_PAGE_SIZE;
@@ -75,6 +86,10 @@ export const parseQueryParams = (query: ObservationQuery): FindOptions<Observati
     number,
     size,
     loadEagerRelations: false, // temporary, for dev purposes
+    // where: [
+    //   { colorRing: 'blue', direction: 'S' },
+    //   { colorRing: 'red', direction: 'S' },
+    // ]
   };
 };
 
@@ -90,6 +105,5 @@ export const getAggregations = async (repsitory: Repository<Observation>) => {
       .then(res => reduceWithCount(res, column)),
   );
   const res = await Promise.all([...promiseByColumns, ...promisesByForeignKeys]);
-  // const res = await Promise.all(promiseByColumns);
   return res.reduce((acc, item) => Object.assign(acc, item), {});
 };
