@@ -21,26 +21,17 @@ export default class ObservationController extends AbstractController {
     this.router = Router();
     this.observations = getRepository(Observation);
     this.setMainEntity(this.observations, 'observation');
+    this.router.param('id', this.checkId);
 
     this.router.get('/', this.findObservations);
-    this.router.post('/', this.addObservation);
 
-    this.router.param('id', this.checkId);
-    this.router.get('/:id', this.findOne);
-    this.router.delete('/:id', this.remove);
+    this.router.post('/', this.addObservation);
+    this.router.get('/:id', this.findObservation);
+    this.router.put('/:id', this.editObservation);
+    this.router.delete('/:id', this.removeObservation);
 
     return this.router;
   }
-
-  private remove = async (req: RequestWithObservation, res: Response, next: NextFunction): Promise<void> => {
-    const { observation }: { observation: Observation } = req;
-    try {
-      await this.observations.remove(observation);
-      res.json({ id: req.params.id, removed: true });
-    } catch (e) {
-      next(e);
-    }
-  };
 
   private findObservations = async (req: RequestWithPageParams, res: Response, next: NextFunction): Promise<void> => {
     try {
@@ -60,26 +51,46 @@ export default class ObservationController extends AbstractController {
   };
 
   private addObservation = async (req: Request, res: Response, next: NextFunction) => {
-    const newObservation = req.body;
-    if (!req.user) {
-      return res.status(401).send();
-    }
-
-    // validation of Observation fields should be somewhere here
+    const rawObservation = req.body;
+    if (!req.user) res.status(401).send();
 
     try {
-      const observation = await Observation.create({ ...newObservation, finder: req.user.id });
-      const result = await this.observations.save(observation);
-      return res.json(result);
+      const newObservation = await Observation.create({ ...rawObservation, finder: req.user.id });
+      await this.validate(newObservation);
+      const result = await this.observations.save(newObservation);
+      res.json(result);
     } catch (e) {
-      return next(e);
+      next(e);
     }
   };
 
-  private findOne = (req: RequestWithObservation, res: Response, next: NextFunction): void => {
+  private findObservation = async (req: RequestWithObservation, res: Response, next: NextFunction) => {
     const { observation }: { observation: Observation } = req;
     try {
       res.json(observation);
+    } catch (e) {
+      next(e);
+    }
+  };
+
+  private editObservation = async (req: RequestWithObservation, res: Response, next: NextFunction) => {
+    const { observation }: { observation: Observation } = req;
+    const rawObservation = req.body;
+    try {
+      const updatedObservation = await this.observations.merge(observation, rawObservation);
+      await this.validate(rawObservation);
+      const result = await this.observations.save(updatedObservation);
+      res.json(result);
+    } catch (e) {
+      next(e);
+    }
+  };
+
+  private removeObservation = async (req: RequestWithObservation, res: Response, next: NextFunction): Promise<void> => {
+    const { observation }: { observation: Observation } = req;
+    try {
+      const result = await this.observations.remove(observation);
+      res.json(result);
     } catch (e) {
       next(e);
     }
