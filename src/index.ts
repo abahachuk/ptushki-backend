@@ -5,7 +5,7 @@ import { Connection } from 'typeorm';
 
 import createApp from './app';
 import connectDB from './db';
-import { logger } from './configs/logger';
+import { logger } from './utils/logger';
 
 const PORT = config.get('PORT');
 
