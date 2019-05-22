@@ -29,6 +29,8 @@ export default class ObservationController extends AbstractController {
     this.router.get('/:id', this.findOne);
     this.router.delete('/:id', this.remove);
 
+    // this.router.post('/export', this.export);
+
     return this.router;
   }
 
@@ -84,4 +86,8 @@ export default class ObservationController extends AbstractController {
       next(e);
     }
   };
+
+  // private export = (req: RequestWithObservation, res: Response, next: NextFunction): void => {
+  //
+  // }
 }

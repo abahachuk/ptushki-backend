@@ -23,4 +23,8 @@ export class CatchingLures implements Dictionary {
 
   @OneToMany(() => Observation, m => m.catchingLures)
   public observation: Observation[];
+
+  public toExportableString(): string | null {
+    return this.desc_eng;
+  }
 }

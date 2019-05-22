@@ -23,4 +23,8 @@ export class MovedBeforeTheCapture implements Dictionary {
 
   @OneToMany(() => Observation, m => m.movedBeforeTheCapture)
   public observation: Observation[];
+
+  public toExportableString(): string | null {
+    return this.desc_eng;
+  }
 }

@@ -23,4 +23,8 @@ export class PullusAge implements Dictionary {
 
   @OneToMany(() => Observation, m => m.pullusAge)
   public observation: Observation[];
+
+  public toExportableString(): string | null {
+    return this.desc_eng;
+  }
 }

@@ -35,4 +35,8 @@ export class Species {
 
   @OneToMany(() => BasaRing, m => m.species)
   public basaRing: BasaRing[];
+
+  public toExportableString(): string | null {
+    return this.species;
+  }
 }

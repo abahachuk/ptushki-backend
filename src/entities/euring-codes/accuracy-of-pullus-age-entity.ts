@@ -23,4 +23,8 @@ export class AccuracyOfPullusAge implements Dictionary {
 
   @OneToMany(() => Observation, m => m.accuracyOfPullusAge)
   public observation: Observation[];
+
+  public toExportableString(): string | null {
+    return this.desc_eng;
+  }
 }

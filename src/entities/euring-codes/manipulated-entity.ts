@@ -23,4 +23,8 @@ export class Manipulated implements Dictionary {
 
   @OneToMany(() => Observation, m => m.manipulated)
   public observation: Observation[];
+
+  public toExportableString(): string | null {
+    return this.desc_eng;
+  }
 }

@@ -72,4 +72,8 @@ export class User {
   public async setPassword(password: string): Promise<void> {
     Object.assign(this, await getSaltAndHash(password));
   }
+
+  public toExportableString(): string {
+    return `${this.firstName} ${this.lastName}`;
+  }
 }

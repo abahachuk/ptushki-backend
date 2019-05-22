@@ -23,4 +23,8 @@ export class AccuracyOfCoordinates implements Dictionary {
 
   @OneToMany(() => Observation, m => m.accuracyOfCoordinates)
   public observation: Observation[];
+
+  public toExportableString(): string | null {
+    return this.desc_eng;
+  }
 }

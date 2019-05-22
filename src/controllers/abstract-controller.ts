@@ -2,6 +2,8 @@ import config from 'config';
 import { Router, NextFunction, Request, Response } from 'express';
 import { Repository } from 'typeorm';
 
+// import { jsonToXlsx } from '../services/xlsx-service';
+
 const UUID_LENGTH = config.get('UUID_LENGTH');
 
 export default abstract class AbstractController {
@@ -32,12 +34,28 @@ export default abstract class AbstractController {
     }
   };
 
-  protected setMainEntity(entity: Repository<any>, key?: string) {
+  protected setMainEntity(entity: Repository<any>, key?: string): void {
     this.entity = entity;
     if (key) {
       this.key = key;
     }
   }
+
+  /**
+   * TODO
+   * -reuse find method of each controller
+   * -get data depends on provided query
+   * -convert data to xlsx and send buffer to client
+   * -if file name provided(just for test purpose) will create xlsx file in folder
+   */
+  // protected exportToType(exportParams: any): void {
+  //   const { findParams, parserConfig } = exportParams;
+  //   const { type, ...config } = parserConfig;
+  //   const data = this.entity.find(findParams);
+  //
+  //
+  //   return jsonToXlsx(data, { fileName: 'lol.xlsx', sheetName: 'lol' });
+  // }
 
   public abstract init(): Router;
 }

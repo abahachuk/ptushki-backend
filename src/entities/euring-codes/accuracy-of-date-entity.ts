@@ -23,4 +23,8 @@ export class AccuracyOfDate implements Dictionary {
 
   @OneToMany(() => Observation, m => m.accuracyOfDate)
   public observation: Observation[];
+
+  public toExportableString(): string | null {
+    return this.desc_eng;
+  }
 }

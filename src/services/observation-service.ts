@@ -58,6 +58,6 @@ export const parseQueryParams = (query: ObservationQuery): FindOptions<Observati
     take: size,
     number,
     size,
-    loadEagerRelations: false, // temporary, for dev purposes
+    // loadEagerRelations: false, // temporary, for dev purposes
   };
 };

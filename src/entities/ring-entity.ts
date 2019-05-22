@@ -191,4 +191,8 @@ export class Ring {
     eager: true,
   })
   public statusOfRing: StatusOfRing;
+
+  public toExportableString(): string {
+    return this.identificationNumber;
+  }
 }

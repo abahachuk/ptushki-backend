@@ -33,4 +33,8 @@ export class Sex implements Dictionary {
 
   @OneToMany(() => BasaRing, m => m.species)
   public basaRing: BasaRing[];
+
+  public toExportableString(): string | null {
+    return this.desc_eng;
+  }
 }

@@ -33,4 +33,8 @@ export class Age implements Dictionary {
 
   @OneToMany(() => BasaRing, m => m.age)
   public basaRing: BasaRing[];
+
+  public toExportableString(): string | null {
+    return this.desc_eng;
+  }
 }

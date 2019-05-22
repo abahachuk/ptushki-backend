@@ -23,4 +23,8 @@ export class CatchingMethod implements Dictionary {
 
   @OneToMany(() => Observation, m => m.catchingMethod)
   public observation: Observation[];
+
+  public toExportableString(): string | null {
+    return this.desc_eng;
+  }
 }

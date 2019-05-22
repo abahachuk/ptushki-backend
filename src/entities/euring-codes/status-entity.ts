@@ -23,4 +23,8 @@ export class Status implements Dictionary {
 
   @OneToMany(() => Observation, m => m.status)
   public observation: Observation[];
+
+  public toExportableString(): string | null {
+    return this.desc_eng;
+  }
 }

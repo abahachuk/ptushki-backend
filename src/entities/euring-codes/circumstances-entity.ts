@@ -23,4 +23,8 @@ export class Circumstances implements Dictionary {
 
   @OneToMany(() => Observation, m => m.circumstances)
   public observation: Observation[];
+
+  public toExportableString(): string | null {
+    return this.desc_eng;
+  }
 }
