@@ -1,10 +1,11 @@
 /* eslint-disable */
 import { FindManyOptions, Repository, FindOneOptions } from 'typeorm';
 import { Observation } from '../entities/observation-entity';
+
+const cartesian = require('cartesian-product');
 /*
   query example:
 
-  ?search=*
   &pageNumber=0
   &pagesize=10
   &sortingColumn=colorRing
@@ -34,20 +35,17 @@ interface FindOptions<Observation> extends FindManyOptions<Observation> {
   number: number;
   size: number;
 }
-// @ts-ignore
-const reduceWithCount = (arr: any[], columnName: string) => {
-  // console.log('arr --> ', JSON.stringify(arr, null, 2));
+
+const reduceWithCount = (arr: any[], columnName: string, id?: string) => {
   if (arr[0].count === '0') {
     return {};
   }
   return {
-    [columnName]: arr.reduce((acc, row) => Object.assign(acc, { [row[columnName]]: { ...row } }), {}),
+    [columnName]: arr.reduce((acc, row) => Object.assign(acc, { [row[id || columnName]]: { ...row } }), {}),
   };
 };
 
 const aggregationColumns: string[] = [
-  'finderId',
-  'ringId',
   'distance',
   'direction',
   'date',
@@ -58,42 +56,28 @@ const aggregationColumns: string[] = [
 ];
 const aggregationSearch: string[] = ['search', 'pageNumber', 'pageSize', 'sortingColumn', 'sortingDirection'];
 
-// const aggregationForeignKeys: ((repsitory: Repository<Observation>) => Promise<{ [x: string]: any }>)[] = [
-//   async repsitory => {
-//     const res = await repsitory
-//       .createQueryBuilder('observation')
-//       .select(['CONCAT(finder."firstName", \'_\', finder."lastName") AS "finder"', 'count(*)'])
-//       .innerJoin('observation.finder', 'finder')
-//       .groupBy('finder."id"')
-//       .getRawMany();
-//     return reduceWithCount(res, 'finder');
-//   },
-// ];
+const aggregationForeignKeys: ((repsitory: Repository<Observation>) => Promise<{ [x: string]: any }>)[] = [
+  async repsitory => {
+    const res = await repsitory
+      .createQueryBuilder('observation')
+      .select(['finder."id"', 'finder."firstName"', 'finder."lastName"', 'finder."role"', 'count(*)'])
+      .innerJoin('observation.finder', 'finder')
+      .groupBy('finder."id"')
+      .getRawMany();
+    return reduceWithCount(res, 'finder', 'id');
+  },
+];
 
 export const parseWhereParams = (query: ObservationAggregations): FindOneOptions<Observation> => {
   const params = Object.entries(query)
     .filter(entrie => !aggregationSearch.includes(entrie[0]))
     .map(entrie => ({ [entrie[0]]: entrie[1].split(',') }))
     .reduce((acc, item) => Object.assign(acc, item), {});
-
-  const matrix = Object.entries(params).map(entrie => entrie[1].map(value => ({ [entrie[0]]: value })));
-
-  const rows = matrix.reduce((acc, row) => acc + row.length, 0);
-
-  const updatedMatrix = matrix.map(row => {
-    const times = rows / row.length;
-    let temp: { [key: string]: string }[] = [];
-    // @ts-ignore
-    for (let i = 0; i < times; i++) {
-      temp = temp.concat(row);
-    }
-    return temp;
-  });
-
-  const transpositionMatrix = updatedMatrix[0]
-    .map((_col, i) => updatedMatrix.map(row => row[i]))
-    .map(row => row.reduce((acc, value) => Object.assign(acc, value), {}));
-  return { where: transpositionMatrix };
+  const matrix = Object.entries(params)
+    .map(entrie => entrie[1].map(value => ({ [entrie[0]]: value })));
+  const where = cartesian(matrix)
+    .map((row: any[]) => row.reduce((acc, value) => Object.assign(acc, value), {}))
+  return { where };
 };
 
 export const parsePageParams = (query: ObservationQuery): FindOptions<Observation> => {
@@ -115,7 +99,7 @@ export const parsePageParams = (query: ObservationQuery): FindOptions<Observatio
 };
 
 export const getAggregations = async (repsitory: Repository<Observation>) => {
-  // const promisesByForeignKeys = aggregationForeignKeys.map(action => action(repsitory));
+  const promisesByForeignKeys = aggregationForeignKeys.map(action => action(repsitory));
   const promiseByColumns = aggregationColumns.map(column =>
     repsitory
       .createQueryBuilder('observation')
@@ -125,13 +109,6 @@ export const getAggregations = async (repsitory: Repository<Observation>) => {
       .getRawMany()
       .then(res => reduceWithCount(res, column)),
   );
-  // const res = await Promise.all([...promiseByColumns, ...promisesByForeignKeys]);
-  const res = await Promise.all(promiseByColumns);
-  // .then(res => res.filter(row => row[0].count !== '0'));
-
+  const res = await Promise.all([...promiseByColumns, ...promisesByForeignKeys]);
   return res.reduce((acc, item) => Object.assign(acc, item), {});
-
-  // console.log('res --> ', JSON.stringify(res, null, 2));
-
-  // return res;
 };

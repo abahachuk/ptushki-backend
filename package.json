@@ -28,6 +28,7 @@
   "dependencies": {
     "@types/supertest": "^2.0.7",
     "body-parser": "^1.18.3",
+    "cartesian-product": "^2.1.2",
     "class-validator": "^0.9.1",
     "config": "^3.0.1",
     "cookie-parser": "^1.4.4",
