@@ -2,7 +2,7 @@ import { NextFunction, Request, Response, Router } from 'express';
 import { getRepository, Repository } from 'typeorm';
 import AbstractController from './abstract-controller';
 import { Observation } from '../entities/observation-entity';
-import { parseQueryParams, ObservationQuery, getAggregations, parseWhereParams } from '../services/observation-service';
+import { parsePageParams, ObservationQuery, getAggregations, parseWhereParams } from '../services/observation-service';
 
 interface RequestWithObservation extends Request {
   observation: Observation;
@@ -34,13 +34,9 @@ export default class ObservationController extends AbstractController {
 
   private findObservations = async (req: RequestWithPageParams, res: Response, next: NextFunction): Promise<void> => {
     try {
-      const paramsSearch = parseQueryParams(req.query);
+      const paramsSearch = parsePageParams(req.query);
       const paramsAggregation = parseWhereParams(req.query);
-
-      // console.log(JSON.stringify(Object.assign({}, paramsSearch, paramsAggregation), null, 2));
-
       const observations = await this.observations.findAndCount(Object.assign(paramsSearch, paramsAggregation));
-
       res.json({
         content: observations[0],
         pageNumber: paramsSearch.number,
