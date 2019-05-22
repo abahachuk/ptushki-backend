@@ -1,20 +1,8 @@
-/* eslint-disable */
 import { FindManyOptions, Repository, FindOneOptions } from 'typeorm';
 import { Observation } from '../entities/observation-entity';
 
+// eslint-disable-next-line @typescript-eslint/no-var-requires
 const cartesian = require('cartesian-product');
-/*
-  query example:
-
-  &pageNumber=0
-  &pagesize=10
-  &sortingColumn=colorRing
-  &sortingDirection=ASC
-  &finder=id1,id2,id3
-  &colorRing=red,green
-  &verified=true
-
-*/
 
 export type ObservationAggregations = { [key in keyof Observation]: string };
 
@@ -45,15 +33,7 @@ const reduceWithCount = (arr: any[], columnName: string, id?: string) => {
   };
 };
 
-const aggregationColumns: string[] = [
-  'distance',
-  'direction',
-  'date',
-  'colorRing',
-  'placeName',
-  'remarks',
-  'verified',
-];
+const aggregationColumns: string[] = ['distance', 'direction', 'date', 'colorRing', 'placeName', 'remarks', 'verified'];
 const aggregationSearch: string[] = ['search', 'pageNumber', 'pageSize', 'sortingColumn', 'sortingDirection'];
 
 const aggregationForeignKeys: ((repsitory: Repository<Observation>) => Promise<{ [x: string]: any }>)[] = [
@@ -73,10 +53,8 @@ export const parseWhereParams = (query: ObservationAggregations): FindOneOptions
     .filter(entrie => !aggregationSearch.includes(entrie[0]))
     .map(entrie => ({ [entrie[0]]: entrie[1].split(',') }))
     .reduce((acc, item) => Object.assign(acc, item), {});
-  const matrix = Object.entries(params)
-    .map(entrie => entrie[1].map(value => ({ [entrie[0]]: value })));
-  const where = cartesian(matrix)
-    .map((row: any[]) => row.reduce((acc, value) => Object.assign(acc, value), {}))
+  const matrix = Object.entries(params).map(entrie => entrie[1].map(value => ({ [entrie[0]]: value })));
+  const where = cartesian(matrix).map((row: any[]) => row.reduce((acc, value) => Object.assign(acc, value), {}));
   return { where };
 };
 
