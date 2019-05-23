@@ -21,14 +21,18 @@ export default class SeedsController extends AbstractController {
     return this.router;
   }
 
-  private getSeeds = async (_req: Request, res: Response, next: NextFunction): Promise<void> => {
+  private getSeeds = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
-      // const { ln: language } = req.query;
-      const result = await Promise.all(
+      const { ln } = req.query;
+      const result = (await Promise.all(
         this.cached.map(async (repository: CachedRepository<any>) => ({
-          [repository.tableName]: await repository.find(),
+          records: await repository.findByLang(ln),
+          tableName: repository.tableName,
         })),
-      );
+      )).reduce((acc: { [index: string]: any[] }, { records, tableName }) => {
+        acc[tableName] = records;
+        return acc;
+      }, {});
       res.json(result);
     } catch (e) {
       console.log(e);
