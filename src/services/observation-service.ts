@@ -33,7 +33,7 @@ const reduceWithCount = (arr: any[], columnName: string, id?: string) => {
   };
 };
 
-const aggregationColumns: string[] = ['distance', 'direction', 'date', 'colorRing', 'placeName', 'remarks', 'verified'];
+const aggregationColumns: string[] = ['speciesMentionedId', 'speciesConcludedId', 'verified', 'ringId'];
 const aggregationSearch: string[] = ['search', 'pageNumber', 'pageSize', 'sortingColumn', 'sortingDirection'];
 
 const aggregationForeignKeys: ((repository: Repository<Observation>) => Promise<{ [x: string]: any }>)[] = [
@@ -65,9 +65,6 @@ export const parsePageParams = (query: ObservationQuery): FindOptions<Observatio
   const size = Number.parseInt(pageSize as string, 10) || DEFAULT_PAGE_SIZE;
 
   return {
-    loadRelationIds: {
-      relations: ['finder', 'ring'], // to load only id from User entity
-    },
     order: sortingColumn ? { [sortingColumn]: sortingDirection } : undefined,
     skip: number * size,
     take: size,
