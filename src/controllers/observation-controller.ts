@@ -52,8 +52,6 @@ export default class ObservationController extends AbstractController {
 
   private addObservation = async (req: Request, res: Response, next: NextFunction) => {
     const rawObservation = req.body;
-    if (!req.user) res.status(401).send();
-
     try {
       const newObservation = await Observation.create({ ...rawObservation, finder: req.user.id });
       await this.validate(newObservation);
@@ -77,8 +75,8 @@ export default class ObservationController extends AbstractController {
     const { observation }: { observation: Observation } = req;
     const rawObservation = req.body;
     try {
+      await this.validate(rawObservation, observation);
       const updatedObservation = await this.observations.merge(observation, rawObservation);
-      await this.validate(rawObservation);
       const result = await this.observations.save(updatedObservation);
       res.json(result);
     } catch (e) {
