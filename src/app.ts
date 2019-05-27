@@ -2,7 +2,7 @@ import config from 'config';
 import express, { Application } from 'express';
 import bodyParser from 'body-parser';
 import routes from './routes';
-import { setLogger } from './configs/logger';
+import { setLogger } from './utils/logger';
 import errorHandler from './controllers/error-controller';
 import { initPassport } from './services/auth-service';
 import setupSwagger from './swaggerSetup';
