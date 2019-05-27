@@ -36,9 +36,9 @@ const reduceWithCount = (arr: any[], columnName: string, id?: string) => {
 const aggregationColumns: string[] = ['distance', 'direction', 'date', 'colorRing', 'placeName', 'remarks', 'verified'];
 const aggregationSearch: string[] = ['search', 'pageNumber', 'pageSize', 'sortingColumn', 'sortingDirection'];
 
-const aggregationForeignKeys: ((repsitory: Repository<Observation>) => Promise<{ [x: string]: any }>)[] = [
-  async repsitory => {
-    const res = await repsitory
+const aggregationForeignKeys: ((repository: Repository<Observation>) => Promise<{ [x: string]: any }>)[] = [
+  async repository => {
+    const res = await repository
       .createQueryBuilder('observation')
       .select(['finder."id"', 'finder."firstName"', 'finder."lastName"', 'finder."role"', 'count(*)'])
       .innerJoin('observation.finder', 'finder')

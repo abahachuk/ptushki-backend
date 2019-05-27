@@ -22,7 +22,7 @@ export default class ObservationController extends AbstractController {
     this.observations = getRepository(Observation);
     this.setMainEntity(this.observations, 'observation');
 
-    this.router.get('/', this.findObservations);
+    this.router.get('/', this.getObservations);
     this.router.get('/aggregations', this.getAggregations);
     this.router.post('/', this.addObservation);
     this.router.param('id', this.checkId);
@@ -32,7 +32,7 @@ export default class ObservationController extends AbstractController {
     return this.router;
   }
 
-  private findObservations = async (req: RequestWithPageParams, res: Response, next: NextFunction): Promise<void> => {
+  private getObservations = async (req: RequestWithPageParams, res: Response, next: NextFunction): Promise<void> => {
     try {
       const paramsSearch = parsePageParams(req.query);
       const paramsAggregation = parseWhereParams(req.query);
