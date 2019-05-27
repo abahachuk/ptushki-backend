@@ -25,9 +25,9 @@ export default class ObservationController extends AbstractController {
     this.router.get('/', this.getObservations);
     this.router.get('/aggregations', this.getAggregations);
     this.router.post('/', this.addObservation);
-    this.router.param('id', this.checkId);
-    this.router.get('/:id', this.findOne);
-    this.router.delete('/:id', this.remove);
+    this.router.get('/:id', this.findObservation);
+    this.router.put('/:id', this.editObservation);
+    this.router.delete('/:id', this.removeObservation);
     return this.router;
   }
 
@@ -95,16 +95,6 @@ export default class ObservationController extends AbstractController {
     try {
       const result = await this.observations.remove(observation);
       res.json(result);
-    } catch (e) {
-      next(e);
-    }
-  };
-
-  private remove = async (req: RequestWithObservation, res: Response, next: NextFunction): Promise<void> => {
-    const { observation }: { observation: Observation } = req;
-    try {
-      await this.observations.remove(observation);
-      res.json({ id: req.params.id, removed: true });
     } catch (e) {
       next(e);
     }
