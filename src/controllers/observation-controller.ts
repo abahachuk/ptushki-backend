@@ -2,6 +2,9 @@ import { NextFunction, Request, Response, Router } from 'express';
 import { getRepository, Repository } from 'typeorm';
 import AbstractController from './abstract-controller';
 import { Observation } from '../entities/observation-entity';
+import { Species } from '../entities/euring-codes/species-entity';
+import { Age } from '../entities/euring-codes/age-entity';
+import { Circumstances } from '../entities/euring-codes/circumstances-entity';
 import { parsePageParams, ObservationQuery, getAggregations, parseWhereParams } from '../services/observation-service';
 
 interface RequestWithObservation extends Request {
@@ -17,13 +20,25 @@ export default class ObservationController extends AbstractController {
 
   private observations: Repository<Observation>;
 
+  private species: Repository<Species>;
+
+  private age: Repository<Age>;
+
+  private circumstances: Repository<Circumstances>;
+
   public init(): Router {
     this.router = Router();
     this.observations = getRepository(Observation);
+    this.species = getRepository(Species);
+    this.age = getRepository(Age);
+    this.circumstances = getRepository(Circumstances);
+
     this.setMainEntity(this.observations, 'observation');
+
     this.router.param('id', this.checkId);
     this.router.get('/', this.getObservations);
     this.router.get('/aggregations', this.getAggregations);
+    this.router.get('/catalog', this.getCatalog);
     this.router.post('/', this.addObservation);
     this.router.get('/:id', this.findObservation);
     this.router.put('/:id', this.editObservation);
@@ -51,6 +66,18 @@ export default class ObservationController extends AbstractController {
     try {
       const aggregations = await getAggregations(this.observations);
       res.json({ ...aggregations });
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  private getCatalog = async (_req: Request, res: Response, next: NextFunction) => {
+    try {
+      const speciesPromise = this.species.find({ select: ['id', 'species', 'family', 'letterCode', 'desc_rus'] });
+      const agePromise = this.age.find({ select: ['id', 'desc_rus'] });
+      const circumstancesPromise = this.circumstances.find({ select: ['id', 'desc_rus'] });
+      const [species, age, circumstances] = await Promise.all([speciesPromise, agePromise, circumstancesPromise]);
+      res.json({ species, age, circumstances });
     } catch (error) {
       next(error);
     }
