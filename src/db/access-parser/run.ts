@@ -1,4 +1,5 @@
 import 'dotenv/config';
+// @ts-ignore
 // eslint-disable-next-line import/no-extraneous-dependencies
 import ADODB from 'node-adodb';
 import { Connection, createConnection, getRepository, Repository } from 'typeorm';
