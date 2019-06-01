@@ -30,7 +30,7 @@ const reduceWithCount = (arr: any[], columnName: string) => {
   }
   return {
     [columnName]: arr.map(row => ({
-      value: row[columnName] || { ...row, count: undefined },
+      value: row[columnName] === undefined ? { ...row, count: undefined } : row[columnName],
       count: row.count,
     })),
   };
