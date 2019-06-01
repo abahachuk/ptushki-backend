@@ -24,12 +24,15 @@ interface FindOptions<Observation> extends FindManyOptions<Observation> {
   size: number;
 }
 
-const reduceWithCount = (arr: any[], columnName: string, id?: string) => {
+const reduceWithCount = (arr: any[], columnName: string) => {
   if (arr[0].count === '0') {
     return {};
   }
   return {
-    [columnName]: arr.reduce((acc, row) => Object.assign(acc, { [row[id || columnName]]: { ...row } }), {}),
+    [columnName]: arr.map(row => ({
+      value: row[columnName] || { ...row, count: undefined },
+      count: row.count,
+    })),
   };
 };
 
@@ -44,7 +47,7 @@ const aggregationForeignKeys: ((repository: Repository<Observation>) => Promise<
       .innerJoin('observation.finder', 'finder')
       .groupBy('finder."id"')
       .getRawMany();
-    return reduceWithCount(res, 'finder', 'id');
+    return reduceWithCount(res, 'finder');
   },
 ];
 
