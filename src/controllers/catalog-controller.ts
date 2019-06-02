@@ -1,5 +1,6 @@
 import { NextFunction, Request, Response, Router } from 'express';
 import { getRepository, Repository } from 'typeorm';
+import { getNames } from 'country-list';
 import AbstractController from './abstract-controller';
 import { Species } from '../entities/euring-codes/species-entity';
 import { Age } from '../entities/euring-codes/age-entity';
@@ -7,6 +8,7 @@ import { Status } from '../entities/euring-codes/status-entity';
 import { Sex } from '../entities/euring-codes/sex-entity';
 import { MetalRingInformation } from '../entities/euring-codes/metal-ring-information-entity';
 import { OtherMarksInformation } from '../entities/euring-codes/other-marks-information-entity';
+import { PlaceCode } from '../entities/euring-codes';
 
 export default class ObservationController extends AbstractController {
   private router: Router;
@@ -23,6 +25,8 @@ export default class ObservationController extends AbstractController {
 
   private otherMarksInformation: Repository<OtherMarksInformation>;
 
+  private placeCode: Repository<PlaceCode>;
+
   public init(): Router {
     this.router = Router();
     this.species = getRepository(Species);
@@ -31,6 +35,7 @@ export default class ObservationController extends AbstractController {
     this.status = getRepository(Status);
     this.metalRingInformation = getRepository(MetalRingInformation);
     this.otherMarksInformation = getRepository(OtherMarksInformation);
+    this.placeCode = getRepository(PlaceCode);
     this.router.get('/', this.getCatalog);
     return this.router;
   }
@@ -49,15 +54,28 @@ export default class ObservationController extends AbstractController {
       const otherMarksInformationPromise = this.otherMarksInformation.find({
         select: ['id', 'desc_rus', 'desc_eng', 'desc_byn'],
       });
-      const [species, sex, age, status, metalRingInformation, otherMarksInformation] = await Promise.all([
+      const placeCodePromise = this.placeCode.find({
+        select: ['id', 'country', 'region'],
+      });
+      const [species, sex, age, status, metalRingInformation, otherMarksInformation, placeCode] = await Promise.all([
         speciesPromise,
         sexPromise,
         agePromise,
         statusPromise,
         metalRingInformationPromise,
         otherMarksInformationPromise,
+        placeCodePromise,
       ]);
-      res.json({ species, sex, age, status, metalRingInformation, otherMarksInformation });
+      res.json({
+        species,
+        sex,
+        age,
+        status,
+        metalRingInformation,
+        otherMarksInformation,
+        placeCode,
+        allCountries: getNames(),
+      });
     } catch (error) {
       next(error);
     }
