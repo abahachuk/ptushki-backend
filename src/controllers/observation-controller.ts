@@ -21,6 +21,7 @@ export default class ObservationController extends AbstractController {
     this.router = Router();
     this.observations = getRepository(Observation);
     this.setMainEntity(this.observations, 'observation');
+
     this.router.param('id', this.checkId);
     this.router.get('/', this.getObservations);
     this.router.get('/aggregations', this.getAggregations);
