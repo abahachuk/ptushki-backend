@@ -35,7 +35,7 @@ export default class ObservationController extends AbstractController {
   private getObservations = async (req: RequestWithPageParams, res: Response, next: NextFunction): Promise<void> => {
     try {
       const paramsSearch = parsePageParams(req.query);
-      const paramsAggregation = parseWhereParams(req.query);
+      const paramsAggregation = parseWhereParams(req.query, req.user);
       const observations = await this.observations.findAndCount(Object.assign(paramsSearch, paramsAggregation));
       res.json({
         content: observations[0],

@@ -1,5 +1,6 @@
 import { FindManyOptions, Repository, FindOneOptions } from 'typeorm';
 import { Observation } from '../entities/observation-entity';
+import { User, UserRole } from '../entities/user-entity';
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const cartesian = require('cartesian-product');
@@ -7,22 +8,29 @@ const cartesian = require('cartesian-product');
 export type ObservationAggregations = { [key in keyof Observation]: string };
 
 export interface ObservationSearch {
-  search: string | undefined;
-  pageNumber: string | undefined;
-  pageSize: string | undefined;
-  sortingColumn: string | undefined;
-  sortingDirection: 'ASC' | 'DESC';
+  search?: string;
+  pageNumber?: string;
+  pageSize?: string;
+  lang?: 'en' | 'ru' | 'by';
+  sortingColumn?: string;
+  sortingDirection?: 'ASC' | 'DESC';
 }
 
 export type ObservationQuery = ObservationSearch & ObservationAggregations;
-
-const DEFAULT_PAGE_NUMBER = 0;
-const DEFAULT_PAGE_SIZE = 5;
 
 interface FindOptions<Observation> extends FindManyOptions<Observation> {
   number: number;
   size: number;
 }
+const DEFAULT_PAGE_NUMBER = 0;
+const DEFAULT_PAGE_SIZE = 5;
+const gettingAllObservations = {
+  [UserRole.Observer]: false,
+  [UserRole.Ringer]: false,
+  [UserRole.Scientist]: true,
+  [UserRole.Moderator]: true,
+  [UserRole.Admin]: true,
+};
 
 const reduceWithCount = (arr: any[], columnName: string) => {
   if (arr[0].count === '0') {
@@ -51,12 +59,17 @@ const aggregationForeignKeys: ((repository: Repository<Observation>) => Promise<
   },
 ];
 
-export const parseWhereParams = (query: ObservationAggregations): FindOneOptions<Observation> => {
+export const parseWhereParams = (query: ObservationAggregations, user: User): FindOneOptions<Observation> => {
   const params = Object.entries(query)
-    .filter(entrie => !aggregationSearch.includes(entrie[0]))
-    .map(entrie => ({ [entrie[0]]: entrie[1].split(',') }))
-    .reduce((acc, item) => Object.assign(acc, item), {});
-  const matrix = Object.entries(params).map(entrie => entrie[1].map(value => ({ [entrie[0]]: value })));
+    .filter(entrie => !aggregationSearch.includes(entrie[0])) // filter search aggregations, only ObservationAggregations could be applied
+    .map(entrie => ({ [entrie[0]]: entrie[1].split(',') })) // split values by ','
+    .reduce((acc, item) => Object.assign(acc, item), {}); // reduce splitted values into object
+
+  if (!gettingAllObservations[user.role]) {
+    params.finder = [user.id]; // re-assing user id for 'observer' and 'ringer'
+  }
+
+  const matrix = Object.entries(params).map(entrie => entrie[1].map(value => ({ [entrie[0]]: value }))); // get matrix to calc a cartesian product for 'where' params
   const where = cartesian(matrix).map((row: any[]) => row.reduce((acc, value) => Object.assign(acc, value), {}));
   return { where };
 };
