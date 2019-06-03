@@ -103,3 +103,13 @@ export const getAggregations = async (repsitory: Repository<Observation>) => {
   const res = await Promise.all([...promiseByColumns, ...promisesByForeignKeys]);
   return res.reduce((acc, item) => Object.assign(acc, item), {});
 };
+
+export const sanitaizeObservations = (observations: Observation[]) => {
+  return observations.map(observation => {
+    const ref = observation;
+    delete ref.finder.hash;
+    delete ref.finder.salt;
+    delete ref.finder.email;
+    return ref;
+  });
+};

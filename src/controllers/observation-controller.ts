@@ -2,7 +2,13 @@ import { NextFunction, Request, Response, Router } from 'express';
 import { getRepository, Repository } from 'typeorm';
 import AbstractController from './abstract-controller';
 import { Observation } from '../entities/observation-entity';
-import { parsePageParams, ObservationQuery, getAggregations, parseWhereParams } from '../services/observation-service';
+import {
+  parsePageParams,
+  ObservationQuery,
+  getAggregations,
+  parseWhereParams,
+  sanitaizeObservations,
+} from '../services/observation-service';
 
 interface RequestWithObservation extends Request {
   observation: Observation;
@@ -38,7 +44,7 @@ export default class ObservationController extends AbstractController {
       const paramsAggregation = parseWhereParams(req.query, req.user);
       const observations = await this.observations.findAndCount(Object.assign(paramsSearch, paramsAggregation));
       res.json({
-        content: observations[0],
+        content: sanitaizeObservations(observations[0]),
         pageNumber: paramsSearch.number,
         pageSize: paramsSearch.size,
         totalElements: observations[1],
