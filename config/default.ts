@@ -13,6 +13,8 @@ export default {
     entities: ['src/entities/**/*.ts'],
     synchronize: true,
     logging: false,
+    // set max pool size to be able to use free database as a service solutions in dev
+    extra: { max: 4 },
   },
   userCrypto: {
     secret: process.env.USER_CRYPTO_SECRET || 'secret',
