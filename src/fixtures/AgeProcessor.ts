@@ -9,7 +9,7 @@ export default class AgeProcessor implements IProcessor<Age> {
   public preProcess(name: string, object: any): any {
     return {
       ...object,
-      id: makeid(parseInt(name)),
+      id: makeid(parseInt(name.replace(/\D/g,''))),
     };
   }
 }

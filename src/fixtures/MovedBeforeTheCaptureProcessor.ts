@@ -5,11 +5,11 @@ import { MovedBeforeTheCapture } from '../entities/euring-codes/moved-before-cap
 const makeid = (i: number): string => '02469'[i];
 
 /* class-methods-use-this */
-export default class MovedBeforeCaptureProcessor implements IProcessor<MovedBeforeTheCapture> {
+export default class MovedBeforeTheCaptureProcessor implements IProcessor<MovedBeforeTheCapture> {
   public preProcess(name: string, object: any): any {
     return {
       ...object,
-      id: makeid(parseInt(name)),
+      id: makeid(parseInt(name.replace(/\D/g,''))),
     };
   }
 }

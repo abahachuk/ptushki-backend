@@ -5,11 +5,11 @@ import { Manipulated } from '../entities/euring-codes/manipulated-entity';
 const makeid = (i: number): string => 'HKCFTMREPNU'[i];
 
 /* class-methods-use-this */
-export default class ManipultedProcessor implements IProcessor<Manipulated> {
+export default class ManipulatedProcessor implements IProcessor<Manipulated> {
   public preProcess(name: string, object: any): any {
     return {
       ...object,
-      id: makeid(parseInt(name)),
+      id: makeid(parseInt(name.replace(/\D/g,''))),
     };
   }
 }

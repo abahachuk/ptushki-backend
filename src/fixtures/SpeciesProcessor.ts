@@ -6,7 +6,7 @@ export default class SpeciesProcessor implements IProcessor<Species> {
   public preProcess(name: string, object: any): any {
     return {
       ...object,
-      id: name.padStart(5, '0'),
+      id: name.replace(/\D/g, '').padStart(5, '0'),
     };
   }
 }
