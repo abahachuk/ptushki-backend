@@ -13,7 +13,6 @@ export interface ObservationSearch {
   search?: string;
   pageNumber?: string;
   pageSize?: string;
-  lang?: 'en' | 'ru' | 'by';
   sortingColumn?: string;
   sortingDirection?: 'ASC' | 'DESC';
 }
