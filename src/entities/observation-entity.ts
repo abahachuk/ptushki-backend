@@ -42,12 +42,14 @@ export class Observation {
   @PrimaryGeneratedColumn('uuid')
   public id: string;
 
+  @IsOptional()
   @IsUUID()
   @ManyToOne(() => Ring, m => m.observation, {
     eager: true,
   })
   public ring: Ring;
 
+  @IsOptional()
   @IsUUID()
   @ManyToOne(() => User, m => m.observation, {
     eager: true,
@@ -61,6 +63,7 @@ export class Observation {
   })
   public speciesMentioned: Species;
 
+  @IsOptional()
   @IsNumberString()
   @Length(5, 5, { message: equalLength(5) })
   @ManyToOne(() => Species, m => m.concludedInObservation, {
@@ -75,6 +78,7 @@ export class Observation {
   })
   public sexMentioned: Sex;
 
+  @IsOptional()
   @IsAlpha()
   @Length(1, 1, { message: equalLength(1) })
   @ManyToOne(() => Sex, m => m.concludedInObservation, {
@@ -89,6 +93,7 @@ export class Observation {
   })
   public ageMentioned: Age;
 
+  @IsOptional()
   @IsAlphanumeric()
   @Length(1, 1, { message: equalLength(1) })
   @ManyToOne(() => Age, m => m.concludedInObservation, {
@@ -234,6 +239,7 @@ export class Observation {
   public remarks: string | null;
 
   // Not presented in euring standart
+  @IsOptional()
   @IsBoolean()
   @Column('boolean', { default: false })
   public verified: boolean;
