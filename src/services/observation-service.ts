@@ -1,9 +1,11 @@
+import config from 'config';
 import { FindManyOptions, Repository, FindOneOptions } from 'typeorm';
 import { Observation } from '../entities/observation-entity';
 import { User, UserRole } from '../entities/user-entity';
-
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const cartesian = require('cartesian-product');
+
+const { pageNumberDefault, pageSizeDefault } = config.get('paging');
 
 export type ObservationAggregations = { [key in keyof Observation]: string };
 
@@ -22,8 +24,7 @@ interface FindOptions<Observation> extends FindManyOptions<Observation> {
   number: number;
   size: number;
 }
-const DEFAULT_PAGE_NUMBER = 0;
-const DEFAULT_PAGE_SIZE = 5;
+
 const gettingAllObservations = {
   [UserRole.Observer]: false,
   [UserRole.Ringer]: false,
@@ -77,8 +78,8 @@ export const parseWhereParams = (query: ObservationAggregations, user: User): Fi
 export const parsePageParams = (query: ObservationQuery): FindOptions<Observation> => {
   const { pageNumber, pageSize, sortingColumn, sortingDirection = 'ASC' } = query;
 
-  const number = Number.parseInt(pageNumber as string, 10) || DEFAULT_PAGE_NUMBER;
-  const size = Number.parseInt(pageSize as string, 10) || DEFAULT_PAGE_SIZE;
+  const number = Number.parseInt(pageNumber as string, 10) || pageNumberDefault;
+  const size = Number.parseInt(pageSize as string, 10) || pageSizeDefault;
 
   return {
     order: sortingColumn ? { [sortingColumn]: sortingDirection } : undefined,
