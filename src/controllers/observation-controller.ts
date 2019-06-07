@@ -7,7 +7,7 @@ import {
   ObservationQuery,
   getAggregations,
   parseWhereParams,
-  sanitaizeObservations,
+  sanitizeObservations,
 } from '../services/observation-service';
 
 interface RequestWithObservation extends Request {
@@ -44,7 +44,7 @@ export default class ObservationController extends AbstractController {
       const paramsAggregation = parseWhereParams(req.query, req.user);
       const observations = await this.observations.findAndCount(Object.assign(paramsSearch, paramsAggregation));
       res.json({
-        content: sanitaizeObservations(observations[0]),
+        content: sanitizeObservations(observations[0]),
         pageNumber: paramsSearch.number,
         pageSize: paramsSearch.size,
         totalElements: observations[1],

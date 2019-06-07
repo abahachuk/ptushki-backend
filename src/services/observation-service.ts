@@ -104,7 +104,7 @@ export const getAggregations = async (repsitory: Repository<Observation>) => {
   return res.reduce((acc, item) => Object.assign(acc, item), {});
 };
 
-export const sanitaizeObservations = (observations: Observation[]) => {
+export const sanitizeObservations = (observations: Observation[]) => {
   return observations.map(observation => {
     const ref = observation;
     delete ref.finder.hash;
