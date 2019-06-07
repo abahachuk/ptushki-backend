@@ -7,6 +7,8 @@ import { Observation } from '../observation-entity';
 // Related table in access 'Moved before the capture'
 @Entity()
 export class MovedBeforeTheCapture implements Dictionary {
+  public static unknown = 9;
+
   @IsInt()
   @Min(0)
   @Max(9)

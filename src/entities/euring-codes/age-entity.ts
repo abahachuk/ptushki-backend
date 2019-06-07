@@ -9,6 +9,8 @@ import { Observation } from '../observation-entity';
 // Related tables in access are 'Age' and 'Age by Schem' (they are similar)
 @Entity()
 export class Age implements Dictionary {
+  public static unknown = '0';
+
   @IsAlphanumeric()
   @Length(1, 1, { message: equalLength(1) })
   @PrimaryColumn()
