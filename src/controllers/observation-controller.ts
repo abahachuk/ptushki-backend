@@ -2,6 +2,7 @@ import { NextFunction, Request, Response, Router } from 'express';
 import { getRepository, Repository } from 'typeorm';
 import AbstractController from './abstract-controller';
 import { Observation } from '../entities/observation-entity';
+import { Ring } from '../entities/ring-entity';
 import {
   parsePageParams,
   ObservationQuery,
@@ -23,9 +24,12 @@ export default class ObservationController extends AbstractController {
 
   private observations: Repository<Observation>;
 
+  private rings: Repository<Ring>;
+
   public init(): Router {
     this.router = Router();
     this.observations = getRepository(Observation);
+    this.rings = getRepository(Ring);
     this.setMainEntity(this.observations, 'observation');
 
     this.router.param('id', this.checkId);
@@ -66,7 +70,8 @@ export default class ObservationController extends AbstractController {
   private addObservation = async (req: Request, res: Response, next: NextFunction) => {
     const rawObservation = req.body;
     try {
-      const newObservation = await Observation.create({ ...rawObservation, finder: req.user.id });
+      const ring = this.rings.find({ id: rawObservation.ringMentioned });
+      const newObservation = await Observation.create({ ...rawObservation, ring, finder: req.user.id });
       await this.validate(newObservation);
       const result = await this.observations.save(newObservation);
       res.json(result);
