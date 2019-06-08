@@ -5,7 +5,7 @@ import { TokenExpiredError, JsonWebTokenError } from 'jsonwebtoken';
 import AbstractController from './abstract-controller';
 import { User, UserRole } from '../entities/user-entity';
 import { RefreshToken } from '../entities/auth-entity';
-import { signTokens, verifyRefreshToken, auth, authenticateLocal, sanitizeUser } from '../services/auth-service';
+import { signTokens, verifyRefreshToken, auth, authenticateLocal } from '../services/auth-service';
 import { isCorrect } from '../services/user-crypto-service';
 import { addAudit } from '../services/audit-service';
 import { CustomError } from '../utils/CustomError';
@@ -45,7 +45,7 @@ export default class AuthController extends AbstractController {
       await this.tokens.save(new RefreshToken(refreshToken, user.id));
       await addAudit('registration', '', null, user.id);
       return res.json({
-        user: sanitizeUser(user),
+        user: user.sanitizeUser(),
         token,
         refreshToken,
       });

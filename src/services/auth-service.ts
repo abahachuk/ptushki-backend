@@ -135,11 +135,3 @@ export const auth = {
   required: passport.authenticate('jwt', { session: false }),
   role: checkUserRole,
 };
-
-export const sanitizeUser = (user: User) => {
-  const ref = user;
-  delete ref.id;
-  delete ref.hash;
-  delete ref.salt;
-  return ref;
-};

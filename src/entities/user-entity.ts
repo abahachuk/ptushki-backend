@@ -83,4 +83,16 @@ export class User {
   public async setPassword(password: string): Promise<void> {
     Object.assign(this, await getSaltAndHash(password));
   }
+
+  public sanitizeUser() {
+    return Object.assign(
+      {},
+      {
+        email: this.email,
+        role: this.role,
+        firstName: this.firstName,
+        lastName: this.lastName,
+      },
+    );
+  }
 }
