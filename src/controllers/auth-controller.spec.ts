@@ -53,6 +53,8 @@ describe('Auth', () => {
 
       expect(res.status).toEqual(200);
       expect(res.body.user).toEqual(expect.any(Object));
+      expect(res.body.user.hash).not.toBeDefined();
+      expect(res.body.user.salt).not.toBeDefined();
       expect(res.body.token).toEqual(expect.any(String));
       expect(res.body.refreshToken).toEqual(expect.any(String));
     });
@@ -84,6 +86,8 @@ describe('Auth', () => {
 
       expect(res.status).toEqual(200);
       expect(res.body.user).toEqual(expect.any(Object));
+      expect(res.body.user.hash).not.toBeDefined();
+      expect(res.body.user.salt).not.toBeDefined();
       expect(res.body.token).toEqual(expect.any(String));
       expect(res.body.refreshToken).toEqual(expect.any(String));
     });
