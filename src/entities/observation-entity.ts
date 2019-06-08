@@ -2,7 +2,7 @@ import { Entity, Column, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
 import {
   IsUUID,
   Length,
-  IsDate,
+  IsDateString,
   IsString,
   IsOptional,
   IsAlpha,
@@ -152,7 +152,7 @@ export class Observation {
   })
   public catchingLures: CatchingLures;
 
-  @IsDate()
+  @IsDateString()
   @Column('varchar', { nullable: true, default: null })
   public date: Date | null;
 

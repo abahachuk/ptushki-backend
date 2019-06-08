@@ -3,7 +3,7 @@ import { Audit } from '../entities/audit-entity';
 import { User } from '../entities/user-entity';
 import { AuditEventsAction } from '../entities/audit-action-events-entity';
 import { RefreshToken } from '../entities/auth-entity';
-import { logger } from '../configs/logger';
+import { logger } from '../utils/logger';
 
 const getUser = async (token: string, id: string) => {
   const tokens: Repository<RefreshToken> = getRepository(RefreshToken);
