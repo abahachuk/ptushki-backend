@@ -2,6 +2,8 @@ import { NextFunction, Request, Response, Router } from 'express';
 import { getRepository, Repository } from 'typeorm';
 import AbstractController from './abstract-controller';
 import { Observation } from '../entities/observation-entity';
+import Exporter from '../services/export';
+import Importer from '../services/import';
 import {
   parsePageParams,
   ObservationQuery,
@@ -19,20 +21,28 @@ interface RequestWithPageParams extends Request {
 }
 
 export default class ObservationController extends AbstractController {
-  private router: Router;
+  private router: Router = Router();
 
   private observations: Repository<Observation>;
 
+  private exporter: Exporter;
+
+  private importer: Importer;
+
   public init(): Router {
-    this.router = Router();
     this.observations = getRepository(Observation);
     this.setMainEntity(this.observations, 'observation');
+    this.exporter = new Exporter();
+    this.importer = new Importer();
 
     this.router.param('id', this.checkId);
     this.router.get('/', this.getObservations);
     this.router.get('/aggregations', this.getAggregations);
     this.router.post('/', this.addObservation);
+    this.router.post('/export/:type', this.exporter.handle('observations'));
+    this.router.post('/import/:type', this.importer.handle('observations'));
     this.router.get('/:id', this.findObservation);
+    this.router.post('/:id/export/:type', this.exporter.handle('observations'));
     this.router.put('/:id', this.editObservation);
     this.router.delete('/:id', this.removeObservation);
     return this.router;
