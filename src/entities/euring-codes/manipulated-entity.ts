@@ -8,8 +8,6 @@ import { Observation } from '../observation-entity';
 // Related table in access 'Manipulated'
 @Entity()
 export class Manipulated implements Dictionary {
-  public static unknown = 'U';
-
   @IsAlpha()
   @Length(1, 1, { message: equalLength(1) })
   @PrimaryColumn()

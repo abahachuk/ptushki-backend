@@ -9,8 +9,6 @@ import { Observation } from '../observation-entity';
 // Related tables in access 'Sex' and 'Sex by schem'
 @Entity()
 export class Sex implements Dictionary {
-  public static unknown = 'U';
-
   @IsAlpha()
   @Length(1, 1, { message: equalLength(1) })
   @PrimaryColumn()

@@ -9,8 +9,6 @@ import { Observation } from '../observation-entity';
 // Related table in access 'Status'
 @Entity()
 export class Status implements Dictionary {
-  public static unknown = 'U';
-
   @IsAlphaWithHyphen()
   @Length(1, 1, { message: equalLength(1) })
   @PrimaryColumn()

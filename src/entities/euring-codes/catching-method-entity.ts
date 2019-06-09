@@ -9,8 +9,6 @@ import { Observation } from '../observation-entity';
 // Related table in access 'Catching method'
 @Entity()
 export class CatchingMethod implements Dictionary {
-  public static unknown = 'Z';
-
   @IsAlphaWithHyphen()
   @Length(1, 1, { message: equalLength(1) })
   @PrimaryColumn()

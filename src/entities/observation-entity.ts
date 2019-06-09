@@ -63,7 +63,7 @@ export class Observation {
   @ManyToOne(() => Species, m => m.mentionedInObservation, {
     eager: true,
   })
-  public speciesMentioned: Species | string = Species.unknown;
+  public speciesMentioned: Species;
 
   @IsOptional()
   @IsNumberString()
@@ -78,7 +78,7 @@ export class Observation {
   @ManyToOne(() => Sex, m => m.mentionedInObservation, {
     eager: true,
   })
-  public sexMentioned: Sex | string = Sex.unknown;
+  public sexMentioned: Sex;
 
   @IsOptional()
   @IsAlpha()
@@ -93,7 +93,7 @@ export class Observation {
   @ManyToOne(() => Age, m => m.mentionedInObservation, {
     eager: true,
   })
-  public ageMentioned: Age | string = Age.unknown;
+  public ageMentioned: Age;
 
   @IsOptional()
   @IsAlphanumeric()
@@ -135,7 +135,7 @@ export class Observation {
   @ManyToOne(() => Manipulated, m => m.observation, {
     eager: true,
   })
-  public manipulated: Manipulated | string = Manipulated.unknown;
+  public manipulated: Manipulated;
 
   @IsInt()
   @Min(0)
@@ -143,21 +143,21 @@ export class Observation {
   @ManyToOne(() => MovedBeforeTheCapture, m => m.observation, {
     eager: true,
   })
-  public movedBeforeTheCapture: MovedBeforeTheCapture | number = MovedBeforeTheCapture.unknown;
+  public movedBeforeTheCapture: MovedBeforeTheCapture;
 
   @IsAlphaWithHyphen()
   @Length(1, 1, { message: equalLength(1) })
   @ManyToOne(() => CatchingMethod, m => m.observation, {
     eager: true,
   })
-  public catchingMethod: CatchingMethod | string = CatchingMethod.unknown;
+  public catchingMethod: CatchingMethod;
 
   @IsAlphaWithHyphen()
   @Length(1, 1, { message: equalLength(1) })
   @ManyToOne(() => CatchingLures, m => m.observation, {
     eager: true,
   })
-  public catchingLures: CatchingLures | string = CatchingLures.unknown;
+  public catchingLures: CatchingLures;
 
   @IsDateString()
   @Column('varchar', { nullable: true, default: null })
@@ -189,7 +189,7 @@ export class Observation {
   @ManyToOne(() => Status, m => m.observation, {
     eager: true,
   })
-  public status: Status | string = Status.unknown;
+  public status: Status;
 
   @IsNumberStringWithHyphen()
   @Length(2, 2, { message: equalLength(2) })

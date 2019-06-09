@@ -9,8 +9,6 @@ import { Observation } from '../observation-entity';
 // Related tables in access 'Species' and 'Species by Schem'
 @Entity()
 export class Species implements Dictionary {
-  public static unknown = '00000';
-
   @IsNumberString()
   @Length(5, 5, { message: equalLength(5) })
   @PrimaryColumn()
