@@ -32,13 +32,14 @@ import { AccuracyOfPullusAge } from './euring-codes/accuracy-of-pullus-age-entit
 import { Condition } from './euring-codes/condition-entity';
 import { Circumstances } from './euring-codes/circumstances-entity';
 import { CircumstancesPresumed } from './euring-codes/circumstances-presumed-entity';
+import { AbleToExportAndImportEuring } from './common-interfaces';
 
 export interface NewObservation {
   finder: User;
 }
 
 @Entity()
-export class Observation {
+export class Observation implements AbleToExportAndImportEuring {
   @PrimaryGeneratedColumn('uuid')
   public id: string;
 
@@ -240,5 +241,16 @@ export class Observation {
 
   public static async create(observation: NewObservation): Promise<Observation> {
     return Object.assign(new Observation(), observation);
+  }
+
+  public exportEURING(): string {
+    // todo
+    return [this.ring.id, this.ageConcluded.id, this.ageMentioned.id].join('|');
+  }
+
+  public importEURING(code: string): any {
+    // todo
+    const [ring, status] = code.split('|');
+    Object.assign(this, { ring: { id: ring }, status });
   }
 }

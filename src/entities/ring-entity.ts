@@ -42,9 +42,10 @@ import {
 } from './euring-codes';
 import { User } from './user-entity';
 import { Observation } from './observation-entity';
+import { AbleToExportAndImportEuring } from './common-interfaces';
 
 @Entity()
-export class Ring {
+export class Ring implements AbleToExportAndImportEuring {
   @PrimaryGeneratedColumn('uuid')
   public id: string;
 
@@ -280,4 +281,15 @@ export class Ring {
     eager: true,
   })
   public statusOfRing: StatusOfRing;
+
+  public exportEURING(): string {
+    // todo
+    return [this.identificationNumber, this.ageConcluded.id, this.ageMentioned.id].join('|');
+  }
+
+  public importEURING(code: string): any {
+    // todo
+    const [identificationNumber, status] = code.split('|');
+    Object.assign(this, { identificationNumber, status });
+  }
 }
