@@ -42,11 +42,17 @@ export class Observation {
   @PrimaryGeneratedColumn('uuid')
   public id: string;
 
+  @IsOptional()
   @IsUUID()
   @ManyToOne(() => Ring, m => m.observation, {
     eager: true,
   })
   public ring: Ring;
+
+  @IsString()
+  @Length(10, 10, { message: equalLength(10) })
+  @Column()
+  public ringMentioned: string;
 
   @IsUUID()
   @ManyToOne(() => User, m => m.observation, {

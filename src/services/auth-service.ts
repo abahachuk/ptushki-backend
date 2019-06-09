@@ -60,7 +60,7 @@ export const initPassport = (): void => {
         if (user) {
           return done(null, user);
         }
-        return done({ message: 'no user' });
+        return done(new CustomError('Authorization Error', 401));
       },
     ),
   );
