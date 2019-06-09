@@ -23,6 +23,14 @@
       "description": "RingsBy operations"
     }
   ],
+  "securityDefinitions": {
+    "Authorization": {
+      "in": "header",
+      "name": "Authorization",
+      "type": "apiKey",
+      "description": "Authorization is handled by JWT token which is added with 'Bearer ' prefix for access token to `Authorization` header (and as is for refresh token which is used in body of requests)"
+    }
+  },
   "schemes": ["http"],
   "paths": {
     "/observations": {
@@ -30,6 +38,7 @@
         "tags": ["Observation controller"],
         "summary": "Get all observations",
         "produces": ["application/json"],
+        "security": [{"Authorization": []}],
         "responses": {
           "200": {
             "description": "successful operation",
@@ -46,6 +55,16 @@
         "tags": ["Observation controller"],
         "summary": "Add observation",
         "produces": ["application/json"],
+        "security": [{"Authorization": []}],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "ID of observation",
+            "required": true,
+            "type": "string"
+          }
+        ],
         "responses": {
           "200": {
             "description": "successful operation",
@@ -60,6 +79,7 @@
       "get": {
         "tags": ["Observation controller"],
         "produces": ["application/json"],
+        "security": [{"Authorization": []}],
         "summary": "Get observation by id",
         "parameters": [
           {
@@ -83,6 +103,7 @@
         "tags": ["Observation controller"],
         "summary": "Edit observation with provided id",
         "produces": ["application/json"],
+        "security": [{"Authorization": []}],
         "parameters": [
           {
             "name": "id",
@@ -105,6 +126,7 @@
         "tags": ["Observation controller"],
         "summary": "Remove observation by provided id",
         "produces": ["application/json"],
+        "security": [{"Authorization": []}],
         "parameters": [
           {
             "name": "id",
@@ -129,6 +151,7 @@
         "summary": "get all rings",
         "tags": ["RingsBy controller"],
         "produces": ["application/json"],
+        "security": [{"Authorization": []}],
         "responses": {
           "200": {
             "description": "successful operation",
@@ -145,6 +168,7 @@
         "summary": "add new ring",
         "tags": ["RingsBy controller"],
         "produces": ["application/json"],
+        "security": [{"Authorization": []}],
         "responses": {
           "200": {
             "description": "successful operation",
@@ -160,6 +184,7 @@
         "tags": ["RingsBy controller"],
         "produces": ["application/json"],
         "summary": "Get ring by provided id",
+        "security": [{"Authorization": []}],
         "parameters": [
           {
             "name": "id",
@@ -182,6 +207,7 @@
         "tags": ["RingsBy controller"],
         "summary": "Remove ring by provided id",
         "produces": ["application/json"],
+        "security": [{"Authorization": []}],
         "parameters": [
           {
             "name": "id",
@@ -206,6 +232,7 @@
         "summary": "get all users",
         "tags": ["User controller"],
         "produces": ["application/json"],
+        "security": [{"Authorization": []}],
         "responses": {
           "200": {
             "description": "successful operation",
@@ -222,8 +249,9 @@
     "/users/{id}": {
       "get": {
         "tags": ["User controller"],
-        "produces": ["application/json"],
         "summary": "Get user by id",
+        "produces": ["application/json"],
+        "security": [{"Authorization": []}],
         "parameters": [
           {
             "name": "id",
@@ -246,6 +274,7 @@
         "tags": ["User controller"],
         "summary": "Remove user by provided id",
         "produces": ["application/json"],
+        "security": [{"Authorization": []}],
         "parameters": [
           {
             "name": "id",
