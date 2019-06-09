@@ -185,10 +185,17 @@ export class Observation implements AbleToExportAndImportEuring {
   })
   public accuracyOfDate: AccuracyOfDate;
 
-  // Related fields in access 'Lat deg', 'Lat min', 'Lat sec', 'Lon deg', 'Lon min', 'Lon sec',
-  @Length(15, 15, { message: equalLength(15) })
+  // Related fields in access 'Lat deg', 'Lat min', 'Lat sec'
+  @IsOptional()
+  @IsNumberString()
   @Column('varchar', { nullable: true, default: null })
-  public geographicalCoordinates: string | null;
+  public latitude: string | null;
+
+  // Related fields in access 'Lon deg', 'Lon min', 'Lon sec'
+  @IsOptional()
+  @IsNumberString()
+  @Column('varchar', { nullable: true, default: null })
+  public longitude: string | null;
 
   @IsInt()
   @Min(0)

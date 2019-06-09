@@ -197,10 +197,17 @@ export class Ring implements EURINGCodes, AbleToExportAndImportEuring {
   })
   public accuracyOfPullusAge: AccuracyOfPullusAge;
 
-  // Related fields in access 'Lat deg', 'Lat min', 'Lat sec', 'Lon deg', 'Lon min', 'Lon sec',
-  @Length(15, 15, { message: equalLength(15) })
+  // Related fields in access 'Lat deg', 'Lat min', 'Lat sec'
+  @IsOptional()
+  @IsNumberString()
   @Column('varchar', { nullable: true, default: null })
-  public geographicalCoordinates: string | null;
+  public latitude: string | null;
+
+  // Related fields in access 'Lon deg', 'Lon min', 'Lon sec'
+  @IsOptional()
+  @IsNumberString()
+  @Column('varchar', { nullable: true, default: null })
+  public longitude: string | null;
 
   @IsAlphanumeric()
   @Length(4, 4, { message: equalLength(4) })
