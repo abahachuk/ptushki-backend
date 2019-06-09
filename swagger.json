@@ -59,7 +59,7 @@
     "/observations/export/{type}": {
       "post": {
         "tags": ["Observation controller"],
-        "summary": "Add observation",
+        "summary": "Generate export of specified type",
         "produces": ["application/json", "application/pdf", "application/vnd.ms-excel"],
         "parameters": [
           {
@@ -80,7 +80,7 @@
     "/observations/import/{type}": {
       "post": {
         "tags": ["Observation controller"],
-        "summary": "Add observation",
+        "summary": "Import data to observations from extranal data of specified type",
         "produces": ["application/json"],
         "parameters": [
           {
@@ -170,7 +170,7 @@
       "get": {
         "tags": ["Observation controller"],
         "produces": ["application/json", "application/pdf"],
-        "summary": "Get observation by id",
+        "summary": "Generate specified type export for current entity",
         "parameters": [
           {
             "name": "id",
