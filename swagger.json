@@ -1222,6 +1222,9 @@
         "ring": {
           "$ref": "#/definitions/Ring"
         },
+        "ringMentioned": {
+          "type": "string"
+        },
         "finder": {
           "$ref": "#/definitions/User"
         },

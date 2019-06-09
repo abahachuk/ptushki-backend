@@ -51,6 +51,11 @@ export class Observation {
   })
   public ring: Ring;
 
+  @IsString()
+  @Length(10, 10, { message: equalLength(10) })
+  @Column()
+  public ringMentioned: string;
+
   @IsOptional()
   @IsUUID()
   @ManyToOne(() => User, m => m.observation, {
