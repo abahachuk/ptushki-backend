@@ -40,11 +40,12 @@ import {
   EURINGCodeIdentifier,
   StatusOfRing,
 } from './euring-codes';
+import { EURINGCodes } from './euring-codes/common-interfaces';
 import { User } from './user-entity';
 import { Observation } from './observation-entity';
 
 @Entity()
-export class Ring {
+export class Ring implements EURINGCodes {
   @PrimaryGeneratedColumn('uuid')
   public id: string;
 
