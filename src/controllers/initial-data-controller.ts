@@ -35,7 +35,6 @@ export default class InitialDataController extends AbstractController {
       }, {});
       res.json(result);
     } catch (e) {
-      console.log(e);
       next(e);
     }
   };
