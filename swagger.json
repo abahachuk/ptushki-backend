@@ -1337,7 +1337,10 @@
         "accuracyOfPullusAge": {
           "$ref": "#/definitions/AccuracyOfPullusAge"
         },
-        "geographicalCoordinates": {
+        "latitude": {
+          "type": "string"
+        },
+        "longitude": {
           "type": "string"
         },
         "accuracyOfCoordinates": {
@@ -1453,7 +1456,10 @@
         "accuracyOfPullusAge": {
           "$ref": "#/definitions/AccuracyOfPullusAge"
         },
-        "geographicalCoordinates": {
+        "latitude": {
+          "type": "string"
+        },
+        "longitude": {
           "type": "string"
         },
         "placeCode": {
