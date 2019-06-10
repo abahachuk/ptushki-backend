@@ -43,7 +43,8 @@ const createColumns = (columnNames: string[]): Partial<Column>[] => {
 const setStyleToRow = (row: Row, styles: Partial<Cell>): void => {
   row.eachCell(
     (cell: Cell): void => {
-      Object.assign(cell.style, { style: styles });
+      // eslint-disable-next-line  no-param-reassign
+      cell.style = styles;
     },
   );
 };
@@ -110,6 +111,7 @@ export const checkHeaderNames = async (workbook: Workbook, type: string): Promis
 };
 
 // eslint-disable-next-line  @typescript-eslint/no-explicit-any
+// eslint-disable-next-line  consistent-return
 const validateImportedData = async (data: any): Promise<any> => {
   const createdModel = await ImportValidator.create(data);
   const errors = await validate(createdModel);
@@ -124,9 +126,8 @@ const validateImportedData = async (data: any): Promise<any> => {
       }),
       {},
     );
+    return parsedErrors;
   }
-
-  return parsedErrors;
 };
 
 export const checkImportedData = async (workbook: Workbook): Promise<DataCheck> => {

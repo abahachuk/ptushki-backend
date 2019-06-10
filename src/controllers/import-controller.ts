@@ -124,13 +124,13 @@ export default class ImportController {
       const rowData = row.data;
       if (rowData) {
         // eslint-disable-next-line no-await-in-loop
-        const status = await this.status.find({ id: rowData.eu_statusCode.toLowerCase() });
+        const status = await this.status.find({ id: rowData.eu_statusCode.toUpperCase() });
         // eslint-disable-next-line no-await-in-loop
-        const speciesMentioned = await this.species.find({ id: rowData.eu_species.toLowerCase() });
+        const speciesMentioned = await this.species.find({ id: rowData.eu_species });
         // eslint-disable-next-line no-await-in-loop
-        const sexMentioned = await this.sex.find({ id: rowData.eu_sexCode.toLowerCase() });
+        const sexMentioned = await this.sex.find({ id: rowData.eu_sexCode.toUpperCase() });
         // eslint-disable-next-line no-await-in-loop
-        const ageMentioned = await this.age.find({ id: rowData.eu_ageCode.toLowerCase() });
+        const ageMentioned = await this.age.find({ id: rowData.eu_ageCode.toUpperCase() });
 
         const euCodeErrors: string[] = [];
         if (!status.length) {

@@ -17,6 +17,6 @@ export default (): Router => {
   routes.use('/observations', auth.required, new ObservationController().init());
   routes.use('/rings-by', auth.required, new RingsByController().init());
   routes.use('/initial-data', auth.required, new InitialDataController().init());
-  routes.use('/import', auth.required, new ImportController().init());
+  routes.use('/import', new ImportController().init());
   return routes;
 };
