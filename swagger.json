@@ -58,11 +58,238 @@
         "security": [{"Authorization": []}],
         "parameters": [
           {
-            "name": "id",
-            "in": "path",
-            "description": "ID of observation",
+            "name": "ring",
+            "in": "body",
+            "description": "ID (as UUID) of ring related to observation",
+            "type": "string",
+            "example": "550e8400-e29b-41d4-a716-446655440000"
+          },
+          {
+            "name": "ringMentioned",
+            "in": "body",
+            "description": "alpha or numeric string with hyphen replacing unrecognized values. Length have to be 10",
             "required": true,
-            "type": "string"
+            "type": "string",
+            "example": "ADD...230-3"
+          },
+          {
+            "name": "finder",
+            "in": "body",
+            "description": "ID (as UUID) of user related to observation",
+            "type": "string",
+            "example": "2320e311-kd9a-83kw-kj39-923098423492"
+          },
+          {
+            "name": "speciesMentioned",
+            "in": "body",
+            "description": "Defines species recognized by observer. Uses 5 chars length code",
+            "type": "string",
+            "required": true,
+            "example": "93882"
+          },
+          {
+            "name": "speciesConcluded",
+            "in": "body",
+            "description": "Defines species coming in related ring. Always the same. Uses 5 chars length code",
+            "type": "string",
+            "example": "93882"
+          },
+          {
+            "name": "sexMentioned",
+            "in": "body",
+            "description": "Defines sex recognized by observer. Uses 1 chars length code",
+            "type": "string",
+            "required": true,
+            "example": "U"
+          },
+          {
+            "name": "sexConcluded",
+            "in": "body",
+            "description": "Defines sex coming in related ring. Always the same. Uses 1 chars length code",
+            "type": "string",
+            "example": "M"
+          },
+          {
+            "name": "ageMentioned",
+            "in": "body",
+            "description": "Defines age specified by observer. Uses 1 chars alphanumeric length code",
+            "type": "string",
+            "required": true,
+            "example": "D"
+          },
+          {
+            "name": "ageConcluded",
+            "in": "body",
+            "description": "Defines age coming in related ring. Always the same. Uses 1 chars alphanumeric length code",
+            "type": "string",
+            "example": "2"
+          },
+          {
+            "name": "distance",
+            "in": "body",
+            "description": "",
+            "type": "string",
+            "required": true,
+            "example": ""
+          },
+          {
+            "name": "direction",
+            "in": "body",
+            "description": "",
+            "type": "string",
+            "required": true,
+            "example": ""
+          },
+          {
+            "name": "elapsedTime",
+            "in": "body",
+            "description": "",
+            "type": "string",
+            "required": true,
+            "example": ""
+          },
+          {
+            "name": "colorRing",
+            "in": "body",
+            "description": "",
+            "type": "string",
+            "example": ""
+          },
+          {
+            "name": "manipulated",
+            "in": "body",
+            "description": "",
+            "type": "string",
+            "required": true,
+            "example": ""
+          },
+          {
+            "name": "movedBeforeTheCapture",
+            "in": "body",
+            "description": "",
+            "type": "string",
+            "required": true,
+            "example": ""
+          },
+          {
+            "name": "catchingMethod",
+            "in": "body",
+            "description": "",
+            "type": "string",
+            "required": true,
+            "example": ""
+          },
+          {
+            "name": "catchingLures",
+            "in": "body",
+            "description": "",
+            "type": "string",
+            "required": true,
+            "example": ""
+          },
+          {
+            "name": "date",
+            "in": "body",
+            "description": "",
+            "type": "string",
+            "required": true,
+            "example": ""
+          },
+          {
+            "name": "accuracyOfDate",
+            "in": "body",
+            "description": "",
+            "type": "string",
+            "required": true,
+            "example": ""
+          },
+          {
+            "name": "geographicalCoordinates",
+            "in": "body",
+            "description": "",
+            "type": "string",
+            "example": "",
+            "default": null
+          },
+          {
+            "name": "accuracyOfCoordinates",
+            "in": "body",
+            "description": "",
+            "type": "string",
+            "example": "",
+            "default": null
+          },
+          {
+            "name": "status",
+            "in": "body",
+            "description": "",
+            "type": "string",
+            "required": true,
+            "example": ""
+          },
+          {
+            "name": "pullusAge",
+            "in": "body",
+            "description": "",
+            "type": "string",
+            "required": true,
+            "example": ""
+          },
+          {
+            "name": "accuracyOfPullusAge",
+            "in": "body",
+            "description": "",
+            "type": "string",
+            "required": true,
+            "example": ""
+          },
+          {
+            "name": "condition",
+            "in": "body",
+            "description": "",
+            "type": "string",
+            "required": true,
+            "example": ""
+          },
+          {
+            "name": "circumstances",
+            "in": "body",
+            "description": "",
+            "type": "string",
+            "required": true,
+            "example": ""
+          },
+          {
+            "name": "circumstancesPresumed",
+            "in": "body",
+            "description": "",
+            "type": "string",
+            "required": true,
+            "example": ""
+          },
+          {
+            "name": "placeName",
+            "in": "body",
+            "description": "",
+            "type": "string",
+            "required": true,
+            "example": ""
+          },
+          {
+            "name": "remarks",
+            "in": "body",
+            "description": "",
+            "type": "string",
+            "required": true,
+            "example": ""
+          },
+          {
+            "name": "verified",
+            "in": "body",
+            "description": "Confirms was this observation checked by moderator",
+            "type": "boolean",
+            "example": "false",
+            "default": false
           }
         ],
         "responses": {
