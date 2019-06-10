@@ -7,6 +7,9 @@ import { ImportValidator } from './format-validator';
 interface ParsedErrors {
   [key: string]: string[];
 }
+interface RawData {
+  [key: string]: {};
+}
 
 export interface HeaderCheck {
   verified: boolean;
@@ -16,32 +19,36 @@ export interface HeaderCheck {
 export interface DataCheck {
   emptyRowCount: number;
   rowCount: number;
-  addedData: Record<string, any>[];
-  euRingErrors: Record<string, any>[];
-  validFormatData: Record<string, any>[];
-  invalidDataFormat: Record<string, any>[];
+  addedData: [];
+  euRingErrors: [];
+  validFormatData: [];
+  invalidDataFormat: [];
 }
 
 const createColumns = (columnNames: string[]): Partial<Column>[] => {
   const columns: Partial<Column>[] = [];
 
   if (columnNames) {
-    columnNames.forEach((name: string) => {
-      const extendedColumn = Object.assign({}, excelProperties.colProperties, { header: name, key: name });
-      columns.push(extendedColumn);
-    });
+    columnNames.forEach(
+      (name: string): void => {
+        const extendedColumn = Object.assign({}, excelProperties.colProperties, { header: name, key: name });
+        columns.push(extendedColumn);
+      },
+    );
   }
 
   return columns;
 };
 
-const setStyleToRow = (row: Row, styles: Partial<Cell>) => {
-  row.eachCell((cell: Cell) => {
-    cell.style = styles;
-  });
+const setStyleToRow = (row: Row, styles: Partial<Cell>): void => {
+  row.eachCell(
+    (cell: Cell): void => {
+      Object.assign(cell.style, { style: styles });
+    },
+  );
 };
 
-export const createExcelWorkBook = async (type: string) => {
+export const createExcelWorkBook = async (type: string): Promise<Workbook> => {
   const workbook: Workbook = new Excel.Workbook();
   const worksheet: Worksheet = workbook.addWorksheet(excelProperties.sheetName);
   const columnNames: string[] = excelColumns[type];
@@ -63,11 +70,13 @@ export const createExcelWorkBook = async (type: string) => {
 const getHeaderNames = (worksheet: Worksheet): string[] => {
   const headers: string[] = [];
 
-  worksheet.getRow(1).eachCell((cell: Cell) => {
-    if (cell.model.value) {
-      headers.push(cell.model.value.toString());
-    }
-  });
+  worksheet.getRow(1).eachCell(
+    (cell: Cell): void => {
+      if (cell.model.value) {
+        headers.push(cell.model.value.toString());
+      }
+    },
+  );
 
   return headers;
 };
@@ -82,23 +91,45 @@ export const checkHeaderNames = async (workbook: Workbook, type: string): Promis
   if (worksheet) {
     excelHeaders = getHeaderNames(worksheet);
 
-    verified = columnNames.every((name: string) => {
-      const isHeaderExists = excelHeaders.includes(name);
+    verified = columnNames.every(
+      (name: string): boolean => {
+        const isHeaderExists = excelHeaders.includes(name);
 
-      if (isHeaderExists) {
+        if (isHeaderExists) {
+          return isHeaderExists;
+        }
+
+        errors.push(name);
+
         return isHeaderExists;
-      }
-
-      errors.push(name);
-
-      return isHeaderExists;
-    });
+      },
+    );
   }
 
   return { verified, errors };
 };
 
-export const checkImportedData = async (workbook: Workbook, _type: string): Promise<DataCheck> => {
+// eslint-disable-next-line  @typescript-eslint/no-explicit-any
+const validateImportedData = async (data: any): Promise<any> => {
+  const createdModel = await ImportValidator.create(data);
+  const errors = await validate(createdModel);
+  // eslint-disable-next-line  @typescript-eslint/no-explicit-any
+  let parsedErrors: Record<string, any> = [];
+
+  if (errors.length) {
+    parsedErrors = errors.reduce(
+      (acc: ParsedErrors, error: ValidationError): ParsedErrors => ({
+        ...acc,
+        [error.property]: Object.values(error.constraints),
+      }),
+      {},
+    );
+  }
+
+  return parsedErrors;
+};
+
+export const checkImportedData = async (workbook: Workbook): Promise<DataCheck> => {
   let rowNumber = 2;
   const headers: string[] = [];
   const worksheet = workbook.getWorksheet(1);
@@ -112,66 +143,55 @@ export const checkImportedData = async (workbook: Workbook, _type: string): Prom
   };
 
   if (worksheet) {
-    worksheet.getRow(1).eachCell((cell: Cell) => {
-      if (cell.model.value) {
-        headers.push(cell.model.value.toString());
-      }
-    });
+    worksheet.getRow(1).eachCell(
+      (cell: Cell): void => {
+        if (cell.model.value) {
+          headers.push(cell.model.value.toString());
+        }
+      },
+    );
 
     fileImportStatus.rowCount = worksheet.rowCount - 1;
     while (rowNumber <= worksheet.rowCount) {
-      const rawData: any = {};
+      const rawData: RawData = {};
       const row = worksheet.getRow(rowNumber);
 
       if (row.values.length === 0) {
-        fileImportStatus.emptyRowCount++;
-        rowNumber++;
+        fileImportStatus.emptyRowCount += 1;
+        rowNumber += 1;
+        // eslint-disable-next-line no-continue
         continue;
       }
 
-      row.eachCell((cell: Cell, index: number) => {
-        if (headers[index - 1] === 'date') {
-          try {
+      row.eachCell(
+        (cell: Cell, index: number): void => {
+          if (headers[index - 1] === 'date') {
+            try {
+              // @ts-ignore
+              rawData[headers[index - 1]] = new Date(cell.model.value).toISOString();
+            } catch (e) {
+              rawData[headers[index - 1]] = '';
+            }
+          } else {
             // @ts-ignore
-            rawData[headers[index - 1]] = new Date(cell.model.value).toISOString();
-          } catch (e) {
-            rawData[headers[index - 1]] = '';
+            rawData[headers[index - 1]] = cell.model.value.toString();
           }
-        } else {
-          // @ts-ignore
-          rawData[headers[index - 1]] = cell.model.value.toString();
-        }
-      });
-
+        },
+      );
+      // eslint-disable-next-line no-await-in-loop
       const result = await validateImportedData(rawData);
 
       if (result) {
+        // @ts-ignore
         fileImportStatus.invalidDataFormat.push({ rowNumber, result });
       } else {
+        // @ts-ignore
         fileImportStatus.validFormatData.push({ rowNumber, data: rawData });
       }
 
-      rowNumber++;
+      rowNumber += 1;
     }
   }
 
   return fileImportStatus;
-};
-
-const validateImportedData = async (data: any): Promise<any> => {
-  const createdModel = await ImportValidator.create(data);
-  const errors = await validate(createdModel);
-  let parsedErrors: Record<string, any>;
-
-  if (errors.length) {
-    parsedErrors = errors.reduce(
-      (acc: ParsedErrors, error: ValidationError): ParsedErrors => ({
-        ...acc,
-        [error.property]: Object.values(error.constraints),
-      }),
-      {},
-    );
-
-    return parsedErrors;
-  }
 };
