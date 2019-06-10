@@ -70,9 +70,7 @@ export default class ObservationController extends AbstractController {
   private addObservation = async (req: Request, res: Response, next: NextFunction) => {
     const rawObservation = req.body;
     try {
-      let {
-        ring: { id: ring },
-      } = rawObservation;
+      let { ring } = rawObservation;
       if (!ring) {
         ({ id: ring = null } =
           (await this.rings.findOne({ identificationNumber: rawObservation.ringMentioned })) || {});
