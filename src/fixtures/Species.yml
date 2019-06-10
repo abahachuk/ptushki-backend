@@ -1,7 +1,7 @@
 entity: Species
+processor: ./SpeciesProcessor
 items:
-  species{0..50}:
-    id: '{{random.number}}'
+  species{0..99}:
     letterCode: '{{address.countryCode}}{{address.countryCode}}{{address.countryCode}}'
     species: '{{lorem.words}}'
     ordo: '{{lorem.word}}'

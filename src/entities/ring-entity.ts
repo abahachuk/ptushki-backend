@@ -42,10 +42,10 @@ import {
 } from './euring-codes';
 import { User } from './user-entity';
 import { Observation } from './observation-entity';
-import { AbleToExportAndImportEuring } from './common-interfaces';
+import { EURINGCodes, AbleToExportAndImportEuring } from './common-interfaces';
 
 @Entity()
-export class Ring implements AbleToExportAndImportEuring {
+export class Ring implements EURINGCodes, AbleToExportAndImportEuring {
   @PrimaryGeneratedColumn('uuid')
   public id: string;
 

@@ -11,18 +11,20 @@ const makeid = (length: number): string => {
   return text;
 };
 
-const randomInteger = (length: number): number => {
-  return Math.floor(Math.pow(10, length - 1) + Math.random() * (Math.pow(10, length) - Math.pow(10, length - 1) - 1));
-};
+const randomInteger = (length: number): number => Math.round(Math.random() * 10 ** length);
+const randomInRange = (max: number): number => Math.round(Math.random() * max) + 1;
 
 /* class-methods-use-this */
 export default class RingProcessor implements IProcessor<Ring> {
   public preProcess(_name: string, object: any): any {
-    const identificationSeries = makeid(Math.random() > 0.5 ? 1 : 2);
-    const identificationNumber = randomInteger(5);
+    const identificationSeries = makeid(randomInRange(4)).toString();
+    const identificationNumber = randomInteger(5).toString();
     return {
       ...object,
-      identificationNumber: `${identificationSeries} ${identificationNumber}`,
+      identificationNumber: `${identificationSeries}${identificationNumber.padStart(
+        10 - identificationSeries.length,
+        '.',
+      )}`,
     };
   }
 }

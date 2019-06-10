@@ -1,7 +1,7 @@
 entity: MovedBeforeTheCapture
+processor: ./MovedBeforeTheCaptureProcessor
 items:
-  movedBeforeTheCapture{0..10}:
-    id: '{{random.number}}'
+  movedBeforeTheCapture{0..4}:
     desc_eng: '{{lorem.sentence}}'
     desc_rus: '{{lorem.sentence}}'
     desc_byn: '{{lorem.sentence}}'

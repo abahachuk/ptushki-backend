@@ -4,6 +4,7 @@ import AbstractController from './abstract-controller';
 import { Observation } from '../entities/observation-entity';
 import Exporter from '../services/export';
 import Importer from '../services/import';
+import { Ring } from '../entities/ring-entity';
 import {
   parsePageParams,
   ObservationQuery,
@@ -29,8 +30,11 @@ export default class ObservationController extends AbstractController {
 
   private importer: Importer;
 
+  private rings: Repository<Ring>;
+
   public init(): Router {
     this.observations = getRepository(Observation);
+    this.rings = getRepository(Ring);
     this.setMainEntity(this.observations, 'observation');
     this.exporter = new Exporter();
     this.importer = new Importer();
@@ -76,7 +80,14 @@ export default class ObservationController extends AbstractController {
   private addObservation = async (req: Request, res: Response, next: NextFunction) => {
     const rawObservation = req.body;
     try {
-      const newObservation = await Observation.create({ ...rawObservation, finder: req.user.id });
+      let {
+        ring: { id: ring },
+      } = rawObservation;
+      if (!ring) {
+        ({ id: ring = null } =
+          (await this.rings.findOne({ identificationNumber: rawObservation.ringMentioned })) || {});
+      }
+      const newObservation = await Observation.create({ ...rawObservation, ring, finder: req.user.id });
       await this.validate(newObservation);
       const result = await this.observations.save(newObservation);
       res.json(result);

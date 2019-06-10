@@ -1,4 +1,5 @@
 entity: Observation
+processor: ./ObservationProcessor
 items:
   observation{0..50}:
     ring: '@ring*'
