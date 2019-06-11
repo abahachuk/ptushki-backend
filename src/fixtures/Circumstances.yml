@@ -1,7 +1,7 @@
 entity: Circumstances
+processor: ./CircumstancesProcessor
 items:
-  circumstances{0..50}:
-    id: '{{random.number}}'
+  circumstances{0..86}:
     desc_eng: '{{lorem.sentence}}'
     desc_rus: '{{lorem.sentence}}'
     desc_byn: '{{lorem.sentence}}'

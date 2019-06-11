@@ -1,7 +1,7 @@
 entity: AccuracyOfDate
+processor: ./AccuracyofDateProcessor
 items:
-  accuracyOfDate{0..10}:
-    id: '{{random.number}}'
+  accuracyOfDate{0..9}:
     desc_eng: '{{lorem.sentence}}'
     desc_rus: '{{lorem.sentence}}'
     desc_byn: '{{lorem.sentence}}'
