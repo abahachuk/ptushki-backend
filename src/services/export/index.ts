@@ -3,6 +3,8 @@ import AbstractExporter, { ExporterType } from './AbstractExporter';
 import EURINGExporterForObservations from './EURINGExporterForObservations';
 import PDFExporterForObservations from './PDFExporterForObservations';
 import XLSExporterForObservations from './XLSExporterForObservations';
+import XLSExporterTemplate from './XLSExporterTemplate';
+
 import { CustomError } from '../../utils/CustomError';
 
 export default class Exporter {
@@ -13,6 +15,7 @@ export default class Exporter {
       new EURINGExporterForObservations(),
       new PDFExporterForObservations(),
       new XLSExporterForObservations(),
+      new XLSExporterTemplate(),
     ];
   }
 
