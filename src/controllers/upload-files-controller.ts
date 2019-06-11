@@ -2,14 +2,9 @@ import { Request } from 'express';
 import multer, { Options } from 'multer';
 import path from 'path';
 
-export interface MulterOptions {
-  storage?: string;
-  limits?: {
-    files: number;
-  };
+export interface MulterOptions extends Options {
   extensions: string[];
-  dest?: string;
-  any: boolean;
+  any: true;
 }
 
 export const upload = (options: MulterOptions) => {
@@ -32,9 +27,8 @@ export const upload = (options: MulterOptions) => {
     },
   };
 
-  const mergedOptions: Options = Object.assign({}, defaultOptions, options);
+  const mergedOptions: MulterOptions = Object.assign({}, defaultOptions, options);
 
-  // @ts-ignore
   if (mergedOptions.any) {
     return multer(mergedOptions).any();
   }
