@@ -5,7 +5,7 @@ import { MetalRingInformation } from '../entities/euring-codes/metal-ring-inform
 const makeid = (i: number): string => '01234567'[i];
 
 /* class-methods-use-this */
-export default class MovedBeforeTheCaptureProcessor implements IProcessor<MetalRingInformation> {
+export default class MetalRingInformationProcessor implements IProcessor<MetalRingInformation> {
   public preProcess(name: string, object: any): any {
     return {
       ...object,
