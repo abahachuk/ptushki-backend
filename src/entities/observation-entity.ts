@@ -1,4 +1,4 @@
-import { Entity, Column, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
+import { Entity, Column, ManyToOne, PrimaryGeneratedColumn, AfterLoad } from 'typeorm';
 import {
   IsUUID,
   Length,
@@ -12,6 +12,7 @@ import {
   Max,
   IsNumberString,
   IsBoolean,
+  IsNumber,
 } from 'class-validator';
 import { IsAlphaWithHyphen, IsAlphanumericWithHyphen, IsNumberStringWithHyphen } from '../validation/custom-decorators';
 import { equalLength } from '../validation/validation-messages';
@@ -187,15 +188,15 @@ export class Observation implements AbleToExportAndImportEuring {
 
   // Related fields in access 'Lat deg', 'Lat min', 'Lat sec'
   @IsOptional()
-  @IsNumberString()
-  @Column('varchar', { nullable: true, default: null })
-  public latitude: string | null;
+  @IsNumber()
+  @Column('numeric', { nullable: true, default: null })
+  public latitude: number | null;
 
   // Related fields in access 'Lon deg', 'Lon min', 'Lon sec'
   @IsOptional()
-  @IsNumberString()
-  @Column('varchar', { nullable: true, default: null })
-  public longitude: string | null;
+  @IsNumber()
+  @Column('numeric', { nullable: true, default: null })
+  public longitude: number | null;
 
   @IsInt()
   @Min(0)
@@ -280,5 +281,15 @@ export class Observation implements AbleToExportAndImportEuring {
     // todo
     const [ring, status] = code.split('|');
     Object.assign(this, { ring: { id: ring }, status });
+  }
+
+  @AfterLoad()
+  public convertCoordsNumerics(): void {
+    if (this.latitude) {
+      this.latitude = Number(this.latitude);
+    }
+    if (this.longitude) {
+      this.longitude = Number(this.longitude);
+    }
   }
 }

@@ -1338,10 +1338,10 @@
           "$ref": "#/definitions/AccuracyOfPullusAge"
         },
         "latitude": {
-          "type": "string"
+          "type": "number"
         },
         "longitude": {
-          "type": "string"
+          "type": "number"
         },
         "accuracyOfCoordinates": {
           "$ref": "#/definitions/AccuracyOfCoordinates"
@@ -1457,10 +1457,10 @@
           "$ref": "#/definitions/AccuracyOfPullusAge"
         },
         "latitude": {
-          "type": "string"
+          "type": "number"
         },
         "longitude": {
-          "type": "string"
+          "type": "number"
         },
         "placeCode": {
           "$ref": "#/definitions/PlaceCode"

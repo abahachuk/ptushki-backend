@@ -1,33 +1,34 @@
 export class DecimalCoordinates {
-  public latitude: string;
+  public latitude: number;
 
-  public longitude: string;
+  public longitude: number;
 
-  public constructor(latitude: string, longitude: string) {
+  public constructor(latitude: number, longitude: number) {
     this.latitude = latitude;
     this.longitude = longitude;
   }
 }
 
-function fromEuringHelper(degrees: number, minutes: number, seconds: number): string {
-  return (degrees + minutes / 60 + seconds / (60 * 60)).toFixed(6);
+function fromEuringHelper(degrees: number, minutes: number, seconds: number, isNegative: boolean): number {
+  const count = Number((degrees + minutes / 60 + seconds / (60 * 60)).toFixed(6));
+  return isNegative ? count * -1 : count;
 }
 
 export const fromEuringToDecimal = (coords: string): DecimalCoordinates => {
   try {
     if (coords && coords.length === 15) {
-      const startLat = coords[0] === '-' ? '-' : '';
-      const startLng = coords[7] === '-' ? '-' : '';
-      const latitude = `${startLat}${fromEuringHelper(
+      const latitude = fromEuringHelper(
         Number(coords.slice(1, 3)),
         Number(coords.slice(3, 5)),
         Number(coords.slice(5, 7)),
-      )}`;
-      const longitude = `${startLng}${fromEuringHelper(
+        coords[0] === '-',
+      );
+      const longitude = fromEuringHelper(
         Number(coords.slice(8, 11)),
         Number(coords.slice(11, 13)),
         Number(coords.slice(13, 15)),
-      )}`;
+        coords[7] === '-',
+      );
       return new DecimalCoordinates(latitude, longitude);
     }
     throw new Error('Incorrect format of coordinates');
@@ -49,7 +50,7 @@ function fromDecimalHelper(coordinate: number, isLng?: boolean): string {
   )}`;
 }
 
-export const fromDecimalToEuring = (latitude: string, longitude: string) => {
+export const fromDecimalToEuring = (latitude: string, longitude: string): string => {
   try {
     const latitudeNumber = Number(latitude);
     const longitudeNumber = Number(longitude);
