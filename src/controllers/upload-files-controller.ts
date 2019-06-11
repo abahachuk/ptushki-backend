@@ -1,42 +1,14 @@
-import { Request, Response, NextFunction } from 'express';
-import multer, { StorageEngine } from 'multer';
+import { Request } from 'express';
+import multer, { Options } from 'multer';
 import path from 'path';
 
-export interface MulterOptions {
-  storage?: string;
-  limit?: number;
+export interface MulterOptions extends Options {
   extensions: string[];
+  any: true;
 }
 
-const getStorage = (options: MulterOptions): StorageEngine => {
-  let storageType: StorageEngine = multer.memoryStorage();
-
-  if (options.storage === 'disk') {
-    storageType = multer.diskStorage({
-      destination: (
-        _req: Request,
-        _file: Express.Multer.File,
-        cb: (error: Error | null, path: string) => void,
-      ): void => {
-        cb(null, 'uploads');
-      },
-      filename: (
-        _req: Request,
-        file: Express.Multer.File,
-        cb: (error: Error | null, fileName: string) => void,
-      ): void => {
-        cb(null, `${Date.now()}_${file.originalname}`);
-      },
-    });
-  }
-
-  return storageType;
-};
-
-const upload = async (options: MulterOptions, req: Request, res: Response, next: NextFunction): Promise<void> => {
-  return multer({
-    storage: getStorage(options),
-    limits: Object.assign({}, { files: options.limit }),
+export const upload = (options: MulterOptions) => {
+  const defaultOptions: Options = {
     fileFilter: (
       _req: Request,
       file: Express.Multer.File,
@@ -53,17 +25,13 @@ const upload = async (options: MulterOptions, req: Request, res: Response, next:
         );
       }
     },
-  }).any()(
-    req,
-    res,
-    (err: Error): void => {
-      if (err) {
-        next(err);
-      }
+  };
 
-      next();
-    },
-  );
+  const mergedOptions: MulterOptions = Object.assign({}, defaultOptions, options);
+
+  if (mergedOptions.any) {
+    return multer(mergedOptions).any();
+  }
+
+  return multer(mergedOptions).none();
 };
-
-export { upload };

@@ -1,46 +1,30 @@
-import Excel, { Column, Worksheet, Workbook, Row, Cell } from 'exceljs';
-import { excelColumns } from './excel-columns';
-import { excelProperties } from './excel-properties';
+import { NextFunction, Request, Response } from 'express';
+import AbstractImporter, { ImporterType } from './AbstractImporter';
+import EURINGImporterForObservations from './EURINGImporterForObservations';
+import XLSImporterForObservations from './XLSImporterForObservations';
+import { CustomError } from '../../utils/CustomError';
 
-const createColumns = (columnNames: string[]): Partial<Column>[] => {
-  const columns: Partial<Column>[] = [];
+export default class Importer {
+  private exporters: AbstractImporter[];
 
-  if (columnNames) {
-    columnNames.forEach(
-      (name: string): void => {
-        const extendedColumn = Object.assign({}, excelProperties.colProperties, { header: name, key: name });
-        columns.push(extendedColumn);
-      },
-    );
+  public constructor() {
+    this.exporters = [new EURINGImporterForObservations(), new XLSImporterForObservations()];
   }
 
-  return columns;
-};
+  private getImporter(route: string, type: ImporterType): AbstractImporter | undefined {
+    return this.exporters.find(e => e.type === type.toUpperCase() && e.route === route);
+  }
 
-const setStyleToRow = (row: Row, styles: Partial<Cell>): void => {
-  row.eachCell(
-    (cell: Cell): void => {
-      // eslint-disable-next-line  no-param-reassign
-      cell.style = styles;
-    },
-  );
-};
-
-export const createExcelWorkBook = async (type: string): Promise<Workbook> => {
-  const workbook: Workbook = new Excel.Workbook();
-  const worksheet: Worksheet = workbook.addWorksheet(excelProperties.sheetName);
-  const columnNames: string[] = excelColumns[type];
-  const columnNamesLength: number = columnNames ? columnNames.length : 0;
-  const extendedFilter = Object.assign({}, excelProperties.wsAutoFilter, { to: { row: 1, column: columnNamesLength } });
-
-  workbook.properties = excelProperties.wbProperties;
-  workbook.views = excelProperties.wbViews;
-
-  worksheet.columns = createColumns(columnNames);
-  worksheet.views = excelProperties.wsViews;
-  worksheet.autoFilter = extendedFilter;
-
-  setStyleToRow(worksheet.getRow(1), excelProperties.headerCellStyles);
-
-  return workbook;
-};
+  public handle = (route: string) => async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+    try {
+      const { type } = req.params;
+      const importer = this.getImporter(route, type);
+      if (!importer) {
+        throw new CustomError(`Type ${type} isn't supported import type for ${route}`, 400);
+      }
+      await importer.import(req, res, next);
+    } catch (e) {
+      next(e);
+    }
+  };
+}

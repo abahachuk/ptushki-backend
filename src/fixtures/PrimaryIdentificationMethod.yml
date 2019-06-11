@@ -1,7 +1,7 @@
 entity: PrimaryIdentificationMethod
+processor: ./PrimaryIdentificationMethodProcessor
 items:
-  primaryIdentificationMethod{0..10}:
-    id: '{{random.alphaNumeric}}{{random.number}}'
+  primaryIdentificationMethod{0..11}:
     desc_eng: '{{lorem.sentence}}'
     desc_rus: '{{lorem.sentence}}'
     desc_byn: '{{lorem.sentence}}'

@@ -1,7 +1,7 @@
 entity: VerificationOfTheMetalRing
+processor: ./VerificationOfTheMetalRingProcessor
 items:
-  verificationOfTheMetalRing{0..10}:
-    id: '{{random.number}}'
+  verificationOfTheMetalRing{0..2}:
     desc_eng: '{{lorem.sentence}}'
     desc_rus: '{{lorem.sentence}}'
     desc_byn: '{{lorem.sentence}}'

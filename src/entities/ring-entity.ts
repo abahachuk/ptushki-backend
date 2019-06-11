@@ -40,12 +40,12 @@ import {
   EURINGCodeIdentifier,
   StatusOfRing,
 } from './euring-codes';
-import { EURINGCodes } from './euring-codes/common-interfaces';
 import { User } from './user-entity';
 import { Observation } from './observation-entity';
+import { EURINGCodes, AbleToExportAndImportEuring } from './common-interfaces';
 
 @Entity()
-export class Ring implements EURINGCodes {
+export class Ring implements EURINGCodes, AbleToExportAndImportEuring {
   @PrimaryGeneratedColumn('uuid')
   public id: string;
 
@@ -281,4 +281,15 @@ export class Ring implements EURINGCodes {
     eager: true,
   })
   public statusOfRing: StatusOfRing;
+
+  public exportEURING(): string {
+    // todo
+    return [this.identificationNumber, this.ageConcluded.id, this.ageMentioned.id].join('|');
+  }
+
+  public importEURING(code: string): any {
+    // todo
+    const [identificationNumber, status] = code.split('|');
+    Object.assign(this, { identificationNumber, status });
+  }
 }

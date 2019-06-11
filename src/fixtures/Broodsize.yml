@@ -1,7 +1,7 @@
 entity: BroodSize
+processor: ./BroodSizeProcessor
 items:
   broodSize{0..20}:
-    id: '{{random.number}}'
     desc_eng: '{{lorem.sentence}}'
     desc_rus: '{{lorem.sentence}}'
     desc_byn: '{{lorem.sentence}}'
