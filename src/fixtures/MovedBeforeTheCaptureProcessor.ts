@@ -9,7 +9,7 @@ export default class MovedBeforeTheCaptureProcessor implements IProcessor<MovedB
   public preProcess(name: string, object: any): any {
     return {
       ...object,
-      id: makeid(parseInt(name.replace(/\D/g,''))),
+      id: Number(makeid(parseInt(name.replace(/\D/g,'')))),
     };
   }
 }

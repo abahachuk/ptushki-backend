@@ -1,9 +1,3 @@
-export interface Dictionary {
-  desc_eng: string | null;
-  desc_rus?: string | null;
-  desc_byn?: string | null;
-}
-
 export interface EURINGCodes {
   identificationNumber: any;
   ringingScheme: any;
@@ -34,4 +28,15 @@ export interface EURINGCodes {
   accuracyOfDate: any;
   euringCodeIdentifier: any;
   statusOfRing: any;
+}
+
+export interface Dictionary {
+  desc_eng: string | null;
+  desc_rus?: string | null;
+  desc_byn?: string | null;
+}
+
+export interface AbleToExportAndImportEuring {
+  exportEURING(): string;
+  importEURING(code: string): any;
 }
