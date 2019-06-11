@@ -9,7 +9,7 @@ export default class MetalRingInformationProcessor implements IProcessor<MetalRi
   public preProcess(name: string, object: any): any {
     return {
       ...object,
-      id: makeid(parseInt(name.replace(/\D/g,''))),
+      id: Number(makeid(parseInt(name.replace(/\D/g,'')))),
     };
   }
 }

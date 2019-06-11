@@ -8,7 +8,7 @@ export default class VerificationOfTheMetalRingProcessor implements IProcessor<V
   public preProcess(name: string, object: any): any {
     return {
       ...object,
-      id: makeid(parseInt(name.replace(/\D/g, ''), 10)),
+      id: Number(makeid(parseInt(name.replace(/\D/g, ''), 10))),
     };
   }
 }
