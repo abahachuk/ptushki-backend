@@ -1,5 +1,5 @@
 entity: PullusAge
-processor: ./PulluseAgeProcessor
+processor: ./PullusAgeProcessor
 items:
   pullusAge{0..100}:
     desc_eng: '{{lorem.sentence}}'
