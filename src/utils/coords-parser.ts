@@ -1,12 +1,6 @@
-export class DecimalCoordinates {
-  public latitude: number;
-
-  public longitude: number;
-
-  public constructor(latitude: number, longitude: number) {
-    this.latitude = latitude;
-    this.longitude = longitude;
-  }
+export interface DecimalCoordinates {
+  latitude: number;
+  longitude: number;
 }
 
 function fromEuringHelper(degrees: number, minutes: number, seconds: number, isNegative: boolean): number {
@@ -29,7 +23,7 @@ export const fromEuringToDecimal = (coords: string): DecimalCoordinates => {
         Number(coords.slice(13, 15)),
         coords[7] === '-',
       );
-      return new DecimalCoordinates(latitude, longitude);
+      return { latitude, longitude };
     }
     throw new Error('Incorrect format of coordinates');
   } catch (err) {
