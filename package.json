@@ -55,7 +55,8 @@
     "typeorm": "0.2.16",
     "typeorm-fixtures-cli": "^1.1.1",
     "winston": "^3.2.1",
-    "multer": "^1.4.1"
+    "multer": "^1.4.1",
+    "exceljs": "^1.12.1"
   },
   "devDependencies": {
     "@types/body-parser": "^1.17.0",

@@ -64,6 +64,11 @@ export class Observation implements AbleToExportAndImportEuring {
   })
   public finder: User;
 
+  @IsOptional()
+  @IsString({ each: true })
+  @Column('varchar', { array: true, nullable: true, default: null })
+  public photos: string[] | null;
+
   @IsNumberString()
   @Length(5, 5, { message: equalLength(5) })
   @ManyToOne(() => Species, m => m.mentionedInObservation, {
