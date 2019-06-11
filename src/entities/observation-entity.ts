@@ -110,24 +110,27 @@ export class Observation {
 
   // Related field in access 'Derived data distance'
   @IsOptional()
-  @IsNumberString()
-  @Length(5, 5, { message: equalLength(5) })
-  @Column('varchar', { nullable: true, default: null })
-  public distance: string | null;
+  @IsInt()
+  @Min(0)
+  @Max(99999)
+  @Column('integer', { nullable: true, default: null })
+  public distance: number | null;
 
   // Related field in access 'Derived data directions'
   @IsOptional()
-  @IsNumberString()
-  @Length(3, 3, { message: equalLength(5) })
-  @Column('varchar', { nullable: true, default: null })
-  public direction: string | null;
+  @IsInt()
+  @Min(0)
+  @Max(359)
+  @Column('smallint', { nullable: true, default: null })
+  public direction: number | null;
 
   // Related field in access 'Derived data elapsed time'
   @IsOptional()
-  @IsNumberString()
-  @Length(5, 5, { message: equalLength(5) })
-  @Column('varchar', { nullable: true, default: null })
-  public elapsedTime: string | null;
+  @IsInt()
+  @Min(0)
+  @Max(99999)
+  @Column('integer', { nullable: true, default: null })
+  public elapsedTime: number | null;
 
   // Not presented in euring standart
   @IsOptional()
