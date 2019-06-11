@@ -1,5 +1,5 @@
 import { NextFunction, Request, Response, Router } from 'express';
-import { createExcelWorkBook } from '../services/import';
+import { createExcelWorkBook } from '../services/import/excel-helper';
 
 export default class ImportController {
   private router: Router;
