@@ -34,13 +34,14 @@ import {
   Circumstances,
   CircumstancesPresumed,
 } from './euring-codes';
+import { AbleToExportAndImportEuring } from './common-interfaces';
 
 export interface NewObservation {
   finder: User;
 }
 
 @Entity()
-export class Observation {
+export class Observation implements AbleToExportAndImportEuring {
   @PrimaryGeneratedColumn('uuid')
   public id: string;
 
@@ -253,5 +254,16 @@ export class Observation {
 
   public static async create(observation: NewObservation): Promise<Observation> {
     return Object.assign(new Observation(), observation);
+  }
+
+  public exportEURING(): string {
+    // todo
+    return [this.ring.id, this.ageConcluded.id, this.ageMentioned.id].join('|');
+  }
+
+  public importEURING(code: string): any {
+    // todo
+    const [ring, status] = code.split('|');
+    Object.assign(this, { ring: { id: ring }, status });
   }
 }

@@ -1,7 +1,7 @@
 import { Entity, PrimaryColumn, Column, OneToMany } from 'typeorm';
 import { Length, IsAlpha, IsOptional, IsString } from 'class-validator';
 import { equalLength } from '../../validation/validation-messages';
-import { Dictionary } from './common-interfaces';
+import { Dictionary } from '../common-interfaces';
 import { Ring } from '../ring-entity';
 import { BasaRing } from '../basa-ring-entity';
 import { Observation } from '../observation-entity';
