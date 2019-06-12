@@ -1,11 +1,11 @@
 export interface Columns {
   [key: string]: string[];
   template: string[];
-  import: string[];
+  'validate-xls': string[];
   export: string[];
 }
 
-export const excelColumns: Columns = {
+export const columns: Columns = {
   template: [
     'ringNumber',
     'colorRing',
@@ -25,7 +25,7 @@ export const excelColumns: Columns = {
     'ringer',
     'remarks',
   ],
-  import: [
+  'validate-xls': [
     'ringNumber',
     'colorRing',
     'eu_sexCode',
