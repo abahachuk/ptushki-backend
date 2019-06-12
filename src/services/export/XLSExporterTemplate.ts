@@ -1,6 +1,6 @@
 import { NextFunction, Request, Response } from 'express';
 import AbstractExporter, { ExporterType } from './AbstractExporter';
-import { createExcelWorkBook } from '../import/excel-helper';
+import { createExcelWorkBook } from '../import/excel/helper';
 
 export default class XLSExporterTemplate extends AbstractExporter {
   public type: ExporterType = 'TEMPLATE';
