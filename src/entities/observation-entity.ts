@@ -190,6 +190,8 @@ export class Observation implements AbleToExportAndImportEuring {
   // Related fields in access 'Lat deg', 'Lat min', 'Lat sec'
   @IsOptional()
   @IsNumber()
+  @Min(-90)
+  @Max(90)
   @Column('decimal', {
     precision: 10,
     scale: 8,
@@ -202,6 +204,8 @@ export class Observation implements AbleToExportAndImportEuring {
   // Related fields in access 'Lon deg', 'Lon min', 'Lon sec'
   @IsOptional()
   @IsNumber()
+  @Min(-180)
+  @Max(180)
   @Column('decimal', {
     precision: 11,
     scale: 8,
