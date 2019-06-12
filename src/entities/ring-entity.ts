@@ -1,4 +1,4 @@
-import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, OneToMany, AfterLoad } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, OneToMany } from 'typeorm';
 import {
   IsUUID,
   Length,
@@ -44,6 +44,7 @@ import {
 import { User } from './user-entity';
 import { Observation } from './observation-entity';
 import { EURINGCodes, AbleToExportAndImportEuring } from './common-interfaces';
+import { ColumnNumericTransformer } from '../utils/ColumnNumericTransformer';
 
 @Entity()
 export class Ring implements EURINGCodes, AbleToExportAndImportEuring {
@@ -201,13 +202,25 @@ export class Ring implements EURINGCodes, AbleToExportAndImportEuring {
   // Related fields in access 'Lat deg', 'Lat min', 'Lat sec'
   @IsOptional()
   @IsNumber()
-  @Column('numeric', { nullable: true, default: null })
+  @Column('decimal', {
+    precision: 10,
+    scale: 8,
+    nullable: true,
+    default: null,
+    transformer: new ColumnNumericTransformer(),
+  })
   public latitude: number | null;
 
   // Related fields in access 'Lon deg', 'Lon min', 'Lon sec'
   @IsOptional()
   @IsNumber()
-  @Column('numeric', { nullable: true, default: null })
+  @Column('decimal', {
+    precision: 11,
+    scale: 8,
+    nullable: true,
+    default: null,
+    transformer: new ColumnNumericTransformer(),
+  })
   public longitude: number | null;
 
   @IsAlphanumeric()
@@ -299,15 +312,5 @@ export class Ring implements EURINGCodes, AbleToExportAndImportEuring {
     // todo
     const [identificationNumber, status] = code.split('|');
     Object.assign(this, { identificationNumber, status });
-  }
-
-  @AfterLoad()
-  public convertCoordsNumerics(): void {
-    if (this.latitude) {
-      this.latitude = Number(this.latitude);
-    }
-    if (this.longitude) {
-      this.longitude = Number(this.longitude);
-    }
   }
 }

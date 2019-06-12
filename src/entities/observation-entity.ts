@@ -1,4 +1,4 @@
-import { Entity, Column, ManyToOne, PrimaryGeneratedColumn, AfterLoad } from 'typeorm';
+import { Entity, Column, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
 import {
   IsUUID,
   Length,
@@ -36,6 +36,7 @@ import {
   CircumstancesPresumed,
 } from './euring-codes';
 import { AbleToExportAndImportEuring } from './common-interfaces';
+import { ColumnNumericTransformer } from '../utils/ColumnNumericTransformer';
 
 export interface NewObservation {
   finder: User;
@@ -189,13 +190,25 @@ export class Observation implements AbleToExportAndImportEuring {
   // Related fields in access 'Lat deg', 'Lat min', 'Lat sec'
   @IsOptional()
   @IsNumber()
-  @Column('numeric', { nullable: true, default: null })
+  @Column('decimal', {
+    precision: 10,
+    scale: 8,
+    nullable: true,
+    default: null,
+    transformer: new ColumnNumericTransformer(),
+  })
   public latitude: number | null;
 
   // Related fields in access 'Lon deg', 'Lon min', 'Lon sec'
   @IsOptional()
   @IsNumber()
-  @Column('numeric', { nullable: true, default: null })
+  @Column('decimal', {
+    precision: 11,
+    scale: 8,
+    nullable: true,
+    default: null,
+    transformer: new ColumnNumericTransformer(),
+  })
   public longitude: number | null;
 
   @IsInt()
@@ -281,15 +294,5 @@ export class Observation implements AbleToExportAndImportEuring {
     // todo
     const [ring, status] = code.split('|');
     Object.assign(this, { ring: { id: ring }, status });
-  }
-
-  @AfterLoad()
-  public convertCoordsNumerics(): void {
-    if (this.latitude) {
-      this.latitude = Number(this.latitude);
-    }
-    if (this.longitude) {
-      this.longitude = Number(this.longitude);
-    }
   }
 }
