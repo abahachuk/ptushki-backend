@@ -4,6 +4,8 @@ import { getCustomRepository, Repository } from 'typeorm';
 import AbstractController from './abstract-controller';
 import { cachedEURINGCodes } from '../entities/euring-codes/cached-entities-fabric';
 import { CachedRepository } from '../entities/cached-repository';
+import { executeInThreadedQueue } from '../utils/async-queue';
+import { logger } from '../utils/logger';
 
 export default class InitialDataController extends AbstractController {
   private router: Router;
@@ -19,6 +21,17 @@ export default class InitialDataController extends AbstractController {
     this.router.get('/', this.getInitialData);
 
     return this.router;
+  }
+
+  public async heatUp() {
+    try {
+      await executeInThreadedQueue(
+        this.cached.map((repository: CachedRepository<any>) => async () => repository.findByLang()),
+      );
+      logger.info(`Initial data was heated up`);
+    } catch (e) {
+      logger.error(`Error while heated up initial data`);
+    }
   }
 
   private getInitialData = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
