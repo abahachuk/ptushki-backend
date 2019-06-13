@@ -54,7 +54,8 @@
     "tslib": "^1.9.3",
     "typeorm": "0.2.16",
     "typeorm-fixtures-cli": "^1.1.1",
-    "winston": "^3.2.1"
+    "winston": "^3.2.1",
+    "xlsx": "^0.14.3"
   },
   "devDependencies": {
     "@types/body-parser": "^1.17.0",
