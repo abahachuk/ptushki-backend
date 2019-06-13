@@ -62,14 +62,14 @@ const aggregationForeignKeys: ((repository: Repository<Observation>) => Promise<
 export const parseWhereParams = (query: ObservationAggregations, user: User): FindOneOptions<Observation> => {
   const params = Object.entries(query)
     .filter(entrie => !aggregationSearch.includes(entrie[0])) // filter search aggregations, only ObservationAggregations could be applied
-    .map(entrie => ({ [entrie[0]]: entrie[1].split(',') })) // split values by ','
+    .map(entrie => ({ [entrie[0]]: entrie[1] && entrie[1].split(',') })) // split values by ','
     .reduce((acc, item) => Object.assign(acc, item), {}); // reduce splitted values into object
 
   if (!gettingAllObservations[user.role]) {
     params.finder = [user.id]; // re-assing user id for 'observer' and 'ringer'
   }
 
-  const matrix = Object.entries(params).map(entrie => entrie[1].map(value => ({ [entrie[0]]: value }))); // get matrix to calc a cartesian product for 'where' params
+  const matrix = Object.entries(params).map(entrie => entrie[1] && entrie[1].map(value => ({ [entrie[0]]: value }))); // get matrix to calc a cartesian product for 'where' params
   const where = cartesian(matrix).map((row: any[]) => row.reduce((acc, value) => Object.assign(acc, value), {}));
   return { where };
 };

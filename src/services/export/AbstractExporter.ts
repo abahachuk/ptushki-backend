@@ -1,6 +1,6 @@
 import { NextFunction, Request, Response } from 'express';
 
-export type ExporterType = 'EURING' | 'PDF' | 'XLS';
+export type ExporterType = 'EURING' | 'PDF' | 'XLS' | 'TEMPLATE';
 
 export default abstract class AbstractExporter {
   abstract type: ExporterType;
