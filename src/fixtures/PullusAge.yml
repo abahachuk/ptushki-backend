@@ -1,7 +1,7 @@
 entity: PullusAge
+processor: ./PullusAgeProcessor
 items:
-  pullusAge{0..50}:
-    id: '{{random.number}}'
+  pullusAge{0..100}:
     desc_eng: '{{lorem.sentence}}'
     desc_rus: '{{lorem.sentence}}'
     desc_byn: '{{lorem.sentence}}'

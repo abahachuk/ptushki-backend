@@ -1,7 +1,7 @@
 entity: EURINGCodeIdentifier
+processor: ./EURINGCodeIdentifierProcessor
 items:
-  euringCodeIdentifier{0..10}:
-    id: '{{random.number}}'
+  euringCodeIdentifier{0..4}:
     desc_eng: '{{lorem.sentence}}'
     desc_rus: '{{lorem.sentence}}'
     desc_byn: '{{lorem.sentence}}'

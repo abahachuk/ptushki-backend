@@ -1,7 +1,7 @@
 entity: MetalRingInformation
+processor: ./MetalRingInformationProcessor
 items:
-  metalRingInformation{0..10}:
-    id: '{{random.number}}'
+  metalRingInformation{0..7}:
     desc_eng: '{{lorem.sentence}}'
     desc_rus: '{{lorem.sentence}}'
     desc_byn: '{{lorem.sentence}}'

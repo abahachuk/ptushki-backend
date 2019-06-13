@@ -1,7 +1,7 @@
 entity: Sex
+processor: ./SexProcessor
 items:
-  sex{0..3}:
-    id: '{{random.alphaNumeric}}{{random.number}}'
+  sex{0..2}:
     desc_eng: '{{lorem.sentence}}'
     desc_rus: '{{lorem.sentence}}'
     desc_byn: '{{lorem.sentence}}'

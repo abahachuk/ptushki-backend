@@ -1,7 +1,7 @@
 entity: OtherMarksInformation
+processor: ./OtherMarksInformationProcessor
 items:
-  otherMarksInformation{0..10}:
-    id: '{{random.alphaNumeric}}{{random.number}}'
+  otherMarksInformation{0..49}:
     desc_eng: '{{lorem.sentence}}'
     desc_rus: '{{lorem.sentence}}'
     desc_byn: '{{lorem.sentence}}'

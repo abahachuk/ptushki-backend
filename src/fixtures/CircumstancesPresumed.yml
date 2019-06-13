@@ -1,7 +1,7 @@
 entity: CircumstancesPresumed
+processor: ./CircumstancesPresumedProcessor
 items:
-  circumstancesPresumed{0..2}:
-    id: '{{random.number}}'
+  circumstancesPresumed{0..1}:
     desc_eng: '{{lorem.sentence}}'
     desc_rus: '{{lorem.sentence}}'
     desc_byn: '{{lorem.sentence}}'

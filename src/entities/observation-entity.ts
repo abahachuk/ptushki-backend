@@ -12,47 +12,64 @@ import {
   Max,
   IsNumberString,
   IsBoolean,
+  IsNumber,
 } from 'class-validator';
 import { IsAlphaWithHyphen, IsAlphanumericWithHyphen, IsNumberStringWithHyphen } from '../validation/custom-decorators';
 import { equalLength } from '../validation/validation-messages';
 import { User } from './user-entity';
 import { Ring } from './ring-entity';
-import { Sex } from './euring-codes/sex-entity';
-import { Age } from './euring-codes/age-entity';
-import { Species } from './euring-codes/species-entity';
-import { Manipulated } from './euring-codes/manipulated-entity';
-import { MovedBeforeTheCapture } from './euring-codes/moved-before-capture-entity';
-import { CatchingMethod } from './euring-codes/catching-method-entity';
-import { CatchingLures } from './euring-codes/catching-lures-entity';
-import { AccuracyOfDate } from './euring-codes/accuracy-of-date-entity';
-import { AccuracyOfCoordinates } from './euring-codes/accuracy-of-coordinates-entity';
-import { Status } from './euring-codes/status-entity';
-import { PullusAge } from './euring-codes/pullus-age-entity';
-import { AccuracyOfPullusAge } from './euring-codes/accuracy-of-pullus-age-entity';
-import { Condition } from './euring-codes/condition-entity';
-import { Circumstances } from './euring-codes/circumstances-entity';
-import { CircumstancesPresumed } from './euring-codes/circumstances-presumed-entity';
+import {
+  Sex,
+  Age,
+  Species,
+  Manipulated,
+  MovedBeforeTheCapture,
+  CatchingMethod,
+  CatchingLures,
+  AccuracyOfDate,
+  AccuracyOfCoordinates,
+  Status,
+  PullusAge,
+  AccuracyOfPullusAge,
+  Condition,
+  Circumstances,
+  CircumstancesPresumed,
+} from './euring-codes';
+import { AbleToExportAndImportEuring } from './common-interfaces';
+import { ColumnNumericTransformer } from '../utils/ColumnNumericTransformer';
 
 export interface NewObservation {
   finder: User;
 }
 
 @Entity()
-export class Observation {
+export class Observation implements AbleToExportAndImportEuring {
   @PrimaryGeneratedColumn('uuid')
   public id: string;
 
+  @IsOptional()
   @IsUUID()
   @ManyToOne(() => Ring, m => m.observation, {
     eager: true,
   })
   public ring: Ring;
 
+  @IsString()
+  @Length(10, 10, { message: equalLength(10) })
+  @Column()
+  public ringMentioned: string;
+
+  @IsOptional()
   @IsUUID()
   @ManyToOne(() => User, m => m.observation, {
     eager: true,
   })
   public finder: User;
+
+  @IsOptional()
+  @IsString({ each: true })
+  @Column('varchar', { array: true, nullable: true, default: null })
+  public photos: string[] | null;
 
   @IsNumberString()
   @Length(5, 5, { message: equalLength(5) })
@@ -61,6 +78,7 @@ export class Observation {
   })
   public speciesMentioned: Species;
 
+  @IsOptional()
   @IsNumberString()
   @Length(5, 5, { message: equalLength(5) })
   @ManyToOne(() => Species, m => m.concludedInObservation, {
@@ -75,6 +93,7 @@ export class Observation {
   })
   public sexMentioned: Sex;
 
+  @IsOptional()
   @IsAlpha()
   @Length(1, 1, { message: equalLength(1) })
   @ManyToOne(() => Sex, m => m.concludedInObservation, {
@@ -89,6 +108,7 @@ export class Observation {
   })
   public ageMentioned: Age;
 
+  @IsOptional()
   @IsAlphanumeric()
   @Length(1, 1, { message: equalLength(1) })
   @ManyToOne(() => Age, m => m.concludedInObservation, {
@@ -98,24 +118,27 @@ export class Observation {
 
   // Related field in access 'Derived data distance'
   @IsOptional()
-  @IsNumberString()
-  @Length(5, 5, { message: equalLength(5) })
-  @Column('varchar', { nullable: true, default: null })
-  public distance: string | null;
+  @IsInt()
+  @Min(0)
+  @Max(99999)
+  @Column('integer', { nullable: true, default: null })
+  public distance: number | null;
 
   // Related field in access 'Derived data directions'
   @IsOptional()
-  @IsNumberString()
-  @Length(3, 3, { message: equalLength(5) })
-  @Column('varchar', { nullable: true, default: null })
-  public direction: string | null;
+  @IsInt()
+  @Min(0)
+  @Max(359)
+  @Column('smallint', { nullable: true, default: null })
+  public direction: number | null;
 
   // Related field in access 'Derived data elapsed time'
   @IsOptional()
-  @IsNumberString()
-  @Length(5, 5, { message: equalLength(5) })
-  @Column('varchar', { nullable: true, default: null })
-  public elapsedTime: string | null;
+  @IsInt()
+  @Min(0)
+  @Max(99999)
+  @Column('integer', { nullable: true, default: null })
+  public elapsedTime: number | null;
 
   // Not presented in euring standart
   @IsOptional()
@@ -164,10 +187,33 @@ export class Observation {
   })
   public accuracyOfDate: AccuracyOfDate;
 
-  // Related fields in access 'Lat deg', 'Lat min', 'Lat sec', 'Lon deg', 'Lon min', 'Lon sec',
-  @Length(15, 15, { message: equalLength(15) })
-  @Column('varchar', { nullable: true, default: null })
-  public geographicalCoordinates: string | null;
+  // Related fields in access 'Lat deg', 'Lat min', 'Lat sec'
+  @IsOptional()
+  @IsNumber()
+  @Min(-90)
+  @Max(90)
+  @Column('decimal', {
+    precision: 10,
+    scale: 8,
+    nullable: true,
+    default: null,
+    transformer: new ColumnNumericTransformer(),
+  })
+  public latitude: number | null;
+
+  // Related fields in access 'Lon deg', 'Lon min', 'Lon sec'
+  @IsOptional()
+  @IsNumber()
+  @Min(-180)
+  @Max(180)
+  @Column('decimal', {
+    precision: 11,
+    scale: 8,
+    nullable: true,
+    default: null,
+    transformer: new ColumnNumericTransformer(),
+  })
+  public longitude: number | null;
 
   @IsInt()
   @Min(0)
@@ -234,11 +280,23 @@ export class Observation {
   public remarks: string | null;
 
   // Not presented in euring standart
+  @IsOptional()
   @IsBoolean()
   @Column('boolean', { default: false })
   public verified: boolean;
 
   public static async create(observation: NewObservation): Promise<Observation> {
     return Object.assign(new Observation(), observation);
+  }
+
+  public exportEURING(): string {
+    // todo
+    return [this.ring.id, this.ageConcluded.id, this.ageMentioned.id].join('|');
+  }
+
+  public importEURING(code: string): any {
+    // todo
+    const [ring, status] = code.split('|');
+    Object.assign(this, { ring: { id: ring }, status });
   }
 }

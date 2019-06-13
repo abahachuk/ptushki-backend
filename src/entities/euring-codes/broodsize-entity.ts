@@ -2,7 +2,7 @@ import { Entity, PrimaryColumn, Column, OneToMany } from 'typeorm';
 import { Length, IsOptional, IsString } from 'class-validator';
 import { IsNumberStringWithHyphen } from '../../validation/custom-decorators';
 import { equalLength } from '../../validation/validation-messages';
-import { Dictionary } from './common-interfaces';
+import { Dictionary } from '../common-interfaces';
 import { Ring } from '../ring-entity';
 
 // Related table in access 'Broodsize'
