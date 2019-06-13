@@ -79,6 +79,7 @@ export default class XLSExporterForObservations extends AbstractExporter {
       const bufferStream = new stream.PassThrough();
       bufferStream.end(buffer);
       res.set('Content-Type', 'application/xlsx');
+      res.set('Content-Disposition', 'attachment; filename="obs.xlsx"');
       bufferStream.pipe(res);
     } catch (e) {
       next(e);
