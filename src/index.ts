@@ -13,6 +13,7 @@ const PORT = config.get('PORT');
   let connection: Connection | undefined;
   try {
     connection = await connectDB();
+    logger.info(`App was connected to DB`);
     const app = await createApp();
     app.listen(PORT, () => {
       logger.info(`App is listened at ${PORT}`);
