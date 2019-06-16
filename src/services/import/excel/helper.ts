@@ -41,6 +41,7 @@ export interface DataCheck {
   rowCount: number;
   possibleClones: number;
   addedData: RowValidatedData[];
+  observations: RawData[];
   euRingErrors: EURingError[];
   validFormatData: RowValidatedData[];
   invalidDataFormat: RowValidationError[];
@@ -159,6 +160,7 @@ export const checkObservationImportedData = async (workbook: Workbook): Promise<
     rowCount: 0,
     possibleClones: 0,
     addedData: [],
+    observations: [],
     euRingErrors: [],
     validFormatData: [],
     invalidDataFormat: [],
