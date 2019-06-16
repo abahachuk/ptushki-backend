@@ -13,7 +13,7 @@ const createApp = async (): Promise<Application> => {
   app.use(setLogger);
   app.use(bodyParser.json());
   app.use(bodyParser.urlencoded({ extended: true }));
-  app.use(routes());
+  app.use(await routes());
   app.use(errorHandler);
   setupSwagger(app, { host: `${config.get('HOST')}:${config.get('PORT')}` });
   return app;

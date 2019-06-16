@@ -19,7 +19,8 @@ export interface EURINGCodes {
   broodSize: any;
   pullusAge: any;
   accuracyOfPullusAge: any;
-  geographicalCoordinates: any;
+  latitude: any;
+  longitude: any;
   placeCode: any;
   accuracyOfCoordinates: any;
   condition: any;

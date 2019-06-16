@@ -107,7 +107,12 @@ export default class ObservationController extends AbstractController {
     const { observation }: { observation: Observation } = req;
     const rawObservation = req.body;
     try {
-      await this.validate(rawObservation, observation);
+      let { ring } = rawObservation;
+      if (!ring || rawObservation.ringMentioned !== observation.ringMentioned) {
+        ({ id: ring = null } =
+          (await this.rings.findOne({ identificationNumber: rawObservation.ringMentioned })) || {});
+      }
+      await this.validate(Object.assign(rawObservation, { ring }), observation);
       const updatedObservation = await this.observations.merge(observation, rawObservation);
       const result = await this.observations.save(updatedObservation);
       res.json(result);
