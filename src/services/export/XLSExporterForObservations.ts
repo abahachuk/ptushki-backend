@@ -1,11 +1,10 @@
-// import stream from 'stream';
 import { NextFunction, Request, Response } from 'express';
+import stream from 'stream';
 import { getRepository, Repository } from 'typeorm';
-// import { write, utils } from 'xlsx';
+import { write, utils } from 'xlsx';
 import AbstractExporter, { ExporterType } from './AbstractExporter';
 import { Observation } from '../../entities/observation-entity';
 import { User } from '../../entities/user-entity';
-// import { parseWhereParams } from '../observation-service';
 
 type Locale = 'desc_eng' | 'desc_rus' | 'desc_byn';
 
@@ -16,19 +15,6 @@ export default class XLSExporterForObservations extends AbstractExporter {
 
   private observations: Repository<Observation> = getRepository(Observation);
 
-  // private ObservationColumns = [
-  //   'ringMentioned',
-  //   'photos',
-  //   'distance',
-  //   'direction',
-  //   'elapsedTime',
-  //   'colorRing',
-  //   'date',
-  //   'geographicalCoordinates',
-  //   'placeName',
-  //   'remarks',
-  //   'verified',
-  // ];
   private defaultLang: Locale = 'desc_eng';
 
   private languages: string[] = ['desc_eng', 'desc_rus', 'desc_byn'];
@@ -59,9 +45,9 @@ export default class XLSExporterForObservations extends AbstractExporter {
     return Object.entries(observation).reduce((acc, entrie) => {
       if (typeof entrie[1] === 'object' && entrie[1] !== null) {
         Object.entries(entrie[1])
-          .filter(pair => this.filterByLocale(pair[0], lang))
+          .filter(pair => this.filterFieldByLocale(pair[0], lang))
           .forEach(pair => {
-            Object.assign(acc, { [`${entrie[0]}_${pair[0]}`]: pair[1] });
+            Object.assign(acc, { [this.getColumnName(entrie[0], pair[0])]: pair[1] });
           });
         return acc;
       }
@@ -69,68 +55,48 @@ export default class XLSExporterForObservations extends AbstractExporter {
     }, {});
   };
 
-  private filterByLocale = (key: string, lang: Locale): boolean => {
+  private filterFieldByLocale = (key: string, lang: Locale): boolean => {
     if (!this.languages.includes(key)) {
       return true;
     }
     return lang === key;
   };
 
+  private getColumnName = (columnName: string, subColumnName: string) => {
+    if (this.languages.includes(subColumnName)) {
+      return `${columnName}_desc`;
+    }
+    return `${columnName}_${subColumnName}`;
+  };
+
   public async export(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
-      const { lang = this.defaultLang }: { lang: Locale } = req.query;
+      const { lang = this.defaultLang, rowIds = [] }: { lang: Locale; rowIds: string[] } = req.body;
 
       const observations = await this.observations.find({
-        // where: parseWhereParams(req.query, req.user).where,
+        where: rowIds.map(id => ({ id })),
         loadEagerRelations: false,
         relations: this.ObservationColumnsByDesc,
       });
 
+      // sanitize user's sensetive data
       observations.map(obs => {
         const ref = obs;
         ref.finder = ref.finder.sanitizeUser() as User;
         return ref;
       });
+
       const flattenObservations = observations.map(obs => this.flattenObservation(obs, lang));
-      // const flattenObservations = observations;
 
-      // console.log(JSON.stringify(flattenObservations, null, 2));
-
-      // const qb = this.observations.createQueryBuilder('observation');
-      // const withSelect = qb.select([
-      //   'ring.id',
-      //   'finder.firstName AS "finder_firstName"',
-      //   'finder.lastName AS "finder_lastName"',
-      //   'finder.role AS "finder_role"',
-      //   'speciesMentioned.species',
-      //   `speciesMentioned.${lang} AS speciesMentioned_desc`,
-      //   'speciesConcluded.species',
-      //   `speciesConcluded.${lang} AS speciesMentioned_desc`,
-      //   ...this.ObservationColumns.map(column => `observation.${column} AS "${column}"`),
-      //   ...this.ObservationColumnsByDesc.map(column => `${column}.${lang} AS "${column}"`),
-      // ]);
-
-      // const withJoins = this.ObservationColumnsByDesc.reduce(
-      //   (acc, column) => acc.leftJoin(`observation.${column}`, column),
-      //   withSelect,
-      // )
-      //   .leftJoin('observation.ring', 'ring')
-      //   .leftJoin('observation.finder', 'finder')
-      //   .leftJoin('observation.speciesMentioned', 'speciesMentioned')
-      //   .leftJoin('observation.speciesConcluded', 'speciesConcluded');
-
-      // const rows = await withJoins.getRawMany();
-      // const rows: any[] = [];
-      // const workSheet = utils.json_to_sheet(rows);
-      // const workBook = utils.book_new();
-      // utils.book_append_sheet(workBook, workSheet);
-      // const buffer = write(workBook, { bookType: 'xlsx', type: 'buffer' });
-      // const bufferStream = new stream.PassThrough();
-      // bufferStream.end(buffer);
-      // res.set('Content-Type', 'application/xlsx');
-      // res.set('Content-Disposition', 'attachment; filename="obs.xlsx"');
-      // bufferStream.pipe(res);
-      res.json(flattenObservations);
+      const workSheet = utils.json_to_sheet(flattenObservations);
+      const workBook = utils.book_new();
+      utils.book_append_sheet(workBook, workSheet);
+      const buffer = write(workBook, { bookType: 'xlsx', type: 'buffer' });
+      const bufferStream = new stream.PassThrough();
+      bufferStream.end(buffer);
+      res.set('Content-Type', 'application/xlsx');
+      res.set('Content-Disposition', 'attachment; filename="obs.xlsx"');
+      bufferStream.pipe(res);
     } catch (e) {
       next(e);
     }
