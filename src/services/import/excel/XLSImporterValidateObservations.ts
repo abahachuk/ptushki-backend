@@ -38,38 +38,21 @@ export default class XLSImporterValidateObservations extends AbstractImporter {
   private age: Repository<Age> = getRepository(Age);
 
   private checkEuRingCodes = async (excelData: DataCheck): Promise<void> => {
-    const statusCached = await this.status
-      .createQueryBuilder('status')
-      .select('status.id')
-      .getRawMany();
-    const speciesMentionedCached = await this.species
-      .createQueryBuilder('species')
-      .select('species.id')
-      .getRawMany();
-    const sexMentionedCached = await this.sex
-      .createQueryBuilder('sex')
-      .select('sex.id')
-      .getRawMany();
-    const ageMentionedCached = await this.age
-      .createQueryBuilder('age')
-      .select('age.id')
-      .getRawMany();
-
     try {
+      const statusCached = await this.status.find({ cache: 60000 });
+      const speciesMentionedCached = await this.species.find({ cache: 60000 });
+      const sexMentionedCached = await this.sex.find({ cache: 60000 });
+      const ageMentionedCached = await this.age.find({ cache: 60000 });
       /* eslint-disable */
       for (const row of excelData.validFormatData) {
         const { data, rowNumber }: RowValidatedData = row;
         const { eu_statusCode, eu_species, eu_sexCode, eu_ageCode }: RawData = data;
 
         if (data) {
-          const status = statusCached.filter(
-            statusRow => statusRow.status_id === eu_statusCode.toString().toUpperCase());
-          const speciesMentioned = speciesMentionedCached.filter(
-            speciesRow => speciesRow.species_id === eu_species.toString());
-          const sexMentioned = sexMentionedCached.filter(
-            sexRow => sexRow.sex_id === eu_sexCode.toString().toUpperCase());
-          const ageMentioned = ageMentionedCached.filter(
-            ageRow => ageRow.age_id === eu_ageCode.toString().toUpperCase());
+          const status = statusCached.filter(statusRow => statusRow.id === eu_statusCode.toString().toUpperCase());
+          const speciesMentioned = speciesMentionedCached.filter(speciesRow => speciesRow.id === eu_species.toString());
+          const sexMentioned = sexMentionedCached.filter(sexRow => sexRow.id === eu_sexCode.toString().toUpperCase());
+          const ageMentioned = ageMentionedCached.filter(ageRow => ageRow.id === eu_ageCode.toString().toUpperCase());
 
           const euCodeErrors: string[] = [];
 
@@ -121,38 +104,38 @@ export default class XLSImporterValidateObservations extends AbstractImporter {
   };
 
   private setXLSDataToObservation = async (excelData: DataCheck): Promise<void> => {
-      const defaults = {
-        manipulated: 'U',
-        movedBeforeTheCapture: 9,
-        catchingMethod: 'U',
-        catchingLures: 'U',
-        accuracyOfDate: 9,
-        accuracyOfCoordinates: 0,
-        pullusAge: 99,
-        accuracyOfPullusAge: 'U',
-        condition: 0,
-        circumstances: '00',
-        circumstancesPresumed: 0
-        };
+    const defaults = {
+      manipulated: 'U',
+      movedBeforeTheCapture: 9,
+      catchingMethod: 'U',
+      catchingLures: 'U',
+      accuracyOfDate: 9,
+      accuracyOfCoordinates: 0,
+      pullusAge: '--',
+      accuracyOfPullusAge: 'U',
+      condition: 0,
+      circumstances: '00',
+      circumstancesPresumed: 0,
+    };
 
-      for (const row of excelData.addedData) {
-        const rowData = {
-            speciesMentioned: row.data['eu_species'],
-            sexMentioned: row.data['eu_sexCode'].toString().toUpperCase(),
-            ageMentioned: row.data['eu_ageCode'].toString().toUpperCase(),
-            date: row.data['date'],
-            geographicalCoordinates: `${row.data['latitude']} ${row.data['longitude']}`,
-            status: row.data['eu_statusCode'].toString().toUpperCase(),
-            ringMentioned: row.data['ringNumber'],
-            colorRing: row.data['colorRing'],
-            placeName: row.data['place'],
-            remarks: `${row.data['ringer'] || ''} ${row.data['remarks'] || ''}`
-            };
+    for (const row of excelData.addedData) {
+      const rowData = {
+        speciesMentioned: row.data.eu_species,
+        sexMentioned: row.data.eu_sexCode.toString().toUpperCase(),
+        ageMentioned: row.data.eu_ageCode.toString().toUpperCase(),
+        date: row.data.date,
+        geographicalCoordinates: `${row.data.latitude} ${row.data.longitude}`,
+        status: row.data.eu_statusCode.toString().toUpperCase(),
+        ringMentioned: row.data.ringNumber,
+        colorRing: row.data.colorRing,
+        placeName: row.data.place,
+        remarks: `${row.data.ringer || ''} ${row.data.remarks || ''}`,
+      };
 
-          excelData.observations.push(Object.assign({}, rowData, defaults));
-      }
+      excelData.observations.push(Object.assign({}, rowData, defaults));
+    }
 
-      delete excelData.addedData;
+    delete excelData.addedData;
   };
 
   /* eslint-disable-next-line class-methods-use-this */
@@ -175,11 +158,11 @@ export default class XLSImporterValidateObservations extends AbstractImporter {
 
             res.send(checkedFormatData);
           } else {
-            res.status(400).send({error: `Missing header titles: ${excelHeaders.errors.join(',')}`});
+            res.status(400).send({ error: `Missing header titles: ${excelHeaders.errors.join(',')}` });
           }
         }
       } else {
-        res.status(400).send({error: `No files detected`});
+        res.status(400).send({ error: `No files detected` });
       }
     } catch (e) {
       next(e);
