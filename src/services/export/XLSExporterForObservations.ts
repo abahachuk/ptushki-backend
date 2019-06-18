@@ -17,7 +17,7 @@ export default class XLSExporterForObservations extends AbstractExporter {
 
   private defaultLang: Locale = 'desc_eng';
 
-  private languages: string[] = ['desc_eng', 'desc_rus', 'desc_byn'];
+  private languages: Locale[] = ['desc_eng', 'desc_rus', 'desc_byn'];
 
   private ObservationColumnsByDesc = [
     'finder',
@@ -42,27 +42,27 @@ export default class XLSExporterForObservations extends AbstractExporter {
   ];
 
   private flattenObservation = (observation: Observation, lang: Locale) => {
-    return Object.entries(observation).reduce((acc, entry) => {
-      if (typeof entry[1] === 'object' && entry[1] !== null) {
-        Object.entries(entry[1])
-          .filter(pair => this.filterFieldByLocale(pair[0], lang))
-          .forEach(pair => {
-            Object.assign(acc, { [this.getColumnName(entry[0], pair[0])]: pair[1] });
+    return Object.entries(observation).reduce((acc, [field, value]) => {
+      if (typeof value === 'object' && value !== null) {
+        Object.entries(value)
+          .filter(([subfield]) => this.filterFieldByLocale(subfield as Locale, lang))
+          .forEach(([subfield, subvalue]) => {
+            Object.assign(acc, { [this.getColumnName(field, subfield as Locale)]: subvalue });
           });
         return acc;
       }
-      return Object.assign(acc, { [entry[0]]: entry[1] });
+      return Object.assign(acc, { [field]: value });
     }, {});
   };
 
-  private filterFieldByLocale = (key: string, lang: Locale): boolean => {
+  private filterFieldByLocale = (key: Locale, lang: Locale): boolean => {
     if (!this.languages.includes(key)) {
       return true;
     }
     return lang === key;
   };
 
-  private getColumnName = (columnName: string, subColumnName: string) => {
+  private getColumnName = (columnName: string, subColumnName: Locale) => {
     if (this.languages.includes(subColumnName)) {
       return `${columnName}_desc`;
     }
