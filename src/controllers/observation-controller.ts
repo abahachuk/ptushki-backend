@@ -1,7 +1,7 @@
 import { NextFunction, Request, Response, Router } from 'express';
 import { getRepository, Repository } from 'typeorm';
 import AbstractController from './abstract-controller';
-import { Observation } from '../entities/observation-entity';
+import { Observation, Verified } from '../entities/observation-entity';
 import Exporter from '../services/export';
 import Importer from '../services/import';
 import { Ring } from '../entities/ring-entity';
@@ -12,6 +12,7 @@ import {
   parseWhereParams,
   sanitizeObservations,
 } from '../services/observation-service';
+import { CustomError } from '../utils/CustomError';
 
 interface RequestWithObservation extends Request {
   observation: Observation;
@@ -49,6 +50,7 @@ export default class ObservationController extends AbstractController {
     this.router.post('/:id/export/:type', this.exporter.handle('observations'));
     this.router.put('/:id', this.editObservation);
     this.router.delete('/:id', this.removeObservation);
+    this.router.post('/set-verification', this.setVerificationStatus);
     return this.router;
   }
 
@@ -126,6 +128,24 @@ export default class ObservationController extends AbstractController {
     try {
       const result = await this.observations.remove(observation);
       res.json(result);
+    } catch (e) {
+      next(e);
+    }
+  };
+
+  private setVerificationStatus = async (
+    req: RequestWithObservation,
+    res: Response,
+    next: NextFunction,
+  ): Promise<void> => {
+    const { id, status }: { id: string; status: Verified } = req.body;
+    try {
+      if (!id || !status) {
+        throw new CustomError('Id and status are required', 400);
+      }
+      await this.observations.findOneOrFail(id);
+      await this.observations.update(id, { verified: status });
+      res.json({ ok: true });
     } catch (e) {
       next(e);
     }
