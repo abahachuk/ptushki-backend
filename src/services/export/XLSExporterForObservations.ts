@@ -42,16 +42,16 @@ export default class XLSExporterForObservations extends AbstractExporter {
   ];
 
   private flattenObservation = (observation: Observation, lang: Locale) => {
-    return Object.entries(observation).reduce((acc, entrie) => {
-      if (typeof entrie[1] === 'object' && entrie[1] !== null) {
-        Object.entries(entrie[1])
+    return Object.entries(observation).reduce((acc, entry) => {
+      if (typeof entry[1] === 'object' && entry[1] !== null) {
+        Object.entries(entry[1])
           .filter(pair => this.filterFieldByLocale(pair[0], lang))
           .forEach(pair => {
-            Object.assign(acc, { [this.getColumnName(entrie[0], pair[0])]: pair[1] });
+            Object.assign(acc, { [this.getColumnName(entry[0], pair[0])]: pair[1] });
           });
         return acc;
       }
-      return Object.assign(acc, { [entrie[0]]: entrie[1] });
+      return Object.assign(acc, { [entry[0]]: entry[1] });
     }, {});
   };
 
