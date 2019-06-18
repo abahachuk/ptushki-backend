@@ -5,9 +5,18 @@ import { TokenExpiredError, JsonWebTokenError } from 'jsonwebtoken';
 import AbstractController from './abstract-controller';
 import { User, UserRole } from '../entities/user-entity';
 import { RefreshToken } from '../entities/auth-entity';
-import { signTokens, verifyRefreshToken, auth, authenticateLocal } from '../services/auth-service';
+import { ResetToken } from '../entities/reset-token';
+import {
+  signTokens,
+  verifyRefreshToken,
+  auth,
+  authenticateLocal,
+  signResetToken,
+  verifyResetToken,
+} from '../services/auth-service';
 import { isCorrect } from '../services/user-crypto-service';
 import { addAudit } from '../services/audit-service';
+import { sendChangeRequestMail, sendResetCompleteMail } from '../services/mail-service';
 import { CustomError } from '../utils/CustomError';
 
 export default class AuthController extends AbstractController {
@@ -17,16 +26,21 @@ export default class AuthController extends AbstractController {
 
   private tokens: Repository<RefreshToken>;
 
+  private resetTokens: Repository<ResetToken>;
+
   public init(): Router {
     this.router = Router();
     this.users = getRepository(User);
     this.tokens = getRepository(RefreshToken);
+    this.resetTokens = getRepository(ResetToken);
 
     this.router.post('/signup', this.signUp);
     this.router.post('/logout', this.logout);
     this.router.post('/login', this.login);
     this.router.post('/refresh', this.refresh);
     this.router.post('/change-password', auth.required, this.changePassword);
+    this.router.post('/forgot', this.forgotPassword);
+    this.router.post('/reset', this.resetPassword);
 
     /* use auth.required to secure route */
     if (process.env.NODE_ENV !== 'production') {
@@ -145,6 +159,53 @@ export default class AuthController extends AbstractController {
       await addAudit('passChange', '', null, user.id);
       return res.send({ ok: true });
     } catch (e) {
+      return next(e);
+    }
+  };
+
+  private forgotPassword = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const { email } = req.body;
+      const { host }: any = req.headers;
+      if (!email) {
+        throw new CustomError('Email is required', 400);
+      }
+      const user: User = (await this.users.findOne({ email })) as User;
+      if (!user) {
+        throw new CustomError('Non-existent user cannot be authorized', 401);
+      }
+      const token = signResetToken({ email, userId: user.id });
+      await this.resetTokens.save(new ResetToken(token, user.id));
+      await sendChangeRequestMail(token, email, host);
+      return res.send({ ok: true });
+    } catch (e) {
+      if (e instanceof JsonWebTokenError) {
+        return next(new CustomError('Token invalid', 401));
+      }
+      return next(e);
+    }
+  };
+
+  private resetPassword = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const { token } = req.body;
+      if (!token) {
+        throw new CustomError('Reset token is required', 400);
+      }
+      const { userId, email } = await verifyResetToken(token);
+      const resetToken: ResetToken = (await this.resetTokens.findOne({ token })) as ResetToken;
+      if (!resetToken) {
+        throw new CustomError('Token already was used or never existed', 401);
+      }
+      await sendResetCompleteMail(email);
+      return res.send({ id: userId });
+    } catch (e) {
+      if (e instanceof TokenExpiredError) {
+        return next(new CustomError('Token expired', 401));
+      }
+      if (e instanceof JsonWebTokenError) {
+        return next(new CustomError('Token invalid', 401));
+      }
       return next(e);
     }
   };

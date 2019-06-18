@@ -28,11 +28,25 @@ export default {
   auth: {
     accessSecret: process.env.JWT_ACCESS_TOKEN_SECRET || 'secret',
     refreshSecret: process.env.JWT_REFRESH_TOKEN_SECRET || 'secret',
+    resetSecret: process.env.JWT_RESET_TOKEN_SECRET || 'secret',
     accessExpires: Number.parseInt(process.env.JWT_ACCESS_TOKEN_EXPIRES as string, 10) || '1h',
     refreshExpires: process.env.JWT_REFRESH_TOKEN_EXPIRES || '30d',
   },
   paging: {
     pageNumberDefault: 0,
     pageSizeDefault: 5,
+  },
+  mailService: {
+    name: process.env.MAIL_SERVICE_NAME || 'ptushki.by',
+    service: process.env.MAIL_SERVICE_SERVICE || 'SendGrid',
+    auth: {
+      user: process.env.MAIL_SERVICE_AUTH_USER || 'fat_mike',
+      pass: process.env.MAIL_SERVICE_AUTH_PASSWORD || 'ptushki2006',
+    },
+    senderMail: process.env.MAIL_SERVICE_SENDER || 'resetpassword@ptushki.by',
+    subject: {
+      passwordChange: 'Your password has been changed',
+      passwordReset: 'Your password has been reset',
+    },
   },
 };

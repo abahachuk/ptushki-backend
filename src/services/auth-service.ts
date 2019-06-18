@@ -15,11 +15,16 @@ const LocalStrategy = passportLocal.Strategy;
 const JWTStrategy = passportJWT.Strategy;
 const ExtractJWT = passportJWT.ExtractJwt;
 
-const { accessSecret, refreshSecret, accessExpires, refreshExpires } = config.get('auth');
+const { accessSecret, refreshSecret, resetSecret, accessExpires, refreshExpires } = config.get('auth');
 
 export interface UserPayload {
   userId: string;
   userRole: UserRole;
+}
+
+export interface ResetPasswordPayload {
+  userId: string;
+  email: string;
 }
 
 export const initPassport = (): void => {
@@ -129,6 +134,9 @@ const checkUserRole = (userRole: UserRole) => {
     return res.status(403).end();
   };
 };
+
+export const signResetToken = (payload: ResetPasswordPayload): string => jwt.sign({ ...payload }, resetSecret, { expiresIn: accessExpires });
+export const verifyResetToken = async (token: string): Promise<ResetPasswordPayload> => (await verify(token, resetSecret)) as ResetPasswordPayload;
 /* eslint-enable */
 
 export const auth = {
