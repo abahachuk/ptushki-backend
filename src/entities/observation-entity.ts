@@ -34,6 +34,7 @@ import {
   Condition,
   Circumstances,
   CircumstancesPresumed,
+  PlaceCode,
 } from './euring-codes';
 import { AbleToExportAndImportEuring } from './common-interfaces';
 import { ColumnNumericTransformer } from '../utils/ColumnNumericTransformer';
@@ -219,6 +220,13 @@ export class Observation implements AbleToExportAndImportEuring {
     transformer: new ColumnNumericTransformer(),
   })
   public longitude: number | null;
+
+  @IsAlphanumeric()
+  @Length(4, 4, { message: equalLength(4) })
+  @ManyToOne(() => PlaceCode, m => m.ring, {
+    eager: true,
+  })
+  public placeCode: PlaceCode;
 
   @IsOptional()
   @IsInt()
