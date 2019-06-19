@@ -286,6 +286,7 @@ export class Observation implements AbleToExportAndImportEuring {
   public remarks: string | null;
 
   // Not presented in euring standart
+  @IsOptional()
   @IsEnum(Verified)
   @Column({
     type: 'enum',
