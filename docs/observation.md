@@ -25,8 +25,8 @@
 | movedBeforeTheCapture | `MovedBeforeTheCapture` | перемещалась ли птица до наблюдения                                       |         |      |    да     |     |     |     |
 | catchingMethod        | `CatchingMethod`        | Метод отлова                                                              |         |      |    да     |     |     |     |
 | catchingLures         | `CatchingLures`         | Приспособления для поимки                                                 |         |      |    да     |     |     |     |
-| date                  | `Date`, `null`          | Дата наблюдения                                                           |         |      |    да     |     |     |     |
-| accuracyOfDate        | `AccuracyOfDate`        | Точность этой даты                                                        |         |      |    да     |     |     |     |
+| date                  | `Date`, `null`          | Дата наблюдения                                                           |         |  да  |    да     |     |     |     |
+| accuracyOfDate        | `AccuracyOfDate`        | Точность этой даты                                                        |         |  да  |    да     |     |     |     |
 | latitude              | `number`, `null`        | Широта                                                                    |         |      | не совсем |     |     |     |
 | longitude             | `number`, `null`        | Долгота                                                                   |         |      | не совсем |     |     |     |
 | accuracyOfCoordinates | `AccuracyOfCoordinates` | Точность этих координат                                                   |         |      |    да     |     |     |     |
