@@ -11,7 +11,7 @@ const {
   subject: { passwordChange, passwordReset },
 } = config.get('mailService');
 
-export const sendChangeRequestMail = async (token: string, email: string, host: string) => {
+export const sendChangeRequestMail = async (token: string, email: string, host: string): Promise<void> => {
   const smtpTransport = nodemailer.createTransport({
     name,
     service,
@@ -23,10 +23,10 @@ export const sendChangeRequestMail = async (token: string, email: string, host: 
     subject: passwordChange,
     text: passwordChangeMail(host, token),
   };
-  smtpTransport.sendMail(mailOptions);
+  await smtpTransport.sendMail(mailOptions);
 };
 
-export const sendResetCompleteMail = async (email: string) => {
+export const sendResetCompleteMail = async (email: string): Promise<void> => {
   const smtpTransport = nodemailer.createTransport({
     name,
     service,
@@ -38,5 +38,5 @@ export const sendResetCompleteMail = async (email: string) => {
     subject: passwordReset,
     text: passwordResetMail(email),
   };
-  smtpTransport.sendMail(mailOptions);
+  await smtpTransport.sendMail(mailOptions);
 };
