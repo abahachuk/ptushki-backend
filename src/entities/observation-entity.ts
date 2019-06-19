@@ -245,6 +245,7 @@ export class Observation implements AbleToExportAndImportEuring {
   })
   public status: Status;
 
+  @IsOptional()
   @IsNumberStringWithHyphen()
   @Length(2, 2, { message: equalLength(2) })
   @ManyToOne(() => PullusAge, m => m.observation, {
