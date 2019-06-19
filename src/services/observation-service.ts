@@ -7,6 +7,9 @@ const cartesian = require('cartesian-product');
 
 const { pageNumberDefault, pageSizeDefault } = config.get('paging');
 
+export type Locale = 'desc_eng' | 'desc_rus' | 'desc_byn';
+export const languages: Locale[] = ['desc_eng', 'desc_rus', 'desc_byn'];
+
 export type ObservationAggregations = { [key in keyof Observation]: string };
 
 export interface ObservationSearch {
@@ -15,6 +18,7 @@ export interface ObservationSearch {
   pageSize?: string;
   sortingColumn?: string;
   sortingDirection?: 'ASC' | 'DESC';
+  lang: Locale;
 }
 
 export type ObservationQuery = ObservationSearch & ObservationAggregations;
@@ -32,6 +36,13 @@ const gettingAllObservations = {
   [UserRole.Admin]: true,
 };
 
+export const filterFieldByLocale = (key: Locale, lang: Locale): boolean => {
+  if (!languages.includes(key)) {
+    return true;
+  }
+  return lang === key;
+};
+
 const reduceWithCount = (arr: any[], columnName: string) => {
   if (arr[0].count === '0') {
     return {};
@@ -46,7 +57,6 @@ const reduceWithCount = (arr: any[], columnName: string) => {
 
 const aggregationColumns: string[] = ['speciesMentionedId', 'speciesConcludedId', 'verified', 'ringId'];
 const aggregationSearch: string[] = ['search', 'pageNumber', 'pageSize', 'sortingColumn', 'sortingDirection'];
-
 const aggregationForeignKeys: ((repository: Repository<Observation>) => Promise<{ [x: string]: any }>)[] = [
   async repository => {
     const res = await repository
@@ -102,14 +112,4 @@ export const getAggregations = async (repsitory: Repository<Observation>) => {
   );
   const res = await Promise.all([...promiseByColumns, ...promisesByForeignKeys]);
   return res.reduce((acc, item) => Object.assign(acc, item), {});
-};
-
-export const sanitizeObservations = (observations: Observation[]) => {
-  return observations.map(observation => {
-    const ref = observation;
-    delete ref.finder.hash;
-    delete ref.finder.salt;
-    delete ref.finder.email;
-    return ref;
-  });
 };
