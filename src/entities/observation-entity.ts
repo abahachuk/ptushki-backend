@@ -54,6 +54,7 @@ export class Observation implements AbleToExportAndImportEuring {
   })
   public ring: Ring;
 
+  @IsOptional()
   @IsString()
   @Length(10, 10, { message: equalLength(10) })
   @Column()
@@ -146,6 +147,7 @@ export class Observation implements AbleToExportAndImportEuring {
   @Column('varchar', { nullable: true, default: null })
   public colorRing: string | null;
 
+  @IsOptional()
   @IsAlpha()
   @Length(1, 1, { message: equalLength(1) })
   @ManyToOne(() => Manipulated, m => m.observation, {
@@ -153,6 +155,7 @@ export class Observation implements AbleToExportAndImportEuring {
   })
   public manipulated: Manipulated;
 
+  @IsOptional()
   @IsInt()
   @Min(0)
   @Max(9)
@@ -161,6 +164,7 @@ export class Observation implements AbleToExportAndImportEuring {
   })
   public movedBeforeTheCapture: MovedBeforeTheCapture;
 
+  @IsOptional()
   @IsAlphaWithHyphen()
   @Length(1, 1, { message: equalLength(1) })
   @ManyToOne(() => CatchingMethod, m => m.observation, {
@@ -168,6 +172,7 @@ export class Observation implements AbleToExportAndImportEuring {
   })
   public catchingMethod: CatchingMethod;
 
+  @IsOptional()
   @IsAlphaWithHyphen()
   @Length(1, 1, { message: equalLength(1) })
   @ManyToOne(() => CatchingLures, m => m.observation, {
@@ -215,6 +220,7 @@ export class Observation implements AbleToExportAndImportEuring {
   })
   public longitude: number | null;
 
+  @IsOptional()
   @IsInt()
   @Min(0)
   @Max(9)
@@ -223,6 +229,7 @@ export class Observation implements AbleToExportAndImportEuring {
   })
   public accuracyOfCoordinates: AccuracyOfCoordinates;
 
+  @IsOptional()
   @IsAlphaWithHyphen()
   @Length(1, 1, { message: equalLength(1) })
   @ManyToOne(() => Status, m => m.observation, {
@@ -237,6 +244,7 @@ export class Observation implements AbleToExportAndImportEuring {
   })
   public pullusAge: PullusAge;
 
+  @IsOptional()
   @IsAlphanumericWithHyphen()
   @Length(1, 1, { message: equalLength(1) })
   @ManyToOne(() => AccuracyOfPullusAge, m => m.observation, {
@@ -244,6 +252,7 @@ export class Observation implements AbleToExportAndImportEuring {
   })
   public accuracyOfPullusAge: AccuracyOfPullusAge;
 
+  @IsOptional()
   @IsInt()
   @Min(0)
   @Max(9)
@@ -252,6 +261,7 @@ export class Observation implements AbleToExportAndImportEuring {
   })
   public condition: Condition;
 
+  @IsOptional()
   @IsNumberString()
   @Length(2, 2, { message: equalLength(2) })
   @ManyToOne(() => Circumstances, m => m.ring, {
@@ -259,6 +269,7 @@ export class Observation implements AbleToExportAndImportEuring {
   })
   public circumstances: Circumstances;
 
+  @IsOptional()
   @IsInt()
   @Min(0)
   @Max(1)
