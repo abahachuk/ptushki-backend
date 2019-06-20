@@ -11,7 +11,7 @@ import {
   Min,
   Max,
   IsNumberString,
-  IsBoolean,
+  IsEnum,
   IsNumber,
 } from 'class-validator';
 import { IsAlphaWithHyphen, IsAlphanumericWithHyphen, IsNumberStringWithHyphen } from '../validation/custom-decorators';
@@ -41,6 +41,12 @@ import { ColumnNumericTransformer } from '../utils/ColumnNumericTransformer';
 
 export interface NewObservation {
   finder: User;
+}
+
+export enum Verified {
+  Pending = 'pending',
+  Approved = 'approved',
+  Rejected = 'rejected',
 }
 
 @Entity()
@@ -301,9 +307,13 @@ export class Observation implements AbleToExportAndImportEuring {
 
   // Not presented in euring standart
   @IsOptional()
-  @IsBoolean()
-  @Column('boolean', { default: false })
-  public verified: boolean;
+  @IsEnum(Verified)
+  @Column({
+    type: 'enum',
+    enum: Verified,
+    default: Verified.Pending,
+  })
+  public verified: Verified;
 
   public static async create(observation: NewObservation): Promise<Observation> {
     return Object.assign(new Observation(), observation);

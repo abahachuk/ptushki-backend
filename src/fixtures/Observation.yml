@@ -32,4 +32,4 @@ items:
     elapsedTime: '{{random.number(99999)}}'
     colorRing: '{{lorem.words}}'
     remarks: '{{lorem.words}}'
-    verified: '{{random.boolean}}'
+    verified: 'pending'
