@@ -4,7 +4,7 @@ import path from 'path';
 
 export interface MulterOptions extends Options {
   extensions: string[];
-  any: true;
+  any: boolean;
 }
 
 export const upload = (options: MulterOptions) => {

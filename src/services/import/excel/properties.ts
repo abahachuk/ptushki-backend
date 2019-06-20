@@ -1,6 +1,6 @@
 import { WorkbookProperties, AutoFilter, WorkbookView, WorksheetViewFrozen, Column, Cell } from 'exceljs';
 
-export const excelProperties: {
+export const properties: {
   sheetName: string;
   wbProperties: WorkbookProperties;
   wbViews: WorkbookView[];
