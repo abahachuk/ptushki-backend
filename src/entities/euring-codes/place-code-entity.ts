@@ -21,6 +21,21 @@ export class PlaceCode {
   @Column('varchar', { nullable: true, default: null })
   public region: string | null;
 
+  @IsOptional()
+  @IsString()
+  @Column('varchar', { nullable: true, default: null })
+  public desc_eng: string | null;
+
+  @IsOptional()
+  @IsString()
+  @Column('varchar', { nullable: true, default: null })
+  public desc_rus: string | null;
+
+  @IsOptional()
+  @IsString()
+  @Column('varchar', { nullable: true, default: null })
+  public desc_byn: string | null;
+
   @OneToMany(() => Ring, m => m.placeCode)
   public ring: Ring[];
 }
