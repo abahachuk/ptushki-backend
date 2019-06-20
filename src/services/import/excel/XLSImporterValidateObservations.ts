@@ -1,6 +1,6 @@
 import { NextFunction, Request, Response } from 'express';
 import Excel, { Workbook } from 'exceljs';
-import { getRepository, Repository } from 'typeorm';
+import { getCustomRepository } from 'typeorm';
 import {
   checkObservationsHeaderNames,
   checkObservationImportedData,
@@ -13,11 +13,9 @@ import {
 } from './helper';
 import { MulterOptions } from '../../../controllers/upload-files-controller';
 import AbstractImporter, { ImporterType } from '../AbstractImporter';
-import { Species } from '../../../entities/euring-codes/species-entity';
-import { Sex } from '../../../entities/euring-codes/sex-entity';
-import { Age } from '../../../entities/euring-codes/age-entity';
-import { Status } from '../../../entities/euring-codes/status-entity';
 import { CustomError } from '../../../utils/CustomError';
+import { cachedEURINGCodes } from '../../../entities/euring-codes/cached-entities-fabric';
+import { Sex, Species, Status, Age, PlaceCode } from '../../../entities/euring-codes';
 
 export default class XLSImporterValidateObservations extends AbstractImporter {
   public type: ImporterType = 'VALIDATE-XLS';
@@ -29,30 +27,24 @@ export default class XLSImporterValidateObservations extends AbstractImporter {
     any: true,
   };
 
-  private status: Repository<Status> = getRepository(Status);
-
-  private species: Repository<Species> = getRepository(Species);
-
-  private sex: Repository<Sex> = getRepository(Sex);
-
-  private age: Repository<Age> = getRepository(Age);
-
   private checkEuRingCodes = async (excelData: DataCheck): Promise<void> => {
     try {
-      const statusCached = await this.status.find({ cache: 60000 });
-      const speciesMentionedCached = await this.species.find({ cache: 60000 });
-      const sexMentionedCached = await this.sex.find({ cache: 60000 });
-      const ageMentionedCached = await this.age.find({ cache: 60000 });
+      const statusCached = await getCustomRepository(cachedEURINGCodes.CachedStatus).find();
+      const speciesMentionedCached = await getCustomRepository(cachedEURINGCodes.CachedSpecies).find();
+      const sexMentionedCached = await getCustomRepository(cachedEURINGCodes.CachedSex).find();
+      const ageMentionedCached = await getCustomRepository(cachedEURINGCodes.CachedAge).find();
+      const placeCodeCached = await getCustomRepository(cachedEURINGCodes.CachedPlaceCode).find();
       /* eslint-disable */
       for (const row of excelData.validFormatData) {
         const { data, rowNumber }: RowValidatedData = row;
-        const { eu_statusCode, eu_species, eu_sexCode, eu_ageCode }: RawData = data;
+        const { eu_statusCode, eu_species, eu_sexCode, eu_ageCode, eu_placeCode }: RawData = data;
 
         if (data) {
-          const status = statusCached.filter(statusRow => statusRow.id === eu_statusCode.toString().toUpperCase());
-          const speciesMentioned = speciesMentionedCached.filter(speciesRow => speciesRow.id === eu_species.toString());
-          const sexMentioned = sexMentionedCached.filter(sexRow => sexRow.id === eu_sexCode.toString().toUpperCase());
-          const ageMentioned = ageMentionedCached.filter(ageRow => ageRow.id === eu_ageCode.toString().toUpperCase());
+          const status = statusCached.filter((statusRow: Status) => statusRow.id === eu_statusCode.toString().toUpperCase());
+          const speciesMentioned = speciesMentionedCached.filter((speciesRow: Species) => speciesRow.id === eu_species.toString());
+          const sexMentioned = sexMentionedCached.filter((sexRow: Sex) => sexRow.id === eu_sexCode.toString().toUpperCase());
+          const ageMentioned = ageMentionedCached.filter((ageRow: Age) => ageRow.id === eu_ageCode.toString().toUpperCase());
+          const placeCode = placeCodeCached.filter((placeCodeRow: PlaceCode) => placeCodeRow.id === eu_placeCode.toString().toUpperCase());
 
           const euCodeErrors: string[] = [];
 
@@ -67,6 +59,9 @@ export default class XLSImporterValidateObservations extends AbstractImporter {
           }
           if (!ageMentioned.length) {
             euCodeErrors.push('age');
+          }
+          if (!placeCode.length) {
+            euCodeErrors.push('place code');
           }
 
           if (euCodeErrors.length) {
@@ -106,16 +101,9 @@ export default class XLSImporterValidateObservations extends AbstractImporter {
   private setXLSDataToObservation = async (excelData: DataCheck): Promise<void> => {
     const defaults = {
       manipulated: 'U',
-      movedBeforeTheCapture: 9,
       catchingMethod: 'U',
       catchingLures: 'U',
-      accuracyOfDate: 9,
-      accuracyOfCoordinates: 0,
-      pullusAge: '--',
-      accuracyOfPullusAge: 'U',
-      condition: 0,
-      circumstances: '00',
-      circumstancesPresumed: 0,
+      accuracyOfDate: 9
     };
 
     for (const row of excelData.addedData) {
@@ -124,12 +112,14 @@ export default class XLSImporterValidateObservations extends AbstractImporter {
         sexMentioned: row.data.eu_sexCode.toString().toUpperCase(),
         ageMentioned: row.data.eu_ageCode.toString().toUpperCase(),
         date: row.data.date,
-        geographicalCoordinates: `${row.data.latitude} ${row.data.longitude}`,
+        longitude: row.data.longitude,
+        latitude: row.data.latitude,
         status: row.data.eu_statusCode.toString().toUpperCase(),
         ringMentioned: row.data.ringNumber,
         colorRing: row.data.colorRing,
         placeName: row.data.place,
-        remarks: `${row.data.ringer || ''} ${row.data.remarks || ''}`,
+        placeCode: row.data.eu_placeCode.toString().toUpperCase(),
+        remarks: `${row.data.ringer || ''} ${row.data.remarks || ''}`
       };
 
       excelData.observations.push(Object.assign({}, rowData, defaults));

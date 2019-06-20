@@ -22,7 +22,6 @@ export class ImportObservationsValidator {
   @Length(1, 1, { message: equalLength(1) })
   public eu_ageCode: string;
 
-  @IsOptional()
   @IsString()
   public eu_placeCode: string | null;
 
