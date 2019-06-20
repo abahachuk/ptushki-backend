@@ -6,3 +6,6 @@ items:
     species: '{{lorem.words}}'
     ordo: '{{lorem.word}}'
     family: '{{lorem.words}}'
+    desc_eng: '{{lorem.sentence}}'
+    desc_rus: '{{lorem.sentence}}'
+    desc_byn: '{{lorem.sentence}}'
