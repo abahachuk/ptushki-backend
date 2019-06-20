@@ -5,7 +5,7 @@ import { write, utils } from 'xlsx';
 import AbstractExporter, { ExporterType } from './AbstractExporter';
 import { Observation } from '../../entities/observation-entity';
 import { User } from '../../entities/user-entity';
-import { Locale, languages, filterFieldByLocale } from '../observation-service';
+import { Locale, languages, filterFieldByLocale, LocaleOrigin } from '../observation-service';
 
 export default class XLSExporterForObservations extends AbstractExporter {
   public type: ExporterType = 'XLS';
@@ -13,8 +13,6 @@ export default class XLSExporterForObservations extends AbstractExporter {
   public route: string = 'observations';
 
   private observations: Repository<Observation> = getRepository(Observation);
-
-  private defaultLang: Locale = 'desc_eng';
 
   private ObservationColumnsByDesc = [
     'finder',
@@ -61,8 +59,8 @@ export default class XLSExporterForObservations extends AbstractExporter {
 
   public async export(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
-      const { lang = this.defaultLang, rowIds = [] }: { lang: Locale; rowIds: string[] } = req.body;
-
+      const { lang = 'eng', rowIds = [] }: { lang: string; rowIds: string[] } = req.body;
+      const langOrigin = LocaleOrigin[lang] ? LocaleOrigin[lang] : 'desc_eng';
       const observations = await this.observations.find({
         where: rowIds.map(id => ({ id })),
         loadEagerRelations: false,
@@ -76,7 +74,7 @@ export default class XLSExporterForObservations extends AbstractExporter {
         return ref;
       });
 
-      const flattenObservations = observations.map(obs => this.flattenObservation(obs, lang));
+      const flattenObservations = observations.map(obs => this.flattenObservation(obs, langOrigin));
 
       const workSheet = utils.json_to_sheet(flattenObservations);
       const workBook = utils.book_new();

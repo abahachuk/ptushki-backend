@@ -13,6 +13,7 @@ import {
   parseWhereParams,
   Locale,
   filterFieldByLocale,
+  LocaleOrigin,
 } from '../services/observation-service';
 
 interface RequestWithObservation extends Request {
@@ -56,7 +57,9 @@ export default class ObservationController extends AbstractController {
 
   private getObservations = async (req: RequestWithPageParams, res: Response, next: NextFunction): Promise<void> => {
     try {
-      const { lang = 'desc_eng' }: { lang: Locale } = req.query;
+      const { lang = 'eng' }: { lang: string } = req.query;
+      const langOrigin = LocaleOrigin[lang] ? LocaleOrigin[lang] : 'desc_eng';
+
       const paramsSearch = parsePageParams(req.query);
       const paramsAggregation = parseWhereParams(req.query, req.user);
       const observations = await this.observations.findAndCount(Object.assign(paramsSearch, paramsAggregation));
@@ -72,8 +75,10 @@ export default class ObservationController extends AbstractController {
           .map(([ObservationKey, ObservationValue]) => {
             if (typeof ObservationValue === 'object' && ObservationValue !== null) {
               const value = Object.entries(ObservationValue)
-                .filter(([subfield]) => filterFieldByLocale(subfield as Locale, lang))
-                .map(([subfield, subValue]) => (subfield === lang ? ['desc', subValue] : ([subfield, subValue] as any)))
+                .filter(([subfield]) => filterFieldByLocale(subfield as Locale, langOrigin))
+                .map(([subfield, subValue]) =>
+                  subfield === langOrigin ? ['desc', subValue] : ([subfield, subValue] as any),
+                )
                 .reduce((acc, [subfield, subValue]) => Object.assign(acc, { [subfield]: subValue }), {});
               return [ObservationKey, value];
             }

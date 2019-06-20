@@ -9,6 +9,11 @@ const { pageNumberDefault, pageSizeDefault } = config.get('paging');
 
 export type Locale = 'desc_eng' | 'desc_rus' | 'desc_byn';
 export const languages: Locale[] = ['desc_eng', 'desc_rus', 'desc_byn'];
+export const LocaleOrigin: { [x: string]: Locale } = {
+  eng: 'desc_eng',
+  byn: 'desc_byn',
+  rus: 'desc_rus',
+};
 
 export type ObservationAggregations = { [key in keyof Observation]: string };
 
