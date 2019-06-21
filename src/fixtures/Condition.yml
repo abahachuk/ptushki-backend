@@ -1,7 +1,43 @@
 entity: Condition
 processor: ./ConditionProcessor
 items:
-  condition{0..9}:
-    desc_eng: '{{lorem.sentence}}'
-    desc_rus: '{{lorem.sentence}}'
-    desc_byn: '{{lorem.sentence}}'
+  condition0:
+    desc_eng: '[0] Condition completely unknown'
+    desc_rus: '[0] Condition completely unknown'
+    desc_byn: '[0] Condition completely unknown'
+  condition1:
+    desc_eng: '[1] Dead but no information on how recently the bird had died (or been killed)'
+    desc_rus: '[1] Dead but no information on how recently the bird had died (or been killed)'
+    desc_byn: '[1] Dead but no information on how recently the bird had died (or been killed)'
+  condition2:
+    desc_eng: '[2] Freshly dead - within about a week'
+    desc_rus: '[2] Freshly dead - within about a week'
+    desc_byn: '[2] Freshly dead - within about a week'
+  condition3:
+    desc_eng: '[3] Not freshly dead - information available that it had been dead for more than about a week'
+    desc_rus: '[3] Not freshly dead - information available that it had been dead for more than about a week'
+    desc_byn: '[3] Not freshly dead - information available that it had been dead for more than about a week'
+  condition4:
+    desc_eng: '[4] Found sick, wounded, unhealthy etc. and known to have been released'
+    desc_rus: '[4] Found sick, wounded, unhealthy etc. and known to have been released'
+    desc_byn: '[4] Found sick, wounded, unhealthy etc. and known to have been released'
+  condition5:
+    desc_eng: '[5] Found sick, wounded, unhealthy etc. and not released or not known if released'
+    desc_rus: '[5] Found sick, wounded, unhealthy etc. and not released or not known if released'
+    desc_byn: '[5] Found sick, wounded, unhealthy etc. and not released or not known if released'
+  condition6:
+    desc_eng: '[6] Alive and probably healthy but taken into captivity'
+    desc_rus: '[6] Alive and probably healthy but taken into captivity'
+    desc_byn: '[6] Alive and probably healthy but taken into captivity'
+  condition7:
+    desc_eng: '[7] Alive and probably healthy and certainly released'
+    desc_rus: '[7] Alive and probably healthy and certainly released'
+    desc_byn: '[7] Alive and probably healthy and certainly released'
+  condition8:
+    desc_eng: '[8] Alive and probably healthy and released by a ringer'
+    desc_rus: '[8] Alive and probably healthy and released by a ringer'
+    desc_byn: '[8] Alive and probably healthy and released by a ringer'
+  condition9:
+    desc_eng: '[9] Alive and probably healthy but ultimate fate of bird is not known'
+    desc_rus: '[9] Alive and probably healthy but ultimate fate of bird is not known'
+    desc_byn: '[9] Alive and probably healthy but ultimate fate of bird is not known'
