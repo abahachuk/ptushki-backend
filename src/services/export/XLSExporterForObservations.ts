@@ -5,8 +5,7 @@ import { write, utils } from 'xlsx';
 import AbstractExporter, { ExporterType } from './AbstractExporter';
 import { Observation } from '../../entities/observation-entity';
 import { User } from '../../entities/user-entity';
-
-type Locale = 'desc_eng' | 'desc_rus' | 'desc_byn';
+import { Locale, languages, filterFieldByLocale, LocaleOrigin } from '../observation-service';
 
 export default class XLSExporterForObservations extends AbstractExporter {
   public type: ExporterType = 'XLS';
@@ -14,10 +13,6 @@ export default class XLSExporterForObservations extends AbstractExporter {
   public route: string = 'observations';
 
   private observations: Repository<Observation> = getRepository(Observation);
-
-  private defaultLang: Locale = 'desc_eng';
-
-  private languages: Locale[] = ['desc_eng', 'desc_rus', 'desc_byn'];
 
   private ObservationColumnsByDesc = [
     'finder',
@@ -45,7 +40,7 @@ export default class XLSExporterForObservations extends AbstractExporter {
     return Object.entries(observation).reduce((acc, [field, value]) => {
       if (typeof value === 'object' && value !== null) {
         Object.entries(value)
-          .filter(([subfield]) => this.filterFieldByLocale(subfield as Locale, lang))
+          .filter(([subfield]) => filterFieldByLocale(subfield as Locale, lang))
           .forEach(([subfield, subvalue]) => {
             Object.assign(acc, { [this.getColumnName(field, subfield as Locale)]: subvalue });
           });
@@ -55,15 +50,8 @@ export default class XLSExporterForObservations extends AbstractExporter {
     }, {});
   };
 
-  private filterFieldByLocale = (key: Locale, lang: Locale): boolean => {
-    if (!this.languages.includes(key)) {
-      return true;
-    }
-    return lang === key;
-  };
-
   private getColumnName = (columnName: string, subColumnName: Locale) => {
-    if (this.languages.includes(subColumnName)) {
+    if (languages.includes(subColumnName)) {
       return `${columnName}_desc`;
     }
     return `${columnName}_${subColumnName}`;
@@ -71,8 +59,8 @@ export default class XLSExporterForObservations extends AbstractExporter {
 
   public async export(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
-      const { lang = this.defaultLang, rowIds = [] }: { lang: Locale; rowIds: string[] } = req.body;
-
+      const { lang = 'eng', rowIds = [] }: { lang: string; rowIds: string[] } = req.body;
+      const langOrigin = LocaleOrigin[lang] ? LocaleOrigin[lang] : 'desc_eng';
       const observations = await this.observations.find({
         where: rowIds.map(id => ({ id })),
         loadEagerRelations: false,
@@ -86,7 +74,7 @@ export default class XLSExporterForObservations extends AbstractExporter {
         return ref;
       });
 
-      const flattenObservations = observations.map(obs => this.flattenObservation(obs, lang));
+      const flattenObservations = observations.map(obs => this.flattenObservation(obs, langOrigin));
 
       const workSheet = utils.json_to_sheet(flattenObservations);
       const workBook = utils.book_new();

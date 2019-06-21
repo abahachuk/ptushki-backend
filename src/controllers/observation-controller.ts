@@ -5,12 +5,15 @@ import { Observation, Verified } from '../entities/observation-entity';
 import Exporter from '../services/export';
 import Importer from '../services/import';
 import { Ring } from '../entities/ring-entity';
+
 import {
   parsePageParams,
   ObservationQuery,
   getAggregations,
   parseWhereParams,
-  sanitizeObservations,
+  Locale,
+  filterFieldByLocale,
+  LocaleOrigin,
 } from '../services/observation-service';
 import { CustomError } from '../utils/CustomError';
 
@@ -56,11 +59,42 @@ export default class ObservationController extends AbstractController {
 
   private getObservations = async (req: RequestWithPageParams, res: Response, next: NextFunction): Promise<void> => {
     try {
+      const { lang = 'eng' }: { lang: string } = req.query;
+      const langOrigin = LocaleOrigin[lang] ? LocaleOrigin[lang] : 'desc_eng';
+
       const paramsSearch = parsePageParams(req.query);
       const paramsAggregation = parseWhereParams(req.query, req.user);
       const observations = await this.observations.findAndCount(Object.assign(paramsSearch, paramsAggregation));
+
+      const content = observations[0].map(obs => {
+        // sanitaze user's data
+        const finder = Object.assign({}, obs.finder.sanitizeUser(), { id: obs.finder.id });
+        // transform 'observation'
+        const observation = Object.entries(obs)
+          // clear 'filter' field
+          .filter(([ObservationField]) => ObservationField !== 'ring')
+          // map 'lang' param according 'Locale'
+          .map(([ObservationKey, ObservationValue]) => {
+            if (typeof ObservationValue === 'object' && ObservationValue !== null) {
+              const value = Object.entries(ObservationValue)
+                .filter(([subfield]) => filterFieldByLocale(subfield as Locale, langOrigin))
+                .map(([subfield, subValue]) =>
+                  subfield === langOrigin ? ['desc', subValue] : ([subfield, subValue] as any),
+                )
+                .reduce((acc, [subfield, subValue]) => Object.assign(acc, { [subfield]: subValue }), {});
+              return [ObservationKey, value];
+            }
+            return [ObservationKey, ObservationValue];
+          })
+          .reduce(
+            (acc, [ObservationField, ObservationValue]) => Object.assign(acc, { [ObservationField]: ObservationValue }),
+            {},
+          );
+        return Object.assign({}, observation, { finder }, { ring: obs.ring.id });
+      });
+
       res.json({
-        content: sanitizeObservations(observations[0]),
+        content,
         pageNumber: paramsSearch.number,
         pageSize: paramsSearch.size,
         totalElements: observations[1],
