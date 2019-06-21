@@ -5,6 +5,8 @@ items:
     email: 'admin@mail.com'
     password: '1234'
     role: 'admin'
+    firstName: 'Casey'
+    lastName: 'Lynch'
   user{1..10}:
     firstName: '{{name.firstName}}'
     lastName: '{{name.lastName}}'
@@ -26,4 +28,3 @@ items:
     email: 'moderator@mail.com'
     password: '1234'
     role: 'moderator'
-
