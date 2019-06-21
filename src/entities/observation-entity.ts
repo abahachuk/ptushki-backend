@@ -64,7 +64,7 @@ export class Observation implements AbleToExportAndImportEuring {
   @IsOptional()
   @IsString()
   @Length(10, 10, { message: equalLength(10) })
-  @Column()
+  @Column('varchar', { nullable: true, default: null })
   public ringMentioned: string;
 
   @IsOptional()
