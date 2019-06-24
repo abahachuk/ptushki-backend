@@ -1,7 +1,15 @@
 entity: Sex
 processor: ./SexProcessor
 items:
-  sex{0..2}:
-    desc_eng: '{{lorem.sentence}}'
-    desc_rus: '{{lorem.sentence}}'
-    desc_byn: '{{lorem.sentence}}'
+  sex0:
+    desc_eng: '[F] Female'
+    desc_rus: '[F] Female'
+    desc_byn: '[F] Female'
+  sex1:
+    desc_eng: '[M] Male'
+    desc_rus: '[M] Male'
+    desc_byn: '[M] Male'
+  sex2:
+    desc_eng: '[U] Unknown'
+    desc_rus: '[U] Unknown'
+    desc_byn: '[U] Unknown'
