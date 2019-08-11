@@ -44,7 +44,11 @@ export default class AuthController extends AbstractController {
       const { token, refreshToken } = signTokens({ userId: user.id, userRole: user.role });
       await this.tokens.save(new RefreshToken(refreshToken, user.id));
       await addAudit('registration', '', null, user.id);
-      return res.json({ user, token, refreshToken });
+      return res.json({
+        user: user.sanitizeUser(),
+        token,
+        refreshToken,
+      });
     } catch (e) {
       if (e.code === '23505') {
         // README with any new user uniq constraint this will become invalid statement

@@ -1,7 +1,7 @@
 entity: AccuracyOfCoordinates
+processor: ./AccuracyOfCoordinatesProcessor
 items:
-  accuracyOfCoordinates{0..10}:
-    id: '{{random.number}}'
+  accuracyOfCoordinates{0..9}:
     desc_eng: '{{lorem.sentence}}'
     desc_rus: '{{lorem.sentence}}'
     desc_byn: '{{lorem.sentence}}'

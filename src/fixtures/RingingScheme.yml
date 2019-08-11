@@ -1,7 +1,6 @@
 entity: RingingScheme
 processor: ./RingingSchemeProcessor
 items:
-  ringingScheme{0..30}:
-    id: '{{address.countryCode}}{{random.number}}'
+  ringingScheme{0..44}:
     country: '{{address.country}}'
     center: '{{address.state}}'

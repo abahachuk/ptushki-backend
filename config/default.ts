@@ -13,6 +13,10 @@ export default {
     entities: ['src/entities/**/*.ts'],
     synchronize: true,
     logging: false,
+    // allow to set max pool size to be able to use free 'DB a service' solution in dev
+    // property is not documented, but confirmed to work here
+    // https://github.com/typeorm/typeorm/issues/3388#issuecomment-452860552
+    extra: process.env.PG_MAX_POOL_SIZE ? { max: 4 } : {},
   },
   userCrypto: {
     secret: process.env.USER_CRYPTO_SECRET || 'secret',
@@ -26,5 +30,9 @@ export default {
     refreshSecret: process.env.JWT_REFRESH_TOKEN_SECRET || 'secret',
     accessExpires: Number.parseInt(process.env.JWT_ACCESS_TOKEN_EXPIRES as string, 10) || '1h',
     refreshExpires: process.env.JWT_REFRESH_TOKEN_EXPIRES || '30d',
+  },
+  paging: {
+    pageNumberDefault: 0,
+    pageSizeDefault: 5,
   },
 };

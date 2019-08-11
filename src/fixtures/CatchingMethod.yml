@@ -1,7 +1,7 @@
 entity: CatchingMethod
+processor: ./CatchingMethodProcessor
 items:
-  catchingMethod{0..15}:
-    id: '{{random.alphaNumeric}}{{random.number}}'
+  catchingMethod{0..20}:
     desc_eng: '{{lorem.sentence}}'
     desc_rus: '{{lorem.sentence}}'
     desc_byn: '{{lorem.sentence}}'

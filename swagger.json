@@ -41,6 +41,61 @@
             }
           }
         }
+      },
+      "post": {
+        "tags": ["Observation controller"],
+        "summary": "Add observation",
+        "produces": ["application/json"],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "$ref": "#/definitions/Observation"
+            }
+          }
+        }
+      }
+    },
+    "/observations/export/{type}": {
+      "post": {
+        "tags": ["Observation controller"],
+        "summary": "Generate export of specified type",
+        "produces": ["application/json", "application/pdf", "application/vnd.ms-excel"],
+        "parameters": [
+          {
+            "name": "type",
+            "in": "path",
+            "description": "type of export, planned to support xls, pdf, euring",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation"
+          }
+        }
+      }
+    },
+    "/observations/import/{type}": {
+      "post": {
+        "tags": ["Observation controller"],
+        "summary": "Import data to observations from extranal data of specified type",
+        "produces": ["application/json"],
+        "parameters": [
+          {
+            "name": "type",
+            "in": "path",
+            "description": "type of import, planned to support xls, euring",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation"
+          }
+        }
       }
     },
     "/observations/{id}": {
@@ -48,6 +103,28 @@
         "tags": ["Observation controller"],
         "produces": ["application/json"],
         "summary": "Get observation by id",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "ID of observation",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "$ref": "#/definitions/Observation"
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": ["Observation controller"],
+        "summary": "Edit observation with provided id",
+        "produces": ["application/json"],
         "parameters": [
           {
             "name": "id",
@@ -83,8 +160,67 @@
           "200": {
             "description": "successful operation",
             "schema": {
-              "$ref": "#/definitions/RemoveByIdResponse"
+              "$ref": "#/definitions/Observation"
             }
+          }
+        }
+      }
+    },
+    "/observations/{id}/export/{type}": {
+      "get": {
+        "tags": ["Observation controller"],
+        "produces": ["application/json", "application/pdf"],
+        "summary": "Generate specified type export for current entity",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "ID of observation",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "type",
+            "in": "path",
+            "description": "type of export, planned to support pdf, euring",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation"
+          }
+        }
+      }
+    },
+    "/observations/set-verification": {
+      "get": {
+        "tags": ["Observation controller"],
+        "produces": ["application/json"],
+        "summary": "Set verified status to observations",
+        "parameters": [
+          {
+            "in": "body",
+            "name": "body",
+            "description": "Verified status and id of observation",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "status": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation"
           }
         }
       }
@@ -1187,6 +1323,9 @@
         "ring": {
           "$ref": "#/definitions/Ring"
         },
+        "ringMentioned": {
+          "type": "string"
+        },
         "finder": {
           "$ref": "#/definitions/User"
         },
@@ -1229,8 +1368,11 @@
         "accuracyOfPullusAge": {
           "$ref": "#/definitions/AccuracyOfPullusAge"
         },
-        "geographicalCoordinates": {
-          "type": "string"
+        "latitude": {
+          "type": "number"
+        },
+        "longitude": {
+          "type": "number"
         },
         "accuracyOfCoordinates": {
           "$ref": "#/definitions/AccuracyOfCoordinates"
@@ -1264,6 +1406,9 @@
         },
         "placeName": {
           "type": "string"
+        },
+        "placeCode": {
+          "$ref": "#/definitions/PlaceCode"
         },
         "remarks": {
           "type": "string"
@@ -1345,8 +1490,11 @@
         "accuracyOfPullusAge": {
           "$ref": "#/definitions/AccuracyOfPullusAge"
         },
-        "geographicalCoordinates": {
-          "type": "string"
+        "latitude": {
+          "type": "number"
+        },
+        "longitude": {
+          "type": "number"
         },
         "placeCode": {
           "$ref": "#/definitions/PlaceCode"

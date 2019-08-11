@@ -2,7 +2,7 @@ import { Entity, Column, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
 import {
   IsUUID,
   Length,
-  IsDate,
+  IsDateString,
   IsString,
   IsOptional,
   IsAlpha,
@@ -11,7 +11,8 @@ import {
   Min,
   Max,
   IsNumberString,
-  IsBoolean,
+  IsEnum,
+  IsNumber,
 } from 'class-validator';
 import { IsAlphaWithHyphen, IsAlphanumericWithHyphen, IsNumberStringWithHyphen } from '../validation/custom-decorators';
 import { equalLength } from '../validation/validation-messages';
@@ -35,27 +36,48 @@ import {
   CircumstancesPresumed,
   PlaceCode,
 } from './euring-codes';
+import { AbleToExportAndImportEuring } from './common-interfaces';
+import { ColumnNumericTransformer } from '../utils/ColumnNumericTransformer';
 
 export interface NewObservation {
   finder: User;
 }
 
+export enum Verified {
+  Pending = 'pending',
+  Approved = 'approved',
+  Rejected = 'rejected',
+}
+
 @Entity()
-export class Observation {
+export class Observation implements AbleToExportAndImportEuring {
   @PrimaryGeneratedColumn('uuid')
   public id: string;
 
+  @IsOptional()
   @IsUUID()
   @ManyToOne(() => Ring, m => m.observation, {
     eager: true,
   })
   public ring: Ring;
 
+  @IsOptional()
+  @IsString()
+  @Length(10, 10, { message: equalLength(10) })
+  @Column('varchar', { nullable: true, default: null })
+  public ringMentioned: string;
+
+  @IsOptional()
   @IsUUID()
   @ManyToOne(() => User, m => m.observation, {
     eager: true,
   })
   public finder: User;
+
+  @IsOptional()
+  @IsString({ each: true })
+  @Column('varchar', { array: true, nullable: true, default: null })
+  public photos: string[] | null;
 
   @IsNumberString()
   @Length(5, 5, { message: equalLength(5) })
@@ -64,6 +86,7 @@ export class Observation {
   })
   public speciesMentioned: Species;
 
+  @IsOptional()
   @IsNumberString()
   @Length(5, 5, { message: equalLength(5) })
   @ManyToOne(() => Species, m => m.concludedInObservation, {
@@ -78,6 +101,7 @@ export class Observation {
   })
   public sexMentioned: Sex;
 
+  @IsOptional()
   @IsAlpha()
   @Length(1, 1, { message: equalLength(1) })
   @ManyToOne(() => Sex, m => m.concludedInObservation, {
@@ -92,6 +116,7 @@ export class Observation {
   })
   public ageMentioned: Age;
 
+  @IsOptional()
   @IsAlphanumeric()
   @Length(1, 1, { message: equalLength(1) })
   @ManyToOne(() => Age, m => m.concludedInObservation, {
@@ -101,24 +126,27 @@ export class Observation {
 
   // Related field in access 'Derived data distance'
   @IsOptional()
-  @IsNumberString()
-  @Length(5, 5, { message: equalLength(5) })
-  @Column('varchar', { nullable: true, default: null })
-  public distance: string | null;
+  @IsInt()
+  @Min(0)
+  @Max(99999)
+  @Column('integer', { nullable: true, default: null })
+  public distance: number | null;
 
   // Related field in access 'Derived data directions'
   @IsOptional()
-  @IsNumberString()
-  @Length(3, 3, { message: equalLength(5) })
-  @Column('varchar', { nullable: true, default: null })
-  public direction: string | null;
+  @IsInt()
+  @Min(0)
+  @Max(359)
+  @Column('smallint', { nullable: true, default: null })
+  public direction: number | null;
 
   // Related field in access 'Derived data elapsed time'
   @IsOptional()
-  @IsNumberString()
-  @Length(5, 5, { message: equalLength(5) })
-  @Column('varchar', { nullable: true, default: null })
-  public elapsedTime: string | null;
+  @IsInt()
+  @Min(0)
+  @Max(99999)
+  @Column('integer', { nullable: true, default: null })
+  public elapsedTime: number | null;
 
   // Not presented in euring standart
   @IsOptional()
@@ -126,6 +154,7 @@ export class Observation {
   @Column('varchar', { nullable: true, default: null })
   public colorRing: string | null;
 
+  @IsOptional()
   @IsAlpha()
   @Length(1, 1, { message: equalLength(1) })
   @ManyToOne(() => Manipulated, m => m.observation, {
@@ -133,6 +162,7 @@ export class Observation {
   })
   public manipulated: Manipulated;
 
+  @IsOptional()
   @IsInt()
   @Min(0)
   @Max(9)
@@ -141,6 +171,7 @@ export class Observation {
   })
   public movedBeforeTheCapture: MovedBeforeTheCapture;
 
+  @IsOptional()
   @IsAlphaWithHyphen()
   @Length(1, 1, { message: equalLength(1) })
   @ManyToOne(() => CatchingMethod, m => m.observation, {
@@ -148,6 +179,7 @@ export class Observation {
   })
   public catchingMethod: CatchingMethod;
 
+  @IsOptional()
   @IsAlphaWithHyphen()
   @Length(1, 1, { message: equalLength(1) })
   @ManyToOne(() => CatchingLures, m => m.observation, {
@@ -155,7 +187,7 @@ export class Observation {
   })
   public catchingLures: CatchingLures;
 
-  @IsDate()
+  @IsDateString()
   @Column('varchar', { nullable: true, default: null })
   public date: Date | null;
 
@@ -167,10 +199,33 @@ export class Observation {
   })
   public accuracyOfDate: AccuracyOfDate;
 
-  // Related fields in access 'Lat deg', 'Lat min', 'Lat sec', 'Lon deg', 'Lon min', 'Lon sec',
-  @Length(15, 15, { message: equalLength(15) })
-  @Column('varchar', { nullable: true, default: null })
-  public geographicalCoordinates: string | null;
+  // Related fields in access 'Lat deg', 'Lat min', 'Lat sec'
+  @IsOptional()
+  @IsNumber()
+  @Min(-90)
+  @Max(90)
+  @Column('decimal', {
+    precision: 10,
+    scale: 8,
+    nullable: true,
+    default: null,
+    transformer: new ColumnNumericTransformer(),
+  })
+  public latitude: number | null;
+
+  // Related fields in access 'Lon deg', 'Lon min', 'Lon sec'
+  @IsOptional()
+  @IsNumber()
+  @Min(-180)
+  @Max(180)
+  @Column('decimal', {
+    precision: 11,
+    scale: 8,
+    nullable: true,
+    default: null,
+    transformer: new ColumnNumericTransformer(),
+  })
+  public longitude: number | null;
 
   @IsAlphanumeric()
   @Length(4, 4, { message: equalLength(4) })
@@ -179,6 +234,7 @@ export class Observation {
   })
   public placeCode: PlaceCode;
 
+  @IsOptional()
   @IsInt()
   @Min(0)
   @Max(9)
@@ -187,6 +243,7 @@ export class Observation {
   })
   public accuracyOfCoordinates: AccuracyOfCoordinates;
 
+  @IsOptional()
   @IsAlphaWithHyphen()
   @Length(1, 1, { message: equalLength(1) })
   @ManyToOne(() => Status, m => m.observation, {
@@ -194,6 +251,7 @@ export class Observation {
   })
   public status: Status;
 
+  @IsOptional()
   @IsNumberStringWithHyphen()
   @Length(2, 2, { message: equalLength(2) })
   @ManyToOne(() => PullusAge, m => m.observation, {
@@ -201,6 +259,7 @@ export class Observation {
   })
   public pullusAge: PullusAge;
 
+  @IsOptional()
   @IsAlphanumericWithHyphen()
   @Length(1, 1, { message: equalLength(1) })
   @ManyToOne(() => AccuracyOfPullusAge, m => m.observation, {
@@ -208,6 +267,7 @@ export class Observation {
   })
   public accuracyOfPullusAge: AccuracyOfPullusAge;
 
+  @IsOptional()
   @IsInt()
   @Min(0)
   @Max(9)
@@ -216,6 +276,7 @@ export class Observation {
   })
   public condition: Condition;
 
+  @IsOptional()
   @IsNumberString()
   @Length(2, 2, { message: equalLength(2) })
   @ManyToOne(() => Circumstances, m => m.ring, {
@@ -223,6 +284,7 @@ export class Observation {
   })
   public circumstances: Circumstances;
 
+  @IsOptional()
   @IsInt()
   @Min(0)
   @Max(1)
@@ -244,11 +306,27 @@ export class Observation {
   public remarks: string | null;
 
   // Not presented in euring standart
-  @IsBoolean()
-  @Column('boolean', { default: false })
-  public verified: boolean;
+  @IsOptional()
+  @IsEnum(Verified)
+  @Column({
+    type: 'enum',
+    enum: Verified,
+    default: Verified.Pending,
+  })
+  public verified: Verified;
 
   public static async create(observation: NewObservation): Promise<Observation> {
     return Object.assign(new Observation(), observation);
+  }
+
+  public exportEURING(): string {
+    // todo
+    return [this.ring.id, this.ageConcluded.id, this.ageMentioned.id].join('|');
+  }
+
+  public importEURING(code: string): any {
+    // todo
+    const [ring, status] = code.split('|');
+    Object.assign(this, { ring: { id: ring }, status });
   }
 }

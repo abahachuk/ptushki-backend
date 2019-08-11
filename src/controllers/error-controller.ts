@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
-import { logger } from '../configs/logger';
+import { logger } from '../utils/logger';
 
 export default (err: any, _req: Request, res: Response, next: NextFunction): void => {
   if (err) {

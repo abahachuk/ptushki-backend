@@ -1,4 +1,5 @@
 entity: Observation
+processor: ./ObservationProcessor
 items:
   observation{0..50}:
     ring: '@ring*'
@@ -16,7 +17,8 @@ items:
     status: '@status*'
     pullusAge: '@pullusAge*'
     accuracyOfPullusAge: '@accuracyOfPullusAge*'
-    geographicalCoordinates: '{{address.latitude}} {{address.longitude}}'
+    latitude: '{{address.latitude}}'
+    longitude: '{{address.longitude}}'
     accuracyOfCoordinates: '@accuracyOfCoordinates*'
     condition: '@condition*'
     circumstances: '@circumstances*'
@@ -24,9 +26,10 @@ items:
     date: '{{date.past}}'
     accuracyOfDate: '@accuracyOfDate*'
     placeName: '{{address.state}} {{address.city}}'
-    distance: '{{lorem.words}}'
-    direction: '{{lorem.words}}'
-    elapsedTime: '{{lorem.words}}'
+    placeCode: '@placeCode*'
+    distance: '{{random.number(99999)}}'
+    direction: '{{random.number(359)}}'
+    elapsedTime: '{{random.number(99999)}}'
     colorRing: '{{lorem.words}}'
     remarks: '{{lorem.words}}'
-    verified: '{{random.boolean}}'
+    verified: 'pending'

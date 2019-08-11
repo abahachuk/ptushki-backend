@@ -1,6 +1,6 @@
 import { Entity, PrimaryColumn, Column, OneToMany } from 'typeorm';
 import { IsInt, Min, Max, IsOptional, IsString } from 'class-validator';
-import { Dictionary } from './common-interfaces';
+import { Dictionary } from '../common-interfaces';
 import { Ring } from '../ring-entity';
 import { Observation } from '../observation-entity';
 

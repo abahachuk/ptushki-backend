@@ -5,7 +5,7 @@ import { Connection } from 'typeorm';
 
 import createApp from './app';
 import connectDB from './db';
-import { logger } from './configs/logger';
+import { logger } from './utils/logger';
 
 const PORT = config.get('PORT');
 
@@ -13,6 +13,7 @@ const PORT = config.get('PORT');
   let connection: Connection | undefined;
   try {
     connection = await connectDB();
+    logger.info(`App was connected to DB`);
     const app = await createApp();
     app.listen(PORT, () => {
       logger.info(`App is listened at ${PORT}`);

@@ -1,7 +1,7 @@
 entity: CatchingLures
+processor: ./CatchingLuresProcessor
 items:
-  catchingLures{0..10}:
-    id: '{{random.alphaNumeric}}{{random.number}}'
+  catchingLures{0..11}:
     desc_eng: '{{lorem.sentence}}'
     desc_rus: '{{lorem.sentence}}'
     desc_byn: '{{lorem.sentence}}'

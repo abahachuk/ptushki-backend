@@ -11,6 +11,7 @@ import {
   Min,
   Max,
   IsNumberString,
+  IsNumber,
 } from 'class-validator';
 import { IsAlphaWithHyphen, IsAlphanumericWithHyphen, IsNumberStringWithHyphen } from '../validation/custom-decorators';
 import { equalLength } from '../validation/validation-messages';
@@ -42,9 +43,11 @@ import {
 } from './euring-codes';
 import { User } from './user-entity';
 import { Observation } from './observation-entity';
+import { EURINGCodes, AbleToExportAndImportEuring } from './common-interfaces';
+import { ColumnNumericTransformer } from '../utils/ColumnNumericTransformer';
 
 @Entity()
-export class Ring {
+export class Ring implements EURINGCodes, AbleToExportAndImportEuring {
   @PrimaryGeneratedColumn('uuid')
   public id: string;
 
@@ -196,10 +199,33 @@ export class Ring {
   })
   public accuracyOfPullusAge: AccuracyOfPullusAge;
 
-  // Related fields in access 'Lat deg', 'Lat min', 'Lat sec', 'Lon deg', 'Lon min', 'Lon sec',
-  @Length(15, 15, { message: equalLength(15) })
-  @Column('varchar', { nullable: true, default: null })
-  public geographicalCoordinates: string | null;
+  // Related fields in access 'Lat deg', 'Lat min', 'Lat sec'
+  @IsOptional()
+  @IsNumber()
+  @Min(-90)
+  @Max(90)
+  @Column('decimal', {
+    precision: 10,
+    scale: 8,
+    nullable: true,
+    default: null,
+    transformer: new ColumnNumericTransformer(),
+  })
+  public latitude: number | null;
+
+  // Related fields in access 'Lon deg', 'Lon min', 'Lon sec'
+  @IsOptional()
+  @IsNumber()
+  @Min(-180)
+  @Max(180)
+  @Column('decimal', {
+    precision: 11,
+    scale: 8,
+    nullable: true,
+    default: null,
+    transformer: new ColumnNumericTransformer(),
+  })
+  public longitude: number | null;
 
   @IsAlphanumeric()
   @Length(4, 4, { message: equalLength(4) })
@@ -280,4 +306,15 @@ export class Ring {
     eager: true,
   })
   public statusOfRing: StatusOfRing;
+
+  public exportEURING(): string {
+    // todo
+    return [this.identificationNumber, this.ageConcluded.id, this.ageMentioned.id].join('|');
+  }
+
+  public importEURING(code: string): any {
+    // todo
+    const [identificationNumber, status] = code.split('|');
+    Object.assign(this, { identificationNumber, status });
+  }
 }

@@ -1,7 +1,43 @@
 entity: Age
+processor: ./AgeProcessor
 items:
-  age{0..20}:
-    id: '{{random.alphaNumeric}}{{random.number}}'
-    desc_eng: '{{lorem.sentence}}'
-    desc_rus: '{{lorem.sentence}}'
-    desc_byn: '{{lorem.sentence}}'
+  age0:
+    desc_eng: '[0] Unknown'
+    desc_rus: '[0] Unknown'
+    desc_byn: '[0] Unknown'
+  age1:
+    desc_eng: '[1] Pullus'
+    desc_rus: '[1] Pullus'
+    desc_byn: '[1] Pullus'
+  age2:
+    desc_eng: '[2] Full-grown'
+    desc_rus: '[2] Full-grown'
+    desc_byn: '[2] Full-grown'
+  age3:
+    desc_eng: '[3] First-year'
+    desc_rus: '[3] First-year'
+    desc_byn: '[3] First-year'
+  age4:
+    desc_eng: '[4] After first-year'
+    desc_rus: '[4] After first-year'
+    desc_byn: '[4] After first-year'
+  age5:
+    desc_eng: '[5] 2nd year'
+    desc_rus: '[5] 2nd year'
+    desc_byn: '[5] 2nd year'
+  age6:
+    desc_eng: '[6] After 2nd year'
+    desc_rus: '[6] After 2nd year'
+    desc_byn: '[6] After 2nd year'
+  age7:
+    desc_eng: '[7] 3rd year'
+    desc_rus: '[7] 3rd year'
+    desc_byn: '[7] 3rd year'
+  age8:
+    desc_eng: '[8] After 3rd year'
+    desc_rus: '[8] After 3rd year'
+    desc_byn: '[8] After 3rd year'
+  age9:
+    desc_eng: '[9] 4th year'
+    desc_rus: '[9] 4th year'
+    desc_byn: '[9] 4th year'

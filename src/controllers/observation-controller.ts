@@ -1,8 +1,21 @@
 import { NextFunction, Request, Response, Router } from 'express';
 import { getRepository, Repository } from 'typeorm';
 import AbstractController from './abstract-controller';
-import { Observation } from '../entities/observation-entity';
-import { parseQueryParams, ObservationQuery } from '../services/observation-service';
+import { Observation, Verified } from '../entities/observation-entity';
+import Exporter from '../services/export';
+import Importer from '../services/import';
+import { Ring } from '../entities/ring-entity';
+
+import {
+  parsePageParams,
+  ObservationQuery,
+  getAggregations,
+  parseWhereParams,
+  Locale,
+  filterFieldByLocale,
+  LocaleOrigin,
+} from '../services/observation-service';
+import { CustomError } from '../utils/CustomError';
 
 interface RequestWithObservation extends Request {
   observation: Observation;
@@ -13,73 +26,160 @@ interface RequestWithPageParams extends Request {
 }
 
 export default class ObservationController extends AbstractController {
-  private router: Router;
+  private router: Router = Router();
 
   private observations: Repository<Observation>;
 
-  public init(): Router {
-    this.router = Router();
-    this.observations = getRepository(Observation);
-    this.setMainEntity(this.observations, 'observation');
+  private exporter: Exporter;
 
-    this.router.get('/', this.findObservations);
-    this.router.post('/', this.addObservation);
+  private importer: Importer;
+
+  private rings: Repository<Ring>;
+
+  public init(): Router {
+    this.observations = getRepository(Observation);
+    this.rings = getRepository(Ring);
+    this.setMainEntity(this.observations, 'observation');
+    this.exporter = new Exporter();
+    this.importer = new Importer();
 
     this.router.param('id', this.checkId);
-    this.router.get('/:id', this.findOne);
-    this.router.delete('/:id', this.remove);
-
+    this.router.get('/', this.getObservations);
+    this.router.get('/aggregations', this.getAggregations);
+    this.router.post('/', this.addObservation);
+    this.router.post('/export/:type', this.exporter.handle('observations'));
+    this.router.post('/import/:type', this.importer.handle('observations'));
+    this.router.get('/:id', this.findObservation);
+    this.router.post('/:id/export/:type', this.exporter.handle('observations'));
+    this.router.put('/:id', this.editObservation);
+    this.router.delete('/:id', this.removeObservation);
+    this.router.post('/set-verification', this.setVerificationStatus);
     return this.router;
   }
 
-  private remove = async (req: RequestWithObservation, res: Response, next: NextFunction): Promise<void> => {
-    const { observation }: { observation: Observation } = req;
+  private getObservations = async (req: RequestWithPageParams, res: Response, next: NextFunction): Promise<void> => {
     try {
-      await this.observations.remove(observation);
-      res.json({ id: req.params.id, removed: true });
-    } catch (e) {
-      next(e);
+      const { lang = 'eng' }: { lang: string } = req.query;
+      const langOrigin = LocaleOrigin[lang] ? LocaleOrigin[lang] : 'desc_eng';
+
+      const paramsSearch = parsePageParams(req.query);
+      const paramsAggregation = parseWhereParams(req.query, req.user);
+      const observations = await this.observations.findAndCount(Object.assign(paramsSearch, paramsAggregation));
+
+      const content = observations[0].map(obs => {
+        // sanitaze user's data
+        const finder = Object.assign({}, obs.finder.sanitizeUser(), { id: obs.finder.id });
+        // transform 'observation'
+        const observation = Object.entries(obs)
+          // clear 'filter' field
+          .filter(([ObservationField]) => ObservationField !== 'ring')
+          // map 'lang' param according 'Locale'
+          .map(([ObservationKey, ObservationValue]) => {
+            if (typeof ObservationValue === 'object' && ObservationValue !== null) {
+              const value = Object.entries(ObservationValue)
+                .filter(([subfield]) => filterFieldByLocale(subfield as Locale, langOrigin))
+                .map(([subfield, subValue]) =>
+                  subfield === langOrigin ? ['desc', subValue] : ([subfield, subValue] as any),
+                )
+                .reduce((acc, [subfield, subValue]) => Object.assign(acc, { [subfield]: subValue }), {});
+              return [ObservationKey, value];
+            }
+            return [ObservationKey, ObservationValue];
+          })
+          .reduce(
+            (acc, [ObservationField, ObservationValue]) => Object.assign(acc, { [ObservationField]: ObservationValue }),
+            {},
+          );
+        return Object.assign({}, observation, { finder }, { ring: obs.ring.id });
+      });
+
+      res.json({
+        content,
+        pageNumber: paramsSearch.number,
+        pageSize: paramsSearch.size,
+        totalElements: observations[1],
+      });
+    } catch (error) {
+      next(error);
     }
   };
 
-  private findObservations = async (req: RequestWithPageParams, res: Response, next: NextFunction): Promise<void> => {
+  private getAggregations = async (_req: Request, res: Response, next: NextFunction) => {
     try {
-      const params = parseQueryParams(req.query);
-      const observationsPromise = this.observations.find(params);
-      const [observations, count] = await Promise.all([observationsPromise, this.observations.count()]);
-      res.json({
-        content: observations,
-        // aggregations: getAggregations(),
-        pageNumber: params.number,
-        pageSize: params.size,
-        totalElements: count,
-      });
-    } catch (e) {
-      next(e);
+      const aggregations = await getAggregations(this.observations);
+      res.json({ ...aggregations });
+    } catch (error) {
+      next(error);
     }
   };
 
   private addObservation = async (req: Request, res: Response, next: NextFunction) => {
-    const newObservation = req.body;
-    if (!req.user) {
-      return res.status(401).send();
-    }
-
-    // validation of Observation fields should be somewhere here
-
+    const rawObservation = req.body;
     try {
-      const observation = await Observation.create({ ...newObservation, finder: req.user.id });
-      const result = await this.observations.save(observation);
-      return res.json(result);
+      let { ring } = rawObservation;
+      if (!ring) {
+        ({ id: ring = null } =
+          (await this.rings.findOne({ identificationNumber: rawObservation.ringMentioned })) || {});
+      }
+      const newObservation = await Observation.create({ ...rawObservation, ring, finder: req.user.id });
+      await this.validate(newObservation);
+      const result = await this.observations.save(newObservation);
+      res.json(result);
     } catch (e) {
-      return next(e);
+      next(e);
     }
   };
 
-  private findOne = (req: RequestWithObservation, res: Response, next: NextFunction): void => {
+  private findObservation = async (req: RequestWithObservation, res: Response, next: NextFunction) => {
     const { observation }: { observation: Observation } = req;
     try {
       res.json(observation);
+    } catch (e) {
+      next(e);
+    }
+  };
+
+  private editObservation = async (req: RequestWithObservation, res: Response, next: NextFunction) => {
+    const { observation }: { observation: Observation } = req;
+    const rawObservation = req.body;
+    try {
+      let { ring } = rawObservation;
+      if (!ring || rawObservation.ringMentioned !== observation.ringMentioned) {
+        ({ id: ring = null } =
+          (await this.rings.findOne({ identificationNumber: rawObservation.ringMentioned })) || {});
+      }
+      await this.validate(Object.assign(rawObservation, { ring }), observation);
+      const updatedObservation = await this.observations.merge(observation, rawObservation);
+      const result = await this.observations.save(updatedObservation);
+      res.json(result);
+    } catch (e) {
+      next(e);
+    }
+  };
+
+  private removeObservation = async (req: RequestWithObservation, res: Response, next: NextFunction): Promise<void> => {
+    const { observation }: { observation: Observation } = req;
+    try {
+      const result = await this.observations.remove(observation);
+      res.json(result);
+    } catch (e) {
+      next(e);
+    }
+  };
+
+  private setVerificationStatus = async (
+    req: RequestWithObservation,
+    res: Response,
+    next: NextFunction,
+  ): Promise<void> => {
+    const { id, status }: { id: string; status: Verified } = req.body;
+    try {
+      if (!id || !status) {
+        throw new CustomError('Id and status are required', 400);
+      }
+      await this.observations.findOneOrFail(id);
+      await this.observations.update(id, { verified: status });
+      res.json({ ok: true });
     } catch (e) {
       next(e);
     }
