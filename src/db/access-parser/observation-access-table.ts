@@ -1,23 +1,9 @@
 import { Observation } from '../../entities/observation-entity';
 // import { Ring } from '../../entities/ring-entity';
-import { logger } from '../../configs/logger';
+import { logger } from '../../utils/logger';
 
-const geographicalCoordinates = (item: any): string | null => {
-  const {
-    'Lat side': laside,
-    'Lat deg': lad,
-    'Lat min': lam,
-    'Lat sec': las,
-    'Lon side': loside,
-    'Lon deg': lod,
-    'Lon min': lom,
-    'Lon sec': los,
-  } = item;
-  if (!lad || !lod) {
-    return null;
-  }
-  return `${laside || '+'}${lad}${lam}${las}${loside || '+'}${lod}${lom}${los}`;
-};
+const longitude = () => null;
+const latitude = () => null;
 
 // eslint-disable-next-line no-restricted-globals
 const isNumber = (n: any): boolean => !isNaN(parseFloat(n)) && isFinite(n);
@@ -38,7 +24,12 @@ const date = (item: any): Date | null => {
 };
 
 type Omit<T, K extends keyof T> = Pick<T, Exclude<keyof T, K>>;
-export type ObservationMap = { [index in keyof Omit<Observation, 'id'>]: ((item: any) => any) | string };
+export type ObservationMap = {
+  // todo review later excluded fields
+  [index in keyof Omit<Observation, 'id' | 'ringMentioned' | 'photos' | 'exportEURING' | 'importEURING'>]:
+    | ((item: any) => any)
+    | string
+};
 
 export const observationMap: ObservationMap = {
   ring: () => null,
@@ -55,7 +46,8 @@ export const observationMap: ObservationMap = {
   // E-mail
   // ------------------------
   date,
-  geographicalCoordinates,
+  longitude,
+  latitude,
   distance: 'Derived data distance',
   direction: 'Derived data directions',
   elapsedTime: 'Derived data elapsed time',

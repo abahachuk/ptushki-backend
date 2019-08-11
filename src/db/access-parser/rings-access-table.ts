@@ -1,5 +1,5 @@
 import { Ring } from '../../entities/ring-entity';
-import { logger } from '../../configs/logger';
+import { logger } from '../../utils/logger';
 
 const identificationNumber = (item: any): string => {
   const { 'Identification series': series, 'Identification number': number } = item;
@@ -27,25 +27,31 @@ const date = (item: any): Date | null => {
   return new Date(year, month || 5, day || 15, hour, min);
 };
 
-const geographicalCoordinates = (item: any): string | null => {
-  const {
-    'Lat side': laside,
-    'Lat deg': lad,
-    'Lat min': lam,
-    'Lat sec': las,
-    'Lon side': loside,
-    'Lon deg': lod,
-    'Lon min': lom,
-    'Lon sec': los,
-  } = item;
-  if (!lad || !lod) {
-    return null;
-  }
-  return `${laside || '+'}${lad}${lam}${las}${loside || '+'}${lod}${lom}${los}`;
-};
+// const geographicalCoordinates = (item: any): string | null => {
+//   const {
+//     'Lat side': laside,
+//     'Lat deg': lad,
+//     'Lat min': lam,
+//     'Lat sec': las,
+//     'Lon side': loside,
+//     'Lon deg': lod,
+//     'Lon min': lom,
+//     'Lon sec': los,
+//   } = item;
+//   if (!lad || !lod) {
+//     return null;
+//   }
+//   return `${laside || '+'}${lad}${lam}${las}${loside || '+'}${lod}${lom}${los}`;
+// };
+
+const longitude = () => null;
+const latitude = () => null;
 
 type Omit<T, K extends keyof T> = Pick<T, Exclude<keyof T, K>>;
-export type RingMap = { [index in keyof Omit<Ring, 'id' | 'observation'>]: ((item: any) => any) | string };
+export type RingMap = {
+  // todo review later excluded fields
+  [index in keyof Omit<Ring, 'id' | 'observation' | 'exportEURING' | 'importEURING'>]: ((item: any) => any) | string
+};
 
 export const ringMap: RingMap = {
   identificationNumber,
@@ -71,7 +77,8 @@ export const ringMap: RingMap = {
   // TODO there is some place for improvements.
   // all rows have sec, but some havent coords, but have place code
   // sometimes they have coords but havent place code
-  geographicalCoordinates,
+  longitude,
+  latitude,
   placeCode: 'Place code',
   accuracyOfCoordinates: 'Accuracy of co-ordinates',
   condition: 'Condition',

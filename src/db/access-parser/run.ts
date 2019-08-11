@@ -7,7 +7,7 @@ import { EURINGs, EuringAccessTable } from './euring-access-tables';
 import { ringMapper } from './rings-access-table';
 import { getEntityRecords } from './access-entity-methods';
 import { prepareToUploadEURING, uploadEURING, uploadRings } from './handlers';
-import { logger } from '../../configs/logger';
+import { logger } from '../../utils/logger';
 
 let db: Connection | undefined;
 

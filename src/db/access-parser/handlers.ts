@@ -2,7 +2,7 @@ import { getRepository, Repository } from 'typeorm';
 import { EuringAccessTable, EURINGs, mapEURINGCode } from './euring-access-tables';
 import { entitySelectAll } from './access-entity-methods';
 import { Ring } from '../../entities/ring-entity';
-import { logger } from '../../configs/logger';
+import { logger } from '../../utils/logger';
 
 export async function prepareToUploadEURING(table: EuringAccessTable): Promise<any[]> {
   try {
