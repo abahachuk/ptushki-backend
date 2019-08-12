@@ -1,27 +1,19 @@
 // @ts-ignore
 import 'dotenv/config';
 import config from 'config';
-import { Connection } from 'typeorm';
 
 import createApp from './app';
-import connectDB from './db';
 import { logger } from './utils/logger';
 
-const PORT = config.get('PORT');
+const PORT = config.get('PORT') as number;
 
 (async () => {
-  let connection: Connection | undefined;
   try {
-    connection = await connectDB();
-    logger.info(`App was connected to DB`);
     const app = await createApp();
     app.listen(PORT, () => {
       logger.info(`App is listened at ${PORT}`);
     });
   } catch (e) {
-    if (connection) {
-      await connection.close();
-    }
     logger.error(e);
     process.exit(1);
   }

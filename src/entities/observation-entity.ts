@@ -14,6 +14,7 @@ import {
   IsEnum,
   IsNumber,
 } from 'class-validator';
+import { ApiModelProperty } from '@nestjs/swagger';
 import { IsAlphaWithHyphen, IsAlphanumericWithHyphen, IsNumberStringWithHyphen } from '../validation/custom-decorators';
 import { equalLength } from '../validation/validation-messages';
 import { User } from './user-entity';
@@ -51,9 +52,11 @@ export enum Verified {
 
 @Entity()
 export class Observation implements AbleToExportAndImportEuring {
+  @ApiModelProperty()
   @PrimaryGeneratedColumn('uuid')
   public id: string;
 
+  @ApiModelProperty()
   @IsOptional()
   @IsUUID()
   @ManyToOne(() => Ring, m => m.observation, {
@@ -61,12 +64,14 @@ export class Observation implements AbleToExportAndImportEuring {
   })
   public ring: Ring;
 
+  @ApiModelProperty()
   @IsOptional()
   @IsString()
   @Length(10, 10, { message: equalLength(10) })
   @Column('varchar', { nullable: true, default: null })
   public ringMentioned: string;
 
+  @ApiModelProperty()
   @IsOptional()
   @IsUUID()
   @ManyToOne(() => User, m => m.observation, {
@@ -74,6 +79,7 @@ export class Observation implements AbleToExportAndImportEuring {
   })
   public finder: User;
 
+  @ApiModelProperty()
   @IsOptional()
   @IsString({ each: true })
   @Column('varchar', { array: true, nullable: true, default: null })
@@ -86,6 +92,7 @@ export class Observation implements AbleToExportAndImportEuring {
   })
   public speciesMentioned: Species;
 
+  @ApiModelProperty()
   @IsOptional()
   @IsNumberString()
   @Length(5, 5, { message: equalLength(5) })
@@ -94,6 +101,7 @@ export class Observation implements AbleToExportAndImportEuring {
   })
   public speciesConcluded: Species;
 
+  @ApiModelProperty()
   @IsAlpha()
   @Length(1, 1, { message: equalLength(1) })
   @ManyToOne(() => Sex, m => m.mentionedInObservation, {
@@ -101,6 +109,7 @@ export class Observation implements AbleToExportAndImportEuring {
   })
   public sexMentioned: Sex;
 
+  @ApiModelProperty()
   @IsOptional()
   @IsAlpha()
   @Length(1, 1, { message: equalLength(1) })
@@ -109,6 +118,7 @@ export class Observation implements AbleToExportAndImportEuring {
   })
   public sexConcluded: Species;
 
+  @ApiModelProperty()
   @IsAlphanumeric()
   @Length(1, 1, { message: equalLength(1) })
   @ManyToOne(() => Age, m => m.mentionedInObservation, {
@@ -116,6 +126,7 @@ export class Observation implements AbleToExportAndImportEuring {
   })
   public ageMentioned: Age;
 
+  @ApiModelProperty()
   @IsOptional()
   @IsAlphanumeric()
   @Length(1, 1, { message: equalLength(1) })
@@ -124,6 +135,7 @@ export class Observation implements AbleToExportAndImportEuring {
   })
   public ageConcluded: Age;
 
+  @ApiModelProperty()
   // Related field in access 'Derived data distance'
   @IsOptional()
   @IsInt()
@@ -132,6 +144,7 @@ export class Observation implements AbleToExportAndImportEuring {
   @Column('integer', { nullable: true, default: null })
   public distance: number | null;
 
+  @ApiModelProperty()
   // Related field in access 'Derived data directions'
   @IsOptional()
   @IsInt()
@@ -140,6 +153,7 @@ export class Observation implements AbleToExportAndImportEuring {
   @Column('smallint', { nullable: true, default: null })
   public direction: number | null;
 
+  @ApiModelProperty()
   // Related field in access 'Derived data elapsed time'
   @IsOptional()
   @IsInt()
@@ -148,12 +162,14 @@ export class Observation implements AbleToExportAndImportEuring {
   @Column('integer', { nullable: true, default: null })
   public elapsedTime: number | null;
 
+  @ApiModelProperty()
   // Not presented in euring standart
   @IsOptional()
   @IsString()
   @Column('varchar', { nullable: true, default: null })
   public colorRing: string | null;
 
+  @ApiModelProperty()
   @IsOptional()
   @IsAlpha()
   @Length(1, 1, { message: equalLength(1) })
@@ -162,6 +178,7 @@ export class Observation implements AbleToExportAndImportEuring {
   })
   public manipulated: Manipulated;
 
+  @ApiModelProperty()
   @IsOptional()
   @IsInt()
   @Min(0)
@@ -171,6 +188,7 @@ export class Observation implements AbleToExportAndImportEuring {
   })
   public movedBeforeTheCapture: MovedBeforeTheCapture;
 
+  @ApiModelProperty()
   @IsOptional()
   @IsAlphaWithHyphen()
   @Length(1, 1, { message: equalLength(1) })
@@ -179,6 +197,7 @@ export class Observation implements AbleToExportAndImportEuring {
   })
   public catchingMethod: CatchingMethod;
 
+  @ApiModelProperty()
   @IsOptional()
   @IsAlphaWithHyphen()
   @Length(1, 1, { message: equalLength(1) })
@@ -187,10 +206,12 @@ export class Observation implements AbleToExportAndImportEuring {
   })
   public catchingLures: CatchingLures;
 
+  @ApiModelProperty()
   @IsDateString()
   @Column('varchar', { nullable: true, default: null })
   public date: Date | null;
 
+  @ApiModelProperty()
   @IsInt()
   @Min(0)
   @Max(9)
@@ -199,6 +220,7 @@ export class Observation implements AbleToExportAndImportEuring {
   })
   public accuracyOfDate: AccuracyOfDate;
 
+  @ApiModelProperty()
   // Related fields in access 'Lat deg', 'Lat min', 'Lat sec'
   @IsOptional()
   @IsNumber()
@@ -213,6 +235,7 @@ export class Observation implements AbleToExportAndImportEuring {
   })
   public latitude: number | null;
 
+  @ApiModelProperty()
   // Related fields in access 'Lon deg', 'Lon min', 'Lon sec'
   @IsOptional()
   @IsNumber()
@@ -227,6 +250,7 @@ export class Observation implements AbleToExportAndImportEuring {
   })
   public longitude: number | null;
 
+  @ApiModelProperty()
   @IsAlphanumeric()
   @Length(4, 4, { message: equalLength(4) })
   @ManyToOne(() => PlaceCode, m => m.ring, {
@@ -234,6 +258,7 @@ export class Observation implements AbleToExportAndImportEuring {
   })
   public placeCode: PlaceCode;
 
+  @ApiModelProperty()
   @IsOptional()
   @IsInt()
   @Min(0)
@@ -243,6 +268,7 @@ export class Observation implements AbleToExportAndImportEuring {
   })
   public accuracyOfCoordinates: AccuracyOfCoordinates;
 
+  @ApiModelProperty()
   @IsOptional()
   @IsAlphaWithHyphen()
   @Length(1, 1, { message: equalLength(1) })
@@ -251,6 +277,7 @@ export class Observation implements AbleToExportAndImportEuring {
   })
   public status: Status;
 
+  @ApiModelProperty()
   @IsOptional()
   @IsNumberStringWithHyphen()
   @Length(2, 2, { message: equalLength(2) })
@@ -259,6 +286,7 @@ export class Observation implements AbleToExportAndImportEuring {
   })
   public pullusAge: PullusAge;
 
+  @ApiModelProperty()
   @IsOptional()
   @IsAlphanumericWithHyphen()
   @Length(1, 1, { message: equalLength(1) })
@@ -267,6 +295,7 @@ export class Observation implements AbleToExportAndImportEuring {
   })
   public accuracyOfPullusAge: AccuracyOfPullusAge;
 
+  @ApiModelProperty()
   @IsOptional()
   @IsInt()
   @Min(0)
@@ -276,6 +305,7 @@ export class Observation implements AbleToExportAndImportEuring {
   })
   public condition: Condition;
 
+  @ApiModelProperty()
   @IsOptional()
   @IsNumberString()
   @Length(2, 2, { message: equalLength(2) })
@@ -284,6 +314,7 @@ export class Observation implements AbleToExportAndImportEuring {
   })
   public circumstances: Circumstances;
 
+  @ApiModelProperty()
   @IsOptional()
   @IsInt()
   @Min(0)
@@ -293,18 +324,21 @@ export class Observation implements AbleToExportAndImportEuring {
   })
   public circumstancesPresumed: CircumstancesPresumed;
 
+  @ApiModelProperty()
   // Related fields in access 'Place'
   @IsOptional()
   @IsString()
   @Column('varchar', { nullable: true, default: null })
   public placeName: string | null;
 
+  @ApiModelProperty()
   // Related field in access 'Note'
   @IsOptional()
   @IsString()
   @Column('varchar', { nullable: true, default: null })
   public remarks: string | null;
 
+  @ApiModelProperty()
   // Not presented in euring standart
   @IsOptional()
   @IsEnum(Verified)

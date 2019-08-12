@@ -1,11 +1,16 @@
-import { Application } from 'express';
-// @ts-ignore
-import swaggerUi from 'swagger-ui-express';
+import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+import { INestApplication } from '@nestjs/common';
 
-import * as swaggerDocument from '../swagger.json';
+const setupSwagger = (app: INestApplication): void => {
+  const options = new DocumentBuilder()
+    .setTitle('Cats example')
+    .setDescription('The cats API description')
+    .setVersion('1.0')
+    .addBearerAuth()
+    .build();
 
-const setupSwagger = (app: Application, { host }: { host: string }): void => {
-  app.use('/swagger', swaggerUi.serve, swaggerUi.setup({ host, ...swaggerDocument }));
+  const document = SwaggerModule.createDocument(app, options);
+  SwaggerModule.setup('api', app, document);
 };
 
 export default setupSwagger;

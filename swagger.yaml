@@ -1,0 +1,13 @@
+swagger: "2.0"
+
+info:
+  version: 1.0.0
+  title: Ptushki API
+  description: API documentation for Ptushki project
+
+schemes:
+    - http
+  host: http://ptushki.westeurope.cloudapp.azure.com
+  basePath: /api
+
+paths: {}

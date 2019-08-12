@@ -1,21 +1,19 @@
-import config from 'config';
-import express, { Application } from 'express';
 import bodyParser from 'body-parser';
-import routes from './routes';
+import { NestFactory } from '@nestjs/core';
+import { INestApplication } from '@nestjs/common';
 import { setLogger } from './utils/logger';
 import errorHandler from './controllers/error-controller';
-import { initPassport } from './services/auth-service';
+import { AppModule } from './app.module';
 import setupSwagger from './swaggerSetup';
 
-const createApp = async (): Promise<Application> => {
-  const app = express();
-  initPassport();
+const createApp = async (): Promise<INestApplication> => {
+  const app = await NestFactory.create(AppModule);
   app.use(setLogger);
   app.use(bodyParser.json());
   app.use(bodyParser.urlencoded({ extended: true }));
-  app.use(await routes());
   app.use(errorHandler);
-  setupSwagger(app, { host: `${config.get('HOST')}:${config.get('PORT')}` });
+  setupSwagger(app);
+
   return app;
 };
 
