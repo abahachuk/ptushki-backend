@@ -27,4 +27,10 @@ export class ObservationsController {
   public async getObservations(@Req() { user }: RequestWithUser, @Query() query: ObservationQuery) {
     return this.observationsService.getAll(user, query);
   }
+
+  @Get('/aggregations')
+  @ApiOkResponse({ description: 'All available observations.', type: [Observation] })
+  public async getAggregations() {
+    return this.observationsService.getAggregations();
+  }
 }

@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import {
   UsersController,
-  AuthController,
+  // AuthController,
   // ObservationController,
   // RingsByController,
   InitialDataController,
