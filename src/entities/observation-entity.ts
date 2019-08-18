@@ -1,3 +1,4 @@
+import { path } from 'ramda';
 import { Entity, Column, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
 import {
   IsUUID,
@@ -38,6 +39,8 @@ import {
 } from './euring-codes';
 import { AbleToExportAndImportEuring } from './common-interfaces';
 import { ColumnNumericTransformer } from '../utils/ColumnNumericTransformer';
+import { fromDateToEuringDate, fromDateToEuringTime } from '../utils/date-parser';
+import { fromDecimalToEuring } from '../utils/coords-parser';
 
 export interface NewObservation {
   finder: User;
@@ -320,8 +323,68 @@ export class Observation implements AbleToExportAndImportEuring {
   }
 
   public exportEURING(): string {
-    // todo
-    return [this.ring.id, this.ageConcluded.id, this.ageMentioned.id].join('|');
+    return [
+      path(['ring', 'ringingScheme', 'id'], this),
+      path(['ring', 'primaryIdentificationMethod', 'id'], this),
+      path(['ring', 'identificationNumber'], this),
+      path(['ring', 'verificationOfTheMetalRing', 'id'], this),
+      path(['ring', 'metalRingInformation', 'id'], this),
+      path(['ring', 'otherMarksInformation', 'id'], this),
+      path(['speciesMentioned', 'id'], this),
+      path(['manipulated', 'id'], this),
+      path(['movedBeforeTheCapture', 'id'], this),
+      path(['catchingMethod', 'id'], this),
+      path(['catchingLures', 'id'], this),
+      path(['sexMentioned', 'id'], this),
+      path(['sexConcluded', 'id'], this),
+      path(['ageMentioned', 'id'], this),
+      path(['ageConcluded', 'id'], this),
+      path(['status', 'id'], this),
+      path(['ring', 'broodSize', 'id'], this),
+      path(['pullusAge', 'id'], this),
+      path(['accuracyOfPullusAge', 'id'], this),
+      fromDateToEuringDate(this.date),
+      path(['accuracyOfDate', 'id'], this),
+      fromDateToEuringTime(this.date),
+      path(['placeCode', 'id'], this),
+      fromDecimalToEuring(this.latitude, this.longitude),
+      path(['accuracyOfCoordinates', 'id'], this),
+      path(['condition', 'id'], this),
+      path(['circumstances', 'id'], this),
+      path(['circumstancesPresumed', 'id'], this),
+      path(['ring', 'euringCodeIdentifier', 'id'], this),
+      this.distance,
+      this.direction,
+      this.elapsedTime,
+      // Below unsupported parameters that presented in EURING
+      '',
+      '',
+      '',
+      '',
+      '',
+      '',
+      '',
+      '',
+      '',
+      '',
+      '',
+      '',
+      '',
+      '',
+      '',
+      '',
+      '',
+      '',
+      '',
+      '',
+      '',
+      '',
+      '',
+      '',
+      this.placeName,
+      this.remarks,
+      '',
+    ].join('|');
   }
 
   public importEURING(code: string): any {

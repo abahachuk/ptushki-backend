@@ -14,11 +14,10 @@ export default class EURINGExporterForObservation extends AbstractExporter {
   /* eslint-disable-next-line class-methods-use-this */
   public async export(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
-      const ids = req.body;
-      const observations: AbleToExportAndImportEuring[] = await this.observations
-        .createQueryBuilder('obs')
-        .where('obs.id IN (:...ids)', { ids })
-        .getMany();
+      const { rowIds = [] }: { rowIds: string[] } = req.body;
+      const observations: AbleToExportAndImportEuring[] = await this.observations.find({
+        where: rowIds.map(id => ({ id })),
+      });
       res.json(observations.map(e => e.exportEURING()));
     } catch (e) {
       next(e);
