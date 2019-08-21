@@ -9,7 +9,7 @@ import { Ring } from '../entities/ring-entity';
 import {
   parsePageParams,
   ObservationQuery,
-  getAggregations,
+  // getAggregations,
   parseWhereParams,
   Locale,
   filterFieldByLocale,
@@ -63,7 +63,7 @@ export default class ObservationController extends AbstractController {
       const langOrigin = LocaleOrigin[lang] ? LocaleOrigin[lang] : 'desc_eng';
 
       const paramsSearch = parsePageParams(req.query);
-      const paramsAggregation = parseWhereParams(req.query, req.user);
+      const paramsAggregation = parseWhereParams(req.user, req.query);
       const observations = await this.observations.findAndCount(Object.assign(paramsSearch, paramsAggregation));
 
       const content = observations[0].map(obs => {
@@ -104,10 +104,42 @@ export default class ObservationController extends AbstractController {
     }
   };
 
-  private getAggregations = async (_req: Request, res: Response, next: NextFunction) => {
+  private getAggregations = async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const aggregations = await getAggregations(this.observations);
-      res.json({ ...aggregations });
+      const paramsAggregation = parseWhereParams(req.user, req.query);
+      const observations = await this.observations.find({
+        ...paramsAggregation,
+      });
+
+      const aggregationColumns: (keyof Observation)[] = ['speciesMentioned', 'speciesConcluded', 'verified', 'ring'];
+
+      const obj = aggregationColumns.reduce((acc, column) => {
+        return Object.assign(acc, { [column]: [] });
+      }, {});
+
+      // console.log(JSON.stringify(acc, null, 2));
+
+      const reduced = observations.reduce((accum, value) => {
+        const ref = accum;
+        aggregationColumns.forEach(column => {
+          // @ts-ignore
+          const accumValue = accum[column];
+          if (accumValue.length === 0) {
+            accumValue.push({ value: value[column] });
+          }
+          if (accumValue.length > 0) {
+            // const findee = accumValue.find(item => item);
+          }
+
+          // accumValue.push({ value: value[column] })
+        });
+        return ref;
+      }, obj);
+
+      res.json(reduced);
+
+      // const aggregations = await getAggregations(this.observations);
+      // res.json({ ...aggregations });
     } catch (error) {
       next(error);
     }

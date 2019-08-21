@@ -74,7 +74,7 @@ const aggregationForeignKeys: ((repository: Repository<Observation>) => Promise<
   },
 ];
 
-export const parseWhereParams = (query: ObservationAggregations, user: User): FindOneOptions<Observation> => {
+export const parseWhereParams = (user: User, query: ObservationAggregations): FindOneOptions<Observation> => {
   const params = Object.entries(query)
     .filter(entrie => !aggregationSearch.includes(entrie[0])) // filter search aggregations, only ObservationAggregations could be applied
     .map(entrie => ({ [entrie[0]]: entrie[1] && entrie[1].split(',') })) // split values by ','
