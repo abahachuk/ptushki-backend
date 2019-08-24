@@ -21,7 +21,7 @@ export const fromDateToEuringTime = (date: Date | null): string => {
 
 const getCurrNum = (str: string, from?: number, to?: number): number => Number(str.slice(from, to).replace(/-/g, '0'));
 
-export const fromEuringToDate = (dateString: string, timeString: string): Date | null => {
+export const fromEuringToDate = (dateString: string, timeString: string): string | null => {
   if (!getCurrNum(dateString)) {
     return null;
   }
@@ -31,5 +31,5 @@ export const fromEuringToDate = (dateString: string, timeString: string): Date |
   date.setFullYear(getCurrNum(dateString, 4, 8));
   date.setHours(getCurrNum(timeString, 0, 2));
   date.setMinutes(getCurrNum(timeString, 2, 4));
-  return date;
+  return date.toISOString();
 };
