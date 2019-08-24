@@ -39,8 +39,8 @@ import {
 } from './euring-codes';
 import { AbleToExportAndImportEuring } from './common-interfaces';
 import { ColumnNumericTransformer } from '../utils/ColumnNumericTransformer';
-import { fromDateToEuringDate, fromDateToEuringTime } from '../utils/date-parser';
-import { fromDecimalToEuring } from '../utils/coords-parser';
+import { fromDateToEuringDate, fromDateToEuringTime, fromEuringToDate } from '../utils/date-parser';
+import { fromDecimalToEuring, DecimalCoordinates, fromEuringToDecimal } from '../utils/coords-parser';
 
 export interface NewObservation {
   finder: User;
@@ -387,9 +387,134 @@ export class Observation implements AbleToExportAndImportEuring {
     ].join('|');
   }
 
+  /* eslint-disable */
   public importEURING(code: string): any {
-    // todo
-    const [ring, status] = code.split('|');
-    Object.assign(this, { ring: { id: ring }, status });
+    const [
+      // @ts-ignore
+      ringingScheme, // Presented in ring entity
+      // @ts-ignore
+      primaryIdentificationMethod, // Presented in ring entity
+      identificationNumber,
+      // @ts-ignore
+      verificationOfTheMetalRing, // Presented in ring entity
+      // @ts-ignore
+      metalRingInformation, // Presented in ring entity
+      // @ts-ignore
+      otherMarksInformation, // Presented in ring entity
+      speciesMentioned,
+      manipulated,
+      movedBeforeTheCapture,
+      catchingMethod,
+      catchingLures,
+      sexMentioned,
+      sexConcluded,
+      ageMentioned,
+      ageConcluded,
+      status,
+      // @ts-ignore
+      broodSize, // Presented in ring entity
+      pullusAge,
+      accuracyOfPullusAge,
+      date,
+      accuracyOfDate,
+      time,
+      placeCode,
+      latitudeLongitude,
+      accuracyOfCoordinates,
+      condition,
+      circumstances,
+      circumstancesPresumed,
+      // @ts-ignore
+      euringCodeIdentifier, // Presented in ring entity
+      distance,
+      direction,
+      elapsedTime,
+      // Below params except "placeName" and "remarks" are unsupported, but they presented in EURING
+      // @ts-ignore
+      wingLength,
+      // @ts-ignore
+      thirdPrimary,
+      // @ts-ignore
+      stateOfWingPoint,
+      // @ts-ignore
+      mass,
+      // @ts-ignore
+      moult,
+      // @ts-ignore
+      plumageCode,
+      // @ts-ignore
+      hindClaw,
+      // @ts-ignore
+      billLength,
+      // @ts-ignore
+      billMethod,
+      // @ts-ignore
+      totalHeadLength,
+      // @ts-ignore
+      tarsus,
+      // @ts-ignore
+      tarsusMethod,
+      // @ts-ignore
+      tailLength,
+      // @ts-ignore
+      tailDiffernce,
+      // @ts-ignore
+      fatScore,
+      // @ts-ignore
+      fatScoreMethod,
+      // @ts-ignore
+      pectoralMuscle,
+      // @ts-ignore
+      broodPatch,
+      // @ts-ignore
+      primaryScore,
+      // @ts-ignore
+      primaryMoult,
+      // @ts-ignore
+      oldGreaterCoverts,
+      // @ts-ignore
+      alula,
+      // @ts-ignore
+      carpalCovert,
+      // @ts-ignore
+      sexingMethod,
+      // @ts-ignore
+      placeName,
+      remarks,
+      // @ts-ignore
+      reference,
+    ] = code.split('|');
+
+    const { latitude, longitude }: DecimalCoordinates = fromEuringToDecimal(latitudeLongitude);
+
+    return Object.assign(this, {
+      ringMentioned: identificationNumber || null,
+      speciesMentioned: speciesMentioned || null,
+      manipulated: manipulated || null,
+      movedBeforeTheCapture: Number(movedBeforeTheCapture) || null,
+      catchingMethod: catchingMethod || null,
+      catchingLures: catchingLures || null,
+      sexMentioned: sexMentioned || null,
+      sexConcluded: sexConcluded || null,
+      ageMentioned: ageMentioned || null,
+      ageConcluded: ageConcluded || null,
+      status: status || null,
+      pullusAge: pullusAge || null,
+      accuracyOfPullusAge: accuracyOfPullusAge || null,
+      date: fromEuringToDate(date, time),
+      accuracyOfDate: Number(accuracyOfDate) || null,
+      placeCode: placeCode || null,
+      latitude,
+      longitude,
+      accuracyOfCoordinates: Number(accuracyOfCoordinates) || null,
+      condition: Number(condition) || null,
+      circumstances: circumstances || null,
+      circumstancesPresumed: Number(circumstancesPresumed) || null,
+      distance: Number(distance) || null,
+      direction: Number(direction) || null,
+      elapsedTime: Number(elapsedTime) || null,
+      placeName: placeName || null,
+      remarks: remarks || null,
+    });
   }
 }
