@@ -357,33 +357,33 @@ export class Observation implements AbleToExportAndImportEuring {
       this.direction,
       this.elapsedTime,
       // Below unsupported parameters that presented in EURING
-      '',
-      '',
-      '',
-      '',
-      '',
-      '',
-      '',
-      '',
-      '',
-      '',
-      '',
-      '',
-      '',
-      '',
-      '',
-      '',
-      '',
-      '',
-      '',
-      '',
-      '',
-      '',
-      '',
-      '',
+      '', // wing length
+      '', // third primary
+      '', // state of wing point
+      '', // mass
+      '', // moult
+      '', // plumage code
+      '', // hind claw
+      '', // bill length
+      '', // bill method
+      '', // total head length
+      '', // tarsus
+      '', // tarsus method
+      '', // tail length
+      '', // tail differnce
+      '', // fat score
+      '', // fat score method
+      '', // pectoral muscle
+      '', // brood patch
+      '', // primary score
+      '', // primary moult
+      '', // old greater coverts
+      '', // alula
+      '', // carpal covert
+      '', // sexing method
       this.placeName,
       this.remarks,
-      '',
+      '', // reference
     ].join('|');
   }
 
