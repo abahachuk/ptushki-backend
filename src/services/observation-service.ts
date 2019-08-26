@@ -1,5 +1,5 @@
 import config from 'config';
-import { FindManyOptions, Repository, FindOneOptions } from 'typeorm';
+import { FindManyOptions, FindOneOptions } from 'typeorm';
 import { Observation } from '../entities/observation-entity';
 import { User, UserRole } from '../entities/user-entity';
 // eslint-disable-next-line @typescript-eslint/no-var-requires
@@ -55,36 +55,22 @@ export const mapLocale = (obsEntry: [string, any], lang: Locale): [string, any] 
       .filter(([field]) => filterFieldByLocale(field as Locale, lang))
       .map(entrie => (entrie[0] === lang ? ['desc', entrie[1]] : entrie))
       .reduce((acc, [subfield, subValue]) => Object.assign(acc, { [subfield as string]: subValue as any }), {});
+
     return [observationKey, value];
   }
   return obsEntry;
 };
 
-const reduceWithCount = (arr: any[], columnName: string) => {
-  if (arr[0].count === '0') {
-    return {};
+export const sanitizeUser = (obsEntry: [string, any]): [string, any] => {
+  const [observationKey, observationValue] = obsEntry;
+  if (observationKey === 'finder') {
+    const finder = User.sanitizeUser(observationValue);
+    return [observationKey, finder];
   }
-  return {
-    [columnName]: arr.map(row => ({
-      value: row[columnName] === undefined ? { ...row, count: undefined } : row[columnName],
-      count: row.count,
-    })),
-  };
+  return obsEntry;
 };
 
-const aggregationColumns: string[] = ['speciesMentionedId', 'speciesConcludedId', 'verified', 'ringId'];
 const aggregationSearch: string[] = ['search', 'pageNumber', 'pageSize', 'sortingColumn', 'sortingDirection'];
-const aggregationForeignKeys: ((repository: Repository<Observation>) => Promise<{ [x: string]: any }>)[] = [
-  async repository => {
-    const res = await repository
-      .createQueryBuilder('observation')
-      .select(['finder."id"', 'finder."firstName"', 'finder."lastName"', 'finder."role"', 'count(*)'])
-      .innerJoin('observation.finder', 'finder')
-      .groupBy('finder."id"')
-      .getRawMany();
-    return reduceWithCount(res, 'finder');
-  },
-];
 
 export const parseWhereParams = (user: User, query: ObservationAggregations): FindOneOptions<Observation> => {
   const params = Object.entries(query)
@@ -114,19 +100,4 @@ export const parsePageParams = (query: ObservationQuery): FindOptions<Observatio
     number,
     size,
   };
-};
-
-export const getAggregations = async (repsitory: Repository<Observation>) => {
-  const promisesByForeignKeys = aggregationForeignKeys.map(action => action(repsitory));
-  const promiseByColumns = aggregationColumns.map(column =>
-    repsitory
-      .createQueryBuilder('observation')
-      .select(`"${column}"`)
-      .addSelect(`count("${column}")`)
-      .groupBy(`"${column}"`)
-      .getRawMany()
-      .then(res => reduceWithCount(res, column)),
-  );
-  const res = await Promise.all([...promiseByColumns, ...promisesByForeignKeys]);
-  return res.reduce((acc, item) => Object.assign(acc, item), {});
 };

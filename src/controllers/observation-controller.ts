@@ -1,6 +1,8 @@
 import { NextFunction, Request, Response, Router } from 'express';
 import { getRepository, Repository } from 'typeorm';
+import { pipe } from 'ramda';
 import AbstractController from './abstract-controller';
+import { User } from '../entities/user-entity';
 import { Observation, Verified } from '../entities/observation-entity';
 import Exporter from '../services/export';
 import Importer from '../services/import';
@@ -9,12 +11,10 @@ import { Ring } from '../entities/ring-entity';
 import {
   parsePageParams,
   ObservationQuery,
-  // getAggregations,
   parseWhereParams,
-  // Locale,
-  // filterFieldByLocale,
   LocaleOrigin,
   mapLocale,
+  sanitizeUser,
 } from '../services/observation-service';
 import { CustomError } from '../utils/CustomError';
 
@@ -24,6 +24,11 @@ interface RequestWithObservation extends Request {
 
 interface RequestWithPageParams extends Request {
   query: ObservationQuery;
+}
+
+type ObservationKeyUnion = keyof Observation;
+interface AggregationsMap {
+  [key: string]: { value: any; count: number }[];
 }
 
 export default class ObservationController extends AbstractController {
@@ -36,6 +41,8 @@ export default class ObservationController extends AbstractController {
   private importer: Importer;
 
   private rings: Repository<Ring>;
+
+  private requiredColumns: ObservationKeyUnion[] = ['speciesMentioned', 'verified', 'finder', 'ringMentioned'];
 
   public init(): Router {
     this.observations = getRepository(Observation);
@@ -55,6 +62,7 @@ export default class ObservationController extends AbstractController {
     this.router.put('/:id', this.editObservation);
     this.router.delete('/:id', this.removeObservation);
     this.router.post('/set-verification', this.setVerificationStatus);
+
     return this.router;
   }
 
@@ -69,7 +77,7 @@ export default class ObservationController extends AbstractController {
 
       const content = observations[0].map(obs => {
         // sanitaze user's data
-        const finder = Object.assign({}, obs.finder.sanitizeUser(), { id: obs.finder.id });
+        const finder = Object.assign({}, User.sanitizeUser(obs.finder));
         // transform 'observation'
         const observation = Object.entries(obs)
           // clear 'filter' field
@@ -96,45 +104,40 @@ export default class ObservationController extends AbstractController {
 
   private getAggregations = async (req: Request, res: Response, next: NextFunction) => {
     try {
-      type ObservationKeyUnion = keyof Observation;
-      type aggregationsMap = { [key in ObservationKeyUnion]: { value: any; count: number }[] };
-
       const { lang = 'eng' }: { lang: string } = req.query;
       const langOrigin = LocaleOrigin[lang] ? LocaleOrigin[lang] : 'desc_eng';
 
       const paramsAggregation = parseWhereParams(req.user, req.query);
       const observations = await this.observations.find({ ...paramsAggregation });
+      const aggregatinMap: AggregationsMap = {};
+      const requiredColumnsMap = this.requiredColumns.reduce((acc, column) => {
+        return Object.assign(acc, { [column]: [] });
+      }, aggregatinMap);
 
-      const requiredColumns: ObservationKeyUnion[] = ['speciesMentioned', 'verified', 'finder'];
-      const requiredColumnsMap = requiredColumns.reduce(
-        (acc, column) => {
-          return Object.assign(acc, { [column]: [] });
-        },
-        // eslint-disable-next-line @typescript-eslint/no-object-literal-type-assertion
-        {} as aggregationsMap,
-      );
-
-      const reduced = observations.reduce((acc, observation) => {
-        requiredColumns.forEach(column => {
-          const findee = acc[column].find(item => {
+      const aggregations = observations.reduce((acc, observation) => {
+        this.requiredColumns.forEach(column => {
+          const desired = acc[column].find(item => {
             if (typeof observation[column] === 'object' && observation[column] !== null) {
               return item.value.id === (observation[column] as any).id;
             }
             return item.value === observation[column];
           });
-          if (findee) {
-            findee.count += 1;
+          if (desired) {
+            desired.count += 1;
           } else {
-            acc[column].push({ value: mapLocale([column, observation[column]], langOrigin)[1], count: 1 });
+            const f = pipe(
+              (arg: [string, any]) => mapLocale(arg, langOrigin),
+              (arg: [string, any]) => sanitizeUser(arg),
+            );
+            const [, obsValue] = f([column, observation[column]]);
+
+            acc[column].push({ value: obsValue, count: 1 });
           }
         });
         return acc;
       }, requiredColumnsMap);
 
-      res.json(reduced);
-
-      // const aggregations = await getAggregations(this.observations);
-      // res.json({ ...aggregations });
+      res.json(aggregations);
     } catch (error) {
       next(error);
     }

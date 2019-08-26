@@ -84,14 +84,15 @@ export class User {
     Object.assign(this, await getSaltAndHash(password));
   }
 
-  public sanitizeUser() {
+  public static sanitizeUser(user: User) {
     return Object.assign(
       {},
       {
-        email: this.email,
-        role: this.role,
-        firstName: this.firstName,
-        lastName: this.lastName,
+        id: user.id,
+        email: user.email,
+        role: user.role,
+        firstName: user.firstName,
+        lastName: user.lastName,
       },
     );
   }
