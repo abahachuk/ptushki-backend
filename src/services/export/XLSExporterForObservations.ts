@@ -70,7 +70,7 @@ export default class XLSExporterForObservations extends AbstractExporter {
       // sanitize user's sensetive data
       observations.map(obs => {
         const ref = obs;
-        ref.finder = ref.finder.sanitizeUser() as User;
+        ref.finder = User.sanitizeUser(ref.finder) as User;
         return ref;
       });
 

@@ -45,7 +45,7 @@ export default class AuthController extends AbstractController {
       await this.tokens.save(new RefreshToken(refreshToken, user.id));
       await addAudit('registration', '', null, user.id);
       return res.json({
-        user: user.sanitizeUser(),
+        user: User.sanitizeUser(user),
         token,
         refreshToken,
       });
