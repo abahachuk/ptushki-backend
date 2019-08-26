@@ -48,6 +48,18 @@ export const filterFieldByLocale = (key: Locale, lang: Locale): boolean => {
   return lang === key;
 };
 
+export const mapLocale = (obsEntry: [string, any], lang: Locale): [string, any] => {
+  const [observationKey, observationValue] = obsEntry;
+  if (typeof observationValue === 'object' && observationValue !== null) {
+    const value = Object.entries(observationValue)
+      .filter(([field]) => filterFieldByLocale(field as Locale, lang))
+      .map(entrie => (entrie[0] === lang ? ['desc', entrie[1]] : entrie))
+      .reduce((acc, [subfield, subValue]) => Object.assign(acc, { [subfield as string]: subValue as any }), {});
+    return [observationKey, value];
+  }
+  return obsEntry;
+};
+
 const reduceWithCount = (arr: any[], columnName: string) => {
   if (arr[0].count === '0') {
     return {};

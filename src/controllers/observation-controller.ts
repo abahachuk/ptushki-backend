@@ -11,9 +11,10 @@ import {
   ObservationQuery,
   // getAggregations,
   parseWhereParams,
-  Locale,
-  filterFieldByLocale,
+  // Locale,
+  // filterFieldByLocale,
   LocaleOrigin,
+  mapLocale,
 } from '../services/observation-service';
 import { CustomError } from '../utils/CustomError';
 
@@ -74,18 +75,7 @@ export default class ObservationController extends AbstractController {
           // clear 'filter' field
           .filter(([ObservationField]) => ObservationField !== 'ring')
           // map 'lang' param according 'Locale'
-          .map(([ObservationKey, ObservationValue]) => {
-            if (typeof ObservationValue === 'object' && ObservationValue !== null) {
-              const value = Object.entries(ObservationValue)
-                .filter(([subfield]) => filterFieldByLocale(subfield as Locale, langOrigin))
-                .map(([subfield, subValue]) =>
-                  subfield === langOrigin ? ['desc', subValue] : ([subfield, subValue] as any),
-                )
-                .reduce((acc, [subfield, subValue]) => Object.assign(acc, { [subfield]: subValue }), {});
-              return [ObservationKey, value];
-            }
-            return [ObservationKey, ObservationValue];
-          })
+          .map(entrie => mapLocale(entrie, langOrigin))
           .reduce(
             (acc, [ObservationField, ObservationValue]) => Object.assign(acc, { [ObservationField]: ObservationValue }),
             {},
@@ -106,35 +96,40 @@ export default class ObservationController extends AbstractController {
 
   private getAggregations = async (req: Request, res: Response, next: NextFunction) => {
     try {
+      type ObservationKeyUnion = keyof Observation;
+      type aggregationsMap = { [key in ObservationKeyUnion]: { value: any; count: number }[] };
+
+      const { lang = 'eng' }: { lang: string } = req.query;
+      const langOrigin = LocaleOrigin[lang] ? LocaleOrigin[lang] : 'desc_eng';
+
       const paramsAggregation = parseWhereParams(req.user, req.query);
-      const observations = await this.observations.find({
-        ...paramsAggregation,
-      });
+      const observations = await this.observations.find({ ...paramsAggregation });
 
-      const aggregationColumns: (keyof Observation)[] = ['speciesMentioned', 'speciesConcluded', 'verified', 'ring'];
+      const requiredColumns: ObservationKeyUnion[] = ['speciesMentioned', 'verified', 'finder'];
+      const requiredColumnsMap = requiredColumns.reduce(
+        (acc, column) => {
+          return Object.assign(acc, { [column]: [] });
+        },
+        // eslint-disable-next-line @typescript-eslint/no-object-literal-type-assertion
+        {} as aggregationsMap,
+      );
 
-      const obj = aggregationColumns.reduce((acc, column) => {
-        return Object.assign(acc, { [column]: [] });
-      }, {});
-
-      // console.log(JSON.stringify(acc, null, 2));
-
-      const reduced = observations.reduce((accum, value) => {
-        const ref = accum;
-        aggregationColumns.forEach(column => {
-          // @ts-ignore
-          const accumValue = accum[column];
-          if (accumValue.length === 0) {
-            accumValue.push({ value: value[column] });
+      const reduced = observations.reduce((acc, observation) => {
+        requiredColumns.forEach(column => {
+          const findee = acc[column].find(item => {
+            if (typeof observation[column] === 'object' && observation[column] !== null) {
+              return item.value.id === (observation[column] as any).id;
+            }
+            return item.value === observation[column];
+          });
+          if (findee) {
+            findee.count += 1;
+          } else {
+            acc[column].push({ value: mapLocale([column, observation[column]], langOrigin)[1], count: 1 });
           }
-          if (accumValue.length > 0) {
-            // const findee = accumValue.find(item => item);
-          }
-
-          // accumValue.push({ value: value[column] })
         });
-        return ref;
-      }, obj);
+        return acc;
+      }, requiredColumnsMap);
 
       res.json(reduced);
 
