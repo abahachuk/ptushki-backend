@@ -15,6 +15,7 @@ export default class EURINGExporterForObservation extends AbstractExporter {
   public async export(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
       const { rowIds = [] }: { rowIds: string[] } = req.body;
+      this.validateRowIds(rowIds);
       const observations: AbleToExportAndImportEuring[] = await this.observations.find({
         where: rowIds.map(id => ({ id })),
       });

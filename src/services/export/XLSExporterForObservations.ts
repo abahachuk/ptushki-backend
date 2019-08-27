@@ -60,6 +60,7 @@ export default class XLSExporterForObservations extends AbstractExporter {
   public async export(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
       const { lang = 'eng', rowIds = [] }: { lang: string; rowIds: string[] } = req.body;
+      this.validateRowIds(rowIds);
       const langOrigin = LocaleOrigin[lang] ? LocaleOrigin[lang] : 'desc_eng';
       const observations = await this.observations.find({
         where: rowIds.map(id => ({ id })),
