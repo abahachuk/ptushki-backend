@@ -4,6 +4,7 @@ import AbstractImporter, { ImporterType } from './AbstractImporter';
 import { Observation } from '../../entities/observation-entity';
 import { Ring } from '../../entities/ring-entity';
 import { MulterOptions } from '../../controllers/upload-files-controller';
+import { CustomError } from '../../utils/CustomError';
 
 export default class EURINGImporterForObservations extends AbstractImporter {
   public type: ImporterType = 'EURING';
@@ -27,14 +28,18 @@ export default class EURINGImporterForObservations extends AbstractImporter {
         const observation = new Observation();
         const data = observation.importEURING(code);
         const ring = await this.rings.findOne({ identificationNumber: data.ringMentioned });
-        return Object.assign(data, { ring: ring ? ring.id : null, finder: req.user.id },);
+        return Object.assign(data, { ring: ring ? ring.id : null, finder: req.user.id });
       });
       const syncObservations = await Promise.all(observations);
       await this.validate(syncObservations);
       const result = await this.observations.save(syncObservations);
       res.json(result);
     } catch (e) {
-      next(e);
+      if (e.name === 'QueryFailedError') {
+        next(new CustomError<string>(e.detail, 500));
+      } else {
+        next(e);
+      }
     }
   }
 }
