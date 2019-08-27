@@ -41,6 +41,7 @@ import { AbleToExportAndImportEuring } from './common-interfaces';
 import { ColumnNumericTransformer } from '../utils/ColumnNumericTransformer';
 import { fromDateToEuringDate, fromDateToEuringTime, fromEuringToDate } from '../utils/date-parser';
 import { fromDecimalToEuring, DecimalCoordinates, fromEuringToDecimal } from '../utils/coords-parser';
+import { fromStringToValueOrNull } from '../utils/custom-parsers';
 
 export interface NewObservation {
   finder: User;
@@ -488,33 +489,33 @@ export class Observation implements AbleToExportAndImportEuring {
     const { latitude, longitude }: DecimalCoordinates = fromEuringToDecimal(latitudeLongitude);
 
     return Object.assign(this, {
-      ringMentioned: identificationNumber || null,
-      speciesMentioned: speciesMentioned || null,
-      manipulated: manipulated || null,
-      movedBeforeTheCapture: Number(movedBeforeTheCapture) || null,
-      catchingMethod: catchingMethod || null,
-      catchingLures: catchingLures || null,
-      sexMentioned: sexMentioned || null,
-      sexConcluded: sexConcluded || null,
-      ageMentioned: ageMentioned || null,
-      ageConcluded: ageConcluded || null,
-      status: status || null,
-      pullusAge: pullusAge || null,
-      accuracyOfPullusAge: accuracyOfPullusAge || null,
+      ringMentioned: fromStringToValueOrNull(identificationNumber),
+      speciesMentioned: fromStringToValueOrNull(speciesMentioned),
+      manipulated: fromStringToValueOrNull(manipulated),
+      movedBeforeTheCapture: fromStringToValueOrNull(movedBeforeTheCapture, Number),
+      catchingMethod: fromStringToValueOrNull(catchingMethod),
+      catchingLures: fromStringToValueOrNull(catchingLures),
+      sexMentioned: fromStringToValueOrNull(sexMentioned),
+      sexConcluded: fromStringToValueOrNull(sexConcluded),
+      ageMentioned: fromStringToValueOrNull(ageMentioned),
+      ageConcluded: fromStringToValueOrNull(ageConcluded),
+      status: fromStringToValueOrNull(status),
+      pullusAge: fromStringToValueOrNull(pullusAge),
+      accuracyOfPullusAge: fromStringToValueOrNull(accuracyOfPullusAge),
       date: fromEuringToDate(date, time),
-      accuracyOfDate: Number(accuracyOfDate) || null,
-      placeCode: placeCode || null,
+      accuracyOfDate: fromStringToValueOrNull(accuracyOfDate, Number),
+      placeCode: fromStringToValueOrNull(placeCode),
       latitude,
       longitude,
-      accuracyOfCoordinates: Number(accuracyOfCoordinates) || null,
-      condition: Number(condition) || null,
-      circumstances: circumstances || null,
-      circumstancesPresumed: Number(circumstancesPresumed) || null,
-      distance: Number(distance) || null,
-      direction: Number(direction) || null,
-      elapsedTime: Number(elapsedTime) || null,
-      placeName: placeName || null,
-      remarks: remarks || null,
+      accuracyOfCoordinates: fromStringToValueOrNull(accuracyOfCoordinates, Number),
+      condition: fromStringToValueOrNull(condition, Number),
+      circumstances: fromStringToValueOrNull(circumstances),
+      circumstancesPresumed: fromStringToValueOrNull(circumstancesPresumed, Number),
+      distance: fromStringToValueOrNull(distance, Number),
+      direction: fromStringToValueOrNull(direction, Number),
+      elapsedTime: fromStringToValueOrNull(elapsedTime, Number),
+      placeName: fromStringToValueOrNull(placeName),
+      remarks: fromStringToValueOrNull(remarks),
     });
   }
 }
