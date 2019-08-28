@@ -7,4 +7,12 @@ services:
       POSTGRES_USER: 'username'
       POSTGRES_DB: 'ptushki'
     ports:
-      - '5432:5432'
+      - '${PG_PORT}:5432'
+  ptushki-postgres-test:
+    image: postgres:11
+    environment:
+      POSTGRES_PASSWORD: 'password'
+      POSTGRES_USER: 'username'
+      POSTGRES_DB: 'ptushki-test'
+    ports:
+      - '${PG_TEST_PORT}:5432'

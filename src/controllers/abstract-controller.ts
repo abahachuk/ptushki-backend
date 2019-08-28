@@ -1,5 +1,5 @@
 import config from 'config';
-import { Router, NextFunction, Request, Response } from 'express';
+import { NextFunction, Request, Response } from 'express';
 import { Repository } from 'typeorm';
 import { validate, ValidationError } from 'class-validator';
 import { CustomError } from '../utils/CustomError';
@@ -57,9 +57,7 @@ export default abstract class AbstractController {
         }),
         {},
       );
-      throw new CustomError<any>(parsedErrors, 422);
+      throw new CustomError(parsedErrors as string, 422);
     }
   }
-
-  public abstract init(): Router;
 }

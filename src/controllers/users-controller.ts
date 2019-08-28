@@ -3,7 +3,7 @@ import { getRepository, Repository } from 'typeorm';
 import AbstractController from './abstract-controller';
 import { User } from '../entities/user-entity';
 
-interface RequestWithUser extends Request {
+export interface RequestWithUser extends Request {
   user: User;
 }
 

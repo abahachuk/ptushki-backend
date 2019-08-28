@@ -1,9 +1,10 @@
-export class CustomError<T = string> {
-  public message: T;
+// TODO: create specific errors to avoid generic
+export class CustomError {
+  public message: string;
 
   public status: number;
 
-  public constructor(message: T, status: number) {
+  public constructor(message: string, status: number) {
     this.message = message;
     this.status = status;
   }
