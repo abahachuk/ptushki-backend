@@ -1,12 +1,12 @@
 import { Entity, PrimaryColumn, Column, OneToMany } from 'typeorm';
 import { IsInt, Min, Max, IsOptional, IsString } from 'class-validator';
-import { Dictionary } from '../common-interfaces';
+import { EntityDto } from '../common-interfaces';
 import { Ring } from '../ring-entity';
 import { Observation } from '../observation-entity';
 
 // Related table in access 'Accuracy of co-ordinates'
 @Entity()
-export class AccuracyOfCoordinates implements Dictionary {
+export class AccuracyOfCoordinates implements EntityDto {
   @IsInt()
   @Min(0)
   @Max(9)

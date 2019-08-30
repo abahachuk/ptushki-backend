@@ -1,5 +1,5 @@
 import { Entity, PrimaryGeneratedColumn, Column } from 'typeorm';
-import { UserInfo } from './user-entity';
+import { UserDto } from './user-entity';
 
 @Entity()
 export class RefreshToken {
@@ -39,5 +39,5 @@ export class ChangePasswordReqDto {
 }
 
 export class SuccessAuthDto extends TokensPairDto {
-  public readonly user: UserInfo;
+  public readonly user: UserDto;
 }

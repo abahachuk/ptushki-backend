@@ -1,11 +1,11 @@
 import { Entity, PrimaryColumn, Column, OneToMany } from 'typeorm';
 import { IsInt, Min, Max, IsOptional, IsString } from 'class-validator';
-import { Dictionary } from '../common-interfaces';
+import { EntityDto } from '../common-interfaces';
 import { Ring } from '../ring-entity';
 
 // Related table in access 'Verification of the metal ring'
 @Entity()
-export class VerificationOfTheMetalRing implements Dictionary {
+export class VerificationOfTheMetalRing implements EntityDto {
   @IsInt()
   @Min(0)
   @Max(9)

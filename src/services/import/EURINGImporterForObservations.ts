@@ -1,13 +1,12 @@
-import { NextFunction, Request, Response } from 'express';
 import { getRepository, Repository } from 'typeorm';
-import AbstractImporter, { ImporterType } from './AbstractImporter';
+import AbstractImporter, { ImporterType, StringImporterType } from './AbstractImporter';
 import { Observation } from '../../entities/observation-entity';
 import { Ring } from '../../entities/ring-entity';
 import { MulterOptions } from '../../controllers/upload-files-controller';
 import { CustomError } from '../../utils/CustomError';
 
-export default class EURINGImporterForObservations extends AbstractImporter {
-  public type: ImporterType = 'EURING';
+export default class EURINGImporterForObservations extends AbstractImporter<string, void> {
+  public type: ImporterType = StringImporterType.euring;
 
   public route: string = 'observations';
 
@@ -21,10 +20,9 @@ export default class EURINGImporterForObservations extends AbstractImporter {
   private rings: Repository<Ring> = getRepository(Ring);
 
   /* eslint-disable-next-line class-methods-use-this */
-  public async import(req: Request, res: Response, next: NextFunction): Promise<void> {
+  public async import(codes: string[]): Promise<void> {
     try {
-      let observations: any[] = req.body;
-      observations = observations.map(async (code: string) => {
+      const observations = codes.map(async (code: string) => {
         const observation = new Observation();
         const data = observation.importEURING(code);
         const ring = await this.rings.findOne({ identificationNumber: data.ringMentioned });
@@ -32,13 +30,12 @@ export default class EURINGImporterForObservations extends AbstractImporter {
       });
       const syncObservations = await Promise.all(observations);
       await this.validate(syncObservations);
-      const result = await this.observations.save(syncObservations);
-      res.json(result);
+      await this.observations.save(syncObservations);
     } catch (e) {
       if (e.name === 'QueryFailedError') {
-        next(new CustomError<string>(e.detail, 500));
+        throw new CustomError(e.detail, 500));
       } else {
-        next(e);
+        throw e;
       }
     }
   }

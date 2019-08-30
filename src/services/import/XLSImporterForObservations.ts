@@ -1,11 +1,9 @@
-import { NextFunction, Request, Response } from 'express';
-import { getRepository, Repository } from 'typeorm';
-import AbstractImporter, { ImporterType } from './AbstractImporter';
-import { Observation } from '../../entities/observation-entity';
+import AbstractImporter, { ImporterType, XlsImporterType } from './AbstractImporter';
 import { MulterOptions } from '../../controllers/upload-files-controller';
+import { CustomError } from '../../utils/CustomError';
 
-export default class XLSImporterForObservations extends AbstractImporter {
-  public type: ImporterType = 'XLS';
+export default class XLSImporterForObservations extends AbstractImporter<Express.Multer.File, void> {
+  public type: ImporterType = XlsImporterType.xls;
 
   public route: string = 'observations';
 
@@ -14,16 +12,8 @@ export default class XLSImporterForObservations extends AbstractImporter {
     any: true,
   };
 
-  private observations: Repository<Observation> = getRepository(Observation);
-
-  /* eslint-disable-next-line class-methods-use-this */
-  public async import(req: Request, res: Response, next: NextFunction): Promise<void> {
-    try {
-      const observations: any[] = req.body;
-      const result = await this.observations.insert(observations);
-      res.json(result);
-    } catch (e) {
-      next(e);
-    }
+  public async import(files: Express.Multer.File[]): Promise<void> {
+    this.filterFiles(files);
+    throw new CustomError('Not implemented.', 522);
   }
 }

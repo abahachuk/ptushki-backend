@@ -15,10 +15,9 @@ export default class RingsByController extends AbstractController {
   public init(): Router {
     this.router = Router();
     this.rings = getRepository(Ring);
-    this.setMainEntity(this.rings, 'ring');
+    this.setMainEntity(this.rings);
 
     this.router.get('/', this.findRings);
-    this.router.param('id', this.checkId);
     this.router.get('/:id', this.findOneRing);
     this.router.delete('/:id', this.removeRing);
     this.router.post('/', this.addRing);

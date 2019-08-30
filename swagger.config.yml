@@ -3,6 +3,7 @@ swagger:
   entryFile:
     - src/controllers/*-controller.ts
   outputFormat: OpenApi_2
+  basePath: /
   name: Ptushki API
   description: This is a sample for ptushki-backend API documentation
   license: MIT

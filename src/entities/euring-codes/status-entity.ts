@@ -2,13 +2,13 @@ import { Entity, PrimaryColumn, Column, OneToMany } from 'typeorm';
 import { Length, IsOptional, IsString } from 'class-validator';
 import { IsAlphaWithHyphen } from '../../validation/custom-decorators';
 import { equalLength } from '../../validation/validation-messages';
-import { Dictionary } from '../common-interfaces';
+import { EntityDto } from '../common-interfaces';
 import { Ring } from '../ring-entity';
 import { Observation } from '../observation-entity';
 
 // Related table in access 'Status'
 @Entity()
-export class Status implements Dictionary {
+export class Status implements EntityDto {
   @IsAlphaWithHyphen()
   @Length(1, 1, { message: equalLength(1) })
   @PrimaryColumn()

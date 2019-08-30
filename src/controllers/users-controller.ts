@@ -18,7 +18,7 @@ export default class UsersController extends AbstractController {
     this.setMainEntity(this.users);
 
     this.router.get('/', this.find);
-    this.router.param('id', this.checkId);
+    // this.router.param('id', this.checkId);
     this.router.get('/:id', this.findOne);
     this.router.delete('/:id', this.remove);
 

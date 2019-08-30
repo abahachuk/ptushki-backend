@@ -1,8 +1,8 @@
 import { IProcessor } from 'typeorm-fixtures-cli';
-import { Condition } from '../entities/euring-codes';
+import { Conditions } from '../entities/euring-codes';
 
 /* eslint-disable class-methods-use-this */
-export default class ConditionProcessor implements IProcessor<Condition> {
+export default class ConditionProcessor implements IProcessor<Conditions> {
   public preProcess(name: string, object: any): any {
     return {
       ...object,

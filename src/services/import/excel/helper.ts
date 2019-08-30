@@ -36,15 +36,18 @@ export interface RowErorr {
   error: string | null;
 }
 
-export interface DataCheck {
+export interface DataCheckDto {
   emptyRowCount: number;
   rowCount: number;
   possibleClones: number;
   addedData: RowValidatedData[];
   observations: RawData[];
   euRingErrors: EURingError[];
-  validFormatData: RowValidatedData[];
   invalidDataFormat: RowValidationError[];
+}
+
+export interface DataCheck extends DataCheckDto {
+  validFormatData: RowValidatedData[];
 }
 
 const createColumns = (columnNames: string[]): Partial<Column>[] => {

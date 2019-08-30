@@ -1,15 +1,23 @@
-import { NextFunction, Request, Response } from 'express';
-import AbstractImporter, { ImporterType } from './AbstractImporter';
+import AbstractImporter, {
+  ImporterType,
+  ImportInput,
+  ImportOutput,
+  StringImporterType,
+  XlsImporterType,
+} from './AbstractImporter';
 import EURINGImporterForObservations from './EURINGImporterForObservations';
 import XLSImporterForObservations from './XLSImporterForObservations';
 import XLSImporterValidateObservations from './excel/XLSImporterValidateObservations';
 import { CustomError } from '../../utils/CustomError';
-import { upload } from '../../controllers/upload-files-controller';
+import { DataCheckDto } from './excel/helper';
 
 export default class Importer {
   private exporters: AbstractImporter[];
 
-  public constructor() {
+  private route: string;
+
+  public constructor(route: string) {
+    this.route = route;
     this.exporters = [
       new EURINGImporterForObservations(),
       new XLSImporterForObservations(),
@@ -17,32 +25,22 @@ export default class Importer {
     ];
   }
 
-  private getImporter(route: string, type: ImporterType): AbstractImporter | undefined {
-    /* eslint-disable-next-line @typescript-eslint/explicit-function-return-type */
-    return this.exporters.find(e => e.type === type.toUpperCase() && e.route === route);
+  private getImporter(type: ImporterType): AbstractImporter | undefined {
+    return this.exporters.find(e => e.type === type.toUpperCase() && e.route === this.route);
   }
 
-  /* eslint-disable-next-line @typescript-eslint/explicit-function-return-type */
-  public handle = (route: string) => async (req: Request, res: Response, next: NextFunction): Promise<void> => {
-    try {
-      const { type } = req.params;
-      const importer = this.getImporter(route, type);
-      if (!importer) {
-        throw new CustomError(`Type ${type} isn't supported import type for ${route}`, 400);
-      }
-      upload(importer.options)(
-        req,
-        res,
-        async (error: Error): Promise<void> => {
-          if (error) {
-            next(error);
-          } else {
-            await importer.import(req, res, next);
-          }
-        },
-      );
-    } catch (e) {
-      next(e);
+  // eslint can't handle method overload
+  /* eslint-disable no-dupe-class-members, lines-between-class-members */
+  public async handle(type: XlsImporterType.xls, sources: Express.Multer.File[]): Promise<void>;
+  public async handle(type: XlsImporterType.validate, sources: Express.Multer.File[]): Promise<DataCheckDto>;
+  public async handle(type: StringImporterType.euring, sources: string[]): Promise<void>;
+  public async handle(type: ImporterType, sources: ImportInput[]): Promise<ImportOutput> {
+    const importer = this.getImporter(type);
+    if (!importer) {
+      throw new CustomError(`Type ${type} isn't supported import type for ${this.route}`, 400);
     }
-  };
+
+    return importer.import(sources);
+  }
+  /* eslint-enable no-dupe-class-members, lines-between-class-members */
 }

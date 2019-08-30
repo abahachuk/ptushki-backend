@@ -66,7 +66,7 @@ export const EURINGs: { [index: string]: { Entity: any; mapping: Map<string, str
   // Color_ring_information: { Entity: entities }, // FIXME невозможно заставить эту таблицу работать через node-adodb
   // ну и как бы она отсутствует в стандарте. скорее всего здесь она вспомогательная
   Condition: {
-    Entity: entities.Condition,
+    Entity: entities.Conditions,
     mapping: new Map([['id', 'n'], ['desc_eng', 'Condition'], ['desc_rus', 'Rus'], ['desc_byn', 'Bel']]),
   },
   Euring_cod_identifier: {

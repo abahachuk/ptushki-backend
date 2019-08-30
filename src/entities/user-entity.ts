@@ -19,6 +19,35 @@ export enum UserRole {
 }
 
 export class NewUser {
+  public email: string;
+
+  public firstName?: string;
+
+  public lastName?: string;
+}
+
+export class CreateUserDto extends NewUser implements WithCredentials {
+  public password: string;
+}
+
+export interface UserDto extends NewUser {
+  id: string;
+  role: UserRole;
+}
+
+@Entity()
+export class User implements UserDto {
+  @PrimaryGeneratedColumn('uuid')
+  public id: string;
+
+  @IsEnum(UserRole)
+  @Column({
+    type: 'enum',
+    enum: UserRole,
+    default: UserRole.Observer,
+  })
+  public role: UserRole;
+
   @IsEmail()
   @MaxLength(64)
   @Column({
@@ -40,31 +69,6 @@ export class NewUser {
   @MaxLength(64)
   @Column('varchar', { length: 64, nullable: true, default: null })
   public lastName?: string;
-}
-
-export class CreateUserDto extends NewUser implements WithCredentials {
-  public password: string;
-}
-
-export class UserInfo extends NewUser {
-  @PrimaryGeneratedColumn('uuid')
-  public id: string;
-
-  @IsEnum(UserRole)
-  @Column({
-    type: 'enum',
-    enum: UserRole,
-    default: UserRole.Observer,
-  })
-  public role: UserRole;
-}
-
-@Entity()
-export class User extends UserInfo {
-  // eslint-disable-next-line no-useless-constructor,no-empty-function
-  protected constructor() {
-    super();
-  }
 
   @Column()
   public hash: string;

@@ -2,12 +2,12 @@ import { Entity, PrimaryColumn, Column, OneToMany } from 'typeorm';
 import { Length, IsOptional, IsString } from 'class-validator';
 import { IsNumberStringWithHyphen } from '../../validation/custom-decorators';
 import { equalLength } from '../../validation/validation-messages';
-import { Dictionary } from '../common-interfaces';
+import { EntityDto } from '../common-interfaces';
 import { Ring } from '../ring-entity';
 
 // Related table in access 'Broodsize'
 @Entity()
-export class BroodSize implements Dictionary {
+export class BroodSize implements EntityDto {
   @IsNumberStringWithHyphen()
   @Length(2, 2, { message: equalLength(2) })
   @PrimaryColumn()

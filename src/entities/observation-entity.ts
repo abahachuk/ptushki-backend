@@ -17,12 +17,13 @@ import {
 } from 'class-validator';
 import { IsAlphaWithHyphen, IsAlphanumericWithHyphen, IsNumberStringWithHyphen } from '../validation/custom-decorators';
 import { equalLength } from '../validation/validation-messages';
-import { User } from './user-entity';
-import { Ring } from './ring-entity';
+import { User, UserDto } from './user-entity';
+import { Ring, RingDto } from './ring-entity';
 import {
   Sex,
   Age,
   Species,
+  SpeciesDto,
   Manipulated,
   MovedBeforeTheCapture,
   CatchingMethod,
@@ -32,12 +33,13 @@ import {
   Status,
   PullusAge,
   AccuracyOfPullusAge,
-  Condition,
+  Conditions,
   Circumstances,
   CircumstancesPresumed,
   PlaceCode,
+  PlaceCodeDto,
 } from './euring-codes';
-import { AbleToExportAndImportEuring } from './common-interfaces';
+import { AbleToExportAndImportEuring, EntityDto } from './common-interfaces';
 import { ColumnNumericTransformer } from '../utils/ColumnNumericTransformer';
 import { fromDateToEuringDate, fromDateToEuringTime, fromEuringToDate } from '../utils/date-parser';
 import { fromDecimalToEuring, DecimalCoordinates, fromEuringToDecimal } from '../utils/coords-parser';
@@ -53,8 +55,57 @@ export enum Verified {
   Rejected = 'rejected',
 }
 
+interface RawObservationBase<TCommon, TRing, TSpecies> {
+  ring: TRing;
+  speciesConcluded: TSpecies;
+  sexConcluded: TCommon;
+  ageConcluded: TCommon;
+  ringMentioned: string;
+  speciesMentioned: TSpecies;
+  sexMentioned: TCommon;
+  ageMentioned: TCommon;
+  latitude?: number;
+  longitude?: number;
+  photos?: string[];
+  distance?: number;
+  direction?: number;
+  remarks?: string;
+  date?: Date;
+  accuracyOfDate: EntityDto;
+  placeCode: PlaceCodeDto;
+}
+
+export interface ObservationBase<TFinder, TCommon, TRing, TSpecies>
+  extends RawObservationBase<TCommon, TRing, TSpecies> {
+  id: string;
+  finder: TFinder;
+  elapsedTime: number | null;
+  colorRing: string | null;
+  manipulated: EntityDto;
+  movedBeforeTheCapture: EntityDto;
+  catchingMethod: EntityDto;
+  catchingLures: EntityDto;
+  accuracyOfCoordinates: EntityDto;
+  status: EntityDto;
+  pullusAge: EntityDto;
+  accuracyOfPullusAge: EntityDto;
+  condition: EntityDto;
+  circumstances: EntityDto;
+  circumstancesPresumed: EntityDto;
+  placeName: string | null;
+  verified: Verified;
+}
+
+// Can't use type due to typescript-swagger restrictions
+// eslint-disable-next-line @typescript-eslint/no-empty-interface
+export interface RawObservationDto extends RawObservationBase<string, string, string> {}
+// eslint-disable-next-line @typescript-eslint/no-empty-interface
+export interface ObservationBaseDto extends ObservationBase<string, string, string, string> {}
+// eslint-disable-next-line @typescript-eslint/no-empty-interface
+export interface ObservationDto extends ObservationBase<UserDto, EntityDto, RingDto, SpeciesDto> {}
+
 @Entity()
-export class Observation implements AbleToExportAndImportEuring {
+export class Observation implements ObservationDto, AbleToExportAndImportEuring {
   @PrimaryGeneratedColumn('uuid')
   public id: string;
 
@@ -81,7 +132,7 @@ export class Observation implements AbleToExportAndImportEuring {
   @IsOptional()
   @IsString({ each: true })
   @Column('varchar', { array: true, nullable: true, default: null })
-  public photos: string[] | null;
+  public photos: string[];
 
   @IsNumberString()
   @Length(5, 5, { message: equalLength(5) })
@@ -134,7 +185,7 @@ export class Observation implements AbleToExportAndImportEuring {
   @Min(0)
   @Max(99999)
   @Column('integer', { nullable: true, default: null })
-  public distance: number | null;
+  public distance: number;
 
   // Related field in access 'Derived data directions'
   @IsOptional()
@@ -142,7 +193,7 @@ export class Observation implements AbleToExportAndImportEuring {
   @Min(0)
   @Max(359)
   @Column('smallint', { nullable: true, default: null })
-  public direction: number | null;
+  public direction: number;
 
   // Related field in access 'Derived data elapsed time'
   @IsOptional()
@@ -193,7 +244,7 @@ export class Observation implements AbleToExportAndImportEuring {
 
   @IsDateString()
   @Column('varchar', { nullable: true, default: null })
-  public date: Date | null;
+  public date: Date;
 
   @IsInt()
   @Min(0)
@@ -215,7 +266,7 @@ export class Observation implements AbleToExportAndImportEuring {
     default: null,
     transformer: new ColumnNumericTransformer(),
   })
-  public latitude: number | null;
+  public latitude: number;
 
   // Related fields in access 'Lon deg', 'Lon min', 'Lon sec'
   @IsOptional()
@@ -229,7 +280,7 @@ export class Observation implements AbleToExportAndImportEuring {
     default: null,
     transformer: new ColumnNumericTransformer(),
   })
-  public longitude: number | null;
+  public longitude: number;
 
   @IsAlphanumeric()
   @Length(4, 4, { message: equalLength(4) })
@@ -275,10 +326,10 @@ export class Observation implements AbleToExportAndImportEuring {
   @IsInt()
   @Min(0)
   @Max(9)
-  @ManyToOne(() => Condition, m => m.ring, {
+  @ManyToOne(() => Conditions, m => m.ring, {
     eager: true,
   })
-  public condition: Condition;
+  public condition: Conditions;
 
   @IsOptional()
   @IsNumberString()
@@ -307,7 +358,7 @@ export class Observation implements AbleToExportAndImportEuring {
   @IsOptional()
   @IsString()
   @Column('varchar', { nullable: true, default: null })
-  public remarks: string | null;
+  public remarks: string;
 
   // Not presented in euring standart
   @IsOptional()
@@ -319,7 +370,7 @@ export class Observation implements AbleToExportAndImportEuring {
   })
   public verified: Verified;
 
-  public static async create(observation: NewObservation): Promise<Observation> {
+  public static async create(observation: RawObservationDto & { finder: string }): Promise<Observation> {
     return Object.assign(new Observation(), observation);
   }
 
