@@ -15,10 +15,12 @@ const createApp = async (): Promise<Application> => {
   app.use(bodyParser.json());
   app.use(bodyParser.urlencoded({ extended: true }));
   app.use(await routes());
-  app.use(errorHandler);
 
   Server.loadServices(app, 'controllers/*-controller.ts', __dirname);
   Server.swagger(app, { filePath: './dist/swagger.json', endpoint: 'swagger' });
+
+  app.use(errorHandler);
+
   return app;
 };
 
