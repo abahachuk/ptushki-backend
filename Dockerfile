@@ -1,12 +1,12 @@
-FROM node:12.2-alpine
+FROM node:10.16-alpine
 
-RUN mkdir /app
-WORKDIR /app
+WORKDIR /usr/src/app
 
-COPY package.json /app
-RUN npm install
+COPY package*.json ./
 
-COPY . /app
+RUN npm ci --only=production
+
+COPY . .
 
 EXPOSE 3001
 
