@@ -76,14 +76,14 @@ export default class ObservationController extends AbstractController {
       const observations = await this.observations.findAndCount(Object.assign(paramsSearch, paramsAggregation));
 
       const content = observations[0].map(obs => {
-        // sanitaze user's data
+        // sanitize user's data
         const finder = Object.assign({}, User.sanitizeUser(obs.finder));
         // transform 'observation'
         const observation = Object.entries(obs)
           // clear 'filter' field
           .filter(([ObservationField]) => ObservationField !== 'ring')
           // map 'lang' param according 'Locale'
-          .map(entrie => mapLocale(entrie, langOrigin))
+          .map(entry => mapLocale(entry, langOrigin))
           .reduce(
             (acc, [ObservationField, ObservationValue]) => Object.assign(acc, { [ObservationField]: ObservationValue }),
             {},
@@ -109,10 +109,10 @@ export default class ObservationController extends AbstractController {
 
       const paramsAggregation = parseWhereParams(req.user, req.query);
       const observations = await this.observations.find({ ...paramsAggregation });
-      const aggregatinMap: AggregationsMap = {};
+      const aggregationsMap: AggregationsMap = {};
       const requiredColumnsMap = this.requiredColumns.reduce((acc, column) => {
         return Object.assign(acc, { [column]: [] });
-      }, aggregatinMap);
+      }, aggregationsMap);
 
       const aggregations = observations.reduce((acc, observation) => {
         this.requiredColumns.forEach(column => {
