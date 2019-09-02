@@ -17,7 +17,10 @@ const createApp = async (): Promise<Application> => {
   app.use(await routes());
 
   Server.loadServices(app, 'controllers/*-controller.ts', __dirname);
-  Server.swagger(app, { filePath: './dist/swagger.json', endpoint: 'swagger' });
+
+  if (process.env.NODE_ENV !== 'test') {
+    Server.swagger(app, { filePath: './dist/swagger.json', endpoint: 'swagger' });
+  }
 
   app.use(errorHandler);
 

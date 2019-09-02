@@ -12,7 +12,7 @@
     "lint": "eslint src/**/*.ts",
     "lint:fix": "npm run lint -- --fix",
     "clean": "rimraf ./dist",
-    "test": "npm run swagger && jest --config ./jest.config.json",
+    "test": "jest --config ./jest.config.json",
     "test:coverage": "npm run test -- --coverage",
     "test:watch": "npm run test -- --watch",
     "swagger": "swaggerGen -c ./swagger.config.yml"
