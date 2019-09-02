@@ -3,8 +3,8 @@
   "version": "0.0.1",
   "description": "FrontSpot Hub: Ptushki, backend",
   "scripts": {
-    "start": "npm run build && cross-env NODE_ENV=production node dist/src/index.js",
-    "start:dev": "ts-node-dev src/index.ts",
+    "start": "npm run swagger && npm run build && cross-env NODE_ENV=production node dist/src/index.js",
+    "start:dev": "npm run swagger && ts-node-dev src/index.ts",
     "fixtures": "ts-node src/db/run-fixtures.ts",
     "importdb": "ts-node src/db/access-parser/run.ts",
     "setup-postgres": "docker-compose up",
