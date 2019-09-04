@@ -114,21 +114,11 @@ export default class AuthController extends AbstractController {
   @Security('*', 'local')
   @Response<SuccessAuthDto>(200, 'Successfully logged in.')
   @Response<CustomError>(401, 'Authentication failed.')
-  // eslint-disable-next-line consistent-return
-  public async login(
-    _userCreds: WithCredentials,
-    @ContextRequest req: RequestWithUser,
-    @ContextNext next: NextFunction,
-    // @ts-ignore
-  ): Promise<SuccessAuthDto> {
-    try {
-      const { user } = req;
-      const { token, refreshToken } = signTokens({ userId: user.id, userRole: user.role });
-      await this.tokens.save(new RefreshToken(refreshToken, user.id));
-      return { user, token, refreshToken };
-    } catch (e) {
-      next(e);
-    }
+  public async login(_userCreds: WithCredentials, @ContextRequest req: RequestWithUser): Promise<SuccessAuthDto> {
+    const { user } = req;
+    const { token, refreshToken } = signTokens({ userId: user.id, userRole: user.role });
+    await this.tokens.save(new RefreshToken(refreshToken, user.id));
+    return { user, token, refreshToken };
   }
 
   // TODO: move error handling to separate layer

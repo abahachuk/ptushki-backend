@@ -1,10 +1,4 @@
-import AbstractImporter, {
-  ImporterType,
-  ImportInput,
-  ImportOutput,
-  StringImporterType,
-  XlsImporterType,
-} from './AbstractImporter';
+import AbstractImporter, { ImporterType, ImportInput, ImportOutput } from './AbstractImporter';
 import EURINGImporterForObservations from './EURINGImporterForObservations';
 import XLSImporterForObservations from './XLSImporterForObservations';
 import XLSImporterValidateObservations from './excel/XLSImporterValidateObservations';
@@ -31,10 +25,10 @@ export default class Importer {
 
   // eslint can't handle method overload
   /* eslint-disable no-dupe-class-members, lines-between-class-members */
-  public async handle(type: XlsImporterType.xls, sources: Express.Multer.File[]): Promise<void>;
-  public async handle(type: XlsImporterType.validate, sources: Express.Multer.File[]): Promise<DataCheckDto>;
-  public async handle(type: StringImporterType.euring, sources: string[]): Promise<void>;
-  public async handle(type: ImporterType, sources: ImportInput[]): Promise<ImportOutput> {
+  public async handle(type: ImporterType.xls, sources: ImportInput<Express.Multer.File>): Promise<void>;
+  public async handle(type: ImporterType.validateXls, sources: ImportInput<Express.Multer.File>): Promise<DataCheckDto>;
+  public async handle(type: ImporterType.euring, sources: ImportInput<string>): Promise<void>;
+  public async handle(type: ImporterType, sources: ImportInput): Promise<ImportOutput> {
     const importer = this.getImporter(type);
     if (!importer) {
       throw new CustomError(`Type ${type} isn't supported import type for ${this.route}`, 400);

@@ -22,8 +22,17 @@ export interface EURingError {
 }
 
 interface RowValidationError {
-  result: ValidationError[];
-  rowNumber: number | null;
+  result: {
+    eu_species?: string[];
+    eu_sexCode?: string[];
+    eu_ageCode?: string[];
+    eu_placeCode?: string[];
+    date?: string[];
+    latitude?: string[];
+    longitude?: string[];
+    eu_statusCode?: string[];
+  };
+  rowNumber?: number;
 }
 
 export interface RowValidatedData {

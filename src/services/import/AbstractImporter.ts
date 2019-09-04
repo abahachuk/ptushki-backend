@@ -12,18 +12,16 @@ interface ParsedErrors {
   [key: string]: string[];
 }
 
-export enum XlsImporterType {
+export enum ImporterType {
   xls = 'XLS',
-  validate = 'VALIDATE-XLS',
-}
-
-export enum StringImporterType {
+  validateXls = 'VALIDATE-XLS',
   euring = 'EURING',
 }
 
-export type ImporterType = XlsImporterType | StringImporterType;
-
-export type ImportInput = Express.Multer.File | string;
+export interface ImportInput<T = Express.Multer.File | string> {
+  sources: T[];
+  userId?: string;
+}
 export type ImportOutput = void | DataCheckDto;
 
 export default abstract class AbstractImporter<
@@ -36,7 +34,7 @@ export default abstract class AbstractImporter<
 
   abstract options: MulterOptions;
 
-  public abstract async import(sources: TSource[]): Promise<TReturn>;
+  public abstract async import(sources: TSource): Promise<TReturn>;
 
   protected filterFiles(files: Express.Multer.File[]) {
     if (files.every(({ originalname }) => this.options.extensions.includes(path.extname(originalname)))) {
@@ -65,7 +63,7 @@ export default abstract class AbstractImporter<
     }, {});
 
     if (Object.keys(mapWithErrors).length) {
-      throw new CustomError<any>(mapWithErrors, 422);
+      throw new CustomError(mapWithErrors, 422);
     }
   }
 }

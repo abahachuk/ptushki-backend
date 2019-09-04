@@ -6,6 +6,7 @@ import routes from './routes';
 import { setLogger } from './utils/logger';
 import errorHandler from './controllers/error-controller';
 import { initPassport } from './services/auth-service';
+import getServiceFactory from './service-factory';
 
 const createApp = async (): Promise<Application> => {
   const app = express();
@@ -16,11 +17,9 @@ const createApp = async (): Promise<Application> => {
   app.use(bodyParser.urlencoded({ extended: true }));
   app.use(await routes());
 
+  Server.registerServiceFactory(await getServiceFactory());
   Server.loadServices(app, 'controllers/*-controller.ts', __dirname);
-
-  if (process.env.NODE_ENV !== 'test') {
-    Server.swagger(app, { filePath: './dist/swagger.json', endpoint: 'swagger' });
-  }
+  Server.swagger(app, { filePath: './dist/swagger.json', endpoint: 'swagger' });
 
   app.use(errorHandler);
 

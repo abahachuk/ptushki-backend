@@ -12,13 +12,16 @@ import {
   RowValidatedData,
 } from './helper';
 import { MulterOptions } from '../../../controllers/upload-files-controller';
-import AbstractImporter, { ImporterType, XlsImporterType } from '../AbstractImporter';
+import AbstractImporter, { ImporterType, ImportInput } from '../AbstractImporter';
 import { CustomError } from '../../../utils/CustomError';
 import { cachedEURINGCodes } from '../../../entities/euring-codes/cached-entities-fabric';
 import { Age, PlaceCode, Sex, Species, Status } from '../../../entities/euring-codes';
 
-export default class XLSImporterValidateObservations extends AbstractImporter<Express.Multer.File, DataCheckDto> {
-  public type: ImporterType = XlsImporterType.validate;
+export default class XLSImporterValidateObservations extends AbstractImporter<
+  ImportInput<Express.Multer.File>,
+  DataCheckDto
+> {
+  public type: ImporterType = ImporterType.validateXls;
 
   public route: string = 'observations';
 
@@ -139,14 +142,14 @@ export default class XLSImporterValidateObservations extends AbstractImporter<Ex
   };
 
   // TODO: clarify if we need to support multiple files
-  public async import(files: Express.Multer.File[]): Promise<DataCheckDto> {
-    if (!files.length) {
+  public async import({ sources }: ImportInput<Express.Multer.File>): Promise<DataCheckDto> {
+    if (!sources.length) {
       throw new CustomError('No files detected', 400);
     }
 
-    this.filterFiles(files);
+    this.filterFiles(sources);
 
-    const [file] = files;
+    const [file] = sources;
 
     const workbook: Workbook = await new Excel.Workbook().xlsx.load(file.buffer);
     const excelHeaders: HeaderCheck = await checkObservationsHeaderNames(workbook, 'validate-xls');

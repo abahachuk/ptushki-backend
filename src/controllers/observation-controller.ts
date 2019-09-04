@@ -1,8 +1,7 @@
-import { NextFunction, Request } from 'express';
+import { Request } from 'express';
 import { getRepository, Repository } from 'typeorm';
 import { pipe } from 'ramda';
 import {
-  ContextNext,
   ContextRequest,
   DELETE,
   FilesParam,
@@ -44,7 +43,7 @@ import { CustomError } from '../utils/CustomError';
 import { auth } from '../services/auth-service';
 import { UserRole } from '../entities/user-entity';
 import { ExporterType } from '../services/export/AbstractExporter';
-import { StringImporterType, XlsImporterType } from '../services/import/AbstractImporter';
+import { ImporterType } from '../services/import/AbstractImporter';
 import { DataCheckDto } from '../services/import/excel/helper';
 
 interface RequestWithPageParams extends Request {
@@ -98,19 +97,14 @@ export default class ObservationController extends AbstractController {
   @Path('/')
   @Response<ObservationsListResponse>(200, 'List of all available observations.')
   @Response<CustomError>(401, 'Unauthorised.')
-  // eslint-disable-next-line consistent-return
   public async getObservations(
     @ContextRequest req: RequestWithPageParams,
-    @ContextNext next: NextFunction,
     @QueryParam('lang') lang: string = 'eng',
     @QueryParam('pageNumber') pageNumber: number = 0,
     @QueryParam('pageSize') pageSize: number = 5,
     @QueryParam('sortingDirection') sortingDirection: SortingDirection = SortingDirection.asc,
     @QueryParam('sortingColumn') sortingColumn?: string,
-    // @ts-ignore FIXME
   ): Promise<ObservationsListResponse> {
-    try {
-      const langOrigin = LocaleOrigin[lang] ? LocaleOrigin[lang] : 'desc_eng';
 
       const paramsSearch = parsePageParams({ pageNumber, pageSize, sortingColumn, sortingDirection });
       const paramsAggregation = parseWhereParams(req.query, req.user);
@@ -127,15 +121,12 @@ export default class ObservationController extends AbstractController {
           .reduce((acc, [key, value]) => Object.assign(acc, { [key]: value }), {}),
       ) as ObservationDto;
 
-      return {
-        content,
-        pageNumber: paramsSearch.number,
-        pageSize: paramsSearch.size,
-        totalElements,
-      };
-    } catch (error) {
-      next(error);
-    }
+    return {
+      content,
+      pageNumber: paramsSearch.number,
+      pageSize: paramsSearch.size,
+      totalElements,
+    };
   }
 
   // TODO: currently typescript-rest doesn't support [key in keyof smth] syntax
@@ -203,24 +194,18 @@ export default class ObservationController extends AbstractController {
   public async addObservation(
     rawObservation: RawObservationDto,
     @ContextRequest req: Request,
-    @ContextNext next: NextFunction,
-    // @ts-ignore FIXME
   ): Promise<ObservationBaseDto> {
-    try {
-      let { ring } = rawObservation;
-      if (!ring) {
-        const ringEntity = await this.rings.findOne({ identificationNumber: rawObservation.ringMentioned });
-        if (ringEntity) {
-          ring = ringEntity.id;
-        }
+    let { ring } = rawObservation;
+    if (!ring) {
+      const ringEntity = await this.rings.findOne({ identificationNumber: rawObservation.ringMentioned });
+      if (ringEntity) {
+        ring = ringEntity.id;
       }
-      const newObservation = await Observation.create({ ...rawObservation, ring, finder: req.user.id });
-      await this.validate(newObservation);
-      // @ts-ignore see https://github.com/typeorm/typeorm/issues/3490
-      return await this.observations.save(newObservation);
-    } catch (e) {
-      next(e);
     }
+    const newObservation = await Observation.create({ ...rawObservation, ring, finder: req.user.id });
+    await this.validate(newObservation);
+    // @ts-ignore see https://github.com/typeorm/typeorm/issues/3490
+    return this.observations.save(newObservation);
   }
 
   /**
@@ -232,17 +217,8 @@ export default class ObservationController extends AbstractController {
   // TODO do we really want to return whole observation with user salt and hash?
   @Response<Observation>(200, 'Observation with passed id.')
   @Response<CustomError>(401, 'Unauthorised.')
-  // eslint-disable-next-line consistent-return
-  public async findObservation(
-    @PathParam('id') id: string,
-    @ContextNext next: NextFunction,
-    // @ts-ignore FIXME
-  ): Promise<Observation> {
-    try {
-      return await this.checkId<Observation>(id);
-    } catch (e) {
-      next(e);
-    }
+  public async findObservation(@PathParam('id') id: string): Promise<Observation> {
+    return this.checkId<Observation>(id);
   }
 
   /**
@@ -255,31 +231,21 @@ export default class ObservationController extends AbstractController {
   @Response<Observation>(200, 'Updated observation.')
   @Response<CustomError>(401, 'Unauthorised.')
   @Response<CustomError>(422, 'Unprocessable entity.')
-  // eslint-disable-next-line consistent-return
-  public async editObservation(
-    rawObservation: RawObservationDto,
-    @PathParam('id') id: string,
-    @ContextNext next: NextFunction,
-    // @ts-ignore FIXME
-  ): Promise<Observation> {
+  public async editObservation(rawObservation: RawObservationDto, @PathParam('id') id: string): Promise<Observation> {
     // TODO: check user id and role
-    try {
-      const observation = await this.checkId<Observation>(id);
-      let { ring } = rawObservation;
-      if (!ring || rawObservation.ringMentioned !== observation.ringMentioned) {
-        const ringEntity = await this.rings.findOne({ identificationNumber: rawObservation.ringMentioned });
-        if (ringEntity) {
-          ring = ringEntity.id;
-        }
+    const observation = await this.checkId<Observation>(id);
+    let { ring } = rawObservation;
+    if (!ring || rawObservation.ringMentioned !== observation.ringMentioned) {
+      const ringEntity = await this.rings.findOne({ identificationNumber: rawObservation.ringMentioned });
+      if (ringEntity) {
+        ring = ringEntity.id;
       }
-      await this.validate(Object.assign(rawObservation, { ring }), observation);
-      // TODO protect from finder updating
-      // @ts-ignore see https://github.com/typeorm/typeorm/issues/3490
-      const updatedObservation = await this.observations.merge(observation, rawObservation);
-      return await this.observations.save(updatedObservation);
-    } catch (e) {
-      next(e);
     }
+    await this.validate(Object.assign(rawObservation, { ring }), observation);
+    // TODO protect from finder updating
+    // @ts-ignore see https://github.com/typeorm/typeorm/issues/3490
+    const updatedObservation = await this.observations.merge(observation, rawObservation);
+    return this.observations.save(updatedObservation);
   }
 
   /**
@@ -290,18 +256,9 @@ export default class ObservationController extends AbstractController {
   @Path('/:id')
   @Response<Observation>(200, 'Updated observation.')
   @Response<CustomError>(401, 'Unauthorised.')
-  // eslint-disable-next-line consistent-return
-  public async removeObservation(
-    @PathParam('id') id: string,
-    @ContextNext next: NextFunction,
-    // @ts-ignore
-  ): Promise<Observation> {
-    try {
-      const observation = await this.checkId<Observation>(id);
-      return await this.observations.remove(observation);
-    } catch (e) {
-      next(e);
-    }
+  public async removeObservation(@PathParam('id') id: string): Promise<Observation> {
+    const observation = await this.checkId<Observation>(id);
+    return this.observations.remove(observation);
   }
 
   /**
@@ -315,23 +272,14 @@ export default class ObservationController extends AbstractController {
   @Response<CustomError>(401, 'Unauthorised.')
   @Response<CustomError>(403, 'Forbidden.')
   @PreProcessor(auth.role(UserRole.Moderator))
-  // eslint-disable-next-line consistent-return
-  public async setVerificationStatus(
-    payload: { id: string; status: Verified },
-    @ContextNext next: NextFunction,
-    // @ts-ignore
-  ): Promise<{ ok: boolean }> {
-    try {
-      const { id, status } = payload;
-      if (!id || !status) {
-        throw new CustomError('Id and status are required', 400);
-      }
-      await this.observations.findOneOrFail(id);
-      await this.observations.update(id, { verified: status });
-      return { ok: true };
-    } catch (e) {
-      next(e);
+  public async setVerificationStatus(payload: { id: string; status: Verified }): Promise<{ ok: boolean }> {
+    const { id, status } = payload;
+    if (!id || !status) {
+      throw new CustomError('Id and status are required', 400);
     }
+    await this.observations.findOneOrFail(id);
+    await this.observations.update(id, { verified: status });
+    return { ok: true };
   }
 
   /**
@@ -343,19 +291,12 @@ export default class ObservationController extends AbstractController {
   @Path('/export/xls')
   @Produces('application/xlsx')
   @PreProcessor(auth.role(UserRole.Ringer))
-  // eslint-disable-next-line consistent-return
-  public async exportXls(
-    exportedContent: { ids: string[]; lang?: string },
-    @ContextNext next: NextFunction,
-    // @ts-ignore FIXME
-  ): Promise<Return.DownloadBinaryData> {
-    try {
-      const { ids, lang } = exportedContent;
-      const buffer = await this.exporter.handle(ExporterType.xls, ids, lang);
-      return new Return.DownloadBinaryData(buffer, 'application/xlsx', 'obs.xlsx');
-    } catch (e) {
-      next(e);
-    }
+  @Response<CustomError>(401, 'Unauthorised.')
+  @Response<CustomError>(403, 'Forbidden.')
+  public async exportXls(exportedContent: { ids: string[]; lang?: string }): Promise<Return.DownloadBinaryData> {
+    const { ids, lang } = exportedContent;
+    const buffer = await this.exporter.handle(ExporterType.xls, ids, lang);
+    return new Return.DownloadBinaryData(buffer, 'application/xlsx', 'obs.xlsx');
   }
 
   /**
@@ -365,15 +306,11 @@ export default class ObservationController extends AbstractController {
   @Path('/export/xls')
   @Produces('application/xlsx')
   @PreProcessor(auth.role(UserRole.Ringer))
-  // @ts-ignore FIXME
-  // eslint-disable-next-line consistent-return
-  public async getExportTemplate(@ContextNext next: NextFunction): Promise<Return.DownloadBinaryData> {
-    try {
-      const buffer = await this.exporter.handle(ExporterType.template);
-      return new Return.DownloadBinaryData(buffer, 'application/xlsx', 'obs_template.xlsx');
-    } catch (e) {
-      next(e);
-    }
+  @Response<CustomError>(401, 'Unauthorised.')
+  @Response<CustomError>(403, 'Forbidden.')
+  public async getExportTemplate(): Promise<Return.DownloadBinaryData> {
+    const buffer = await this.exporter.handle(ExporterType.template);
+    return new Return.DownloadBinaryData(buffer, 'application/xlsx', 'obs_template.xlsx');
   }
 
   /**
@@ -384,15 +321,11 @@ export default class ObservationController extends AbstractController {
   @Path('/export/euring')
   @Response<string[]>(200, 'Euring codes of selected observations.')
   @PreProcessor(auth.role(UserRole.Ringer))
-  // @ts-ignore FIXME
-  // eslint-disable-next-line consistent-return
-  public async exportEuring(exportedContent: { ids: string[] }, @ContextNext next: NextFunction): Promise<string[]> {
-    try {
-      const { ids } = exportedContent;
-      return this.exporter.handle(ExporterType.euring, ids);
-    } catch (e) {
-      next(e);
-    }
+  @Response<CustomError>(401, 'Unauthorised.')
+  @Response<CustomError>(403, 'Forbidden.')
+  public async exportEuring(exportedContent: { ids: string[] }): Promise<string[]> {
+    const { ids } = exportedContent;
+    return this.exporter.handle(ExporterType.euring, ids);
   }
 
   /**
@@ -404,20 +337,16 @@ export default class ObservationController extends AbstractController {
   @Path('/:id/export/xls')
   @Produces('application/xlsx')
   @PreProcessor(auth.role(UserRole.Ringer))
-  // eslint-disable-next-line consistent-return
+  @Response<Return.DownloadBinaryData>(200, 'Xls with observations.')
+  @Response<CustomError>(401, 'Unauthorised.')
+  @Response<CustomError>(403, 'Forbidden.')
   public async exportXlsSingle(
     exportedContent: { lang?: string },
     @PathParam('id') id: string,
-    @ContextNext next: NextFunction,
-    // @ts-ignore FIXME
   ): Promise<Return.DownloadBinaryData> {
-    try {
-      const { lang } = exportedContent;
-      const buffer = await this.exporter.handle(ExporterType.xls, [id], lang);
-      return new Return.DownloadBinaryData(buffer, 'application/xlsx', 'obs_template.xlsx');
-    } catch (e) {
-      next(e);
-    }
+    const { lang } = exportedContent;
+    const buffer = await this.exporter.handle(ExporterType.xls, [id], lang);
+    return new Return.DownloadBinaryData(buffer, 'application/xlsx', 'obs_template.xlsx');
   }
 
   /**
@@ -427,18 +356,15 @@ export default class ObservationController extends AbstractController {
   @POST
   @Path('/import/xls')
   @PreProcessor(auth.role(UserRole.Ringer))
-  // eslint-disable-next-line consistent-return
+  @Response<{ ok: boolean }>(200, 'Successfully imported.')
+  @Response<CustomError>(401, 'Unauthorised.')
+  @Response<CustomError>(403, 'Forbidden.')
   public async importXls(
-    @FilesParam('files') files: Express.Multer.File[],
-    @ContextNext next: NextFunction,
-    // @ts-ignore FIXME
+    @ContextRequest req: Request,
+    @FilesParam('file') files: Express.Multer.File[],
   ): Promise<{ ok: boolean }> {
-    try {
-      await this.importer.handle(XlsImporterType.xls, files);
-      return { ok: true };
-    } catch (e) {
-      next(e);
-    }
+    await this.importer.handle(ImporterType.xls, { sources: files, userId: req.user.id });
+    return { ok: true };
   }
 
   /**
@@ -448,17 +374,11 @@ export default class ObservationController extends AbstractController {
   @POST
   @Path('/import/validate-xls')
   @PreProcessor(auth.role(UserRole.Ringer))
-  // eslint-disable-next-line consistent-return
-  public async validateXls(
-    @FilesParam('files') files: Express.Multer.File[],
-    @ContextNext next: NextFunction,
-    // @ts-ignore FIXME
-  ): Promise<DataCheckDto> {
-    try {
-      return this.importer.handle(XlsImporterType.validate, files);
-    } catch (e) {
-      next(e);
-    }
+  @Response<DataCheckDto>(200, 'Possible errors.')
+  @Response<CustomError>(401, 'Unauthorised.')
+  @Response<CustomError>(403, 'Forbidden.')
+  public async validateXls(@FilesParam('file') files: Express.Multer.File[]): Promise<DataCheckDto> {
+    return this.importer.handle(ImporterType.validateXls, { sources: files });
   }
 
   /**
@@ -468,13 +388,11 @@ export default class ObservationController extends AbstractController {
   @POST
   @Path('/import/euring')
   @PreProcessor(auth.role(UserRole.Ringer))
-  // @ts-ignore FIXME
-  // eslint-disable-next-line consistent-return
-  public async importEuring(codes: string[], @ContextNext next: NextFunction): Promise<void> {
-    try {
-      return this.importer.handle(StringImporterType.euring, codes);
-    } catch (e) {
-      next(e);
-    }
+  @Response<{ ok: boolean }>(200, 'Successfully imported.')
+  @Response<CustomError>(401, 'Unauthorised.')
+  @Response<CustomError>(403, 'Forbidden.')
+  public async importEuring(@ContextRequest req: Request, codes: string[]): Promise<{ ok: boolean }> {
+    await this.importer.handle(ImporterType.euring, { sources: codes, userId: req.user.id });
+    return { ok: true };
   }
 }
