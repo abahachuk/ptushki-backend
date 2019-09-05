@@ -57,9 +57,6 @@ export enum Verified {
 
 interface RawObservationBase<TCommon, TRing, TSpecies> {
   ring: TRing;
-  speciesConcluded: TSpecies;
-  sexConcluded: TCommon;
-  ageConcluded: TCommon;
   ringMentioned: string;
   speciesMentioned: TSpecies;
   sexMentioned: TCommon;
@@ -78,6 +75,9 @@ interface RawObservationBase<TCommon, TRing, TSpecies> {
 export interface ObservationBase<TFinder, TCommon, TRing, TSpecies>
   extends RawObservationBase<TCommon, TRing, TSpecies> {
   id: string;
+  speciesConcluded: TSpecies;
+  sexConcluded: TCommon;
+  ageConcluded: TCommon;
   finder: TFinder;
   elapsedTime: number | null;
   colorRing: string | null;
