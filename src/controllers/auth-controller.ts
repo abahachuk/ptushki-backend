@@ -1,4 +1,4 @@
-import { NextFunction } from 'express';
+import { NextFunction, Request } from 'express';
 import { getRepository, Repository } from 'typeorm';
 import { TokenExpiredError, JsonWebTokenError } from 'jsonwebtoken';
 import { ContextNext, ContextRequest, GET, Path, POST, PreProcessor, Security } from 'typescript-rest';
@@ -18,7 +18,6 @@ import { signTokens, verifyRefreshToken, auth } from '../services/auth-service';
 import { isCorrect } from '../services/user-crypto-service';
 import { addAudit } from '../services/audit-service';
 import { CustomError } from '../utils/CustomError';
-import { RequestWithUser } from './users-controller';
 
 @Path('auth')
 @Tags('auth')
@@ -114,7 +113,8 @@ export default class AuthController extends AbstractController {
   @Security('*', 'local')
   @Response<SuccessAuthDto>(200, 'Successfully logged in.')
   @Response<CustomError>(401, 'Authentication failed.')
-  public async login(_userCreds: WithCredentials, @ContextRequest req: RequestWithUser): Promise<SuccessAuthDto> {
+  public async login(_userCreds: WithCredentials, @ContextRequest req: Request): Promise<SuccessAuthDto> {
+    // @ts-ignore FIXME
     const { user } = req;
     const { token, refreshToken } = signTokens({ userId: user.id, userRole: user.role });
     await this.tokens.save(new RefreshToken(refreshToken, user.id));
@@ -177,11 +177,12 @@ export default class AuthController extends AbstractController {
   // eslint-disable-next-line consistent-return
   public async changePassword(
     passwords: ChangePasswordReqDto,
-    @ContextRequest req: RequestWithUser,
+    @ContextRequest req: Request,
     @ContextNext next: NextFunction,
     // @ts-ignore
   ): Promise<{ ok: boolean }> {
     const { oldPassword, newPassword } = passwords;
+    // @ts-ignore FIXME
     const user = req.user as User;
     if (!oldPassword || !newPassword || !user) {
       // TODO: clarify
