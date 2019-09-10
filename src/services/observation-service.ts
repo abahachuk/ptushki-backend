@@ -53,7 +53,7 @@ export const mapLocale = (obsEntry: [string, any], lang: Locale): [string, any] 
   if (typeof observationValue === 'object' && observationValue !== null) {
     const value = Object.entries(observationValue)
       .filter(([field]) => filterFieldByLocale(field as Locale, lang))
-      .map(entrie => (entrie[0] === lang ? ['desc', entrie[1]] : entrie))
+      .map(entry => (entry[0] === lang ? ['desc', entry[1]] : entry))
       .reduce((acc, [subfield, subValue]) => Object.assign(acc, { [subfield as string]: subValue as any }), {});
 
     return [observationKey, value];
@@ -74,15 +74,15 @@ const aggregationSearch: string[] = ['search', 'pageNumber', 'pageSize', 'sortin
 
 export const parseWhereParams = (user: User, query: ObservationAggregations): FindOneOptions<Observation> => {
   const params = Object.entries(query)
-    .filter(entrie => !aggregationSearch.includes(entrie[0])) // filter search aggregations, only ObservationAggregations could be applied
-    .map(entrie => ({ [entrie[0]]: entrie[1] && entrie[1].split(',') })) // split values by ','
+    .filter(([key]) => !aggregationSearch.includes(key)) // filter search aggregations, only ObservationAggregations could be applied
+    .map(([key, value]) => ({ [key]: value && value.split(',') })) // split values by ','
     .reduce((acc, item) => Object.assign(acc, item), {}); // reduce splitted values into object
 
   if (!gettingAllObservations[user.role]) {
     params.finder = [user.id]; // re-assing user id for 'observer' and 'ringer'
   }
 
-  const matrix = Object.entries(params).map(entrie => entrie[1] && entrie[1].map(value => ({ [entrie[0]]: value }))); // get matrix to calc a cartesian product for 'where' params
+  const matrix = Object.entries(params).map(entry => entry[1] && entry[1].map(value => ({ [entry[0]]: value }))); // get matrix to calc a cartesian product for 'where' params
   const where = cartesian(matrix).map((row: any[]) => row.reduce((acc, value) => Object.assign(acc, value), {}));
   return { where };
 };

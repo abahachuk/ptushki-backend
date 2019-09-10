@@ -68,27 +68,24 @@ export default class ObservationController extends AbstractController {
 
   private getObservations = async (req: RequestWithPageParams, res: Response, next: NextFunction): Promise<void> => {
     try {
-      const { lang = 'eng' }: { lang: string } = req.query;
-      const langOrigin = LocaleOrigin[lang] ? LocaleOrigin[lang] : 'desc_eng';
+      const { query, user } = req;
+      const { lang = 'eng' }: { lang: string } = query;
+      const langOrigin = LocaleOrigin[lang] || 'desc_eng';
 
-      const paramsSearch = parsePageParams(req.query);
-      const paramsAggregation = parseWhereParams(req.user, req.query);
+      const paramsSearch = parsePageParams(query);
+      const paramsAggregation = parseWhereParams(user, query);
       const observations = await this.observations.findAndCount(Object.assign(paramsSearch, paramsAggregation));
-
-      const content = observations[0].map(obs => {
+      const content = observations[0].map(observation => {
         // sanitize user's data
-        const finder = Object.assign({}, User.sanitizeUser(obs.finder));
+        const finder = Object.assign({}, User.sanitizeUser(observation.finder));
         // transform 'observation'
-        const observation = Object.entries(obs)
+        const observationEntries = Object.entries(observation)
           // clear 'filter' field
-          .filter(([ObservationField]) => ObservationField !== 'ring')
+          .filter(([field]) => field !== 'ring')
           // map 'lang' param according 'Locale'
           .map(entry => mapLocale(entry, langOrigin))
-          .reduce(
-            (acc, [ObservationField, ObservationValue]) => Object.assign(acc, { [ObservationField]: ObservationValue }),
-            {},
-          );
-        return Object.assign({}, observation, { finder }, { ring: obs.ring.id });
+          .reduce((acc, [key, value]) => Object.assign(acc, { [key]: value }), {});
+        return Object.assign({}, observationEntries, { finder }, { ring: observation.ring.id });
       });
 
       res.json({
@@ -104,10 +101,11 @@ export default class ObservationController extends AbstractController {
 
   private getAggregations = async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const { lang = 'eng' }: { lang: string } = req.query;
-      const langOrigin = LocaleOrigin[lang] ? LocaleOrigin[lang] : 'desc_eng';
+      const { query, user } = req;
+      const { lang = 'eng' }: { lang: string } = query;
+      const langOrigin = LocaleOrigin[lang] || 'desc_eng';
 
-      const paramsAggregation = parseWhereParams(req.user, req.query);
+      const paramsAggregation = parseWhereParams(user, query);
       const observations = await this.observations.find({ ...paramsAggregation });
       const aggregationsMap: AggregationsMap = {};
       const requiredColumnsMap = this.requiredColumns.reduce((acc, column) => {
@@ -130,7 +128,6 @@ export default class ObservationController extends AbstractController {
               (arg: [string, any]) => sanitizeUser(arg),
             );
             const [, obsValue] = f([column, observation[column]]);
-
             acc[column].push({ value: obsValue, count: 1 });
           }
         });
