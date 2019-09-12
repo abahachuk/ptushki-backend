@@ -80,7 +80,7 @@ export default class ObservationController extends AbstractController {
         const finder = Object.assign({}, User.sanitizeUser(observation.finder));
         // transform 'observation'
         const observationEntries = Object.entries(observation)
-          // clear 'filter' field
+          // remove 'ring' field
           .filter(([field]) => field !== 'ring')
           // map 'lang' param according 'Locale'
           .map(entry => mapLocale(entry, langOrigin))
