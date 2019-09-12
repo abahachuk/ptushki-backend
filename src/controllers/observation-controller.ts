@@ -74,8 +74,11 @@ export default class ObservationController extends AbstractController {
 
       const paramsSearch = parsePageParams(query);
       const paramsAggregation = parseWhereParams(user, query);
-      const observations = await this.observations.findAndCount(Object.assign(paramsSearch, paramsAggregation));
-      const content = observations[0].map(observation => {
+      const [observations, totalElements] = await this.observations.findAndCount(
+        Object.assign(paramsSearch, paramsAggregation),
+      );
+
+      const content = observations.map(observation => {
         // sanitize user's data
         const finder = Object.assign({}, User.sanitizeUser(observation.finder));
         // transform 'observation'
@@ -92,7 +95,7 @@ export default class ObservationController extends AbstractController {
         content,
         pageNumber: paramsSearch.number,
         pageSize: paramsSearch.size,
-        totalElements: observations[1],
+        totalElements,
       });
     } catch (error) {
       next(error);
