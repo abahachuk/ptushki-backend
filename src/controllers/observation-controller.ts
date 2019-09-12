@@ -107,10 +107,9 @@ export default class ObservationController extends AbstractController {
 
       const paramsAggregation = parseWhereParams(user, query);
       const observations = await this.observations.find({ ...paramsAggregation });
-      const aggregationsMap: AggregationsMap = {};
-      const requiredColumnsMap = this.requiredColumns.reduce((acc, column) => {
+      const requiredColumnsMap: AggregationsMap = this.requiredColumns.reduce((acc, column) => {
         return Object.assign(acc, { [column]: [] });
-      }, aggregationsMap);
+      }, {});
 
       const aggregations = observations.reduce((acc, observation) => {
         this.requiredColumns.forEach(column => {
