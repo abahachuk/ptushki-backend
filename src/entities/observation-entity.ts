@@ -1,3 +1,4 @@
+import { path } from 'ramda';
 import { Entity, Column, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
 import {
   IsUUID,
@@ -38,6 +39,9 @@ import {
 } from './euring-codes';
 import { AbleToExportAndImportEuring } from './common-interfaces';
 import { ColumnNumericTransformer } from '../utils/ColumnNumericTransformer';
+import { fromDateToEuringDate, fromDateToEuringTime, fromEuringToDate } from '../utils/date-parser';
+import { fromDecimalToEuring, DecimalCoordinates, fromEuringToDecimal } from '../utils/coords-parser';
+import { fromStringToValueOrNull } from '../utils/custom-parsers';
 
 export interface NewObservation {
   finder: User;
@@ -320,13 +324,198 @@ export class Observation implements AbleToExportAndImportEuring {
   }
 
   public exportEURING(): string {
-    // todo
-    return [this.ring.id, this.ageConcluded.id, this.ageMentioned.id].join('|');
+    return [
+      path(['ring', 'ringingScheme', 'id'], this),
+      path(['ring', 'primaryIdentificationMethod', 'id'], this),
+      path(['ring', 'identificationNumber'], this),
+      path(['ring', 'verificationOfTheMetalRing', 'id'], this),
+      path(['ring', 'metalRingInformation', 'id'], this),
+      path(['ring', 'otherMarksInformation', 'id'], this),
+      path(['speciesMentioned', 'id'], this),
+      path(['manipulated', 'id'], this),
+      path(['movedBeforeTheCapture', 'id'], this),
+      path(['catchingMethod', 'id'], this),
+      path(['catchingLures', 'id'], this),
+      path(['sexMentioned', 'id'], this),
+      path(['sexConcluded', 'id'], this),
+      path(['ageMentioned', 'id'], this),
+      path(['ageConcluded', 'id'], this),
+      path(['status', 'id'], this),
+      path(['ring', 'broodSize', 'id'], this),
+      path(['pullusAge', 'id'], this),
+      path(['accuracyOfPullusAge', 'id'], this),
+      fromDateToEuringDate(this.date),
+      path(['accuracyOfDate', 'id'], this),
+      fromDateToEuringTime(this.date),
+      path(['placeCode', 'id'], this),
+      fromDecimalToEuring(this.latitude, this.longitude),
+      path(['accuracyOfCoordinates', 'id'], this),
+      path(['condition', 'id'], this),
+      path(['circumstances', 'id'], this),
+      path(['circumstancesPresumed', 'id'], this),
+      path(['ring', 'euringCodeIdentifier', 'id'], this),
+      this.distance,
+      this.direction,
+      this.elapsedTime,
+      // Below unsupported parameters that presented in EURING
+      '', // wing length
+      '', // third primary
+      '', // state of wing point
+      '', // mass
+      '', // moult
+      '', // plumage code
+      '', // hind claw
+      '', // bill length
+      '', // bill method
+      '', // total head length
+      '', // tarsus
+      '', // tarsus method
+      '', // tail length
+      '', // tail differnce
+      '', // fat score
+      '', // fat score method
+      '', // pectoral muscle
+      '', // brood patch
+      '', // primary score
+      '', // primary moult
+      '', // old greater coverts
+      '', // alula
+      '', // carpal covert
+      '', // sexing method
+      this.placeName,
+      this.remarks,
+      '', // reference
+    ].join('|');
   }
 
+  /* eslint-disable */
   public importEURING(code: string): any {
-    // todo
-    const [ring, status] = code.split('|');
-    Object.assign(this, { ring: { id: ring }, status });
+    const [
+      // @ts-ignore
+      ringingScheme, // Presented in ring entity
+      // @ts-ignore
+      primaryIdentificationMethod, // Presented in ring entity
+      identificationNumber,
+      // @ts-ignore
+      verificationOfTheMetalRing, // Presented in ring entity
+      // @ts-ignore
+      metalRingInformation, // Presented in ring entity
+      // @ts-ignore
+      otherMarksInformation, // Presented in ring entity
+      speciesMentioned,
+      manipulated,
+      movedBeforeTheCapture,
+      catchingMethod,
+      catchingLures,
+      sexMentioned,
+      sexConcluded,
+      ageMentioned,
+      ageConcluded,
+      status,
+      // @ts-ignore
+      broodSize, // Presented in ring entity
+      pullusAge,
+      accuracyOfPullusAge,
+      date,
+      accuracyOfDate,
+      time,
+      placeCode,
+      latitudeLongitude,
+      accuracyOfCoordinates,
+      condition,
+      circumstances,
+      circumstancesPresumed,
+      // @ts-ignore
+      euringCodeIdentifier, // Presented in ring entity
+      distance,
+      direction,
+      elapsedTime,
+      // Below params except "placeName" and "remarks" are unsupported, but they presented in EURING
+      // @ts-ignore
+      wingLength,
+      // @ts-ignore
+      thirdPrimary,
+      // @ts-ignore
+      stateOfWingPoint,
+      // @ts-ignore
+      mass,
+      // @ts-ignore
+      moult,
+      // @ts-ignore
+      plumageCode,
+      // @ts-ignore
+      hindClaw,
+      // @ts-ignore
+      billLength,
+      // @ts-ignore
+      billMethod,
+      // @ts-ignore
+      totalHeadLength,
+      // @ts-ignore
+      tarsus,
+      // @ts-ignore
+      tarsusMethod,
+      // @ts-ignore
+      tailLength,
+      // @ts-ignore
+      tailDiffernce,
+      // @ts-ignore
+      fatScore,
+      // @ts-ignore
+      fatScoreMethod,
+      // @ts-ignore
+      pectoralMuscle,
+      // @ts-ignore
+      broodPatch,
+      // @ts-ignore
+      primaryScore,
+      // @ts-ignore
+      primaryMoult,
+      // @ts-ignore
+      oldGreaterCoverts,
+      // @ts-ignore
+      alula,
+      // @ts-ignore
+      carpalCovert,
+      // @ts-ignore
+      sexingMethod,
+      // @ts-ignore
+      placeName,
+      remarks,
+      // @ts-ignore
+      reference,
+    ] = code.split('|');
+
+    const { latitude, longitude }: DecimalCoordinates = fromEuringToDecimal(latitudeLongitude);
+
+    return Object.assign(this, {
+      ringMentioned: fromStringToValueOrNull(identificationNumber),
+      speciesMentioned: fromStringToValueOrNull(speciesMentioned),
+      manipulated: fromStringToValueOrNull(manipulated),
+      movedBeforeTheCapture: fromStringToValueOrNull(movedBeforeTheCapture, Number),
+      catchingMethod: fromStringToValueOrNull(catchingMethod),
+      catchingLures: fromStringToValueOrNull(catchingLures),
+      sexMentioned: fromStringToValueOrNull(sexMentioned),
+      sexConcluded: fromStringToValueOrNull(sexConcluded),
+      ageMentioned: fromStringToValueOrNull(ageMentioned),
+      ageConcluded: fromStringToValueOrNull(ageConcluded),
+      status: fromStringToValueOrNull(status),
+      pullusAge: fromStringToValueOrNull(pullusAge),
+      accuracyOfPullusAge: fromStringToValueOrNull(accuracyOfPullusAge),
+      date: fromEuringToDate(date, time),
+      accuracyOfDate: fromStringToValueOrNull(accuracyOfDate, Number),
+      placeCode: fromStringToValueOrNull(placeCode),
+      latitude,
+      longitude,
+      accuracyOfCoordinates: fromStringToValueOrNull(accuracyOfCoordinates, Number),
+      condition: fromStringToValueOrNull(condition, Number),
+      circumstances: fromStringToValueOrNull(circumstances),
+      circumstancesPresumed: fromStringToValueOrNull(circumstancesPresumed, Number),
+      distance: fromStringToValueOrNull(distance, Number),
+      direction: fromStringToValueOrNull(direction, Number),
+      elapsedTime: fromStringToValueOrNull(elapsedTime, Number),
+      placeName: fromStringToValueOrNull(placeName),
+      remarks: fromStringToValueOrNull(remarks),
+    });
   }
 }
