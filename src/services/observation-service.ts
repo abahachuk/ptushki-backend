@@ -8,7 +8,7 @@ const cartesian = require('cartesian-product');
 
 const { pageNumberDefault, pageSizeDefault } = config.get('paging');
 
-export const languages: string[] = ['desc_eng', 'desc_byn', 'desc_rus'];
+export const localizedFields: string[] = ['desc_eng', 'desc_byn', 'desc_rus'];
 
 export const LocaleFieldMap: { [key in Locale]: string } = {
   eng: 'desc_eng',
@@ -43,7 +43,7 @@ const gettingAllObservations = {
 };
 
 export const filterFieldByLocale = (key: string, lang: string): boolean => {
-  if (!languages.includes(key)) {
+  if (!localizedFields.includes(key)) {
     return true;
   }
   return lang === key;

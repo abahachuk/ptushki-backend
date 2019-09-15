@@ -5,7 +5,7 @@ import { write, utils } from 'xlsx';
 import AbstractExporter, { ExporterType } from './AbstractExporter';
 import { Observation } from '../../entities/observation-entity';
 import { User } from '../../entities/user-entity';
-import { languages, filterFieldByLocale, LocaleFieldMap } from '../observation-service';
+import { localizedFields, filterFieldByLocale, LocaleFieldMap } from '../observation-service';
 import { Locale } from '../../entities/common-interfaces';
 
 export default class XLSExporterForObservations extends AbstractExporter {
@@ -52,7 +52,7 @@ export default class XLSExporterForObservations extends AbstractExporter {
   };
 
   private getColumnName = (columnName: string, subColumnName: Locale) => {
-    if (languages.includes(subColumnName)) {
+    if (localizedFields.includes(subColumnName)) {
       return `${columnName}_desc`;
     }
     return `${columnName}_${subColumnName}`;
