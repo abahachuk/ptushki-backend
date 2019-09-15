@@ -2,14 +2,15 @@ import config from 'config';
 import { FindManyOptions, FindOneOptions } from 'typeorm';
 import { Observation } from '../entities/observation-entity';
 import { User, UserRole } from '../entities/user-entity';
+import { Locale } from '../entities/common-interfaces';
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const cartesian = require('cartesian-product');
 
 const { pageNumberDefault, pageSizeDefault } = config.get('paging');
 
-export type Locale = 'desc_eng' | 'desc_rus' | 'desc_byn';
-export const languages: Locale[] = ['desc_eng', 'desc_rus', 'desc_byn'];
-export const LocaleOrigin: { [x: string]: Locale } = {
+export const languages: string[] = ['desc_eng', 'desc_byn', 'desc_rus'];
+
+export const LocaleFieldMap: { [key in Locale]: string } = {
   eng: 'desc_eng',
   byn: 'desc_byn',
   rus: 'desc_rus',
@@ -41,33 +42,40 @@ const gettingAllObservations = {
   [UserRole.Admin]: true,
 };
 
-export const filterFieldByLocale = (key: Locale, lang: Locale): boolean => {
+export const filterFieldByLocale = (key: string, lang: string): boolean => {
   if (!languages.includes(key)) {
     return true;
   }
   return lang === key;
 };
 
-export const mapLocale = (obsEntry: [string, any], lang: Locale): [string, any] => {
-  const [observationKey, observationValue] = obsEntry;
-  if (typeof observationValue === 'object' && observationValue !== null) {
-    const value = Object.entries(observationValue)
-      .filter(([field]) => filterFieldByLocale(field as Locale, lang))
-      .map(entry => (entry[0] === lang ? ['desc', entry[1]] : entry))
-      .reduce((acc, [subfield, subValue]) => Object.assign(acc, { [subfield as string]: subValue as any }), {});
+export const mapLocale = (observationEntry: [string, any], query: ObservationQuery): [string, any] => {
+  const { lang = 'eng' }: { lang: Locale } = query;
+  const langFieldName = LocaleFieldMap[lang] || 'desc_eng';
 
-    return [observationKey, value];
+  const [observationKey, observationValue] = observationEntry;
+
+  if (typeof observationValue === 'object' && observationValue !== null) {
+    const newObservationValue = Object.entries(observationValue)
+      .filter(([key]) => filterFieldByLocale(key, langFieldName))
+      .map(([key, value]) => (key === langFieldName ? ['desc', value] : [key, value]))
+      .reduce((acc, [key, value]) => Object.assign(acc, { [key as string]: value as any }), {});
+
+    return [observationKey, newObservationValue];
   }
-  return obsEntry;
+
+  return observationEntry;
 };
 
-export const sanitizeUser = (obsEntry: [string, any]): [string, any] => {
-  const [observationKey, observationValue] = obsEntry;
+export const sanitizeUser = (observationEntry: [string, any]): [string, any] => {
+  const [observationKey, observationValue] = observationEntry;
   if (observationKey === 'finder') {
     const finder = User.sanitizeUser(observationValue);
+
     return [observationKey, finder];
   }
-  return obsEntry;
+
+  return observationEntry;
 };
 
 const aggregationSearch: string[] = ['search', 'pageNumber', 'pageSize', 'sortingColumn', 'sortingDirection'];

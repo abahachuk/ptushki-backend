@@ -57,7 +57,7 @@ export class Observation implements AbleToExportAndImportEuring {
   @IsOptional()
   @IsUUID()
   @ManyToOne(() => Ring, m => m.observation, {
-    eager: true,
+    eager: false,
   })
   public ring: Ring;
 

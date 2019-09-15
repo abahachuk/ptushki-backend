@@ -41,3 +41,5 @@ export interface AbleToExportAndImportEuring {
   exportEURING(): string;
   importEURING(code: string): any;
 }
+
+export type Locale = 'eng' | 'rus' | 'byn';

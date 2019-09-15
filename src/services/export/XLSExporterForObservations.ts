@@ -5,7 +5,8 @@ import { write, utils } from 'xlsx';
 import AbstractExporter, { ExporterType } from './AbstractExporter';
 import { Observation } from '../../entities/observation-entity';
 import { User } from '../../entities/user-entity';
-import { Locale, languages, filterFieldByLocale, LocaleOrigin } from '../observation-service';
+import { languages, filterFieldByLocale, LocaleFieldMap } from '../observation-service';
+import { Locale } from '../../entities/common-interfaces';
 
 export default class XLSExporterForObservations extends AbstractExporter {
   public type: ExporterType = 'XLS';
@@ -36,11 +37,11 @@ export default class XLSExporterForObservations extends AbstractExporter {
     'circumstancesPresumed',
   ];
 
-  private flattenObservation = (observation: Observation, lang: Locale) => {
+  private flattenObservation = (observation: Observation, lang: string) => {
     return Object.entries(observation).reduce((acc, [field, value]) => {
       if (typeof value === 'object' && value !== null) {
         Object.entries(value)
-          .filter(([subfield]) => filterFieldByLocale(subfield as Locale, lang))
+          .filter(([subfield]) => filterFieldByLocale(subfield, lang))
           .forEach(([subfield, subvalue]) => {
             Object.assign(acc, { [this.getColumnName(field, subfield as Locale)]: subvalue });
           });
@@ -59,8 +60,9 @@ export default class XLSExporterForObservations extends AbstractExporter {
 
   public async export(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
-      const { lang = 'eng', rowIds = [] }: { lang: string; rowIds: string[] } = req.body;
-      const langOrigin = LocaleOrigin[lang] ? LocaleOrigin[lang] : 'desc_eng';
+      const { lang = 'eng', rowIds = [] }: { lang: Locale; rowIds: string[] } = req.body;
+
+      const langOrigin = LocaleFieldMap[lang] || 'desc_eng';
       const observations = await this.observations.find({
         where: rowIds.map(id => ({ id })),
         loadEagerRelations: false,
