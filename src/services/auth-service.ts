@@ -100,8 +100,6 @@ export const verifyRefreshToken = async (refreshToken: string): Promise<UserPayl
   return { userId, userRole };
 };
 
-export const authenticateLocal = passport.authenticate('local', { session: false });
-
 export const signTokens = (
   payload: UserPayload,
   {

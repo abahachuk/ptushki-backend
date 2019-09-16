@@ -41,13 +41,13 @@ export class Species implements SpeciesDto {
   public family: string | null;
 
   @Column('varchar', { nullable: true, default: null })
-  public desc_eng: string | null;
+  public desc_eng: string;
 
   @Column('varchar', { nullable: true, default: null })
-  public desc_rus: string | null;
+  public desc_rus: string;
 
   @Column('varchar', { nullable: true, default: null })
-  public desc_byn: string | null;
+  public desc_byn: string;
 
   @OneToMany(() => Ring, m => m.speciesMentioned)
   public mentionedInRing: Ring[];

@@ -32,7 +32,7 @@ export default class RingsByController extends AbstractController {
   @Response<Ring>(200, 'Ring with passed id.')
   @Response<CustomError>(401, 'Unauthorised.')
   public async findOneRing(@PathParam('id') id: string): Promise<Ring> {
-    return this.checkId<Ring>(id);
+    return this.getEntityById<Ring>(id);
   }
 
   @DELETE
@@ -40,7 +40,7 @@ export default class RingsByController extends AbstractController {
   @Response<{ id: string; removed: boolean }>(200, 'Ring with passed id successfully deleted.')
   @Response<CustomError>(401, 'Unauthorised.')
   public async removeRing(@PathParam('id') id: string): Promise<{ id: string; removed: boolean }> {
-    const ring = await this.checkId<Ring>(id);
+    const ring = await this.getEntityById<Ring>(id);
     await this.rings.remove(ring);
     return { removed: true, id };
   }

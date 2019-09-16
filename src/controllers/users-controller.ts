@@ -31,7 +31,7 @@ export default class UsersController extends AbstractController {
   @Response<Ring>(200, 'User with passed id.')
   @Response<CustomError>(401, 'Unauthorised.')
   public async findOne(@PathParam('id') id: string): Promise<User> {
-    return this.checkId<User>(id);
+    return this.getEntityById<User>(id);
   }
 
   @DELETE
@@ -39,7 +39,7 @@ export default class UsersController extends AbstractController {
   @Response<{ id: string; removed: boolean }>(200, 'User with passed id successfully deleted.')
   @Response<CustomError>(401, 'Unauthorised.')
   public async remove(@PathParam('id') id: string): Promise<{ id: string; removed: boolean }> {
-    const user = await this.checkId<User>(id);
+    const user = await this.getEntityById<User>(id);
     await this.users.remove(user);
     return { removed: true, id };
   }

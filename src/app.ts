@@ -18,6 +18,7 @@ const createApp = async (): Promise<Application> => {
   Server.registerServiceFactory(await getServiceFactory());
   Server.loadServices(app, 'controllers/*-controller.ts', __dirname);
   Server.swagger(app, { filePath: './dist/swagger.json', endpoint: 'swagger' });
+  Server.ignoreNextMiddlewares(true);
 
   app.use(errorHandler);
 

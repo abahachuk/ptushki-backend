@@ -218,7 +218,7 @@ export default class ObservationController extends AbstractController {
   @Response<Observation>(200, 'Observation with passed id.')
   @Response<CustomError>(401, 'Unauthorised.')
   public async findObservation(@PathParam('id') id: string): Promise<Observation> {
-    return this.checkId<Observation>(id);
+    return this.getEntityById<Observation>(id);
   }
 
   /**
@@ -233,7 +233,7 @@ export default class ObservationController extends AbstractController {
   @Response<CustomError>(422, 'Unprocessable entity.')
   public async editObservation(rawObservation: RawObservationDto, @PathParam('id') id: string): Promise<Observation> {
     // TODO: check user id and role
-    const observation = await this.checkId<Observation>(id);
+    const observation = await this.getEntityById<Observation>(id);
     let { ring } = rawObservation;
     if (!ring || rawObservation.ringMentioned !== observation.ringMentioned) {
       const ringEntity = await this.rings.findOne({ identificationNumber: rawObservation.ringMentioned });
@@ -257,7 +257,7 @@ export default class ObservationController extends AbstractController {
   @Response<Observation>(200, 'Updated observation.')
   @Response<CustomError>(401, 'Unauthorised.')
   public async removeObservation(@PathParam('id') id: string): Promise<Observation> {
-    const observation = await this.checkId<Observation>(id);
+    const observation = await this.getEntityById<Observation>(id);
     return this.observations.remove(observation);
   }
 

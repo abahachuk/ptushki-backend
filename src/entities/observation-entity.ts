@@ -55,6 +55,8 @@ export enum Verified {
   Rejected = 'rejected',
 }
 
+// TODO: extract right fields for raw observation from mobile and web
+// From mobile and web we accept entity with not all field filled
 interface RawObservationBase<TCommon, TRing, TSpecies> {
   ring: TRing;
   ringMentioned: string;
@@ -72,6 +74,8 @@ interface RawObservationBase<TCommon, TRing, TSpecies> {
   placeCode: PlaceCodeDto;
 }
 
+// Model for observation with all not technical fields
+// Used for dtos for responses
 export interface ObservationBase<TFinder, TCommon, TRing, TSpecies>
   extends RawObservationBase<TCommon, TRing, TSpecies> {
   id: string;

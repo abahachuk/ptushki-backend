@@ -18,17 +18,13 @@ export enum UserRole {
   Admin = 'admin',
 }
 
-export class NewUser {
-  public email: string;
-
-  public firstName?: string;
-
-  public lastName?: string;
+export interface NewUser {
+  email: string;
+  firstName?: string;
+  lastName?: string;
 }
 
-export class CreateUserDto extends NewUser implements WithCredentials {
-  public password: string;
-}
+export interface CreateUserDto extends NewUser, WithCredentials {}
 
 export interface UserDto extends NewUser {
   id: string;

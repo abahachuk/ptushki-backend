@@ -12,7 +12,7 @@ interface ParsedErrors {
 export default abstract class AbstractController {
   private entity: Repository<any>;
 
-  protected async checkId<TData>(id: string): Promise<TData> {
+  private async checkId(id: string): Promise<void> {
     if (!this.entity) {
       throw new CustomError('Before use checkId method, please specify used entity with setMainEntity method', 400);
     }
@@ -20,7 +20,10 @@ export default abstract class AbstractController {
     if (id.length !== UUID_LENGTH) {
       throw new CustomError(`Provided ${this.entity.metadata.name} identifier (${id}) is incorrect`, 400);
     }
+  }
 
+  protected async getEntityById<TData>(id: string): Promise<TData> {
+    this.checkId(id);
     const instance = await this.entity.findOne(id);
 
     if (!instance) {

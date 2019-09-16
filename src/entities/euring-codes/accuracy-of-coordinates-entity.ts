@@ -16,17 +16,17 @@ export class AccuracyOfCoordinates implements EntityDto {
   @IsOptional()
   @IsString()
   @Column('varchar', { nullable: true, default: null })
-  public desc_eng: string | null;
+  public desc_eng: string;
 
   @IsOptional()
   @IsString()
   @Column('varchar', { nullable: true, default: null })
-  public desc_rus: string | null;
+  public desc_rus: string;
 
   @IsOptional()
   @IsString()
   @Column('varchar', { nullable: true, default: null })
-  public desc_byn: string | null;
+  public desc_byn: string;
 
   @OneToMany(() => Ring, m => m.accuracyOfCoordinates)
   public ring: Ring[];

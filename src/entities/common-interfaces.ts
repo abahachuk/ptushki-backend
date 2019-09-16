@@ -32,9 +32,9 @@ export interface EURINGCodes {
 }
 
 export interface WithDescription {
-  desc_eng: string | null;
-  desc_rus?: string | null;
-  desc_byn?: string | null;
+  desc_eng?: string;
+  desc_rus?: string;
+  desc_byn?: string;
 }
 
 export interface EntityDto extends WithDescription {
