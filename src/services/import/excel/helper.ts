@@ -157,9 +157,12 @@ export const checkObservationImportedData = async (workbook: WorkBook): Promise<
     invalidDataFormat: [],
   };
   let rowNumber = 2;
+
   const data: any = XLSX.utils.sheet_to_json(worksheet, { defval: null, blankrows: true} );
+
   if (data.length) {
     fileImportStatus.rowCount = data.length;
+    
     for (const row of data) {
 
       if (!Object.values(row).join('')) {
@@ -181,7 +184,7 @@ export const checkObservationImportedData = async (workbook: WorkBook): Promise<
         fileImportStatus.validFormatData.push(data);
       }
 
-       rowNumber += 1;
+      rowNumber += 1;
     }
   }
 

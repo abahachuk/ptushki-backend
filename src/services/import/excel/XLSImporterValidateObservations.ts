@@ -28,7 +28,6 @@ export default class XLSImporterValidateObservations extends AbstractImporter {
     any: true,
   };
 
-  // @ts-ignore
   private checkEuRingCodes = async (excelData: DataCheck): Promise<void> => {
     try {
       const statusCached = await getCustomRepository(cachedEURINGCodes.CachedStatus).find();
@@ -83,7 +82,7 @@ export default class XLSImporterValidateObservations extends AbstractImporter {
       throw new CustomError(e.message, 400);
     }
   };
-  // @ts-ignore
+
   private checkPossibleClones = async (excelData: DataCheck): Promise<void> => {
     const map = new Map();
     try {
@@ -99,7 +98,7 @@ export default class XLSImporterValidateObservations extends AbstractImporter {
       throw new CustomError(e.message, 400);
     }
   };
-  // @ts-ignore
+
   private setXLSDataToObservation = async (excelData: DataCheck): Promise<void> => {
     const defaults = {
       manipulated: 'U',
