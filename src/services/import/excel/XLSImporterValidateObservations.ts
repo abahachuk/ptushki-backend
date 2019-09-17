@@ -1,6 +1,7 @@
 import { NextFunction, Request, Response } from 'express';
-import Excel, { Workbook } from 'exceljs';
 import { getCustomRepository } from 'typeorm';
+import XLS, { WorkBook } from 'xlsx';
+
 import {
   checkObservationsHeaderNames,
   checkObservationImportedData,
@@ -27,6 +28,7 @@ export default class XLSImporterValidateObservations extends AbstractImporter {
     any: true,
   };
 
+  // @ts-ignore
   private checkEuRingCodes = async (excelData: DataCheck): Promise<void> => {
     try {
       const statusCached = await getCustomRepository(cachedEURINGCodes.CachedStatus).find();
@@ -81,7 +83,7 @@ export default class XLSImporterValidateObservations extends AbstractImporter {
       throw new CustomError(e.message, 400);
     }
   };
-
+  // @ts-ignore
   private checkPossibleClones = async (excelData: DataCheck): Promise<void> => {
     const map = new Map();
     try {
@@ -97,7 +99,7 @@ export default class XLSImporterValidateObservations extends AbstractImporter {
       throw new CustomError(e.message, 400);
     }
   };
-
+  // @ts-ignore
   private setXLSDataToObservation = async (excelData: DataCheck): Promise<void> => {
     const defaults = {
       manipulated: 'U',
@@ -133,19 +135,21 @@ export default class XLSImporterValidateObservations extends AbstractImporter {
     try {
       const { files } = req;
       const { type } = req.params;
+        
       if (files.length !== 0) {
         // @ts-ignore
         for (const file of files) {
-          const workbook: Workbook = await new Excel.Workbook().xlsx.load(file.buffer);
+          const workbook: WorkBook = await XLS.read(file.buffer, { type: 'buffer'}); //await new Excel.Workbook().xlsx.load(file.buffer);
           const excelHeaders: HeaderCheck = await checkObservationsHeaderNames(workbook, type);
 
           if (excelHeaders.verified) {
+         
             const checkedFormatData = await checkObservationImportedData(workbook);
             await this.checkEuRingCodes(checkedFormatData);
             await this.checkPossibleClones(checkedFormatData);
             await this.setXLSDataToObservation(checkedFormatData);
             delete checkedFormatData.validFormatData;
-
+        
             res.send(checkedFormatData);
           } else {
             res.status(400).send({ error: `Missing header titles: ${excelHeaders.errors.join(',')}` });

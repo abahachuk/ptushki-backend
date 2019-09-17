@@ -1,4 +1,5 @@
 import Excel, { Column, Worksheet, Workbook, Row, Cell } from 'exceljs';
+import XLSX, { WorkBook, WorkSheet } from 'xlsx';
 import { validate, ValidationError } from 'class-validator';
 import { columns } from './columns';
 import { properties } from './properties';
@@ -90,29 +91,20 @@ export const createExcelWorkBook = async (type: string): Promise<Workbook> => {
   return workbook;
 };
 
-const getHeaderNames = (worksheet: Worksheet): string[] => {
-  const headers: string[] = [];
+const getHeaderNames = (worksheet: WorkSheet): string[] => {
+  const data: string[] = XLSX.utils.sheet_to_json(worksheet, { defval: '' });
 
-  worksheet.getRow(1).eachCell(
-    (cell: Cell): void => {
-      if (cell.model.value) {
-        headers.push(cell.model.value.toString());
-      }
-    },
-  );
-
-  return headers;
+  return Object.keys(data[0]);
 };
 
-export const checkObservationsHeaderNames = async (workbook: Workbook, type: string): Promise<HeaderCheck> => {
-  const columnNames = columns[type];
-  const worksheet = workbook.getWorksheet(1);
+export const checkObservationsHeaderNames = async (workbook: WorkBook, type: string): Promise<HeaderCheck> => {
+  const columnNames = columns[type.toLocaleLowerCase()];
+  const worksheet = workbook.Sheets[workbook.SheetNames[0]];
   const errors: string[] = [];
   let excelHeaders: string[] = [];
 
   if (worksheet) {
     excelHeaders = getHeaderNames(worksheet);
-
     columnNames.filter(
       (name: string): boolean => {
         const isHeaderExists = excelHeaders.includes(name);
@@ -152,9 +144,8 @@ const validateImportedData = async (data: any): Promise<any> => {
   }
 };
 
-export const checkObservationImportedData = async (workbook: Workbook): Promise<DataCheck> => {
-  const headers: string[] = [];
-  const worksheet = workbook.getWorksheet(1);
+export const checkObservationImportedData = async (workbook: WorkBook): Promise<DataCheck> => {
+  const worksheet = workbook.Sheets[workbook.SheetNames[0]];
   const fileImportStatus: DataCheck = {
     emptyRowCount: 0,
     rowCount: 0,
@@ -166,55 +157,31 @@ export const checkObservationImportedData = async (workbook: Workbook): Promise<
     invalidDataFormat: [],
   };
   let rowNumber = 2;
+  const data: any = XLSX.utils.sheet_to_json(worksheet, { defval: null, blankrows: true} );
+  if (data.length) {
+    fileImportStatus.rowCount = data.length;
+    for (const row of data) {
 
-  if (worksheet) {
-    fileImportStatus.rowCount = worksheet.rowCount - 1;
-    worksheet.getRow(1).eachCell(
-      (cell: Cell): void => {
-        if (cell.model.value) {
-          headers.push(cell.model.value.toString());
-        }
-      },
-    );
-
-    while (rowNumber <= worksheet.rowCount) {
-      const rawData: RawData = {};
-      const row = worksheet.getRow(rowNumber);
-
-      if (row.values.length === 0) {
+      if (!Object.values(row).join('')) {
         fileImportStatus.emptyRowCount += 1;
         rowNumber += 1;
-        // eslint-disable-next-line no-continue
         continue;
       }
 
-      row.eachCell(
-        (cell: Cell, index: number): void => {
-          if (headers[index - 1] === 'date') {
-            try {
-              if (cell.model.value) {
-                rawData[headers[index - 1]] = new Date(cell.model.value.toString()).toISOString();
-              }
-            } catch (e) {
-              rawData[headers[index - 1]] = '';
-            }
-          } else if (cell.model.value) {
-            rawData[headers[index - 1]] = cell.model.value.toString();
-          }
-        },
-      );
-      // eslint-disable-next-line no-await-in-loop
-      const result = await validateImportedData(rawData);
+      if (row.latitude !== null) row.latitude = row.latitude.toString();
+      if (row.longitude !== null) row.longitude = row.longitude.toString();
+
+      const result = await validateImportedData(row);
 
       if (result) {
         const error: RowValidationError = { rowNumber, result };
         fileImportStatus.invalidDataFormat.push(error);
       } else {
-        const data: RowValidatedData = { rowNumber, data: rawData };
+        const data: RowValidatedData = { rowNumber, data: row };
         fileImportStatus.validFormatData.push(data);
       }
 
-      rowNumber += 1;
+       rowNumber += 1;
     }
   }
 
