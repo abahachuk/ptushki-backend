@@ -5,6 +5,7 @@ import { Ring } from '../ring-entity';
 import { Observation } from '../observation-entity';
 
 // Related table in access 'Conditions'
+// Can not be 'Condition' bue to error like in this issue https://github.com/thiagobustamante/typescript-rest-swagger/issues/27
 @Entity()
 export class Conditions implements EntityDto {
   @IsInt()

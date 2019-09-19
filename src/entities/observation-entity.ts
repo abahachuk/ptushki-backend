@@ -57,7 +57,7 @@ export enum Verified {
 
 // TODO: extract right fields for raw observation from mobile and web
 // From mobile and web we accept entity with not all field filled
-interface RawObservationBase<TCommon, TRing, TSpecies> {
+interface RawObservationBase<TCommon, TRing, TSpecies, TPlaceCode> {
   ring: TRing;
   ringMentioned: string;
   speciesMentioned: TSpecies;
@@ -70,14 +70,14 @@ interface RawObservationBase<TCommon, TRing, TSpecies> {
   direction?: number;
   remarks?: string;
   date?: Date;
-  accuracyOfDate: EntityDto;
-  placeCode: PlaceCodeDto;
+  accuracyOfDate: TCommon;
+  placeCode: TPlaceCode;
 }
 
 // Model for observation with all not technical fields
 // Used for dtos for responses
-export interface ObservationBase<TFinder, TCommon, TRing, TSpecies>
-  extends RawObservationBase<TCommon, TRing, TSpecies> {
+export interface ObservationBase<TFinder, TCommon, TRing, TSpecies, TPlaceCode>
+  extends RawObservationBase<TCommon, TRing, TSpecies, TPlaceCode> {
   id: string;
   speciesConcluded: TSpecies;
   sexConcluded: TCommon;
@@ -102,11 +102,11 @@ export interface ObservationBase<TFinder, TCommon, TRing, TSpecies>
 
 // Can't use type due to typescript-swagger restrictions
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
-export interface RawObservationDto extends RawObservationBase<string, string, string> {}
+export interface RawObservationDto extends RawObservationBase<string, string, string, string> {}
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
-export interface ObservationBaseDto extends ObservationBase<string, string, string, string> {}
+export interface ObservationBaseDto extends ObservationBase<string, string, string, string, string> {}
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
-export interface ObservationDto extends ObservationBase<UserDto, EntityDto, RingDto, SpeciesDto> {}
+export interface ObservationDto extends ObservationBase<UserDto, EntityDto, RingDto, SpeciesDto, PlaceCodeDto> {}
 
 @Entity()
 export class Observation implements ObservationDto, AbleToExportAndImportEuring {
