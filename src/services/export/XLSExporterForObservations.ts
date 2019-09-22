@@ -5,7 +5,6 @@ import { write, utils } from 'xlsx';
 import AbstractExporter, { ExporterType } from './AbstractExporter';
 import { Observation } from '../../entities/observation-entity';
 import { User } from '../../entities/user-entity';
-import { localizedFields, filterFieldByLocale, LocaleFieldMap } from '../observation-service';
 import { Locale } from '../../entities/common-interfaces';
 
 export default class XLSExporterForObservations extends AbstractExporter {
@@ -37,14 +36,12 @@ export default class XLSExporterForObservations extends AbstractExporter {
     'circumstancesPresumed',
   ];
 
-  private flattenObservation = (observation: Observation, lang: string) => {
+  private flattenObservation = (observation: Observation) => {
     return Object.entries(observation).reduce((acc, [field, value]) => {
       if (typeof value === 'object' && value !== null) {
-        Object.entries(value)
-          .filter(([subfield]) => filterFieldByLocale(subfield, lang))
-          .forEach(([subfield, subvalue]) => {
-            Object.assign(acc, { [this.getColumnName(field, subfield as Locale)]: subvalue });
-          });
+        Object.entries(value).forEach(([subfield, subvalue]) => {
+          Object.assign(acc, { [this.getColumnName(field, subfield as Locale)]: subvalue });
+        });
         return acc;
       }
       return Object.assign(acc, { [field]: value });
@@ -52,18 +49,14 @@ export default class XLSExporterForObservations extends AbstractExporter {
   };
 
   private getColumnName = (columnName: string, subColumnName: Locale) => {
-    if (localizedFields.includes(subColumnName)) {
-      return `${columnName}_desc`;
-    }
     return `${columnName}_${subColumnName}`;
   };
 
   public async export(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
-      const { lang = 'eng', rowIds = [] }: { lang: Locale; rowIds: string[] } = req.body;
+      const { rowIds = [] }: { rowIds: string[] } = req.body;
       this.validateRowIds(rowIds);
-      const langOrigin = LocaleFieldMap[lang] || 'desc_eng';
-      
+
       const observations = await this.observations.find({
         where: rowIds.map(id => ({ id })),
         loadEagerRelations: false,
@@ -77,7 +70,7 @@ export default class XLSExporterForObservations extends AbstractExporter {
         return ref;
       });
 
-      const flattenObservations = observations.map(obs => this.flattenObservation(obs, langOrigin));
+      const flattenObservations = observations.map(obs => this.flattenObservation(obs));
 
       const workSheet = utils.json_to_sheet(flattenObservations);
       const workBook = utils.book_new();
