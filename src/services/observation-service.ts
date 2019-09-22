@@ -8,14 +8,6 @@ const cartesian = require('cartesian-product');
 
 const { pageNumberDefault, pageSizeDefault } = config.get('paging');
 
-export const localizedFields: string[] = ['desc_eng', 'desc_byn', 'desc_rus'];
-
-export const LocaleFieldMap: { [key in Locale]: string } = {
-  eng: 'desc_eng',
-  byn: 'desc_byn',
-  rus: 'desc_rus',
-};
-
 export type ObservationAggregations = { [key in keyof Observation]: string };
 
 export interface ObservationSearch {
@@ -42,31 +34,6 @@ const gettingAllObservations = {
   [UserRole.Admin]: true,
 };
 
-export const filterFieldByLocale = (key: string, lang: string): boolean => {
-  if (!localizedFields.includes(key)) {
-    return true;
-  }
-  return lang === key;
-};
-
-export const mapLocale = (observationEntry: [string, any], query: ObservationQuery): [string, any] => {
-  const { lang = 'eng' }: { lang: Locale } = query;
-  const langFieldName = LocaleFieldMap[lang] || 'desc_eng';
-
-  const [observationKey, observationValue] = observationEntry;
-
-  if (typeof observationValue === 'object' && observationValue !== null) {
-    const newObservationValue = Object.entries(observationValue)
-      .filter(([key]) => filterFieldByLocale(key, langFieldName))
-      .map(([key, value]) => (key === langFieldName ? ['desc', value] : [key, value]))
-      .reduce((acc, [key, value]) => Object.assign(acc, { [key as string]: value as any }), {});
-
-    return [observationKey, newObservationValue];
-  }
-
-  return observationEntry;
-};
-
 export const sanitizeUser = (observationEntry: [string, any]): [string, any] => {
   const [observationKey, observationValue] = observationEntry;
   if (observationKey === 'finder') {
@@ -90,7 +57,7 @@ export const parseWhereParams = (user: User, query: ObservationAggregations): Fi
     params.finder = [user.id]; // re-assing user id for 'observer' and 'ringer'
   }
 
-  const matrix = Object.entries(params).map(entry => entry[1] && entry[1].map(value => ({ [entry[0]]: value }))); // get matrix to calc a cartesian product for 'where' params
+  const matrix = Object.entries(params).map(([key, value]) => value && value.map(value1 => ({ [key]: value1 }))); // get matrix to calc a cartesian product for 'where' params
   const where = cartesian(matrix).map((row: any[]) => row.reduce((acc, value) => Object.assign(acc, value), {}));
   return { where };
 };

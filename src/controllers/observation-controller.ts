@@ -8,13 +8,7 @@ import Exporter from '../services/export';
 import Importer from '../services/import';
 import { Ring } from '../entities/ring-entity';
 
-import {
-  parsePageParams,
-  ObservationQuery,
-  parseWhereParams,
-  mapLocale,
-  sanitizeUser,
-} from '../services/observation-service';
+import { parsePageParams, ObservationQuery, parseWhereParams, sanitizeUser } from '../services/observation-service';
 import { CustomError } from '../utils/CustomError';
 
 interface RequestWithObservation extends Request {
@@ -76,10 +70,7 @@ export default class ObservationController extends AbstractController {
         Object.assign(paramsSearch, paramsAggregation),
       );
 
-      const f = pipe(
-        (arg: [string, any]) => mapLocale(arg, query),
-        (arg: [string, any]) => sanitizeUser(arg),
-      );
+      const f = pipe((arg: [string, any]) => sanitizeUser(arg));
 
       const content = observations.map(observation =>
         Object.entries(observation)
@@ -119,10 +110,7 @@ export default class ObservationController extends AbstractController {
           if (desired) {
             desired.count += 1;
           } else {
-            const f = pipe(
-              (arg: [string, any]) => mapLocale(arg, query),
-              (arg: [string, any]) => sanitizeUser(arg),
-            );
+            const f = pipe((arg: [string, any]) => sanitizeUser(arg));
             const [, obsValue] = f([column, observation[column]]);
             acc[column].push({ value: obsValue, count: 1 });
           }
