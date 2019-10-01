@@ -1,20 +1,14 @@
 import { NextFunction, Request, Response, Router } from 'express';
 import { getRepository, Repository } from 'typeorm';
+import { pipe } from 'ramda';
 import AbstractController from './abstract-controller';
+
 import { Observation, Verified } from '../entities/observation-entity';
 import Exporter from '../services/export';
 import Importer from '../services/import';
 import { Ring } from '../entities/ring-entity';
 
-import {
-  parsePageParams,
-  ObservationQuery,
-  getAggregations,
-  parseWhereParams,
-  Locale,
-  filterFieldByLocale,
-  LocaleOrigin,
-} from '../services/observation-service';
+import { parsePageParams, ObservationQuery, parseWhereParams, sanitizeUser } from '../services/observation-service';
 import { CustomError } from '../utils/CustomError';
 
 interface RequestWithObservation extends Request {
@@ -23,6 +17,11 @@ interface RequestWithObservation extends Request {
 
 interface RequestWithPageParams extends Request {
   query: ObservationQuery;
+}
+
+type ObservationKeyUnion = keyof Observation;
+interface AggregationsMap {
+  [key: string]: { value: any; count: number }[];
 }
 
 export default class ObservationController extends AbstractController {
@@ -35,6 +34,8 @@ export default class ObservationController extends AbstractController {
   private importer: Importer;
 
   private rings: Repository<Ring>;
+
+  private requiredColumns: ObservationKeyUnion[] = ['speciesMentioned', 'verified', 'finder', 'ringMentioned'];
 
   public init(): Router {
     this.observations = getRepository(Observation);
@@ -54,60 +55,70 @@ export default class ObservationController extends AbstractController {
     this.router.put('/:id', this.editObservation);
     this.router.delete('/:id', this.removeObservation);
     this.router.post('/set-verification', this.setVerificationStatus);
+
     return this.router;
   }
 
   private getObservations = async (req: RequestWithPageParams, res: Response, next: NextFunction): Promise<void> => {
     try {
-      const { lang = 'eng' }: { lang: string } = req.query;
-      const langOrigin = LocaleOrigin[lang] ? LocaleOrigin[lang] : 'desc_eng';
+      const { query, user } = req;
 
-      const paramsSearch = parsePageParams(req.query);
-      const paramsAggregation = parseWhereParams(req.query, req.user);
-      const observations = await this.observations.findAndCount(Object.assign(paramsSearch, paramsAggregation));
+      const paramsSearch = parsePageParams(query);
+      const paramsAggregation = parseWhereParams(user, query);
 
-      const content = observations[0].map(obs => {
-        // sanitaze user's data
-        const finder = Object.assign({}, obs.finder.sanitizeUser(), { id: obs.finder.id });
-        // transform 'observation'
-        const observation = Object.entries(obs)
-          // clear 'filter' field
-          .filter(([ObservationField]) => ObservationField !== 'ring')
-          // map 'lang' param according 'Locale'
-          .map(([ObservationKey, ObservationValue]) => {
-            if (typeof ObservationValue === 'object' && ObservationValue !== null) {
-              const value = Object.entries(ObservationValue)
-                .filter(([subfield]) => filterFieldByLocale(subfield as Locale, langOrigin))
-                .map(([subfield, subValue]) =>
-                  subfield === langOrigin ? ['desc', subValue] : ([subfield, subValue] as any),
-                )
-                .reduce((acc, [subfield, subValue]) => Object.assign(acc, { [subfield]: subValue }), {});
-              return [ObservationKey, value];
-            }
-            return [ObservationKey, ObservationValue];
-          })
-          .reduce(
-            (acc, [ObservationField, ObservationValue]) => Object.assign(acc, { [ObservationField]: ObservationValue }),
-            {},
-          );
-        return Object.assign({}, observation, { finder }, { ring: obs.ring.id });
-      });
+      const [observations, totalElements] = await this.observations.findAndCount(
+        Object.assign(paramsSearch, paramsAggregation),
+      );
+
+      const f = pipe((arg: [string, any]) => sanitizeUser(arg));
+
+      const content = observations.map(observation =>
+        Object.entries(observation)
+          .map(arg => f(arg))
+          .reduce((acc, [key, value]) => Object.assign(acc, { [key]: value }), {}),
+      );
 
       res.json({
         content,
         pageNumber: paramsSearch.number,
         pageSize: paramsSearch.size,
-        totalElements: observations[1],
+        totalElements,
       });
     } catch (error) {
       next(error);
     }
   };
 
-  private getAggregations = async (_req: Request, res: Response, next: NextFunction) => {
+  private getAggregations = async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const aggregations = await getAggregations(this.observations);
-      res.json({ ...aggregations });
+      const { query, user } = req;
+
+      const paramsAggregation = parseWhereParams(user, query);
+      const observations = await this.observations.find({ ...paramsAggregation });
+      const requiredColumnsMap: AggregationsMap = this.requiredColumns.reduce((acc, column) => {
+        return Object.assign(acc, { [column]: [] });
+      }, {});
+
+      const aggregations = observations.reduce((acc, observation) => {
+        this.requiredColumns.forEach(column => {
+          const desired = acc[column].find(item => {
+            if (typeof observation[column] === 'object' && observation[column] !== null) {
+              return item.value.id === (observation[column] as any).id;
+            }
+            return item.value === observation[column];
+          });
+          if (desired) {
+            desired.count += 1;
+          } else {
+            const f = pipe((arg: [string, any]) => sanitizeUser(arg));
+            const [, value] = f([column, observation[column]]);
+            acc[column].push({ value, count: 1 });
+          }
+        });
+        return acc;
+      }, requiredColumnsMap);
+
+      res.json(aggregations);
     } catch (error) {
       next(error);
     }
