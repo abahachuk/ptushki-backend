@@ -15,8 +15,9 @@ import {
   Return,
   Security,
 } from 'typescript-rest';
-import AbstractController from './abstract-controller';
+import { Tags, Response, Produces } from 'typescript-rest-swagger';
 
+import AbstractController from './abstract-controller';
 import {
   Observation,
   ObservationBaseDto,
@@ -29,10 +30,6 @@ import Importer from '../services/import';
 import { Ring } from '../entities/ring-entity';
 
 import {
-  filterFieldByLocale,
-  getAggregations,
-  Locale,
-  LocaleOrigin,
   ObservationQuery,
   parsePageParams,
   parseWhereParams,
@@ -87,9 +84,9 @@ export default class ObservationController extends AbstractController {
 
   /**
    * Get all available observations.
-   * @param {string} lang Language
    * @param {number} pageNumber Page number, default value is set in config file
    * @param {number} pageSize Page size, default value is set in config file
+   * @param {number} testNum Page size, default value is set in config file
    * @param {SortingDirection} sortingDirection Sorting direction
    * @param {string} sortingColumn Column to search, can be any of ObservationDto field name
    */
@@ -99,27 +96,25 @@ export default class ObservationController extends AbstractController {
   @Response<CustomError>(401, 'Unauthorised.')
   public async getObservations(
     @ContextRequest req: RequestWithPageParams,
-    @QueryParam('lang') lang: string = 'eng',
     @QueryParam('pageNumber') pageNumber: number = 0,
     @QueryParam('pageSize') pageSize: number = 5,
     @QueryParam('sortingDirection') sortingDirection: SortingDirection = SortingDirection.asc,
     @QueryParam('sortingColumn') sortingColumn?: string,
   ): Promise<ObservationsListResponse> {
+    const paramsSearch = parsePageParams({ pageNumber, pageSize, sortingColumn, sortingDirection });
+    const paramsAggregation = parseWhereParams(req.user, req.query);
 
-      const paramsSearch = parsePageParams({ pageNumber, pageSize, sortingColumn, sortingDirection });
-      const paramsAggregation = parseWhereParams(req.query, req.user);
+    const [observations, totalElements] = await this.observations.findAndCount(
+      Object.assign(paramsSearch, paramsAggregation),
+    );
 
-      const [observations, totalElements] = await this.observations.findAndCount(
-        Object.assign(paramsSearch, paramsAggregation),
-      );
+    const f = pipe((arg: [string, any]) => sanitizeUser(arg));
 
-      const f = pipe((arg: [string, any]) => sanitizeUser(arg));
-
-      const content = observations.map(observation =>
-        Object.entries(observation)
-          .map(arg => f(arg))
-          .reduce((acc, [key, value]) => Object.assign(acc, { [key]: value }), {}),
-      ) as ObservationDto;
+    const content = observations.map(observation =>
+      Object.entries(observation)
+        .map(f)
+        .reduce((acc, [key, value]) => Object.assign(acc, { [key]: value }), {}),
+    ) as ObservationDto[];
 
     return {
       content,
@@ -136,50 +131,40 @@ export default class ObservationController extends AbstractController {
    */
   @GET
   @Path('/aggregations')
-  @Response<{ [key: string]: string[] | { [key: string]: string }[] }>(
-    200,
-    'All available values for filtering observations.',
-  )
+  @Response<AggregationsMap>(200, 'All available values for filtering observations.')
   @Response<CustomError>(401, 'Unauthorised.')
   // eslint-disable-next-line consistent-return
   public async getAggregations(
     @ContextRequest req: Request,
-    @ContextNext next: NextFunction,
     // @ts-ignore FIXME
-  ): Promise<{ [key: string]: string[] | { [key: string]: string }[] }> {
-    try {
-      const { query, user } = req;
+  ): Promise<AggregationsMap> {
+    const { query, user } = req;
 
-      const paramsAggregation = parseWhereParams(user, query);
-      const observations = await this.observations.find({ ...paramsAggregation });
-      const requiredColumnsMap: AggregationsMap = this.requiredColumns.reduce((acc, column) => {
-        return Object.assign(acc, { [column]: [] });
-      }, {});
+    const paramsAggregation = parseWhereParams(user, query);
+    const observations = await this.observations.find({ ...paramsAggregation });
+    const requiredColumnsMap: AggregationsMap = this.requiredColumns.reduce((acc, column) => {
+      return Object.assign(acc, { [column]: [] });
+    }, {});
 
-      const aggregations = observations.reduce((acc, observation) => {
-        this.requiredColumns.forEach(column => {
-          const desired = acc[column].find(item => {
-            if (typeof observation[column] === 'object' && observation[column] !== null) {
-              return item.value.id === (observation[column] as any).id;
-            }
-            return item.value === observation[column];
-          });
-          if (desired) {
-            desired.count += 1;
-          } else {
-            const f = pipe((arg: [string, any]) => sanitizeUser(arg));
-            const [, value] = f([column, observation[column]]);
-            acc[column].push({ value, count: 1 });
+    return observations.reduce((acc, observation) => {
+      this.requiredColumns.forEach(column => {
+        const desired = acc[column].find(item => {
+          if (typeof observation[column] === 'object' && observation[column] !== null) {
+            return item.value.id === (observation[column] as any).id;
           }
+          return item.value === observation[column];
         });
-        return acc;
-      }, requiredColumnsMap);
-
-      return aggregations;
-    } catch (error) {
-      next(error);
-    }
-  };
+        if (desired) {
+          desired.count += 1;
+        } else {
+          const f = pipe((arg: [string, any]) => sanitizeUser(arg));
+          const [, value] = f([column, observation[column]]);
+          acc[column].push({ value, count: 1 });
+        }
+      });
+      return acc;
+    }, requiredColumnsMap);
+  }
 
   /**
    * Create new observation.
