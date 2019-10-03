@@ -28,6 +28,14 @@ export default class RingsByController extends AbstractController {
   }
 
   @GET
+  @Path('/aggregations')
+  @Response<CustomError>(401, 'Unauthorised.')
+  @Response<CustomError>(501, 'Unimplemented.')
+  public async getAggregations(): Promise<void> {
+    throw new CustomError('This operation is not available yet', 501);
+  }
+
+  @GET
   @Path('/:id')
   @Response<Ring>(200, 'Ring with passed id.')
   @Response<CustomError>(401, 'Unauthorised.')

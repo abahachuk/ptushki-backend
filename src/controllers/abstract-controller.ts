@@ -12,7 +12,7 @@ interface ParsedErrors {
 export default abstract class AbstractController {
   private entity: Repository<any>;
 
-  private async checkId(id: string): Promise<void> {
+  private checkId(id: string): void {
     if (!this.entity) {
       throw new CustomError('Before use checkId method, please specify used entity with setMainEntity method', 400);
     }
