@@ -63,13 +63,13 @@ interface AggregationsMap {
 @Tags('observations')
 @Security()
 export default class ObservationController extends AbstractController {
-  private observations: Repository<Observation>;
+  private readonly observations: Repository<Observation>;
+
+  private readonly rings: Repository<Ring>;
 
   private exporter: Exporter;
 
   private importer: Importer;
-
-  private rings: Repository<Ring>;
 
   private requiredColumns: ObservationKeyUnion[] = ['speciesMentioned', 'verified', 'finder', 'ringMentioned'];
 

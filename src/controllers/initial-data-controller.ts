@@ -35,7 +35,7 @@ export default class InitialDataController extends AbstractController {
 
   @GET
   @Path('/')
-  @Response<{ [index: string]: any[] }>(200, 'List of all available observations.')
+  @Response<{ [index: string]: any[] }>(200, 'All available EURING codes with descriptions.')
   @Response<CustomError>(401, 'Unauthorised.')
   public async getInitialData(@QueryParam('lang') lang: string): Promise<{ [index: string]: any[] }> {
     return (await Promise.all(

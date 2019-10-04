@@ -14,7 +14,7 @@ export default abstract class AbstractController {
 
   private checkId(id: string): void {
     if (!this.entity) {
-      throw new CustomError('Before use checkId method, please specify used entity with setMainEntity method', 400);
+      throw new CustomError('Before use checkId method, please specify used entity with setMainEntity method', 500);
     }
 
     if (id.length !== UUID_LENGTH) {

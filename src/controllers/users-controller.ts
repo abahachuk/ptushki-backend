@@ -1,10 +1,11 @@
 import { getRepository, Repository } from 'typeorm';
-import { DELETE, GET, Path, PathParam, Security } from 'typescript-rest';
+import { DELETE, GET, Path, PathParam, PreProcessor, Security } from 'typescript-rest';
 import { Tags, Response } from 'typescript-rest-swagger';
 import AbstractController from './abstract-controller';
-import { User } from '../entities/user-entity';
+import { User, UserRole } from '../entities/user-entity';
 import { Ring } from '../entities/ring-entity';
 import { CustomError } from '../utils/CustomError';
+import { auth } from '../services/auth-service';
 
 @Path('users')
 @Tags('users')
@@ -36,6 +37,7 @@ export default class UsersController extends AbstractController {
 
   @DELETE
   @Path('/:id')
+  @PreProcessor(auth.role(UserRole.Admin))
   @Response<{ id: string; removed: boolean }>(200, 'User with passed id successfully deleted.')
   @Response<CustomError>(401, 'Unauthorised.')
   public async remove(@PathParam('id') id: string): Promise<{ id: string; removed: boolean }> {
