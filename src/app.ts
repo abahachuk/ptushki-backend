@@ -1,3 +1,4 @@
+import path from 'path';
 import express, { Application } from 'express';
 import bodyParser from 'body-parser';
 import { Server } from 'typescript-rest';
@@ -16,8 +17,8 @@ const createApp = async (): Promise<Application> => {
   app.use(bodyParser.urlencoded({ extended: true }));
 
   Server.registerServiceFactory(await getServiceFactory());
-  Server.loadServices(app, 'controllers/*-controller.ts', __dirname);
-  Server.swagger(app, { filePath: './dist/swagger.json', endpoint: 'swagger' });
+  Server.loadServices(app, 'controllers/*-controller.+(ts|js)', __dirname);
+  Server.swagger(app, { filePath: path.join(process.cwd(), './dist/swagger.json'), endpoint: 'swagger' });
   Server.ignoreNextMiddlewares(true);
 
   app.use(errorHandler);
