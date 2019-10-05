@@ -1,24 +1,27 @@
-import { NextFunction, Request, Response } from 'express';
 import Excel, { Workbook } from 'exceljs';
 import { getCustomRepository } from 'typeorm';
 import {
-  checkObservationsHeaderNames,
   checkObservationImportedData,
-  HeaderCheck,
+  checkObservationsHeaderNames,
   DataCheck,
+  DataCheckDto,
   EURingError,
+  HeaderCheck,
+  RawData,
   RowErorr,
   RowValidatedData,
-  RawData,
 } from './helper';
 import { MulterOptions } from '../../../controllers/upload-files-controller';
-import AbstractImporter, { ImporterType } from '../AbstractImporter';
+import AbstractImporter, { ImporterType, ImportInput } from '../AbstractImporter';
 import { CustomError } from '../../../utils/CustomError';
 import { cachedEURINGCodes } from '../../../entities/euring-codes/cached-entities-fabric';
-import { Sex, Species, Status, Age, PlaceCode } from '../../../entities/euring-codes';
+import { Age, PlaceCode, Sex, Species, Status } from '../../../entities/euring-codes';
 
-export default class XLSImporterValidateObservations extends AbstractImporter {
-  public type: ImporterType = 'VALIDATE-XLS';
+export default class XLSImporterValidateObservations extends AbstractImporter<
+  ImportInput<Express.Multer.File>,
+  DataCheckDto
+> {
+  public type: ImporterType = ImporterType.validateXls;
 
   public route: string = 'observations';
 
@@ -40,11 +43,21 @@ export default class XLSImporterValidateObservations extends AbstractImporter {
         const { eu_statusCode, eu_species, eu_sexCode, eu_ageCode, eu_placeCode }: RawData = data;
 
         if (data) {
-          const status = statusCached.filter((statusRow: Status) => statusRow.id === eu_statusCode.toString().toUpperCase());
-          const speciesMentioned = speciesMentionedCached.filter((speciesRow: Species) => speciesRow.id === eu_species.toString());
-          const sexMentioned = sexMentionedCached.filter((sexRow: Sex) => sexRow.id === eu_sexCode.toString().toUpperCase());
-          const ageMentioned = ageMentionedCached.filter((ageRow: Age) => ageRow.id === eu_ageCode.toString().toUpperCase());
-          const placeCode = placeCodeCached.filter((placeCodeRow: PlaceCode) => placeCodeRow.id === eu_placeCode.toString().toUpperCase());
+          const status = statusCached.filter(
+            (statusRow: Status) => statusRow.id === eu_statusCode.toString().toUpperCase(),
+          );
+          const speciesMentioned = speciesMentionedCached.filter(
+            (speciesRow: Species) => speciesRow.id === eu_species.toString(),
+          );
+          const sexMentioned = sexMentionedCached.filter(
+            (sexRow: Sex) => sexRow.id === eu_sexCode.toString().toUpperCase(),
+          );
+          const ageMentioned = ageMentionedCached.filter(
+            (ageRow: Age) => ageRow.id === eu_ageCode.toString().toUpperCase(),
+          );
+          const placeCode = placeCodeCached.filter(
+            (placeCodeRow: PlaceCode) => placeCodeRow.id === eu_placeCode.toString().toUpperCase(),
+          );
 
           const euCodeErrors: string[] = [];
 
@@ -103,7 +116,7 @@ export default class XLSImporterValidateObservations extends AbstractImporter {
       manipulated: 'U',
       catchingMethod: 'U',
       catchingLures: 'U',
-      accuracyOfDate: 9
+      accuracyOfDate: 9,
     };
 
     for (const row of excelData.addedData) {
@@ -119,7 +132,7 @@ export default class XLSImporterValidateObservations extends AbstractImporter {
         colorRing: row.data.colorRing,
         placeName: row.data.place,
         placeCode: row.data.eu_placeCode.toString().toUpperCase(),
-        remarks: `${row.data.ringer || ''} ${row.data.remarks || ''}`
+        remarks: `${row.data.ringer || ''} ${row.data.remarks || ''}`,
       };
 
       excelData.observations.push(Object.assign({}, rowData, defaults));
@@ -128,34 +141,29 @@ export default class XLSImporterValidateObservations extends AbstractImporter {
     delete excelData.addedData;
   };
 
-  /* eslint-disable-next-line class-methods-use-this */
-  public async import(req: Request, res: Response, next: NextFunction): Promise<void> {
-    try {
-      const { files } = req;
-      const { type } = req.params;
-      if (files.length !== 0) {
-        // @ts-ignore
-        for (const file of files) {
-          const workbook: Workbook = await new Excel.Workbook().xlsx.load(file.buffer);
-          const excelHeaders: HeaderCheck = await checkObservationsHeaderNames(workbook, type);
-
-          if (excelHeaders.verified) {
-            const checkedFormatData = await checkObservationImportedData(workbook);
-            await this.checkEuRingCodes(checkedFormatData);
-            await this.checkPossibleClones(checkedFormatData);
-            await this.setXLSDataToObservation(checkedFormatData);
-            delete checkedFormatData.validFormatData;
-
-            res.send(checkedFormatData);
-          } else {
-            res.status(400).send({ error: `Missing header titles: ${excelHeaders.errors.join(',')}` });
-          }
-        }
-      } else {
-        res.status(400).send({ error: `No files detected` });
-      }
-    } catch (e) {
-      next(e);
+  // TODO: clarify if we need to support multiple files
+  public async import({ sources }: ImportInput<Express.Multer.File>): Promise<DataCheckDto> {
+    if (!sources.length) {
+      throw new CustomError('No files detected', 400);
     }
+
+    this.filterFiles(sources);
+
+    const [file] = sources;
+
+    const workbook: Workbook = await new Excel.Workbook().xlsx.load(file.buffer);
+    const excelHeaders: HeaderCheck = await checkObservationsHeaderNames(workbook, 'validate-xls');
+
+    if (!excelHeaders.verified) {
+      throw new CustomError(`Missing header titles: ${excelHeaders.errors.join(',')}`, 400);
+    }
+
+    const checkedFormatData = await checkObservationImportedData(workbook);
+    await this.checkEuRingCodes(checkedFormatData);
+    await this.checkPossibleClones(checkedFormatData);
+    await this.setXLSDataToObservation(checkedFormatData);
+    delete checkedFormatData.validFormatData;
+
+    return checkedFormatData;
   }
 }

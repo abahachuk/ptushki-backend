@@ -1,21 +1,27 @@
-import config from 'config';
 import express, { Application } from 'express';
 import bodyParser from 'body-parser';
-import routes from './routes';
+import { Server } from 'typescript-rest';
+
 import { setLogger } from './utils/logger';
 import errorHandler from './controllers/error-controller';
 import { initPassport } from './services/auth-service';
-import setupSwagger from './swaggerSetup';
+import getServiceFactory from './service-factory';
 
 const createApp = async (): Promise<Application> => {
   const app = express();
+
   initPassport();
   app.use(setLogger);
   app.use(bodyParser.json());
   app.use(bodyParser.urlencoded({ extended: true }));
-  app.use(await routes());
+
+  Server.registerServiceFactory(await getServiceFactory());
+  Server.loadServices(app, 'controllers/*-controller.ts', __dirname);
+  Server.swagger(app, { filePath: './dist/swagger.json', endpoint: 'swagger' });
+  Server.ignoreNextMiddlewares(true);
+
   app.use(errorHandler);
-  setupSwagger(app, { host: `${config.get('HOST')}:${config.get('PORT')}` });
+
   return app;
 };
 

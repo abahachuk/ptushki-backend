@@ -1,12 +1,13 @@
 import { Entity, PrimaryColumn, Column, OneToMany } from 'typeorm';
 import { IsInt, Min, Max, IsOptional, IsString } from 'class-validator';
-import { Dictionary } from '../common-interfaces';
+import { EntityDto } from '../common-interfaces';
 import { Ring } from '../ring-entity';
 import { Observation } from '../observation-entity';
 
-// Related table in access 'Condition'
+// Related table in access 'Conditions'
+// Can not be 'Condition' bue to error like in this issue https://github.com/thiagobustamante/typescript-rest-swagger/issues/27
 @Entity()
-export class Condition implements Dictionary {
+export class Conditions implements EntityDto {
   @IsInt()
   @Min(0)
   @Max(9)
@@ -16,17 +17,17 @@ export class Condition implements Dictionary {
   @IsOptional()
   @IsString()
   @Column('varchar', { nullable: true, default: null })
-  public desc_eng: string | null;
+  public desc_eng: string;
 
   @IsOptional()
   @IsString()
   @Column('varchar', { nullable: true, default: null })
-  public desc_rus: string | null;
+  public desc_rus: string;
 
   @IsOptional()
   @IsString()
   @Column('varchar', { nullable: true, default: null })
-  public desc_byn: string | null;
+  public desc_byn: string;
 
   @OneToMany(() => Ring, m => m.condition)
   public ring: Ring[];

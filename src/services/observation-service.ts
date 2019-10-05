@@ -10,16 +10,20 @@ const { pageNumberDefault, pageSizeDefault } = config.get('paging');
 
 export type ObservationAggregations = { [key in keyof Observation]: string };
 
-export interface ObservationSearch {
-  search?: string;
-  pageNumber?: string;
-  pageSize?: string;
-  sortingColumn?: string;
-  sortingDirection?: 'ASC' | 'DESC';
-  lang: Locale;
+export enum SortingDirection {
+  asc = 'ASC',
+  desk = 'DESC',
 }
 
-export type ObservationQuery = ObservationSearch & ObservationAggregations;
+export interface ObservationSearch {
+  search?: string;
+  pageNumber?: number;
+  pageSize?: number;
+  sortingColumn?: string;
+  sortingDirection?: SortingDirection;
+}
+
+export type ObservationQuery = ObservationSearch & ObservationAggregations & { lang: Locale };
 
 interface FindOptions<Observation> extends FindManyOptions<Observation> {
   number: number;
@@ -62,11 +66,11 @@ export const parseWhereParams = (user: User, query: ObservationAggregations): Fi
   return { where };
 };
 
-export const parsePageParams = (query: ObservationQuery): FindOptions<Observation> => {
+export const parsePageParams = (query: ObservationSearch): FindOptions<Observation> => {
   const { pageNumber, pageSize, sortingColumn, sortingDirection = 'ASC' } = query;
 
-  const number = Number.parseInt(pageNumber as string, 10) || pageNumberDefault;
-  const size = Number.parseInt(pageSize as string, 10) || pageSizeDefault;
+  const number = pageNumber || pageNumberDefault;
+  const size = pageSize || pageSizeDefault;
 
   return {
     order: sortingColumn ? { [sortingColumn]: sortingDirection } : undefined,

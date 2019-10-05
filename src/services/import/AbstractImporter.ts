@@ -1,24 +1,48 @@
-import { NextFunction, Request, Response } from 'express';
+import path from 'path';
 import { validate, ValidationError } from 'class-validator';
-import { MulterOptions } from '../../controllers/upload-files-controller';
+import { DataCheckDto } from './excel/helper';
 import { CustomError } from '../../utils/CustomError';
 
-export type ImporterType = 'EURING' | 'XLS' | 'VALIDATE-XLS';
+export interface MulterOptions {
+  extensions: string[];
+  any: boolean;
+}
 
 interface ParsedErrors {
   [key: string]: string[];
 }
 
-export default abstract class AbstractImporter {
+export enum ImporterType {
+  xls = 'XLS',
+  validateXls = 'VALIDATE-XLS',
+  euring = 'EURING',
+}
+
+export interface ImportInput<T = Express.Multer.File | string> {
+  sources: T[];
+  userId?: string;
+}
+export type ImportOutput = void | DataCheckDto;
+
+export default abstract class AbstractImporter<
+  TSource extends ImportInput = ImportInput,
+  TReturn extends ImportOutput = ImportOutput
+> {
   abstract type: ImporterType;
 
   abstract route: string;
 
   abstract options: MulterOptions;
 
-  public abstract async import(req: Request, res: Response, next: NextFunction): Promise<void>;
+  public abstract async import(sources: TSource): Promise<TReturn>;
 
-  /* eslint-disable */
+  protected filterFiles(files: Express.Multer.File[]) {
+    if (files.every(({ originalname }) => this.options.extensions.includes(path.extname(originalname)))) {
+      return true;
+    }
+    throw new Error(`Incorrect file extension. It is possible to upload only: ${this.options.extensions.join(',')}`);
+  }
+
   protected async validate(data: any[]): Promise<void> {
     const mapWithErrors = await data.reduce(async (accumulator, item, id): Promise<any> => {
       const errors = await validate(item);
@@ -39,7 +63,7 @@ export default abstract class AbstractImporter {
     }, {});
 
     if (Object.keys(mapWithErrors).length) {
-      throw new CustomError<any>(mapWithErrors, 422);
+      throw new CustomError(mapWithErrors, 422);
     }
   }
 }

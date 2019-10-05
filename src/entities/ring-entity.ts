@@ -25,6 +25,7 @@ import {
   MetalRingInformation,
   OtherMarksInformation,
   Species,
+  SpeciesDto,
   Manipulated,
   MovedBeforeTheCapture,
   CatchingMethod,
@@ -34,20 +35,54 @@ import {
   PullusAge,
   AccuracyOfPullusAge,
   PlaceCode,
-  Condition,
+  Conditions,
   Circumstances,
   CircumstancesPresumed,
   AccuracyOfDate,
   EURINGCodeIdentifier,
   StatusOfRing,
+  PlaceCodeDto,
 } from './euring-codes';
-import { User } from './user-entity';
+import { User, UserDto } from './user-entity';
 import { Observation } from './observation-entity';
-import { EURINGCodes, AbleToExportAndImportEuring } from './common-interfaces';
+import { EURINGCodes, AbleToExportAndImportEuring, EntityDto } from './common-interfaces';
 import { ColumnNumericTransformer } from '../utils/ColumnNumericTransformer';
 
+export interface RingDto extends EURINGCodes {
+  id: string;
+  metalRingInformation: EntityDto;
+  otherMarksInformation: EntityDto;
+  speciesMentioned: SpeciesDto;
+  speciesConcluded: SpeciesDto;
+  manipulated: EntityDto;
+  movedBeforeTheCapture: EntityDto;
+  catchingMethod: EntityDto;
+  catchingLures: EntityDto;
+  sexMentioned: EntityDto;
+  sexConcluded: EntityDto;
+  ageMentioned: EntityDto;
+  ageConcluded: EntityDto;
+  status: EntityDto;
+  broodSize: EntityDto;
+  pullusAge: EntityDto;
+  accuracyOfPullusAge: EntityDto;
+  latitude: number | null;
+  longitude: number | null;
+  placeCode: PlaceCodeDto;
+  accuracyOfCoordinates: EntityDto;
+  condition: EntityDto;
+  circumstances: EntityDto;
+  circumstancesPresumed: EntityDto;
+  date: Date | null;
+  accuracyOfDate: EntityDto;
+  euringCodeIdentifier: EntityDto;
+  remarks: string | null;
+  ringerInformation: UserDto;
+  statusOfRing: EntityDto;
+}
+
 @Entity()
-export class Ring implements EURINGCodes, AbleToExportAndImportEuring {
+export class Ring implements RingDto, AbleToExportAndImportEuring {
   @PrimaryGeneratedColumn('uuid')
   public id: string;
 
@@ -245,10 +280,10 @@ export class Ring implements EURINGCodes, AbleToExportAndImportEuring {
   @IsInt()
   @Min(0)
   @Max(9)
-  @ManyToOne(() => Condition, m => m.ring, {
+  @ManyToOne(() => Conditions, m => m.ring, {
     eager: true,
   })
-  public condition: Condition;
+  public condition: Conditions;
 
   @IsNumberString()
   @Length(2, 2, { message: equalLength(2) })
