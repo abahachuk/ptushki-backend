@@ -1,34 +1,13 @@
-import config from 'config';
-import { FindManyOptions, FindOneOptions } from 'typeorm';
+import { FindOneOptions } from 'typeorm';
 import { Observation } from '../entities/observation-entity';
 import { User, UserRole } from '../entities/user-entity';
-import { Locale } from '../entities/common-interfaces';
+import { Locale, Search } from '../entities/common-interfaces';
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const cartesian = require('cartesian-product');
 
-const { pageNumberDefault, pageSizeDefault } = config.get('paging');
-
 export type ObservationAggregations = { [key in keyof Observation]: string };
 
-export enum SortingDirection {
-  asc = 'ASC',
-  desk = 'DESC',
-}
-
-export interface ObservationSearch {
-  search?: string;
-  pageNumber?: number;
-  pageSize?: number;
-  sortingColumn?: string;
-  sortingDirection?: SortingDirection;
-}
-
-export type ObservationQuery = ObservationSearch & ObservationAggregations & { lang: Locale };
-
-interface FindOptions<Observation> extends FindManyOptions<Observation> {
-  number: number;
-  size: number;
-}
+export type ObservationQuery = Search & ObservationAggregations & { lang: Locale };
 
 const gettingAllObservations = {
   [UserRole.Observer]: false,
@@ -64,19 +43,4 @@ export const parseWhereParams = (user: User, query: ObservationAggregations): Fi
   const matrix = Object.entries(params).map(([key, value]) => value && value.map(value1 => ({ [key]: value1 }))); // get matrix to calc a cartesian product for 'where' params
   const where = cartesian(matrix).map((row: any[]) => row.reduce((acc, value) => Object.assign(acc, value), {}));
   return { where };
-};
-
-export const parsePageParams = (query: ObservationSearch): FindOptions<Observation> => {
-  const { pageNumber, pageSize, sortingColumn, sortingDirection = 'ASC' } = query;
-
-  const number = pageNumber || pageNumberDefault;
-  const size = pageSize || pageSizeDefault;
-
-  return {
-    order: sortingColumn ? { [sortingColumn]: sortingDirection } : undefined,
-    skip: number * size,
-    take: size,
-    number,
-    size,
-  };
 };

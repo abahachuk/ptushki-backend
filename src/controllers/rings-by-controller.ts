@@ -1,11 +1,20 @@
 import { getRepository, Repository } from 'typeorm';
-import { DELETE, GET, Path, PathParam, POST, PreProcessor, Security } from 'typescript-rest';
+import { DELETE, GET, Path, PathParam, POST, PreProcessor, Security, QueryParam } from 'typescript-rest';
 import { Response, Tags } from 'typescript-rest-swagger';
 import AbstractController from './abstract-controller';
 import { Ring, RingDto } from '../entities/ring-entity';
 import { CustomError } from '../utils/CustomError';
 import { auth } from '../services/auth-service';
 import { UserRole } from '../entities/user-entity';
+import { SortingDirection } from '../entities/common-interfaces';
+import { parsePageParams } from '../services/page-service';
+
+interface RingListResponse {
+  content: RingDto[];
+  pageNumber: number;
+  pageSize: number;
+  totalElements: number;
+}
 
 @Path('rings-by')
 @Tags('rings-by')
@@ -21,10 +30,22 @@ export default class RingsByController extends AbstractController {
 
   @GET
   @Path('/')
-  @Response<Ring[]>(200, 'List of all available rings.')
+  @Response<RingListResponse>(200, 'List of all available rings.')
   @Response<CustomError>(401, 'Unauthorised.')
-  public async findRings(): Promise<Ring[]> {
-    return this.rings.find();
+  public async findRings(
+    @QueryParam('pageNumber') pageNumber?: number,
+    @QueryParam('pageSize') pageSize?: number,
+    @QueryParam('sortingDirection') sortingDirection?: SortingDirection,
+    @QueryParam('sortingColumn') sortingColumn?: string,
+  ): Promise<RingListResponse> {
+    const paramsSearch = parsePageParams({ pageNumber, pageSize, sortingColumn, sortingDirection });
+    const [rings, totalElements] = await this.rings.findAndCount(paramsSearch);
+    return {
+      content: rings,
+      pageNumber: paramsSearch.number,
+      pageSize: paramsSearch.size,
+      totalElements,
+    };
   }
 
   @GET

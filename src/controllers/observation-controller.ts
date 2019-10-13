@@ -29,19 +29,15 @@ import Exporter from '../services/export';
 import Importer from '../services/import';
 import { Ring } from '../entities/ring-entity';
 
-import {
-  ObservationQuery,
-  parsePageParams,
-  parseWhereParams,
-  SortingDirection,
-  sanitizeUser,
-} from '../services/observation-service';
+import { ObservationQuery, parseWhereParams, sanitizeUser } from '../services/observation-service';
 import { CustomError } from '../utils/CustomError';
 import { auth } from '../services/auth-service';
 import { UserRole } from '../entities/user-entity';
 import { ExporterType } from '../services/export/AbstractExporter';
 import { ImporterType } from '../services/import/AbstractImporter';
 import { DataCheckDto } from '../services/import/excel/helper';
+import { SortingDirection } from '../entities/common-interfaces';
+import { parsePageParams } from '../services/page-service';
 
 interface RequestWithPageParams extends Request {
   query: ObservationQuery;
@@ -96,12 +92,12 @@ export default class ObservationController extends AbstractController {
   @Response<CustomError>(401, 'Unauthorised.')
   public async getObservations(
     @ContextRequest req: RequestWithPageParams,
-    @QueryParam('pageNumber') pageNumber: number = 0,
-    @QueryParam('pageSize') pageSize: number = 5,
-    @QueryParam('sortingDirection') sortingDirection: SortingDirection = SortingDirection.asc,
+    @QueryParam('pageNumber') pageNumber?: number,
+    @QueryParam('pageSize') pageSize?: number,
+    @QueryParam('sortingDirection') sortingDirection?: SortingDirection,
     @QueryParam('sortingColumn') sortingColumn?: string,
   ): Promise<ObservationsListResponse> {
-    const paramsSearch = parsePageParams({ pageNumber, pageSize, sortingColumn, sortingDirection });
+    const paramsSearch = parsePageParams<Observation>({ pageNumber, pageSize, sortingColumn, sortingDirection });
     const paramsAggregation = parseWhereParams(req.user, req.query);
 
     const [observations, totalElements] = await this.observations.findAndCount(

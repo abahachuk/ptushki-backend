@@ -46,4 +46,17 @@ export interface AbleToExportAndImportEuring {
   importEURING(code: string): any;
 }
 
+export enum SortingDirection {
+  asc = 'ASC',
+  desk = 'DESC',
+}
+
+export interface Search {
+  search?: string;
+  pageNumber?: number;
+  pageSize?: number;
+  sortingColumn?: string;
+  sortingDirection?: SortingDirection;
+}
+
 export type Locale = 'eng' | 'rus' | 'byn';
