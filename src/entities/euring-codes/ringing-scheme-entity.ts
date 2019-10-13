@@ -3,9 +3,16 @@ import { Length, IsAlpha, IsOptional, IsString } from 'class-validator';
 import { equalLength } from '../../validation/validation-messages';
 import { Ring } from '../ring-entity';
 
+export interface RingingSchemeDto {
+  id: string;
+  status: string;
+  country?: string | null;
+  center?: string | null;
+}
+
 // Related table in access 'Ringing schem'
 @Entity()
-export class RingingScheme {
+export class RingingScheme implements RingingSchemeDto {
   @IsAlpha()
   @Length(3, 3, { message: equalLength(3) })
   @PrimaryColumn()

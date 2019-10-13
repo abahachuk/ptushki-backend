@@ -1,14 +1,14 @@
 import { Entity, PrimaryColumn, Column, OneToMany } from 'typeorm';
 import { Length, IsAlpha, IsOptional, IsString } from 'class-validator';
 import { equalLength } from '../../validation/validation-messages';
-import { Dictionary } from '../common-interfaces';
+import { EntityDto } from '../common-interfaces';
 import { Ring } from '../ring-entity';
 import { BasaRing } from '../basa-ring-entity';
 import { Observation } from '../observation-entity';
 
 // Related tables in access 'Sex' and 'Sex by schem'
 @Entity()
-export class Sex implements Dictionary {
+export class Sex implements EntityDto {
   @IsAlpha()
   @Length(1, 1, { message: equalLength(1) })
   @PrimaryColumn()
@@ -17,17 +17,17 @@ export class Sex implements Dictionary {
   @IsOptional()
   @IsString()
   @Column('varchar', { nullable: true, default: null })
-  public desc_eng: string | null;
+  public desc_eng: string;
 
   @IsOptional()
   @IsString()
   @Column('varchar', { nullable: true, default: null })
-  public desc_rus: string | null;
+  public desc_rus: string;
 
   @IsOptional()
   @IsString()
   @Column('varchar', { nullable: true, default: null })
-  public desc_byn: string | null;
+  public desc_byn: string;
 
   @OneToMany(() => Ring, m => m.sexMentioned)
   public mentionedInRing: Ring[];

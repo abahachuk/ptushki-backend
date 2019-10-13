@@ -1,26 +1,25 @@
-import { NextFunction, Request, Response, Router } from 'express';
 import { getCustomRepository, Repository } from 'typeorm';
+import { GET, Path, QueryParam, Security } from 'typescript-rest';
+import { Tags, Response } from 'typescript-rest-swagger';
 
 import AbstractController from './abstract-controller';
 import { cachedEURINGCodes } from '../entities/euring-codes/cached-entities-fabric';
 import { CachedRepository } from '../entities/cached-repository';
 import { executeInThreadedQueue } from '../utils/async-queue';
 import { logger } from '../utils/logger';
+import { CustomError } from '../utils/CustomError';
 
+@Path('initial-data')
+@Tags('initial-data')
+@Security()
 export default class InitialDataController extends AbstractController {
-  private router: Router;
-
   public cached: Repository<any>[];
 
-  public init(): Router {
-    this.router = Router();
+  public constructor() {
+    super();
     this.cached = Object.keys(cachedEURINGCodes).map((entityName: string) =>
       getCustomRepository(cachedEURINGCodes[entityName]),
     );
-
-    this.router.get('/', this.getInitialData);
-
-    return this.router;
   }
 
   public async heatUp() {
@@ -34,21 +33,19 @@ export default class InitialDataController extends AbstractController {
     }
   }
 
-  private getInitialData = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
-    try {
-      const { lang } = req.query;
-      const result = (await Promise.all(
-        this.cached.map(async (repository: CachedRepository<any>) => ({
-          records: await repository.findByLang(lang),
-          tableName: repository.tableName,
-        })),
-      )).reduce((acc: { [index: string]: any[] }, { records, tableName }) => {
-        acc[tableName] = records;
-        return acc;
-      }, {});
-      res.json(result);
-    } catch (e) {
-      next(e);
-    }
-  };
+  @GET
+  @Path('/')
+  @Response<{ [index: string]: any[] }>(200, 'All available EURING codes with descriptions.')
+  @Response<CustomError>(401, 'Unauthorised.')
+  public async getInitialData(@QueryParam('lang') lang: string): Promise<{ [index: string]: any[] }> {
+    return (await Promise.all(
+      this.cached.map(async (repository: CachedRepository<any>) => ({
+        records: await repository.findByLang(lang),
+        tableName: repository.tableName,
+      })),
+    )).reduce((acc: { [index: string]: any[] }, { records, tableName }) => {
+      acc[tableName] = records;
+      return acc;
+    }, {});
+  }
 }

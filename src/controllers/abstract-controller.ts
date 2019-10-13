@@ -1,5 +1,4 @@
 import config from 'config';
-import { Router, NextFunction, Request, Response } from 'express';
 import { Repository } from 'typeorm';
 import { validate, ValidationError } from 'class-validator';
 import { CustomError } from '../utils/CustomError';
@@ -13,36 +12,28 @@ interface ParsedErrors {
 export default abstract class AbstractController {
   private entity: Repository<any>;
 
-  private key: string;
-
-  protected checkId = async (req: Request, _res: Response, next: NextFunction): Promise<void> => {
-    try {
-      if (!this.entity) {
-        throw new CustomError('Before use checkId method, please specify used entity with setMainEntity method', 400);
-      }
-
-      const { id }: { id: string } = req.params;
-      if (id.length !== UUID_LENGTH) {
-        throw new CustomError(`Provided ${this.entity.metadata.name} identifier (${id}) is incorrect`, 400);
-      }
-
-      const instance = await this.entity.findOne(id);
-
-      if (!instance) {
-        throw new CustomError(`${this.entity.metadata.name} with ${id} not exists`, 404);
-      }
-      Object.assign(req, { [this.key || this.entity.metadata.tableName]: instance });
-      next();
-    } catch (e) {
-      next(e);
+  private checkId(id: string): void {
+    if (!this.entity) {
+      throw new CustomError('Before use checkId method, please specify used entity with setMainEntity method', 500);
     }
-  };
 
-  protected setMainEntity(entity: Repository<any>, key?: string) {
+    if (id.length !== UUID_LENGTH) {
+      throw new CustomError(`Provided ${this.entity.metadata.name} identifier (${id}) is incorrect`, 400);
+    }
+  }
+
+  protected async getEntityById<TData>(id: string): Promise<TData> {
+    this.checkId(id);
+    const instance = await this.entity.findOne(id);
+
+    if (!instance) {
+      throw new CustomError(`${this.entity.metadata.name} with ${id} not exists`, 404);
+    }
+    return instance;
+  }
+
+  protected setMainEntity(entity: Repository<any>) {
     this.entity = entity;
-    if (key) {
-      this.key = key;
-    }
   }
 
   // Argument 'data' it is a new data, and argument existedData is optional and needed for refreshing existing data in db
@@ -57,9 +48,7 @@ export default abstract class AbstractController {
         }),
         {},
       );
-      throw new CustomError<any>(parsedErrors, 422);
+      throw new CustomError(parsedErrors as string, 422);
     }
   }
-
-  public abstract init(): Router;
 }

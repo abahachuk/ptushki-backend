@@ -9,8 +9,8 @@ export class AuditEventsAction {
   public name: string | null;
 
   @Column('varchar', { nullable: true, default: null })
-  public desc_rus: string | null;
+  public desc_rus: string;
 
   @Column('varchar', { nullable: true, default: null })
-  public desc_eng: string | null;
+  public desc_eng: string;
 }

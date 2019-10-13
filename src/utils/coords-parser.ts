@@ -1,6 +1,8 @@
+type numStringNull = string | number | null;
+
 export interface DecimalCoordinates {
-  latitude: number;
-  longitude: number;
+  latitude: number | null;
+  longitude: number | null;
 }
 
 function fromEuringHelper(degrees: number, minutes: number, seconds: number, isNegative: boolean): number {
@@ -9,6 +11,9 @@ function fromEuringHelper(degrees: number, minutes: number, seconds: number, isN
 }
 
 export const fromEuringToDecimal = (coords: string): DecimalCoordinates => {
+  if (!coords) {
+    return { latitude: null, longitude: null };
+  }
   try {
     if (coords && coords.length === 15) {
       const latitude = fromEuringHelper(
@@ -44,7 +49,10 @@ function fromDecimalHelper(coordinate: number, isLng?: boolean): string {
   )}`;
 }
 
-export const fromDecimalToEuring = (latitude: string, longitude: string): string => {
+export const fromDecimalToEuring = (latitude: numStringNull, longitude: numStringNull): string => {
+  if (!latitude || !longitude) {
+    return '';
+  }
   try {
     const latitudeNumber = Number(latitude);
     const longitudeNumber = Number(longitude);
