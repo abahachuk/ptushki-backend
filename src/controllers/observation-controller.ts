@@ -97,8 +97,10 @@ export default class ObservationController extends AbstractController {
     @QueryParam('sortingDirection') sortingDirection?: SortingDirection,
     @QueryParam('sortingColumn') sortingColumn?: string,
   ): Promise<ObservationsListResponse> {
+    const { query, user } = req;
+
     const paramsSearch = parsePageParams<Observation>({ pageNumber, pageSize, sortingColumn, sortingDirection });
-    const paramsAggregation = parseWhereParams(req.user, req.query);
+    const paramsAggregation = parseWhereParams(user, query);
 
     const [observations, totalElements] = await this.observations.findAndCount(
       Object.assign(paramsSearch, paramsAggregation),

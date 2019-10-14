@@ -20,7 +20,7 @@ interface RingListResponse {
 @Tags('rings-by')
 @Security()
 export default class RingsByController extends AbstractController {
-  private rings: Repository<Ring>;
+  private readonly rings: Repository<Ring>;
 
   public constructor() {
     super();
@@ -38,7 +38,7 @@ export default class RingsByController extends AbstractController {
     @QueryParam('sortingDirection') sortingDirection?: SortingDirection,
     @QueryParam('sortingColumn') sortingColumn?: string,
   ): Promise<RingListResponse> {
-    const paramsSearch = parsePageParams({ pageNumber, pageSize, sortingColumn, sortingDirection });
+    const paramsSearch = parsePageParams<Ring>({ pageNumber, pageSize, sortingColumn, sortingDirection });
     const [rings, totalElements] = await this.rings.findAndCount(paramsSearch);
     return {
       content: rings,
