@@ -1,5 +1,5 @@
-entity: Condition
-processor: ./ConditionProcessor
+entity: Conditions
+processor: ./ConditionsProcessor
 items:
   condition0:
     desc_eng: '[0] Condition completely unknown'
