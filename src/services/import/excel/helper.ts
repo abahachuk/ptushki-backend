@@ -23,8 +23,17 @@ export interface EURingError {
 }
 
 interface RowValidationError {
-  result: ValidationError[];
-  rowNumber: number | null;
+  result: {
+    eu_species?: string[];
+    eu_sexCode?: string[];
+    eu_ageCode?: string[];
+    eu_placeCode?: string[];
+    date?: string[];
+    latitude?: string[];
+    longitude?: string[];
+    eu_statusCode?: string[];
+  };
+  rowNumber?: number;
 }
 
 export interface RowValidatedData {
@@ -37,15 +46,18 @@ export interface RowErorr {
   error: string | null;
 }
 
-export interface DataCheck {
+export interface DataCheckDto {
   emptyRowCount: number;
   rowCount: number;
   possibleClones: number;
   addedData: RowValidatedData[];
   observations: RawData[];
   euRingErrors: EURingError[];
-  validFormatData: RowValidatedData[];
   invalidDataFormat: RowValidationError[];
+}
+
+export interface DataCheck extends DataCheckDto {
+  validFormatData: RowValidatedData[];
 }
 
 const createColumns = (columnNames: string[]): Partial<Column>[] => {

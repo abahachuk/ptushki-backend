@@ -1,0 +1,16 @@
+swagger:
+  outputDirectory: ./dist
+  entryFile:
+    - src/controllers/*-controller.ts
+  outputFormat: OpenApi_2
+  basePath: /
+  name: Ptushki API
+  description: This is a sample for ptushki-backend API documentation
+  license: MIT
+  produces: [application/json]
+  version: 0.0.1
+  securityDefinitions:
+    default:
+      type: apiKey
+      in: header
+      name: Authorization
