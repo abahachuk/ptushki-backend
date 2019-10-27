@@ -13,23 +13,40 @@ export async function* getEntityRecords(
   id: string,
   amount: number = 1000,
 ): AsyncIterableIterator<any[]> {
-  let lastId;
+  let startPosition = 0;
   let records: any[];
+  let lastId: string | null = null;
   while (true) {
     try {
       // eslint-disable-next-line no-await-in-loop
       records = await accessConnection.query(
-        `SELECT TOP ${amount} * FROM ${table}${lastId ? ` WHERE ${id} > "${lastId}"` : ''};`,
+        `SELECT *
+          FROM (
+              SELECT TOP ${amount} *
+              FROM (
+                  SELECT TOP ${startPosition * amount + amount} *
+                  FROM ${table}
+                  ORDER BY ${id}
+              ) sub
+             ORDER BY sub.${id} DESC
+          ) subOrdered
+          ORDER BY subOrdered.${id}`,
       );
-      if (!records.length) {
+
+      // eslint-disable-next-line no-loop-func
+      const intersectionIndex = records.findIndex(r => r[id] === lastId);
+      if (intersectionIndex >= 0) {
+        records = records.slice(intersectionIndex + 1);
         break;
       }
+      startPosition += 1;
       lastId = records[records.length - 1][id];
       yield records;
     } catch (e) {
       throw new AccessError(e.process.message);
     }
   }
+  yield records;
 }
 
 export async function entityCount(table: string, id: string): Promise<number> {
