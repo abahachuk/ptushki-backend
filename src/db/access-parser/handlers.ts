@@ -4,6 +4,44 @@ import { entitySelectAll } from './access-entity-methods';
 import { Ring } from '../../entities/ring-entity';
 import { logger } from '../../utils/logger';
 
+async function batchedHandler(depth: number, cb: Function, items: any[], collectErrors: boolean) {
+  const itemsCopy = items.slice();
+  let erroredItems: any[] = [];
+  const errors = [];
+  let selection = itemsCopy.splice(0, depth);
+  while (selection.length) {
+    try {
+      // eslint-disable-next-line no-await-in-loop
+      await cb(selection);
+    } catch (e) {
+      erroredItems = erroredItems.concat(selection);
+      if (collectErrors) {
+        errors.push(`[${e.name}]: ${e.message}. ${e.detail}`);
+      }
+    }
+    selection = itemsCopy.splice(0, depth);
+  }
+  return { erroredItems, errors };
+}
+
+// eslint-disable-next-line no-unused-vars,@typescript-eslint/no-unused-vars
+async function funnelProcessor(funnel: number[], items: any[], cb: Function): Promise<any> {
+  let itemsCopy = items.slice();
+  let errors;
+
+  while (true) {
+    const depth = funnel.shift();
+    const isFunnelEnded = !funnel.length;
+    logger.info(`Funnel processor started handling with selection size of ${depth}`);
+    // eslint-disable-next-line no-await-in-loop
+    ({ erroredItems: itemsCopy, errors } = await batchedHandler(depth as number, cb, itemsCopy, isFunnelEnded));
+    if (!funnel.length) {
+      break;
+    }
+  }
+  return errors;
+}
+
 export async function prepareToUploadEURING(table: EuringAccessTable): Promise<any[]> {
   try {
     const content: any[] = await entitySelectAll(table);
