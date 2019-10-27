@@ -9,7 +9,7 @@ export async function prepareToUploadEURING(table: EuringAccessTable): Promise<a
     const content: any[] = await entitySelectAll(table);
     return mapEURINGCode(table, content);
   } catch (error) {
-    logger.error(table, error);
+    logger.error(error);
     return [];
   }
 }
@@ -18,7 +18,7 @@ export async function uploadEURING(instances: any[], tableName: EuringAccessTabl
   const { Entity } = EURINGs[tableName];
   const repository: Repository<any> = getRepository(Entity);
   await repository.insert(instances);
-  logger.info(tableName, ' inserted');
+  logger.info(`${tableName} inserted`);
 }
 
 export async function uploadRings(rings: Ring[]): Promise<void> {
@@ -26,12 +26,12 @@ export async function uploadRings(rings: Ring[]): Promise<void> {
     const repository: Repository<Ring> = getRepository(Ring);
     await repository.insert(rings);
   } catch (e) {
-    logger.info(
+    logger.warn(
       `Failed when tried to insert rings: [ ${rings
         .map(r => r.identificationNumber)
         .slice(0, 5)
-        .join()}... ]`,
+        .join(', ')} ... ]`,
     );
-    logger.error(e);
+    logger.error(`[${e.name}] ${e.message}: ${e.detail}`);
   }
 }
