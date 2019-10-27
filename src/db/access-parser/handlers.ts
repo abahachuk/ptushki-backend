@@ -1,8 +1,9 @@
 import { getRepository, Repository } from 'typeorm';
 import { EuringAccessTable, EURINGs, mapEURINGCode } from './euring-access-tables';
-import { entitySelectAll } from './access-entity-methods';
+import { entitySelectAll, getEntityRecords } from './access-entity-methods';
 import { Ring } from '../../entities/ring-entity';
 import { logger } from '../../utils/logger';
+import { ringMapper } from './rings-access-table';
 
 async function batchedHandler(depth: number, cb: Function, items: any[], collectErrors: boolean) {
   const itemsCopy = items.slice();
@@ -24,7 +25,6 @@ async function batchedHandler(depth: number, cb: Function, items: any[], collect
   return { erroredItems, errors };
 }
 
-// eslint-disable-next-line no-unused-vars,@typescript-eslint/no-unused-vars
 async function funnelProcessor(funnel: number[], items: any[], cb: Function): Promise<any> {
   let itemsCopy = items.slice();
   let errors;
@@ -59,17 +59,40 @@ export async function uploadEURING(instances: any[], tableName: EuringAccessTabl
   logger.info(`${tableName} inserted`);
 }
 
-export async function uploadRings(rings: Ring[]): Promise<void> {
-  try {
-    const repository: Repository<Ring> = getRepository(Ring);
-    await repository.insert(rings);
-  } catch (e) {
-    logger.warn(
-      `Failed when tried to insert rings: [ ${rings
-        .map(r => r.identificationNumber)
-        .slice(0, 5)
-        .join(', ')} ... ]`,
-    );
-    logger.error(`[${e.name}] ${e.message}: ${e.detail}`);
+export async function uploadRings(): Promise<Map<string, string>> {
+  const repository: Repository<Ring> = getRepository(Ring);
+  const idsHash: Map<string, string> = new Map();
+  let failedInsertions: any[] = [];
+  let errors: any[] = [];
+
+  const insertAndStoreRefs = (repo: Repository<any>, hash: Map<string, string>) => async (selection: any[]) => {
+    const { identifiers } = await repo.insert(selection);
+    selection.forEach((r, i) => hash.set(r.identificationNumber, identifiers[i].id));
+    logger.info(`Inserted ${selection.length} records`);
+  };
+
+  // eslint-disable-next-line no-restricted-syntax
+  for await (const dbRings of getEntityRecords('Ringby', 'RN')) {
+    let mapped: any[] = [];
+    try {
+      mapped = ringMapper(dbRings);
+      await insertAndStoreRefs(repository, idsHash)(mapped);
+    } catch {
+      // all batch fails
+      failedInsertions = failedInsertions.concat(mapped);
+    }
   }
+
+  if (failedInsertions.length) {
+    logger.info(`Failed rings batches passed to funnelProcessor (totally ${failedInsertions.length} records)`);
+    errors = await funnelProcessor([100, 10, 1], failedInsertions, insertAndStoreRefs(repository, idsHash));
+  }
+
+  if (errors.length) {
+    logger.error(`There are some final errors on insertion rings:\n${errors.join('\n')}`);
+  } else {
+    logger.info(`Finally all rings was inserted successfully`);
+  }
+
+  return idsHash;
 }
