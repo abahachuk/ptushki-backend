@@ -122,7 +122,7 @@ export function ringMapper(dbRecords: any[]): Ring[] {
         }, {});
         return ring;
       } catch (e) {
-        logger.error(`Ring ${dbRing.RN} can't be mapped -- skipped: ${e}`);
+        logger.warn(`Ring ${dbRing.RN} can't be mapped -- skipped: ${e}`);
         return null;
       }
     })
