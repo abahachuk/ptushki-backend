@@ -1,4 +1,5 @@
 import accessConnection from './access-connection';
+import { logger } from '../../utils/logger';
 
 class AccessError {
   public message: string;
@@ -11,6 +12,7 @@ class AccessError {
 export async function* getEntityRecords(
   table: string,
   id: string,
+  // 1000 is about maximum  'bind message supplies X parameters, but prepared statement "" requires more then X',
   amount: number = 1000,
 ): AsyncIterableIterator<any[]> {
   let startPosition = 0;
@@ -41,6 +43,7 @@ export async function* getEntityRecords(
       }
       startPosition += 1;
       lastId = records[records.length - 1][id];
+      logger.info(`Processed ${startPosition * amount + amount} records`);
       yield records;
     } catch (e) {
       throw new AccessError(e.process.message);
