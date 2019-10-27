@@ -91,7 +91,8 @@ export const EURINGs: { [index in EuringAccessTable]: { Entity: any; mapping: Ma
   },
   // Color_ring_information: { Entity: entities }, // FIXME невозможно заставить эту таблицу работать через node-adodb
   // ну и как бы она отсутствует в стандарте. скорее всего здесь она вспомогательная
-  Conditions: {
+  Condition: {
+    // конфликт имен взято множеств. число
     Entity: entities.Conditions,
     mapping: new Map([['id', 'n'], ['desc_eng', 'Conditions'], ['desc_rus', 'Rus'], ['desc_byn', 'Bel']]),
   },
