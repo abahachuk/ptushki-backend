@@ -36,7 +36,7 @@ const longitude = (item: any): number | null => {
   const { 'Lon side': loside, 'Lon deg': lod, 'Lon min': lom, 'Lon sec': los } = item;
   if (!lod) return null;
   try {
-    return fromDegreesToDecimal(lod, lom || 0, los || 0, loside === '-');
+    return fromDegreesToDecimal(Number(lod), Number(lom) || 0, Number(los) || 0, loside === '-');
   } catch (e) {
     throw new Error(`Not able to process longitude`);
   }
@@ -46,7 +46,7 @@ const latitude = (item: any): number | null => {
   const { 'Lat side': laside, 'Lat deg': lad, 'Lat min': lam, 'Lat sec': las } = item;
   if (!lad) return null;
   try {
-    return fromDegreesToDecimal(lad, lam || 0, las || 0, laside === '-');
+    return fromDegreesToDecimal(Number(lad), Number(lam) || 0, Number(las) || 0, laside === '-');
   } catch (e) {
     throw new Error(`Not able to process latitude`);
   }
