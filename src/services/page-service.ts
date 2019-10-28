@@ -1,27 +1,42 @@
 import config from 'config';
 import { FindManyOptions } from 'typeorm';
 
-import { Search } from '../entities/common-interfaces';
+const { pageNumberDefault, pageSizeDefault, sortingDirectionDefault } = config.get('paging');
 
-const { pageNumberDefault, pageSizeDefault } = config.get('paging');
+export type Locale = 'eng' | 'rus' | 'byn';
+
+export enum SortingDirection {
+  asc = 'ASC',
+  desk = 'DESC',
+}
+
+export interface Search {
+  search?: string;
+  pageNumber?: number;
+  pageSize?: number;
+  sortingColumn?: string;
+  sortingDirection?: SortingDirection;
+}
 
 interface FindOptions<T> extends FindManyOptions<T> {
-  number: number;
-  size: number;
+  pageNumber: number;
+  pageSize: number;
 }
 
 export const parsePageParams = <T>(query: Search): FindOptions<T> => {
-  const { pageNumber, pageSize, sortingColumn, sortingDirection = 'ASC' } = query;
-
-  const number = pageNumber || pageNumberDefault;
-  const size = pageSize || pageSizeDefault;
+  const {
+    pageNumber = pageNumberDefault,
+    pageSize = pageSizeDefault,
+    sortingColumn,
+    sortingDirection = sortingDirectionDefault,
+  } = query;
 
   return {
     // @ts-ignore
     order: sortingColumn ? { [sortingColumn]: sortingDirection } : undefined,
-    skip: number * size,
-    take: size,
-    number,
-    size,
+    skip: pageNumber * pageSize,
+    take: pageSize,
+    pageNumber,
+    pageSize,
   };
 };

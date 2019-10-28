@@ -6,8 +6,7 @@ import { Ring, RingDto } from '../entities/ring-entity';
 import { CustomError } from '../utils/CustomError';
 import { auth } from '../services/auth-service';
 import { UserRole } from '../entities/user-entity';
-import { SortingDirection } from '../entities/common-interfaces';
-import { parsePageParams } from '../services/page-service';
+import { parsePageParams, SortingDirection } from '../services/page-service';
 
 interface RingListResponse {
   content: RingDto[];
@@ -42,8 +41,8 @@ export default class RingsByController extends AbstractController {
     const [rings, totalElements] = await this.rings.findAndCount(paramsSearch);
     return {
       content: rings,
-      pageNumber: paramsSearch.number,
-      pageSize: paramsSearch.size,
+      pageNumber: paramsSearch.pageNumber,
+      pageSize: paramsSearch.pageSize,
       totalElements,
     };
   }

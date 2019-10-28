@@ -1,7 +1,8 @@
 import { FindOneOptions } from 'typeorm';
+import { Search, Locale } from './page-service';
 import { Observation } from '../entities/observation-entity';
 import { User, UserRole } from '../entities/user-entity';
-import { Locale, Search } from '../entities/common-interfaces';
+
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const cartesian = require('cartesian-product');
 

@@ -36,8 +36,7 @@ import { UserRole } from '../entities/user-entity';
 import { ExporterType } from '../services/export/AbstractExporter';
 import { ImporterType } from '../services/import/AbstractImporter';
 import { DataCheckDto } from '../services/import/excel/helper';
-import { SortingDirection } from '../entities/common-interfaces';
-import { parsePageParams } from '../services/page-service';
+import { parsePageParams, SortingDirection } from '../services/page-service';
 
 interface RequestWithPageParams extends Request {
   query: ObservationQuery;
@@ -116,8 +115,8 @@ export default class ObservationController extends AbstractController {
 
     return {
       content,
-      pageNumber: paramsSearch.number,
-      pageSize: paramsSearch.size,
+      pageNumber: paramsSearch.pageNumber,
+      pageSize: paramsSearch.pageSize,
       totalElements,
     };
   }
