@@ -6,7 +6,11 @@ const identificationNumber = (item: any): string => {
   if (!series || !number) {
     throw new Error(`Ring ${item.RN} haven't or series or number`);
   }
-  return `${series}${'.'.repeat(10 - series.length - number.length)}${number}`;
+  try {
+    return `${series}${'.'.repeat(10 - series.length - number.length)}${number}`;
+  } catch {
+    throw new Error(`Not able to process identification number & series`);
+  }
 };
 
 // eslint-disable-next-line no-restricted-globals
