@@ -93,9 +93,8 @@ export const ringMap: RingMap = {
   accuracyOfDate: 'Accuracy of date',
   euringCodeIdentifier: 'Euring-code identifier',
   remarks: 'Note',
-  // TODO this fields needed to be handled separately and additionaly by model
-  //  but now model doesnt supports this
-  // ringerInformation: (item: any): string => `${item.Ringer}; ${item['Place of ring']}`,
+  // README currently ringer will be handled as plain value not by reference with additional model
+  offlineRinger: 'Ringer',
   ringerInformation: (): null => null,
   statusOfRing: 'Status of ring',
   // TODO missed fields. needs clarification

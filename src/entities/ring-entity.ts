@@ -77,6 +77,7 @@ export interface RingDto extends EURINGCodes {
   accuracyOfDate: EntityDto;
   euringCodeIdentifier: EntityDto;
   remarks: string | null;
+  offlineRinger: string | null;
   ringerInformation: UserDto;
   statusOfRing: EntityDto;
 }
@@ -332,6 +333,12 @@ export class Ring implements RingDto, AbleToExportAndImportEuring {
     eager: true,
   })
   public ringerInformation: User;
+
+  // Related field in access 'Ringer' referred to table 'Ringer Information'
+  @IsOptional()
+  @IsString()
+  @Column('varchar', { nullable: true, default: null })
+  public offlineRinger: string | null;
 
   // Not presented in euring standart
   @IsOptional()
