@@ -1,9 +1,29 @@
 import { Observation } from '../../entities/observation-entity';
 // import { Ring } from '../../entities/ring-entity';
 import { logger } from '../../utils/logger';
+import { fromDegreesToDecimal } from '../../utils/coords-parser';
 
-const longitude = () => null;
-const latitude = () => null;
+const longitude = (item: any): number | null => {
+  // todo check fields names
+  const { 'Lon side': loside, 'Lon deg': lod, 'Lon min': lom, 'Lon sec': los } = item;
+  if (!lod) return null;
+  try {
+    return fromDegreesToDecimal(Number(lod), Number(lom) || 0, Number(los) || 0, loside === '-');
+  } catch (e) {
+    throw new Error(`Not able to process longitude`);
+  }
+};
+
+const latitude = (item: any): number | null => {
+  // todo check fields names
+  const { 'Lat side': laside, 'Lat deg': lad, 'Lat min': lam, 'Lat sec': las } = item;
+  if (!lad) return null;
+  try {
+    return fromDegreesToDecimal(Number(lad), Number(lam) || 0, Number(las) || 0, laside === '-');
+  } catch (e) {
+    throw new Error(`Not able to process latitude`);
+  }
+};
 
 // eslint-disable-next-line no-restricted-globals
 const isNumber = (n: any): boolean => !isNaN(parseFloat(n)) && isFinite(n);
