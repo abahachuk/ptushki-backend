@@ -31,7 +31,7 @@ const isNumber = (n: any): boolean => !isNaN(parseFloat(n)) && isFinite(n);
 const identificationNumber = (item: any): string => {
   const { 'Identification series': series, 'Identification number': number } = item;
   if (!series || !number) {
-    throw new Error(`Ring ${item.RN} haven't or series or number`);
+    throw new Error(`Observation ${item.RefNo} (belonged tp ring: ${item.RN}) haven't or series or number`);
   }
   try {
     return `${series}${'.'.repeat(10 - series.length - number.length)}${number}`;
