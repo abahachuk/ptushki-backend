@@ -5,7 +5,7 @@ export interface DecimalCoordinates {
   longitude: number | null;
 }
 
-function fromEuringHelper(degrees: number, minutes: number, seconds: number, isNegative: boolean): number {
+export function fromDegreesToDecimal(degrees: number, minutes: number, seconds: number, isNegative: boolean): number {
   const count = Number((degrees + minutes / 60 + seconds / (60 * 60)).toFixed(6));
   return isNegative ? count * -1 : count;
 }
@@ -16,13 +16,13 @@ export const fromEuringToDecimal = (coords: string): DecimalCoordinates => {
   }
   try {
     if (coords && coords.length === 15) {
-      const latitude = fromEuringHelper(
+      const latitude = fromDegreesToDecimal(
         Number(coords.slice(1, 3)),
         Number(coords.slice(3, 5)),
         Number(coords.slice(5, 7)),
         coords[0] === '-',
       );
-      const longitude = fromEuringHelper(
+      const longitude = fromDegreesToDecimal(
         Number(coords.slice(8, 11)),
         Number(coords.slice(11, 13)),
         Number(coords.slice(13, 15)),
