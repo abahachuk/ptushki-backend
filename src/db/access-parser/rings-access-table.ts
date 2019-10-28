@@ -1,5 +1,6 @@
 import { Ring } from '../../entities/ring-entity';
 import { logger } from '../../utils/logger';
+import { fromDegreesToDecimal } from '../../utils/coords-parser';
 
 const identificationNumber = (item: any): string => {
   const { 'Identification series': series, 'Identification number': number } = item;
@@ -31,25 +32,25 @@ const date = (item: any): Date | null => {
   return new Date(year, month || 5, day || 15, hour, min);
 };
 
-// const geographicalCoordinates = (item: any): string | null => {
-//   const {
-//     'Lat side': laside,
-//     'Lat deg': lad,
-//     'Lat min': lam,
-//     'Lat sec': las,
-//     'Lon side': loside,
-//     'Lon deg': lod,
-//     'Lon min': lom,
-//     'Lon sec': los,
-//   } = item;
-//   if (!lad || !lod) {
-//     return null;
-//   }
-//   return `${laside || '+'}${lad}${lam}${las}${loside || '+'}${lod}${lom}${los}`;
-// };
+const longitude = (item: any): number | null => {
+  const { 'Lon side': loside, 'Lon deg': lod, 'Lon min': lom, 'Lon sec': los } = item;
+  if (!lod) return null;
+  try {
+    return fromDegreesToDecimal(lod, lom || 0, los || 0, loside === '-');
+  } catch (e) {
+    throw new Error(`Not able to process longitude`);
+  }
+};
 
-const longitude = () => null;
-const latitude = () => null;
+const latitude = (item: any): number | null => {
+  const { 'Lat side': laside, 'Lat deg': lad, 'Lat min': lam, 'Lat sec': las } = item;
+  if (!lad) return null;
+  try {
+    return fromDegreesToDecimal(lad, lam || 0, las || 0, laside === '-');
+  } catch (e) {
+    throw new Error(`Not able to process latitude`);
+  }
+};
 
 type Omit<T, K extends keyof T> = Pick<T, Exclude<keyof T, K>>;
 export type RingMap = {
