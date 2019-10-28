@@ -79,9 +79,11 @@ export const ringMap: RingMap = {
   broodSize: 'Broodsize',
   pullusAge: 'Pullus age',
   accuracyOfPullusAge: 'Accuracy of pullus age',
+
   // TODO there is some place for improvements.
   // all rows have sec, but some havent coords, but have place code
   // sometimes they have coords but havent place code
+
   longitude,
   latitude,
   placeCode: 'Place code',
@@ -97,16 +99,17 @@ export const ringMap: RingMap = {
   offlineRinger: 'Ringer',
   ringerInformation: (): null => null,
   statusOfRing: 'Status of ring',
-  // TODO missed fields. needs clarification
-  // next 3 related to observations only. but 4 rows have it
-  // Derived data distance
-  // Derived data directions
-  // Derived data elapsed time
-  // Next related to identificationNumber
-  // RN ~ Identification series + Dots + Identification number
-  // other fields. Думаю, что часть всего этого можно сгрузить в remarks
+
+  // TODO unhandled fields. needs clarification
+
+  // E-mail около 10. Избыточное, при условии добавления таблицы Ringer -- там есть emails, тем более все поля с email
+  // содержат ссылку на Ringer
+
+  // 'Place of ring' не имеет никаких аналогов в стандарте
+  // observation имеет Place Name, что подобно по смыслу и содержанию
+
+  // Остальные:
   // Color ring
-  // E-mail около 10
   // Color ring schem
   // Col{1-4}
   // Mark{1-6}
