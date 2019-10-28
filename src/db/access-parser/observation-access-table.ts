@@ -28,6 +28,26 @@ const latitude = (item: any): number | null => {
 // eslint-disable-next-line no-restricted-globals
 const isNumber = (n: any): boolean => !isNaN(parseFloat(n)) && isFinite(n);
 
+const identificationNumber = (item: any): string => {
+  const { 'Identification series': series, 'Identification number': number } = item;
+  if (!series || !number) {
+    throw new Error(`Ring ${item.RN} haven't or series or number`);
+  }
+  try {
+    return `${series}${'.'.repeat(10 - series.length - number.length)}${number}`;
+  } catch {
+    throw new Error(`Not able to process identification number & series`);
+  }
+};
+
+const ring = (item: any, hash: Map<string, string>): string | null => {
+  const ringNumber = identificationNumber(item);
+  if (hash.has(ringNumber)) {
+    return hash.get(ringNumber) as string;
+  }
+  return null;
+};
+
 const date = (item: any): Date | null => {
   // eslint-disable-next-line prefer-const
   let { 'Date year': year, 'Date month': month, 'Date day': day, 'Time hour': hour, 'Time min': min } = item;
@@ -46,13 +66,15 @@ const date = (item: any): Date | null => {
 type Omit<T, K extends keyof T> = Pick<T, Exclude<keyof T, K>>;
 export type ObservationMap = {
   // todo review later excluded fields
-  [index in keyof Omit<Observation, 'id' | 'ringMentioned' | 'photos' | 'exportEURING' | 'importEURING'>]:
-    | ((item: any) => any)
+  [index in keyof Omit<Observation, 'id' | 'photos' | 'exportEURING' | 'importEURING'>]:
+    | ((item: any, hash?: any) => any)
     | string
 };
 
 export const observationMap: ObservationMap = {
-  ring: () => null,
+  // README тут есть некоторая условность в том, что скорее всего Access не имеет записей не ссылающихся на кольца
+  ringMentioned: identificationNumber,
+  ring,
   colorRing: 'Color ring',
   finder: () => null,
   verified: () => false,
@@ -96,14 +118,14 @@ export const observationMap: ObservationMap = {
 
 const observationsKeys = Object.keys(observationMap);
 
-export function observationMapper(dbRecords: any[]): Observation[] {
+export function observationMapper(dbRecords: any[], hash: Map<string, string>): Observation[] {
   const observations: Observation[] = dbRecords
     .map((dbObservation: any) => {
       try {
         const observation = observationsKeys.reduce(
           (acc: { [index in keyof ObservationMap]: any }, key: keyof ObservationMap) => {
             const map = observationMap[key];
-            acc[key] = typeof map === 'function' ? map(dbObservation) : dbObservation[map];
+            acc[key] = typeof map === 'function' ? map(dbObservation, hash) : dbObservation[map];
             return acc;
           },
           {},
