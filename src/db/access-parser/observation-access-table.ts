@@ -132,7 +132,7 @@ export function observationMapper(dbRecords: any[], hash: Map<string, string>): 
         );
         return observation;
       } catch (e) {
-        logger.error(`Observation ${dbObservation.RefNo} can't be mapped: skipped`);
+        logger.error(`Observation ${dbObservation.RefNo} can't be mapped -- skipped: ${e}`);
         return null;
       }
     })
