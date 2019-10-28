@@ -100,7 +100,7 @@ export function observationMapper(dbRecords: any[]): Observation[] {
   const observations: Observation[] = dbRecords
     .map((dbObservation: any) => {
       try {
-        const ring = observationsKeys.reduce(
+        const observation = observationsKeys.reduce(
           (acc: { [index in keyof ObservationMap]: any }, key: keyof ObservationMap) => {
             const map = observationMap[key];
             acc[key] = typeof map === 'function' ? map(dbObservation) : dbObservation[map];
@@ -108,13 +108,13 @@ export function observationMapper(dbRecords: any[]): Observation[] {
           },
           {},
         );
-        return ring;
+        return observation;
       } catch (e) {
         logger.error(`Observation ${dbObservation.RefNo} can't be mapped: skipped`);
         return null;
       }
     })
-    .filter(ring => !!ring)
+    .filter(observation => !!observation)
     .map(mapped => Object.assign(new Observation(), mapped));
   return observations;
 }
