@@ -81,7 +81,6 @@ export default class ObservationController extends AbstractController {
    * Get all available observations.
    * @param {number} pageNumber Page number, default value is set in config file
    * @param {number} pageSize Page size, default value is set in config file
-   * @param {number} testNum Page size, default value is set in config file
    * @param {SortingDirection} sortingDirection Sorting direction
    * @param {string} sortingColumn Column to search, can be any of ObservationDto field name
    */

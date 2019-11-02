@@ -27,6 +27,13 @@ export default class RingsByController extends AbstractController {
     this.setMainEntity(this.rings);
   }
 
+  /**
+   * Get all available observations.
+   * @param {number} pageNumber Page number, default value is set in config file
+   * @param {number} pageSize Page size, default value is set in config file
+   * @param {SortingDirection} sortingDirection Sorting direction
+   * @param {string} sortingColumn Column to search, can be any of ObservationDto field name
+   */
   @GET
   @Path('/')
   @Response<RingListResponse>(200, 'List of all available rings.')
@@ -55,6 +62,10 @@ export default class RingsByController extends AbstractController {
     throw new CustomError('This operation is not available yet', 501);
   }
 
+  /**
+   * Get ring by id,
+   * @param {string} id Id if requested ring.
+   */
   @GET
   @Path('/:id')
   @Response<Ring>(200, 'Ring with passed id.')
@@ -63,6 +74,10 @@ export default class RingsByController extends AbstractController {
     return this.getEntityById<Ring>(id);
   }
 
+  /**
+   * Delete ring by id,
+   * @param id Id of ring to delete.
+   */
   @DELETE
   @Path('/:id')
   @Response<{ id: string; removed: boolean }>(200, 'Ring with passed id successfully deleted.')
@@ -73,6 +88,10 @@ export default class RingsByController extends AbstractController {
     return { removed: true, id };
   }
 
+  /**
+   * Create new reng.
+   * @param {RingDto} rawRing Data for new ring.
+   */
   @POST
   @Path('/')
   @PreProcessor(auth.role(UserRole.Ringer))
