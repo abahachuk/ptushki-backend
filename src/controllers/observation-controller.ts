@@ -29,19 +29,14 @@ import Exporter from '../services/export';
 import Importer from '../services/import';
 import { Ring } from '../entities/ring-entity';
 
-import {
-  ObservationQuery,
-  parsePageParams,
-  parseWhereParams,
-  SortingDirection,
-  sanitizeUser,
-} from '../services/observation-service';
+import { ObservationQuery, parseWhereParams, sanitizeUser } from '../services/observation-service';
 import { CustomError } from '../utils/CustomError';
 import { auth } from '../services/auth-service';
 import { UserRole } from '../entities/user-entity';
 import { ExporterType } from '../services/export/AbstractExporter';
 import { ImporterType } from '../services/import/AbstractImporter';
 import { DataCheckDto } from '../services/import/excel/helper';
+import { parsePageParams, SortingDirection } from '../services/page-service';
 
 interface RequestWithPageParams extends Request {
   query: ObservationQuery;
@@ -86,7 +81,6 @@ export default class ObservationController extends AbstractController {
    * Get all available observations.
    * @param {number} pageNumber Page number, default value is set in config file
    * @param {number} pageSize Page size, default value is set in config file
-   * @param {number} testNum Page size, default value is set in config file
    * @param {SortingDirection} sortingDirection Sorting direction
    * @param {string} sortingColumn Column to search, can be any of ObservationDto field name
    */
@@ -96,13 +90,15 @@ export default class ObservationController extends AbstractController {
   @Response<CustomError>(401, 'Unauthorised.')
   public async getObservations(
     @ContextRequest req: RequestWithPageParams,
-    @QueryParam('pageNumber') pageNumber: number = 0,
-    @QueryParam('pageSize') pageSize: number = 5,
-    @QueryParam('sortingDirection') sortingDirection: SortingDirection = SortingDirection.asc,
+    @QueryParam('pageNumber') pageNumber?: number,
+    @QueryParam('pageSize') pageSize?: number,
+    @QueryParam('sortingDirection') sortingDirection?: SortingDirection,
     @QueryParam('sortingColumn') sortingColumn?: string,
   ): Promise<ObservationsListResponse> {
-    const paramsSearch = parsePageParams({ pageNumber, pageSize, sortingColumn, sortingDirection });
-    const paramsAggregation = parseWhereParams(req.user, req.query);
+    const { query, user } = req;
+
+    const paramsSearch = parsePageParams<Observation>({ pageNumber, pageSize, sortingColumn, sortingDirection });
+    const paramsAggregation = parseWhereParams(user, query);
 
     const [observations, totalElements] = await this.observations.findAndCount(
       Object.assign(paramsSearch, paramsAggregation),
@@ -118,8 +114,8 @@ export default class ObservationController extends AbstractController {
 
     return {
       content,
-      pageNumber: paramsSearch.number,
-      pageSize: paramsSearch.size,
+      pageNumber: paramsSearch.pageNumber,
+      pageSize: paramsSearch.pageSize,
       totalElements,
     };
   }

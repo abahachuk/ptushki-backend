@@ -34,5 +34,6 @@ export default {
   paging: {
     pageNumberDefault: 0,
     pageSizeDefault: 5,
+    sortingDirectionDefault: 'ASC',
   },
 };

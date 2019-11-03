@@ -3,7 +3,7 @@ import { write, utils } from 'xlsx';
 import AbstractExporter, { ExporterType } from './AbstractExporter';
 import { Observation } from '../../entities/observation-entity';
 import { User } from '../../entities/user-entity';
-import { Locale } from '../../entities/common-interfaces';
+import { Locale } from '../page-service';
 
 export default class XLSExporterForObservations extends AbstractExporter<Buffer> {
   public type: ExporterType = ExporterType.xls;
