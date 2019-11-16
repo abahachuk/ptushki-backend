@@ -8,7 +8,7 @@ export default {
     host: process.env.PG_HOST || 'localhost',
     port: Number.parseInt(process.env.PG_PORT as string, 10) || 5432,
     database: process.env.PG_DBNAME || 'ptushki',
-    username: process.env.PG_USER || 'postgres',
+    username: process.env.PG_USER || 'username',
     password: process.env.PG_PASSWORD || 'password',
     entities: ['src/entities/**/*.ts'],
     synchronize: true,
