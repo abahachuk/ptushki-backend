@@ -1,6 +1,6 @@
 import path from 'path';
 import { validate, ValidationError } from 'class-validator';
-import { DataCheckDto } from './excel/helper';
+import { DataCheckDto } from './excel-helper/observation/workbook-validator';
 import { CustomError } from '../../utils/CustomError';
 
 export interface MulterOptions {
@@ -14,7 +14,6 @@ interface ParsedErrors {
 
 export enum ImporterType {
   xls = 'XLS',
-  validateXls = 'VALIDATE-XLS',
   euring = 'EURING',
 }
 

@@ -1,9 +1,7 @@
-import Excel, { Column, Worksheet, Workbook, Row, Cell } from 'exceljs';
 import XLSX, { WorkBook, WorkSheet } from 'xlsx';
 import { validate, ValidationError } from 'class-validator';
 import { columns } from './columns';
-import { properties } from './properties';
-import { ImportObservationsValidator } from './observation-format-validator';
+import { ImportObservationsValidator } from './format-validator';
 
 interface ParsedErrors {
   [key: string]: string[];
@@ -23,7 +21,7 @@ export interface EURingError {
 }
 
 interface RowValidationError {
-  result: {
+  validationResult: {
     eu_species?: string[];
     eu_sexCode?: string[];
     eu_ageCode?: string[];
@@ -56,52 +54,9 @@ export interface DataCheckDto {
   invalidDataFormat: RowValidationError[];
 }
 
-export interface DataCheck extends DataCheckDto {
+export interface WorkBookData extends DataCheckDto {
   validFormatData: RowValidatedData[];
 }
-
-const createColumns = (columnNames: string[]): Partial<Column>[] => {
-  const createdColumns: Partial<Column>[] = [];
-
-  if (columnNames) {
-    columnNames.forEach(
-      (name: string): void => {
-        const extendedColumn = Object.assign({}, properties.colProperties, { header: name, key: name });
-        createdColumns.push(extendedColumn);
-      },
-    );
-  }
-
-  return createdColumns;
-};
-
-const setStyleToRow = (row: Row, styles: Partial<Cell>): void => {
-  row.eachCell(
-    (cell: Cell): void => {
-      // eslint-disable-next-line  no-param-reassign
-      cell.style = styles;
-    },
-  );
-};
-
-export const createExcelWorkBook = async (type: string): Promise<Workbook> => {
-  const workbook: Workbook = new Excel.Workbook();
-  const worksheet: Worksheet = workbook.addWorksheet(properties.sheetName);
-  const columnNames: string[] = columns[type];
-  const columnNamesLength: number = columnNames ? columnNames.length : 0;
-  const extendedFilter = Object.assign({}, properties.wsAutoFilter, { to: { row: 1, column: columnNamesLength } });
-
-  workbook.properties = properties.wbProperties;
-  workbook.views = properties.wbViews;
-
-  worksheet.columns = createColumns(columnNames);
-  worksheet.views = properties.wsViews;
-  worksheet.autoFilter = extendedFilter;
-
-  setStyleToRow(worksheet.getRow(1), properties.headerCellStyles);
-
-  return workbook;
-};
 
 const getHeaderNames = (worksheet: WorkSheet): string[] => {
   const data: string[] = XLSX.utils.sheet_to_json(worksheet, { defval: '' });
@@ -111,7 +66,7 @@ const getHeaderNames = (worksheet: WorkSheet): string[] => {
 
 export const checkObservationsHeaderNames = async (workbook: WorkBook, type: string): Promise<HeaderCheck> => {
   const columnNames = columns[type.toLocaleLowerCase()];
-  const worksheet = workbook.Sheets[workbook.SheetNames[0]];
+  const worksheet = workbook.Sheets[0];
   const errors: string[] = [];
   let excelHeaders: string[] = [];
 
@@ -156,9 +111,9 @@ const validateImportedData = async (data: any): Promise<any> => {
   }
 };
 
-export const checkObservationImportedData = async (workbook: WorkBook): Promise<DataCheck> => {
-  const worksheet = workbook.Sheets[workbook.SheetNames[0]];
-  const fileImportStatus: DataCheck = {
+export const checkWorkBookData = async (workbook: WorkBook): Promise<WorkBookData> => {
+  const workSheet = workbook.Sheets[workbook.SheetNames[0]];
+  const workBookData: WorkBookData = {
     emptyRowCount: 0,
     rowCount: 0,
     possibleClones: 0,
@@ -168,37 +123,35 @@ export const checkObservationImportedData = async (workbook: WorkBook): Promise<
     validFormatData: [],
     invalidDataFormat: [],
   };
-  let rowNumber = 2;
+  let currentRowNumber: number = 2;
 
-  const data: any = XLSX.utils.sheet_to_json(worksheet, { defval: null, blankrows: true} );
+  const rowsData: RawData[] = XLSX.utils.sheet_to_json(workSheet, { defval: null, blankrows: true});
 
-  if (data.length) {
-    fileImportStatus.rowCount = data.length;
-    
-    for (const row of data) {
+  if (rowsData.length) {
+    workBookData.rowCount = rowsData.length;
+
+    for (const row of rowsData) {
 
       if (!Object.values(row).join('')) {
-        fileImportStatus.emptyRowCount += 1;
-        rowNumber += 1;
+        workBookData.emptyRowCount += 1;
+        currentRowNumber += 1;
         continue;
       }
 
-      if (row.latitude !== null) row.latitude = row.latitude.toString();
-      if (row.longitude !== null) row.longitude = row.longitude.toString();
+      if (row.latitude !== null) row.latitude = +row.latitude;
+      if (row.longitude !== null) row.longitude = +row.longitude;
 
-      const result = await validateImportedData(row);
+      const validationResult = await validateImportedData(row);
 
-      if (result) {
-        const error: RowValidationError = { rowNumber, result };
-        fileImportStatus.invalidDataFormat.push(error);
+      if (validationResult) {
+        workBookData.invalidDataFormat.push({ rowNumber: currentRowNumber, validationResult });
       } else {
-        const data: RowValidatedData = { rowNumber, data: row };
-        fileImportStatus.validFormatData.push(data);
+        workBookData.validFormatData.push({ rowNumber: currentRowNumber, data: row });
       }
 
-      rowNumber += 1;
+      currentRowNumber += 1;
     }
   }
 
-  return fileImportStatus;
+  return workBookData;
 };
