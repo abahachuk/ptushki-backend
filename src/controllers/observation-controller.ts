@@ -335,7 +335,7 @@ export default class ObservationController extends AbstractController {
    * @param files Files in xls format to validate.
    */
   @POST
-  @Path('/import/validate-xls')
+  @Path('/import/xls')
   @PreProcessor(auth.role(UserRole.Ringer))
   @Response<DataCheckDto>(200, 'Possible errors.')
   @Response<CustomError>(401, 'Unauthorised.')
