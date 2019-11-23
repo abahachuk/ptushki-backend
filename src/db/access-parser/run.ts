@@ -4,15 +4,18 @@ import { Connection, createConnection } from 'typeorm';
 import './access-connection';
 import config from '../prepare-db-config';
 import { EURINGs, EuringAccessTable } from './euring-access-tables';
-import { prepareToUploadEURING, uploadEURING, uploadPersons, uploadRings } from './handlers';
+import { prepareToUploadEURING, uploadEURING, uploadPersons, uploadRings, uploadObservations } from './handlers';
 import { logger } from '../../utils/logger';
 
 let db: Connection | undefined;
 
 (async () => {
   try {
+    logger.info('Stared parsing');
     db = await createConnection(config);
+    logger.info('DB connected');
     await db.synchronize(true);
+    logger.info('DB dropped and synced');
 
     console.time('EURING codes');
     // eslint-disable-next-line no-restricted-syntax
@@ -31,9 +34,12 @@ let db: Connection | undefined;
     console.timeEnd('Persons');
 
     console.time('Rings');
-    // const ringsHash =
-    await uploadRings(personsHash);
+    const ringsHash = await uploadRings(personsHash);
     console.timeEnd('Rings');
+
+    console.time('Observations');
+    await uploadObservations(personsHash, ringsHash);
+    console.timeEnd('Observations');
   } catch (error) {
     logger.error(error);
   }

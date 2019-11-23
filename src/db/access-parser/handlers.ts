@@ -109,3 +109,10 @@ export async function uploadRings(personsHash: Map<string, string>): Promise<Map
 
   return idsHash;
 }
+
+export async function uploadObservations(
+  personsHash: Map<string, string>,
+  ringsHash: Map<string, string>,
+): Promise<void> {
+  logger.info(`Passed hashes: personsHash size of ${personsHash.size} and ringsHash size of ${ringsHash.size}`);
+}
