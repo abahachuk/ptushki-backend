@@ -44,6 +44,7 @@ import {
   PlaceCodeDto,
 } from './euring-codes';
 import { User, UserDto } from './user-entity';
+import { Person } from './person-entity';
 import { Observation } from './observation-entity';
 import { EURINGCodes, AbleToExportAndImportEuring, EntityDto } from './common-interfaces';
 import { ColumnNumericTransformer } from '../utils/ColumnNumericTransformer';
@@ -77,7 +78,7 @@ export interface RingDto extends EURINGCodes {
   accuracyOfDate: EntityDto;
   euringCodeIdentifier: EntityDto;
   remarks: string | null;
-  offlineRinger: string | null;
+  offlineRinger: EntityDto;
   ringerInformation: UserDto;
   statusOfRing: EntityDto;
 }
@@ -335,10 +336,11 @@ export class Ring implements RingDto, AbleToExportAndImportEuring {
   public ringerInformation: User;
 
   // Related field in access 'Ringer' referred to table 'Ringer Information'
-  @IsOptional()
-  @IsString()
-  @Column('varchar', { nullable: true, default: null })
-  public offlineRinger: string | null;
+  @IsUUID()
+  @ManyToOne(() => Person, m => m.ring, {
+    eager: true,
+  })
+  public offlineRinger: Person;
 
   // Not presented in euring standart
   @IsOptional()
