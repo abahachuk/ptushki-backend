@@ -66,6 +66,17 @@ const date = (item: any): Date | null => {
   return new Date(year, month || 5, day || 15, hour, min);
 };
 
+const offlineFinder = (item: any) => {
+  // FIXME часть могут ссылаться на таблицу, часть просто статические данные, скорее всего надо еще поле.
+  // типо хранить и ссылки, и просто данные... последний вариант сомнителен в виду его последующего использования.
+  logger.warn(
+    `It is not possible to establish the ownership of the observation: either there is no owner or the owner ${
+      item.Finder
+    } has not been uploaded into the database`,
+  );
+  return null;
+};
+
 type Omit<T, K extends keyof T> = Pick<T, Exclude<keyof T, K>>;
 export type ObservationMap = {
   // todo review later excluded fields
@@ -80,7 +91,7 @@ export const observationMap: ObservationMap = {
   ring,
   colorRing: 'Color ring',
   finder: () => null,
-  offlineFinder: () => null,
+  offlineFinder,
   verified: () => false,
   // ---------------------------------
   // Metal ring information
