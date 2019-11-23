@@ -80,6 +80,7 @@ export const observationMap: ObservationMap = {
   ring,
   colorRing: 'Color ring',
   finder: () => null,
+  offlineFinder: () => null,
   verified: () => false,
   // ---------------------------------
   // Metal ring information

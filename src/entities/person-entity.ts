@@ -1,8 +1,8 @@
 import { Entity, PrimaryGeneratedColumn, Column, OneToMany } from 'typeorm';
 import { IsEmail, MinLength, MaxLength, IsString, IsOptional, Length } from 'class-validator';
-import { Ring } from './ring-entity';
-// import { Observation } from './observation-entity';
 import { equalLength } from '../validation/validation-messages';
+import { Ring } from './ring-entity';
+import { Observation } from './observation-entity';
 // import { BasaRing } from './basa-ring-entity';
 
 @Entity()
@@ -50,10 +50,10 @@ export class Person {
 
   @OneToMany(() => Ring, m => m.ringerInformation)
   public ring: Ring[];
-  //
-  // @OneToMany(() => Observation, m => m.finder)
-  // public observation: Observation[];
-  //
+
+  @OneToMany(() => Observation, m => m.finder)
+  public observation: Observation[];
+
   // @OneToMany(() => BasaRing, m => m.ringer)
   // public basaRing: BasaRing[];
 }

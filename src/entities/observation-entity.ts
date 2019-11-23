@@ -18,6 +18,7 @@ import {
 import { IsAlphaWithHyphen, IsAlphanumericWithHyphen, IsNumberStringWithHyphen } from '../validation/custom-decorators';
 import { equalLength } from '../validation/validation-messages';
 import { User, UserDto } from './user-entity';
+import { Person } from './person-entity';
 import { Ring, RingDto } from './ring-entity';
 import {
   Sex,
@@ -132,6 +133,12 @@ export class Observation implements ObservationDto, AbleToExportAndImportEuring 
     eager: true,
   })
   public finder: User;
+
+  @IsUUID()
+  @ManyToOne(() => Person, m => m.observation, {
+    eager: true,
+  })
+  public offlineFinder: Person;
 
   @IsOptional()
   @IsString({ each: true })
