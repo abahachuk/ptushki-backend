@@ -1,9 +1,11 @@
 import { getRepository, Repository } from 'typeorm';
 import { EuringAccessTable, EURINGs, mapEURINGCode } from './euring-access-tables';
 import { entitySelectAll, getEntityRecords } from './access-entity-methods';
+import { Person } from '../../entities/person-entity';
 import { Ring } from '../../entities/ring-entity';
 import { logger } from '../../utils/logger';
 import { ringMapper } from './rings-access-table';
+import { peopleMapper } from './people-access-table';
 
 async function batchedHandler(depth: number, cb: Function, items: any[], collectErrors: boolean) {
   const itemsCopy = items.slice();
@@ -57,6 +59,17 @@ export async function uploadEURING(instances: any[], tableName: EuringAccessTabl
   const repository: Repository<any> = getRepository(Entity);
   await repository.insert(instances);
   logger.info(`${tableName} inserted`);
+}
+
+export async function uploadPersons(): Promise<Map<string, string>> {
+  const idsHash: Map<string, string> = new Map();
+  const repository: Repository<Person> = getRepository(Person);
+  const instances = await entitySelectAll('Ringer_information');
+  const mapped = peopleMapper(instances);
+  const { identifiers } = await repository.insert(mapped);
+  logger.info(`${instances.length} persons inserted`);
+  mapped.forEach((r, i) => idsHash.set(r.name, identifiers[i].id));
+  return idsHash;
 }
 
 export async function uploadRings(): Promise<Map<string, string>> {
