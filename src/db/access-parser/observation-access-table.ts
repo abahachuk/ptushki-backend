@@ -40,11 +40,14 @@ const identificationNumber = (item: any): string => {
   }
 };
 
-const ring = (item: any, hash: Map<string, string>): string | null => {
+const ring = (item: any, _personsHash: Map<string, string>, ringsHash: Map<string, string>): string | null => {
   const ringNumber = identificationNumber(item);
-  if (hash.has(ringNumber)) {
-    return hash.get(ringNumber) as string;
+  if (ringsHash.has(ringNumber)) {
+    return ringsHash.get(ringNumber) as string;
   }
+  logger.error(
+    `It is not possible to establish the related ring: either there is typo in ring number ${ringNumber} or this ring has not been uploaded into the database`,
+  );
   return null;
 };
 
