@@ -92,6 +92,7 @@ export const observationMap: ObservationMap = {
   colorRing: 'Color ring',
   finder: () => null,
   offlineFinder,
+  // FIXME установить возможность верификации исходя из Ref_no таблицы
   verified: () => false,
   // ---------------------------------
   // Metal ring information
