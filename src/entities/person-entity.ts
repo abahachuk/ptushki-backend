@@ -1,7 +1,8 @@
 import { Entity, PrimaryGeneratedColumn, Column, OneToMany } from 'typeorm';
-import { IsEmail, MinLength, MaxLength, IsString, IsOptional } from 'class-validator';
+import { IsEmail, MinLength, MaxLength, IsString, IsOptional, Length } from 'class-validator';
 import { Ring } from './ring-entity';
 // import { Observation } from './observation-entity';
+import { equalLength } from '../validation/validation-messages';
 // import { BasaRing } from './basa-ring-entity';
 
 @Entity()
@@ -43,8 +44,7 @@ export class Person {
 
   @IsOptional()
   @IsString()
-  @MinLength(2)
-  @MaxLength(2)
+  @Length(2, 2, { message: equalLength(2) })
   @Column('varchar', { length: 2, nullable: true, default: null })
   public code: string;
 
