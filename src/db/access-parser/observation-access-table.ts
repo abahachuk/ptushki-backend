@@ -67,7 +67,7 @@ type Omit<T, K extends keyof T> = Pick<T, Exclude<keyof T, K>>;
 export type ObservationMap = {
   // todo review later excluded fields
   [index in keyof Omit<Observation, 'id' | 'photos' | 'exportEURING' | 'importEURING'>]:
-    | ((item: any, hash?: any) => any)
+    | ((...args: any) => any)
     | string
 };
 
@@ -118,14 +118,18 @@ export const observationMap: ObservationMap = {
 
 const observationsKeys = Object.keys(observationMap);
 
-export function observationMapper(dbRecords: any[], hash: Map<string, string>): Observation[] {
+export function observationMapper(
+  dbRecords: any[],
+  personsHash: Map<string, string>,
+  ringsHash: Map<string, string>,
+): Observation[] {
   const observations: Observation[] = dbRecords
     .map((dbObservation: any) => {
       try {
         const observation = observationsKeys.reduce(
           (acc: { [index in keyof ObservationMap]: any }, key: keyof ObservationMap) => {
             const map = observationMap[key];
-            acc[key] = typeof map === 'function' ? map(dbObservation, hash) : dbObservation[map];
+            acc[key] = typeof map === 'function' ? map(dbObservation, personsHash, ringsHash) : dbObservation[map];
             return acc;
           },
           {},
