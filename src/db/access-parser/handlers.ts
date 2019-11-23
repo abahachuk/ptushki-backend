@@ -3,9 +3,11 @@ import { EuringAccessTable, EURINGs, mapEURINGCode } from './euring-access-table
 import { entitySelectAll, getEntityRecords } from './access-entity-methods';
 import { Person } from '../../entities/person-entity';
 import { Ring } from '../../entities/ring-entity';
+import { Observation } from '../../entities/observation-entity';
 import { logger } from '../../utils/logger';
-import { ringMapper } from './rings-access-table';
 import { peopleMapper } from './people-access-table';
+import { ringMapper } from './rings-access-table';
+import { observationMapper } from './observation-access-table';
 
 async function batchedHandler(depth: number, cb: Function, items: any[], collectErrors: boolean) {
   const itemsCopy = items.slice();
@@ -104,7 +106,7 @@ export async function uploadRings(personsHash: Map<string, string>): Promise<Map
   if (errors.length) {
     logger.error(`There are some final errors on insertion rings:\n${errors.join('\n')}`);
   } else {
-    logger.info(`Finally all rings was inserted successfully`);
+    logger.info(`Finally all rings were inserted successfully`);
   }
 
   return idsHash;
@@ -114,5 +116,35 @@ export async function uploadObservations(
   personsHash: Map<string, string>,
   ringsHash: Map<string, string>,
 ): Promise<void> {
-  logger.info(`Passed hashes: personsHash size of ${personsHash.size} and ringsHash size of ${ringsHash.size}`);
+  const repository: Repository<Observation> = getRepository(Observation);
+  let failedInsertions: any[] = [];
+  let errors: any[] = [];
+
+  const insert = (repo: Repository<any>) => async (selection: any[]) => {
+    await repo.insert(selection);
+    logger.info(`Inserted ${selection.length} records`);
+  };
+
+  // eslint-disable-next-line no-restricted-syntax
+  for await (const dbRings of getEntityRecords('Ringby-recov', 'RefNo')) {
+    let mapped: any[] = [];
+    try {
+      mapped = observationMapper(dbRings, personsHash, ringsHash);
+      await insert(repository)(mapped);
+    } catch {
+      // all batch fails
+      failedInsertions = failedInsertions.concat(mapped);
+    }
+  }
+
+  if (failedInsertions.length) {
+    logger.info(`Failed observations batches passed to funnelProcessor (totally ${failedInsertions.length} records)`);
+    errors = await funnelProcessor([100, 10, 1], failedInsertions, insert(repository));
+  }
+
+  if (errors.length) {
+    logger.error(`There are some final errors on insertion observations:\n${errors.join('\n')}`);
+  } else {
+    logger.info(`Finally all observations were inserted successfully`);
+  }
 }
