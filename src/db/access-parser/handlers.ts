@@ -72,7 +72,7 @@ export async function uploadPersons(): Promise<Map<string, string>> {
   return idsHash;
 }
 
-export async function uploadRings(): Promise<Map<string, string>> {
+export async function uploadRings(personsHash: Map<string, string>): Promise<Map<string, string>> {
   const repository: Repository<Ring> = getRepository(Ring);
   const idsHash: Map<string, string> = new Map();
   let failedInsertions: any[] = [];
@@ -88,7 +88,7 @@ export async function uploadRings(): Promise<Map<string, string>> {
   for await (const dbRings of getEntityRecords('Ringby', 'RN')) {
     let mapped: any[] = [];
     try {
-      mapped = ringMapper(dbRings);
+      mapped = ringMapper(dbRings, personsHash);
       await insertAndStoreRefs(repository, idsHash)(mapped);
     } catch {
       // all batch fails

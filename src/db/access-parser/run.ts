@@ -27,13 +27,12 @@ let db: Connection | undefined;
     console.timeEnd('EURING codes');
 
     console.time('Persons');
-    // const personsHash =
-    await uploadPersons();
+    const personsHash = await uploadPersons();
     console.timeEnd('Persons');
 
     console.time('Rings');
     // const ringsHash =
-    await uploadRings();
+    await uploadRings(personsHash);
     console.timeEnd('Rings');
   } catch (error) {
     logger.error(error);

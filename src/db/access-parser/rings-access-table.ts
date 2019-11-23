@@ -52,10 +52,22 @@ const latitude = (item: any): number | null => {
   }
 };
 
+const offlineRinger = (item: any, personsHash: Map<string, string>) => {
+  if (item.Ringer && personsHash.has(item.Ringer)) {
+    return personsHash.get(item.Ringer);
+  }
+  logger.warn(
+    `It is not possible to establish the ownership of the ring: either there is no owner or the owner ${
+      item.Ringer
+    } has not been uploaded into the database`,
+  );
+  return null;
+};
+
 type Omit<T, K extends keyof T> = Pick<T, Exclude<keyof T, K>>;
 export type RingMap = {
   // todo review later excluded fields
-  [index in keyof Omit<Ring, 'id' | 'observation' | 'exportEURING' | 'importEURING'>]: ((item: any) => any) | string
+  [index in keyof Omit<Ring, 'id' | 'observation' | 'exportEURING' | 'importEURING'>]: ((...args: any) => any) | string
 };
 
 export const ringMap: RingMap = {
@@ -95,8 +107,7 @@ export const ringMap: RingMap = {
   accuracyOfDate: 'Accuracy of date',
   euringCodeIdentifier: 'Euring-code identifier',
   remarks: 'Note',
-  // README currently ringer will be handled as plain value not by reference with additional model
-  offlineRinger: 'Ringer',
+  offlineRinger,
   ringerInformation: (): null => null,
   statusOfRing: 'Status of ring',
 
@@ -118,13 +129,13 @@ export const ringMap: RingMap = {
 
 const ringKeys = Object.keys(ringMap);
 
-export function ringMapper(dbRecords: any[]): Ring[] {
+export function ringMapper(dbRecords: any[], personsHash: Map<string, string>): Ring[] {
   const rings: Ring[] = dbRecords
     .map((dbRing: any) => {
       try {
         const ring = ringKeys.reduce((acc: { [index in keyof RingMap]: any }, key: keyof RingMap) => {
           const map = ringMap[key];
-          acc[key] = typeof map === 'function' ? map(dbRing) : dbRing[map];
+          acc[key] = typeof map === 'function' ? map(dbRing, personsHash) : dbRing[map];
           return acc;
         }, {});
         return ring;
