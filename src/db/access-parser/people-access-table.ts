@@ -2,7 +2,7 @@ import { Person } from '../../entities/person-entity';
 import { logger } from '../../utils/logger';
 
 type Omit<T, K extends keyof T> = Pick<T, Exclude<keyof T, K>>;
-export type PersonMap = { [index in keyof Omit<Person, 'id' | 'ring'>]: string };
+export type PersonMap = { [index in keyof Omit<Person, 'id' | 'ring' | 'observation'>]: string };
 
 export const personMap: PersonMap = {
   name: 'Ringer',
