@@ -120,13 +120,13 @@ export async function uploadObservations(
   let failedInsertions: any[] = [];
   let errors: any[] = [];
 
-  const insert = (repo: Repository<any>) => async (selection: any[]) => {
+  const insert = (repo: Repository<Observation>) => async (selection: any[]) => {
     await repo.insert(selection);
     logger.info(`Inserted ${selection.length} records`);
   };
 
   // eslint-disable-next-line no-restricted-syntax
-  for await (const dbRings of getEntityRecords('Ringby-recov', 'RefNo')) {
+  for await (const dbRings of getEntityRecords('Ringby_recov', 'RefNo')) {
     let mapped: any[] = [];
     try {
       mapped = observationMapper(dbRings, personsHash, ringsHash);
