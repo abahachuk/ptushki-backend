@@ -66,15 +66,23 @@ const date = (item: any): Date | null => {
   return new Date(year, month || 5, day || 15, hour, min);
 };
 
-const offlineFinder = (item: any) => {
-  // FIXME часть могут ссылаться на таблицу, часть просто статические данные, скорее всего надо еще поле.
-  // типо хранить и ссылки, и просто данные... последний вариант сомнителен в виду его последующего использования.
-  logger.warn(
-    `It is not possible to establish the ownership of the observation: either there is no owner or the owner ${
-      item.Finder
-    } has not been uploaded into the database`,
-  );
-  return null;
+const offlineFinder = (item: any, personsHash: Map<string, string>): string | null => {
+  const finder = item.Finder;
+  if (!finder) {
+    logger.warn(`It is not possible to establish the ownership of the observation: there is no owner`);
+    return null;
+  }
+
+  if (!personsHash.has(finder)) {
+    logger.warn(
+      `It is not possible to establish the ownership of the observation: the owner ${
+        item.Finder
+      } has not been uploaded into the database`,
+    );
+    return null;
+  }
+
+  return personsHash.get(finder) as string;
 };
 
 type Omit<T, K extends keyof T> = Pick<T, Exclude<keyof T, K>>;
@@ -92,7 +100,6 @@ export const observationMap: ObservationMap = {
   colorRing: 'Color ring',
   finder: () => null,
   offlineFinder,
-  // FIXME установить возможность верификации исходя из Ref_no таблицы
   verified: () => false,
   // ---------------------------------
   // Metal ring information
