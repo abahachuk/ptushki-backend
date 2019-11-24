@@ -104,22 +104,13 @@ export const observationMap: ObservationMap = {
   offlineFinder,
   offlineFinderNote,
   verified: () => false,
-  // ---------------------------------
-  ringingScheme: '',
-  primaryIdentificationMethod: '',
-  verificationOfTheMetalRing: '',
-  metalRingInformation: '',
-  otherMarksInformation: '',
-  euringCodeIdentifier: '',
-  broodSize: '',
-  // Metal ring information
-  // Verification of metal ring
-  // Other mark information
-  // Broodsize
-  // Euring-code identifier
-  // Finder
-  // E-mail
-  // ------------------------
+  ringingScheme: 'Ringing Scheme',
+  primaryIdentificationMethod: 'Primary identification method',
+  verificationOfTheMetalRing: 'Verification of metal ring',
+  metalRingInformation: 'Metal ring information',
+  otherMarksInformation: 'Other mark information',
+  euringCodeIdentifier: 'Euring-code identifier',
+  broodSize: 'Broodsize',
   date,
   longitude,
   latitude,
