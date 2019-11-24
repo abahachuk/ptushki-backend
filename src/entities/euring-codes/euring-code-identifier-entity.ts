@@ -2,6 +2,7 @@ import { Entity, PrimaryColumn, Column, OneToMany } from 'typeorm';
 import { IsInt, Min, Max, IsOptional, IsString } from 'class-validator';
 import { EntityDto } from '../common-interfaces';
 import { Ring } from '../ring-entity';
+import { Observation } from '../observation-entity';
 
 // Related table in access 'Euring cod identifier'
 @Entity()
@@ -29,4 +30,7 @@ export class EURINGCodeIdentifier implements EntityDto {
 
   @OneToMany(() => Ring, m => m.euringCodeIdentifier)
   public ring: Ring[];
+
+  @OneToMany(() => Observation, m => m.euringCodeIdentifier)
+  public observation: Observation[];
 }
