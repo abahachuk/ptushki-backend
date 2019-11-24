@@ -1,4 +1,4 @@
-import { Observation } from '../../entities/observation-entity';
+import { Observation, Verified } from '../../entities/observation-entity';
 // import { Ring } from '../../entities/ring-entity';
 import { logger } from '../../utils/logger';
 import { fromDegreesToDecimal } from '../../utils/coords-parser';
@@ -104,7 +104,7 @@ export const observationMap: ObservationMap = {
   finder: () => null,
   offlineFinder,
   offlineFinderNote,
-  verified: () => false,
+  verified: () => Verified.Pending,
   ringingScheme: 'Ringing Scheme',
   primaryIdentificationMethod: 'Primary identification method',
   verificationOfTheMetalRing: 'Verification of metal ring',
