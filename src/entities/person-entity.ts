@@ -26,6 +26,7 @@ export class Person implements PersonDto {
   public email: string;
 
   @IsString()
+  @Column('varchar', { length: 128, nullable: true, default: null })
   public name: string;
 
   @IsOptional()
