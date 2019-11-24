@@ -144,6 +144,14 @@ export const observationMap: ObservationMap = {
 
 const observationsKeys = Object.keys(observationMap);
 
+const postMapper = (item: Observation) => {
+  if (item.offlineFinder) {
+    // eslint-disable-next-line no-param-reassign
+    item.offlineFinderNote = null;
+  }
+  return item;
+};
+
 export function observationMapper(
   dbRecords: any[],
   personsHash: Map<string, string>,
@@ -167,6 +175,6 @@ export function observationMapper(
       }
     })
     .filter(observation => !!observation)
-    .map(mapped => Object.assign(new Observation(), mapped));
+    .map(mapped => postMapper(Object.assign(new Observation(), mapped)));
   return observations;
 }
