@@ -85,7 +85,8 @@ const offlineFinder = (item: any, personsHash: Map<string, string>): string | nu
   return personsHash.get(finder) as string;
 };
 
-const offlineFinderNote = () => null;
+const offlineFinderNote = (item: any) =>
+  item.Finder || item['E-mail'] ? `${item.Finder} ${item['E-mail']}`.trim() : null;
 
 type Omit<T, K extends keyof T> = Pick<T, Exclude<keyof T, K>>;
 export type ObservationMap = {
