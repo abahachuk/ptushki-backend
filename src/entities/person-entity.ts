@@ -5,8 +5,18 @@ import { Ring } from './ring-entity';
 import { Observation } from './observation-entity';
 // import { BasaRing } from './basa-ring-entity';
 
+export interface PersonDto {
+  id: string;
+  email?: string;
+  name: string;
+  phone?: string;
+  altPhone?: string;
+  address?: string;
+  code?: string;
+}
+
 @Entity()
-export class Person {
+export class Person implements PersonDto {
   @PrimaryGeneratedColumn('uuid')
   public id: string;
 
@@ -16,10 +26,13 @@ export class Person {
   public email: string;
 
   @IsString()
-  @MinLength(1)
-  @MaxLength(64)
-  @Column('varchar', { length: 64, nullable: true, default: null })
   public name: string;
+
+  @IsOptional()
+  @IsString()
+  @Length(2, 2, { message: equalLength(2) })
+  @Column('varchar', { length: 2, nullable: true, default: null })
+  public code: string;
 
   @IsOptional()
   @IsString()
@@ -41,12 +54,6 @@ export class Person {
   @MaxLength(64)
   @Column('varchar', { length: 128, nullable: true, default: null })
   public address: string;
-
-  @IsOptional()
-  @IsString()
-  @Length(2, 2, { message: equalLength(2) })
-  @Column('varchar', { length: 2, nullable: true, default: null })
-  public code: string;
 
   @OneToMany(() => Ring, m => m.ringerInformation)
   public ring: Ring[];

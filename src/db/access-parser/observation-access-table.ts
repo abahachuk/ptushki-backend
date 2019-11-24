@@ -85,6 +85,8 @@ const offlineFinder = (item: any, personsHash: Map<string, string>): string | nu
   return personsHash.get(finder) as string;
 };
 
+const offlineFinderNote = () => null;
+
 type Omit<T, K extends keyof T> = Pick<T, Exclude<keyof T, K>>;
 export type ObservationMap = {
   // todo review later excluded fields
@@ -100,6 +102,7 @@ export const observationMap: ObservationMap = {
   colorRing: 'Color ring',
   finder: () => null,
   offlineFinder,
+  offlineFinderNote,
   verified: () => false,
   // ---------------------------------
   // Metal ring information

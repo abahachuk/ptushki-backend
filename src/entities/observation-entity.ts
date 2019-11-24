@@ -18,7 +18,7 @@ import {
 import { IsAlphaWithHyphen, IsAlphanumericWithHyphen, IsNumberStringWithHyphen } from '../validation/custom-decorators';
 import { equalLength } from '../validation/validation-messages';
 import { User, UserDto } from './user-entity';
-import { Person } from './person-entity';
+import { Person, PersonDto } from './person-entity';
 import { Ring, RingDto } from './ring-entity';
 import {
   Sex,
@@ -77,13 +77,15 @@ interface RawObservationBase<TCommon, TRing, TSpecies, TPlaceCode> {
 
 // Model for observation with all not technical fields
 // Used for dtos for responses
-export interface ObservationBase<TFinder, TCommon, TRing, TSpecies, TPlaceCode>
+export interface ObservationBase<TFinder, TOfFinder, TCommon, TRing, TSpecies, TPlaceCode>
   extends RawObservationBase<TCommon, TRing, TSpecies, TPlaceCode> {
   id: string;
   speciesConcluded: TSpecies;
   sexConcluded: TCommon;
   ageConcluded: TCommon;
   finder: TFinder;
+  offlineFinder: TOfFinder;
+  offlineFinderNote: string | null;
   elapsedTime: number | null;
   colorRing: string | null;
   manipulated: EntityDto;
@@ -105,9 +107,10 @@ export interface ObservationBase<TFinder, TCommon, TRing, TSpecies, TPlaceCode>
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
 export interface RawObservationDto extends RawObservationBase<string, string, string, string> {}
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
-export interface ObservationBaseDto extends ObservationBase<string, string, string, string, string> {}
+export interface ObservationBaseDto extends ObservationBase<string, string, string, string, string, string> {}
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
-export interface ObservationDto extends ObservationBase<UserDto, EntityDto, RingDto, SpeciesDto, PlaceCodeDto> {}
+export interface ObservationDto
+  extends ObservationBase<UserDto, PersonDto, EntityDto, RingDto, SpeciesDto, PlaceCodeDto> {}
 
 @Entity()
 export class Observation implements ObservationDto, AbleToExportAndImportEuring {
@@ -139,6 +142,13 @@ export class Observation implements ObservationDto, AbleToExportAndImportEuring 
     eager: true,
   })
   public offlineFinder: Person;
+
+  @IsOptional()
+  @IsString()
+  @Column('varchar', { nullable: true, default: null })
+  // README this field is caused fact the most finders are denormalized in access
+  // in other words it's alternate to offlineFinder field to store data
+  public offlineFinderNote: string | null;
 
   @IsOptional()
   @IsString({ each: true })
