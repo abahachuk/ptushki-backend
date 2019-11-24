@@ -90,7 +90,7 @@ const offlineFinderNote = () => null;
 type Omit<T, K extends keyof T> = Pick<T, Exclude<keyof T, K>>;
 export type ObservationMap = {
   // todo review later excluded fields
-  [index in keyof Omit<Observation, 'id' | 'photos' | 'exportEURING' | 'importEURING'>]:
+  [index in keyof Omit<Observation, 'id' | 'identificationNumber' | 'photos' | 'exportEURING' | 'importEURING'>]:
     | ((...args: any) => any)
     | string
 };
@@ -105,6 +105,13 @@ export const observationMap: ObservationMap = {
   offlineFinderNote,
   verified: () => false,
   // ---------------------------------
+  ringingScheme: '',
+  primaryIdentificationMethod: '',
+  verificationOfTheMetalRing: '',
+  metalRingInformation: '',
+  otherMarksInformation: '',
+  euringCodeIdentifier: '',
+  broodSize: '',
   // Metal ring information
   // Verification of metal ring
   // Other mark information

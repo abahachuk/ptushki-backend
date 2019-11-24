@@ -3,6 +3,7 @@ import { Length, IsAlpha, IsOptional, IsString } from 'class-validator';
 import { equalLength } from '../../validation/validation-messages';
 import { EntityDto } from '../common-interfaces';
 import { Ring } from '../ring-entity';
+import { Observation } from '../observation-entity';
 
 // Related table in access 'Other marks information EUR'
 @Entity()
@@ -29,4 +30,7 @@ export class OtherMarksInformation implements EntityDto {
 
   @OneToMany(() => Ring, m => m.otherMarksInformation)
   public ring: Ring[];
+
+  @OneToMany(() => Observation, m => m.otherMarksInformation)
+  public observation: Observation[];
 }

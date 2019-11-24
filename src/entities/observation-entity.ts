@@ -39,8 +39,15 @@ import {
   CircumstancesPresumed,
   PlaceCode,
   PlaceCodeDto,
+  RingingScheme,
+  PrimaryIdentificationMethod,
+  VerificationOfTheMetalRing,
+  MetalRingInformation,
+  OtherMarksInformation,
+  EURINGCodeIdentifier,
+  BroodSize,
 } from './euring-codes';
-import { AbleToExportAndImportEuring, EntityDto } from './common-interfaces';
+import { AbleToExportAndImportEuring, EntityDto, EURINGCodes } from './common-interfaces';
 import { ColumnNumericTransformer } from '../utils/ColumnNumericTransformer';
 import { fromDateToEuringDate, fromDateToEuringTime, fromEuringToDate } from '../utils/date-parser';
 import { fromDecimalToEuring, DecimalCoordinates, fromEuringToDecimal } from '../utils/coords-parser';
@@ -88,6 +95,13 @@ export interface ObservationBase<TFinder, TOfFinder, TCommon, TRing, TSpecies, T
   offlineFinderNote: string | null;
   elapsedTime: number | null;
   colorRing: string | null;
+  ringingScheme: EntityDto;
+  primaryIdentificationMethod: EntityDto;
+  verificationOfTheMetalRing: EntityDto;
+  metalRingInformation: EntityDto;
+  otherMarksInformation: EntityDto;
+  euringCodeIdentifier: EntityDto;
+  broodSize: EntityDto;
   manipulated: EntityDto;
   movedBeforeTheCapture: EntityDto;
   catchingMethod: EntityDto;
@@ -113,7 +127,7 @@ export interface ObservationDto
   extends ObservationBase<UserDto, PersonDto, EntityDto, RingDto, SpeciesDto, PlaceCodeDto> {}
 
 @Entity()
-export class Observation implements ObservationDto, AbleToExportAndImportEuring {
+export class Observation implements ObservationDto, AbleToExportAndImportEuring, EURINGCodes {
   @PrimaryGeneratedColumn('uuid')
   public id: string;
 
@@ -129,6 +143,10 @@ export class Observation implements ObservationDto, AbleToExportAndImportEuring 
   @Length(10, 10, { message: equalLength(10) })
   @Column('varchar', { nullable: true, default: null })
   public ringMentioned: string;
+
+  public get identificationNumber(): string {
+    return this.ringMentioned;
+  }
 
   @IsOptional()
   @IsUUID()
@@ -154,6 +172,58 @@ export class Observation implements ObservationDto, AbleToExportAndImportEuring 
   @IsString({ each: true })
   @Column('varchar', { array: true, nullable: true, default: null })
   public photos: string[];
+
+  @IsAlpha()
+  @Length(3, 3, { message: equalLength(3) })
+  @ManyToOne(() => RingingScheme, m => m.observation, {
+    eager: true,
+  })
+  public ringingScheme: RingingScheme;
+
+  @IsAlphanumeric()
+  @Length(2, 2, { message: equalLength(2) })
+  @ManyToOne(() => PrimaryIdentificationMethod, m => m.observation, {
+    eager: true,
+  })
+  public primaryIdentificationMethod: PrimaryIdentificationMethod;
+
+  @IsInt()
+  @Min(0)
+  @Max(9)
+  @ManyToOne(() => VerificationOfTheMetalRing, m => m.observation, {
+    eager: true,
+  })
+  public verificationOfTheMetalRing: VerificationOfTheMetalRing;
+
+  @IsInt()
+  @Min(0)
+  @Max(7)
+  @ManyToOne(() => MetalRingInformation, m => m.observation, {
+    eager: true,
+  })
+  public metalRingInformation: MetalRingInformation;
+
+  @IsAlpha()
+  @Length(2, 2, { message: equalLength(2) })
+  @ManyToOne(() => OtherMarksInformation, m => m.observation, {
+    eager: true,
+  })
+  public otherMarksInformation: OtherMarksInformation;
+
+  @IsInt()
+  @Min(0)
+  @Max(4)
+  @ManyToOne(() => EURINGCodeIdentifier, m => m.observation, {
+    eager: true,
+  })
+  public euringCodeIdentifier: EURINGCodeIdentifier;
+
+  @IsNumberStringWithHyphen()
+  @Length(2, 2, { message: equalLength(2) })
+  @ManyToOne(() => BroodSize, m => m.observation, {
+    eager: true,
+  })
+  public broodSize: BroodSize;
 
   @IsNumberString()
   @Length(5, 5, { message: equalLength(5) })
