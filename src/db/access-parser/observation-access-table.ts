@@ -67,6 +67,12 @@ const date = (item: any): Date | null => {
   return new Date(year, month || 5, day || 15, hour, min);
 };
 
+const getNumberOrNull = (value: any): number | null => (Number(value) ? Number(value) : null);
+
+const distance = (item: any): number | null => getNumberOrNull(item['Derived data distance']);
+const direction = (item: any): number | null => getNumberOrNull(item['Derived data directions']);
+const elapsedTime = (item: any): number | null => getNumberOrNull(item['Derived data elapsed time']);
+
 const offlineFinder = (item: any, personsHash: Map<string, string>): string | null => {
   const finder = trimName(item.Finder);
   if (!finder) {
@@ -116,9 +122,9 @@ export const observationMap: ObservationMap = {
   date,
   longitude,
   latitude,
-  distance: 'Derived data distance',
-  direction: 'Derived data directions',
-  elapsedTime: 'Derived data elapsed time',
+  distance,
+  direction,
+  elapsedTime,
   placeCode: 'Place code',
   placeName: 'Place',
   remarks: 'Note',
