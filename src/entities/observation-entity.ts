@@ -478,9 +478,9 @@ export class Observation implements ObservationDto, AbleToExportAndImportEuring,
       this.circumstances.id,
       this.circumstancesPresumed.id,
       this.euringCodeIdentifier.id,
-      fromNumberToPaddedString(this.distance, 5),
-      fromNumberToPaddedString(this.direction, 3),
-      fromNumberToPaddedString(this.elapsedTime as number, 5),
+      fromNumberToPaddedString(this.distance, 5) || '-'.repeat(5),
+      fromNumberToPaddedString(this.direction, 3) || '-'.repeat(3),
+      fromNumberToPaddedString(this.elapsedTime as number, 5) || '-'.repeat(5),
       // Below unsupported parameters that presented in EURING
       '', // wing length
       '', // third primary
