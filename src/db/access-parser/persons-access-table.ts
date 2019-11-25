@@ -37,12 +37,12 @@ export function personMapper(dbRecords: any[]): Person[] {
   const persons: Person[] = dbRecords
     .map((dbPerson: any) => {
       try {
-        const observation = personsKeys.reduce((acc: { [index in keyof PersonMap]: any }, key: keyof PersonMap) => {
+        const person = personsKeys.reduce((acc: { [index in keyof PersonMap]: any }, key: keyof PersonMap) => {
           const map = personMap[key];
           acc[key] = typeof map === 'function' ? map(dbPerson, personSet) : dbPerson[map];
           return acc;
         }, {});
-        return observation;
+        return person;
       } catch (e) {
         logger.error(`Person ${dbPerson[personMap.name as string]} can't be mapped -- skipped: ${e}`);
         return null;
