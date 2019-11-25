@@ -515,16 +515,11 @@ export class Observation implements ObservationDto, AbleToExportAndImportEuring,
   /* eslint-disable */
   public importEURING(code: string): any {
     const [
-      // @ts-ignore
       ringingScheme,
-      // @ts-ignore
       primaryIdentificationMethod,
       identificationNumber,
-      // @ts-ignore
       verificationOfTheMetalRing,
-      // @ts-ignore
       metalRingInformation,
-      // @ts-ignore
       otherMarksInformation,
       speciesMentioned,
       manipulated,
@@ -536,7 +531,6 @@ export class Observation implements ObservationDto, AbleToExportAndImportEuring,
       ageMentioned,
       ageConcluded,
       status,
-      // @ts-ignore
       broodSize,
       pullusAge,
       accuracyOfPullusAge,
@@ -549,7 +543,6 @@ export class Observation implements ObservationDto, AbleToExportAndImportEuring,
       condition,
       circumstances,
       circumstancesPresumed,
-      // @ts-ignore
       euringCodeIdentifier,
       distance,
       direction,
@@ -613,6 +606,13 @@ export class Observation implements ObservationDto, AbleToExportAndImportEuring,
     const { latitude, longitude }: DecimalCoordinates = fromEuringToDecimal(latitudeLongitude);
 
     return Object.assign(this, {
+      ringingScheme,
+      primaryIdentificationMethod,
+      verificationOfTheMetalRing,
+      metalRingInformation,
+      otherMarksInformation,
+      broodSize,
+      euringCodeIdentifier,
       ringMentioned: fromStringToValueOrNull(identificationNumber),
       speciesMentioned: fromStringToValueOrNull(speciesMentioned),
       manipulated: fromStringToValueOrNull(manipulated),
