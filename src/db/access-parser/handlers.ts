@@ -63,10 +63,10 @@ export async function uploadEURING(instances: any[], tableName: EuringAccessTabl
   logger.info(`${tableName} inserted`);
 }
 
-export async function uploadPersons(): Promise<Map<string, string>> {
+export async function uploadPersons(table: string): Promise<Map<string, string>> {
   const idsHash: Map<string, string> = new Map();
   const repository: Repository<Person> = getRepository(Person);
-  const instances = await entitySelectAll('Ringer_information');
+  const instances = await entitySelectAll(table);
   const mapped = peopleMapper(instances);
   const { identifiers } = await repository.insert(mapped);
   logger.info(`${instances.length} persons inserted`);
@@ -74,21 +74,26 @@ export async function uploadPersons(): Promise<Map<string, string>> {
   return idsHash;
 }
 
-export async function uploadRings(personsHash: Map<string, string>): Promise<Map<string, string>> {
+export async function uploadRings(
+  table: string,
+  id: string,
+  personsHash: Map<string, string>,
+): Promise<Map<string, string>> {
   const repository: Repository<Ring> = getRepository(Ring);
   const idsHash: Map<string, string> = new Map();
   let failedInsertions: any[] = [];
   let errors: any[] = [];
 
-  const insertAndStoreRefs = (repo: Repository<any>, hash: Map<string, string>) => async (selection: any[]) => {
+  const insertAndStoreRefs = (repo: Repository<any>, hash: Map<string, string>) => async (selection: Ring[]) => {
+    // @ts-ignore
     const { identifiers } = await repo.insert(selection);
-    selection.forEach((r, i) => hash.set(r.identificationNumber, identifiers[i].id));
+    selection.forEach((r: Ring, i: number) => hash.set(r.identificationNumber, identifiers[i].id));
     logger.info(`Inserted ${selection.length} records`);
   };
 
   // eslint-disable-next-line no-restricted-syntax
-  for await (const dbRings of getEntityRecords('Ringby', 'RN')) {
-    let mapped: any[] = [];
+  for await (const dbRings of getEntityRecords(table, id)) {
+    let mapped: Ring[] = [];
     try {
       mapped = ringMapper(dbRings, personsHash);
       await insertAndStoreRefs(repository, idsHash)(mapped);
@@ -104,7 +109,7 @@ export async function uploadRings(personsHash: Map<string, string>): Promise<Map
   }
 
   if (errors.length) {
-    logger.error(`There are some final errors on insertion rings:\n${errors.join('\n')}`);
+    logger.error(`There are some final errors on rings insertion:\n${errors.join('\n')}`);
   } else {
     logger.info(`Finally all rings were inserted successfully`);
   }
@@ -113,6 +118,8 @@ export async function uploadRings(personsHash: Map<string, string>): Promise<Map
 }
 
 export async function uploadObservations(
+  table: string,
+  id: string,
   personsHash: Map<string, string>,
   ringsHash: Map<string, string>,
 ): Promise<void> {
@@ -120,14 +127,14 @@ export async function uploadObservations(
   let failedInsertions: any[] = [];
   let errors: any[] = [];
 
-  const insert = (repo: Repository<Observation>) => async (selection: any[]) => {
+  const insert = (repo: Repository<Observation>) => async (selection: Observation[]) => {
     await repo.insert(selection);
     logger.info(`Inserted ${selection.length} records`);
   };
 
   // eslint-disable-next-line no-restricted-syntax
-  for await (const dbRings of getEntityRecords('Ringby_recov', 'RefNo')) {
-    let mapped: any[] = [];
+  for await (const dbRings of getEntityRecords(table, id)) {
+    let mapped: Observation[] = [];
     try {
       mapped = observationMapper(dbRings, personsHash, ringsHash);
       await insert(repository)(mapped);
@@ -143,7 +150,7 @@ export async function uploadObservations(
   }
 
   if (errors.length) {
-    logger.error(`There are some final errors on insertion observations:\n${errors.join('\n')}`);
+    logger.error(`There are some final errors on observations insertion:\n${errors.join('\n')}`);
   } else {
     logger.info(`Finally all observations were inserted successfully`);
   }
