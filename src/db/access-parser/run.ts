@@ -11,6 +11,7 @@ let db: Connection | undefined;
 
 (async () => {
   try {
+    console.time('Total');
     logger.info('Stared parsing');
     db = await createConnection(config);
     logger.info('DB connected');
@@ -40,6 +41,7 @@ let db: Connection | undefined;
     console.time('Observations');
     await uploadObservations(personsHash, ringsHash);
     console.timeEnd('Observations');
+    console.timeEnd('Total');
   } catch (error) {
     logger.error(error);
   }
