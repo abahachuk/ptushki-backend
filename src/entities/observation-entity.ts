@@ -46,7 +46,7 @@ import {
   EURINGCodeIdentifier,
   BroodSize,
 } from './euring-codes';
-import { AbleToExportAndImportEuring, EntityDto } from './common-interfaces';
+import { AbleToExportAndImportEuring, EntityDto, EURINGCodes } from './common-interfaces';
 import { ColumnNumericTransformer } from '../utils/ColumnNumericTransformer';
 import { fromDateToEuringDate, fromDateToEuringTime, fromEuringToDate } from '../utils/date-parser';
 import { fromDecimalToEuring, DecimalCoordinates, fromEuringToDecimal } from '../utils/coords-parser';
@@ -123,7 +123,7 @@ export interface ObservationBaseDto extends ObservationBase<string, string, stri
 export interface ObservationDto extends ObservationBase<UserDto, EntityDto, RingDto, SpeciesDto, PlaceCodeDto> {}
 
 @Entity()
-export class Observation implements ObservationDto, AbleToExportAndImportEuring {
+export class Observation implements ObservationDto, AbleToExportAndImportEuring, EURINGCodes {
   @PrimaryGeneratedColumn('uuid')
   public id: string;
 
