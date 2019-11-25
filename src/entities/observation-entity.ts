@@ -516,16 +516,16 @@ export class Observation implements ObservationDto, AbleToExportAndImportEuring,
   public importEURING(code: string): any {
     const [
       // @ts-ignore
-      ringingScheme, // Presented in ring entity
+      ringingScheme,
       // @ts-ignore
-      primaryIdentificationMethod, // Presented in ring entity
+      primaryIdentificationMethod,
       identificationNumber,
       // @ts-ignore
-      verificationOfTheMetalRing, // Presented in ring entity
+      verificationOfTheMetalRing,
       // @ts-ignore
-      metalRingInformation, // Presented in ring entity
+      metalRingInformation,
       // @ts-ignore
-      otherMarksInformation, // Presented in ring entity
+      otherMarksInformation,
       speciesMentioned,
       manipulated,
       movedBeforeTheCapture,
@@ -537,7 +537,7 @@ export class Observation implements ObservationDto, AbleToExportAndImportEuring,
       ageConcluded,
       status,
       // @ts-ignore
-      broodSize, // Presented in ring entity
+      broodSize,
       pullusAge,
       accuracyOfPullusAge,
       date,
@@ -550,7 +550,7 @@ export class Observation implements ObservationDto, AbleToExportAndImportEuring,
       circumstances,
       circumstancesPresumed,
       // @ts-ignore
-      euringCodeIdentifier, // Presented in ring entity
+      euringCodeIdentifier,
       distance,
       direction,
       elapsedTime,
