@@ -76,16 +76,10 @@ const elapsedTime = (item: any): number | null => getNumberOrNull(item['Derived 
 const offlineFinder = (item: any, personsHash: Map<string, string>): string | null => {
   const finder = trimName(item.Finder);
   if (!finder) {
-    logger.warn(`It is not possible to establish the ownership of the observation: there is no owner`);
     return null;
   }
 
   if (!personsHash.has(finder.toLowerCase())) {
-    logger.warn(
-      `It is not possible to establish the ownership of the observation: the owner ${
-        item.Finder
-      } has not been uploaded into the database`,
-    );
     return null;
   }
 

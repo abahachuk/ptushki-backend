@@ -56,13 +56,9 @@ const latitude = (item: any): number | null => {
 const offlineRinger = (item: any, personsHash: Map<string, string>) => {
   const processedName = trimName(item.Ringer);
   if (!processedName) {
-    logger.warn(`It is not possible to establish the ownership of the ring: there is no owner`);
     return null;
   }
   if (!personsHash.has(processedName.toLowerCase())) {
-    logger.warn(
-      `It is not possible to establish the ownership of the ring: the owner ${processedName} has not been uploaded into the database`,
-    );
     return null;
   }
 
