@@ -1,7 +1,7 @@
 import { Ring } from '../../entities/ring-entity';
 import { logger } from '../../utils/logger';
 import { fromDegreesToDecimal } from '../../utils/coords-parser';
-import { trimName } from './people-access-table';
+import { trimName } from './persons-access-table';
 
 const identificationNumber = (item: any): string => {
   const { 'Identification series': series, 'Identification number': number } = item;

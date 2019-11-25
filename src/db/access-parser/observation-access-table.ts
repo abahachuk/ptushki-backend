@@ -2,7 +2,7 @@ import { Observation, Verified } from '../../entities/observation-entity';
 // import { Ring } from '../../entities/ring-entity';
 import { logger } from '../../utils/logger';
 import { fromDegreesToDecimal } from '../../utils/coords-parser';
-import { trimName } from './people-access-table';
+import { trimName } from './persons-access-table';
 
 const longitude = (item: any): number | null => {
   // todo check fields names

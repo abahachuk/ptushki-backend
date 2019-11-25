@@ -5,7 +5,7 @@ import { Person } from '../../entities/person-entity';
 import { Ring } from '../../entities/ring-entity';
 import { Observation } from '../../entities/observation-entity';
 import { logger } from '../../utils/logger';
-import { peopleMapper } from './people-access-table';
+import { peopleMapper } from './persons-access-table';
 import { ringMapper } from './rings-access-table';
 import { observationMapper } from './observation-access-table';
 
