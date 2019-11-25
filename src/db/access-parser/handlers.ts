@@ -5,7 +5,7 @@ import { Person } from '../../entities/person-entity';
 import { Ring } from '../../entities/ring-entity';
 import { Observation } from '../../entities/observation-entity';
 import { logger } from '../../utils/logger';
-import { peopleMapper } from './persons-access-table';
+import { personMapper } from './persons-access-table';
 import { ringMapper } from './rings-access-table';
 import { observationMapper } from './observation-access-table';
 
@@ -67,7 +67,7 @@ export async function uploadPersons(table: string): Promise<Map<string, string>>
   const idsHash: Map<string, string> = new Map();
   const repository: Repository<Person> = getRepository(Person);
   const instances = await entitySelectAll(table);
-  const mapped = peopleMapper(instances);
+  const mapped = personMapper(instances);
   const { identifiers } = await repository.insert(mapped);
   logger.info(`${instances.length} persons inserted`);
   mapped.forEach((r, i) => idsHash.set(r.name.toLowerCase(), identifiers[i].id));

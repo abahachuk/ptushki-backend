@@ -32,7 +32,7 @@ export const personMap: PersonMap = {
 
 const personsKeys = Object.keys(personMap);
 
-export function peopleMapper(dbRecords: any[]): Person[] {
+export function personMapper(dbRecords: any[]): Person[] {
   const personSet = new Set();
   const persons: Person[] = dbRecords
     .map((dbPerson: any) => {
