@@ -513,7 +513,7 @@ export class Observation implements ObservationDto, AbleToExportAndImportEuring,
   }
 
   /* eslint-disable */
-  public importEURING(code: string): any {
+  public importEURING(code: string): Observation {
     const [
       ringingScheme,
       primaryIdentificationMethod,
@@ -606,13 +606,13 @@ export class Observation implements ObservationDto, AbleToExportAndImportEuring,
     const { latitude, longitude }: DecimalCoordinates = fromEuringToDecimal(latitudeLongitude);
 
     return Object.assign(this, {
-      ringingScheme,
-      primaryIdentificationMethod,
-      verificationOfTheMetalRing,
-      metalRingInformation,
-      otherMarksInformation,
-      broodSize,
-      euringCodeIdentifier,
+      ringingScheme: fromStringToValueOrNull(ringingScheme),
+      primaryIdentificationMethod: fromStringToValueOrNull(primaryIdentificationMethod),
+      verificationOfTheMetalRing: fromStringToValueOrNull(verificationOfTheMetalRing, Number),
+      metalRingInformation: fromStringToValueOrNull(metalRingInformation, Number),
+      otherMarksInformation: fromStringToValueOrNull(otherMarksInformation),
+      broodSize: fromStringToValueOrNull(broodSize),
+      euringCodeIdentifier: fromStringToValueOrNull(euringCodeIdentifier, Number),
       ringMentioned: fromStringToValueOrNull(identificationNumber),
       speciesMentioned: fromStringToValueOrNull(speciesMentioned),
       manipulated: fromStringToValueOrNull(manipulated),
