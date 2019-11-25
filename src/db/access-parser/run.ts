@@ -26,7 +26,7 @@ const tables: { [index: string]: { name: string; id?: string } } = {
 (async () => {
   try {
     console.time('Total');
-    logger.info('Stared parsing');
+    logger.info('Parsing started');
     db = await createConnection(config);
     logger.info('DB connected');
     await db.synchronize(true);
