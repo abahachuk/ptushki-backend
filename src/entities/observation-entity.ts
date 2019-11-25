@@ -49,7 +49,7 @@ import { AbleToExportAndImportEuring, EntityDto, EURINGCodes } from './common-in
 import { ColumnNumericTransformer } from '../utils/ColumnNumericTransformer';
 import { fromDateToEuringDate, fromDateToEuringTime, fromEuringToDate } from '../utils/date-parser';
 import { fromDecimalToEuring, DecimalCoordinates, fromEuringToDecimal } from '../utils/coords-parser';
-import { fromStringToValueOrNull } from '../utils/custom-parsers';
+import { fromStringToValueOrNull, fromNumberToPaddedString } from '../utils/custom-parsers';
 
 export interface NewObservation {
   finder: User;
@@ -478,9 +478,9 @@ export class Observation implements ObservationDto, AbleToExportAndImportEuring,
       this.circumstances.id,
       this.circumstancesPresumed.id,
       this.euringCodeIdentifier.id,
-      this.distance,
-      this.direction,
-      this.elapsedTime,
+      fromNumberToPaddedString(this.distance, 5),
+      fromNumberToPaddedString(this.direction, 3),
+      fromNumberToPaddedString(this.elapsedTime as number, 5),
       // Below unsupported parameters that presented in EURING
       '', // wing length
       '', // third primary
