@@ -70,7 +70,7 @@ export async function uploadPersons(): Promise<Map<string, string>> {
   const mapped = peopleMapper(instances);
   const { identifiers } = await repository.insert(mapped);
   logger.info(`${instances.length} persons inserted`);
-  mapped.forEach((r, i) => idsHash.set(r.name, identifiers[i].id));
+  mapped.forEach((r, i) => idsHash.set(r.name.toLowerCase(), identifiers[i].id));
   return idsHash;
 }
 

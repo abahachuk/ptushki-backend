@@ -1,6 +1,7 @@
 import { Ring } from '../../entities/ring-entity';
 import { logger } from '../../utils/logger';
 import { fromDegreesToDecimal } from '../../utils/coords-parser';
+import { trimName } from './people-access-table';
 
 const identificationNumber = (item: any): string => {
   const { 'Identification series': series, 'Identification number': number } = item;
@@ -53,15 +54,19 @@ const latitude = (item: any): number | null => {
 };
 
 const offlineRinger = (item: any, personsHash: Map<string, string>) => {
-  if (item.Ringer && personsHash.has(item.Ringer)) {
-    return personsHash.get(item.Ringer);
+  const processedName = trimName(item.Ringer);
+  if (!processedName) {
+    logger.warn(`It is not possible to establish the ownership of the ring: there is no owner`);
+    return null;
   }
-  logger.warn(
-    `It is not possible to establish the ownership of the ring: either there is no owner or the owner ${
-      item.Ringer
-    } has not been uploaded into the database`,
-  );
-  return null;
+  if (!personsHash.has(processedName.toLowerCase())) {
+    logger.warn(
+      `It is not possible to establish the ownership of the ring: the owner ${processedName} has not been uploaded into the database`,
+    );
+    return null;
+  }
+
+  return personsHash.get(processedName.toLowerCase());
 };
 
 type Omit<T, K extends keyof T> = Pick<T, Exclude<keyof T, K>>;

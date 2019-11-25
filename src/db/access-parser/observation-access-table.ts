@@ -2,6 +2,7 @@ import { Observation, Verified } from '../../entities/observation-entity';
 // import { Ring } from '../../entities/ring-entity';
 import { logger } from '../../utils/logger';
 import { fromDegreesToDecimal } from '../../utils/coords-parser';
+import { trimName } from './people-access-table';
 
 const longitude = (item: any): number | null => {
   // todo check fields names
@@ -67,13 +68,13 @@ const date = (item: any): Date | null => {
 };
 
 const offlineFinder = (item: any, personsHash: Map<string, string>): string | null => {
-  const finder = item.Finder;
+  const finder = trimName(item.Finder);
   if (!finder) {
     logger.warn(`It is not possible to establish the ownership of the observation: there is no owner`);
     return null;
   }
 
-  if (!personsHash.has(finder)) {
+  if (!personsHash.has(finder.toLowerCase())) {
     logger.warn(
       `It is not possible to establish the ownership of the observation: the owner ${
         item.Finder
@@ -82,11 +83,11 @@ const offlineFinder = (item: any, personsHash: Map<string, string>): string | nu
     return null;
   }
 
-  return personsHash.get(finder) as string;
+  return personsHash.get(finder.toLowerCase()) as string;
 };
 
 const offlineFinderNote = (item: any) =>
-  item.Finder || item['E-mail'] ? `${item.Finder} ${item['E-mail']}`.trim() : null;
+  trimName(item.Finder) || item['E-mail'] ? `${trimName(item.Finder)} ${item['E-mail']}`.trim() : null;
 
 type Omit<T, K extends keyof T> = Pick<T, Exclude<keyof T, K>>;
 export type ObservationMap = {
