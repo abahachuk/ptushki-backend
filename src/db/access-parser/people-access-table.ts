@@ -6,7 +6,7 @@ export type PersonMap = {
   [index in keyof Omit<Person, 'id' | 'ring' | 'observation'>]: ((...args: any) => any) | string
 };
 
-export const trimName = (name: string = ''): string => name.trim().replace(/\s\s+/g, ' ');
+export const trimName = (name: string): string => name && name.trim().replace(/\s\s+/g, ' ');
 
 const name = (item: any, set: Set<string>): string | null => {
   const processedName = trimName(item.Ringer);
