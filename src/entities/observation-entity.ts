@@ -450,12 +450,12 @@ export class Observation implements ObservationDto, AbleToExportAndImportEuring,
 
   public exportEURING(): string {
     return [
-      path(['ring', 'ringingScheme', 'id'], this),
-      path(['ring', 'primaryIdentificationMethod', 'id'], this),
-      path(['ring', 'identificationNumber'], this),
-      path(['ring', 'verificationOfTheMetalRing', 'id'], this),
-      path(['ring', 'metalRingInformation', 'id'], this),
-      path(['ring', 'otherMarksInformation', 'id'], this),
+      this.ringingScheme.id,
+      this.primaryIdentificationMethod.id,
+      this.identificationNumber, // we are using mentioned instead related
+      this.verificationOfTheMetalRing.id,
+      this.metalRingInformation.id,
+      this.otherMarksInformation.id,
       path(['speciesMentioned', 'id'], this),
       path(['manipulated', 'id'], this),
       path(['movedBeforeTheCapture', 'id'], this),
