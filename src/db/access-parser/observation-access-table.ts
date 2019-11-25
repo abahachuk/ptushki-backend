@@ -91,7 +91,6 @@ const offlineFinderNote = (item: any) =>
 
 type Omit<T, K extends keyof T> = Pick<T, Exclude<keyof T, K>>;
 export type ObservationMap = {
-  // todo review later excluded fields
   [index in keyof Omit<Observation, 'id' | 'identificationNumber' | 'photos' | 'exportEURING' | 'importEURING'>]:
     | ((...args: any) => any)
     | string
