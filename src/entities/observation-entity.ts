@@ -1,4 +1,3 @@
-import { path } from 'ramda';
 import { Entity, Column, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
 import {
   IsUUID,
@@ -478,7 +477,7 @@ export class Observation implements ObservationDto, AbleToExportAndImportEuring,
       this.condition.id,
       this.circumstances.id,
       this.circumstancesPresumed.id,
-      path(['ring', 'euringCodeIdentifier', 'id'], this),
+      this.euringCodeIdentifier.id,
       this.distance,
       this.direction,
       this.elapsedTime,
