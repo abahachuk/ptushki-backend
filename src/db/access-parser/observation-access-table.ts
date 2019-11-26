@@ -5,7 +5,6 @@ import { fromDegreesToDecimal } from '../../utils/coords-parser';
 import { trimName } from './persons-access-table';
 
 const longitude = (item: any): number | null => {
-  // todo check fields names
   const { 'Lon side': loside, 'Lon deg': lod, 'Lon min': lom, 'Lon sec': los } = item;
   if (!lod) return null;
   try {
@@ -16,7 +15,6 @@ const longitude = (item: any): number | null => {
 };
 
 const latitude = (item: any): number | null => {
-  // todo check fields names
   const { 'Lat side': laside, 'Lat deg': lad, 'Lat min': lam, 'Lat sec': las } = item;
   if (!lad) return null;
   try {

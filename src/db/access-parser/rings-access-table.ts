@@ -92,11 +92,6 @@ export const ringMap: RingMap = {
   broodSize: 'Broodsize',
   pullusAge: 'Pullus age',
   accuracyOfPullusAge: 'Accuracy of pullus age',
-
-  // TODO there is some place for improvements.
-  // all rows have sec, but some havent coords, but have place code
-  // sometimes they have coords but havent place code
-
   longitude,
   latitude,
   placeCode: 'Place code',
@@ -112,17 +107,15 @@ export const ringMap: RingMap = {
   ringerInformation: (): null => null,
   statusOfRing: 'Status of ring',
 
-  // TODO unhandled fields. needs clarification
+  // README unhandled fields
+  // E-mail около 10. избыточное
+  // Color ring schem пара значений скорее относяшихся к Color Ring
 
-  // E-mail около 10. Избыточное, при условии добавления таблицы Ringer -- там есть emails, тем более все поля с email
-  // содержат ссылку на Ringer
-
+  // Review:
+  // Color ring
   // 'Place of ring' не имеет никаких аналогов в стандарте
   // observation имеет Place Name, что подобно по смыслу и содержанию
 
-  // Остальные:
-  // Color ring
-  // Color ring schem
   // Col{1-4}
   // Mark{1-6}
   // Age old
