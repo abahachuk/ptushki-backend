@@ -44,7 +44,7 @@ import {
   PlaceCodeDto,
 } from './euring-codes';
 import { User, UserDto } from './user-entity';
-import { Person } from './person-entity';
+import { Person, PersonDto } from './person-entity';
 import { Observation } from './observation-entity';
 import { EURINGCodes, AbleToExportAndImportEuring, EntityDto } from './common-interfaces';
 import { ColumnNumericTransformer } from '../utils/ColumnNumericTransformer';
@@ -78,7 +78,7 @@ export interface RingDto extends EURINGCodes {
   accuracyOfDate: EntityDto;
   euringCodeIdentifier: EntityDto;
   remarks: string | null;
-  offlineRinger: EntityDto;
+  offlineRinger: PersonDto;
   ringerInformation: UserDto;
   statusOfRing: EntityDto;
 }
