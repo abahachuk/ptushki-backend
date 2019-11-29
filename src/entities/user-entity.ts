@@ -5,11 +5,9 @@ import { Observation } from './observation-entity';
 import { Ring } from './ring-entity';
 import { BasaRing } from './basa-ring-entity';
 
-export interface NewUser {
+export interface WithCredentials {
   email: string;
   password: string;
-  firstName?: string;
-  lastName?: string;
 }
 
 export enum UserRole {
@@ -20,13 +18,31 @@ export enum UserRole {
   Admin = 'admin',
 }
 
-@Entity()
-export class User {
-  // eslint-disable-next-line no-useless-constructor,no-empty-function
-  protected constructor() {}
+export interface NewUser {
+  email: string;
+  firstName?: string;
+  lastName?: string;
+}
 
+export interface CreateUserDto extends NewUser, WithCredentials {}
+
+export interface UserDto extends NewUser {
+  id: string;
+  role: UserRole;
+}
+
+@Entity()
+export class User implements UserDto {
   @PrimaryGeneratedColumn('uuid')
   public id: string;
+
+  @IsEnum(UserRole)
+  @Column({
+    type: 'enum',
+    enum: UserRole,
+    default: UserRole.Observer,
+  })
+  public role: UserRole;
 
   @IsEmail()
   @MaxLength(64)
@@ -37,32 +53,24 @@ export class User {
   })
   public email: string;
 
-  @Column()
-  public hash: string;
-
-  @Column()
-  public salt: string;
-
-  @IsEnum(UserRole)
-  @Column({
-    type: 'enum',
-    enum: UserRole,
-    default: UserRole.Observer,
-  })
-  public role: UserRole;
-
   @IsOptional()
   @IsString()
   @MinLength(1)
   @MaxLength(64)
   @Column('varchar', { length: 64, nullable: true, default: null })
-  public firstName: string | null;
+  public firstName?: string;
 
   @IsOptional()
   @MinLength(1)
   @MaxLength(64)
   @Column('varchar', { length: 64, nullable: true, default: null })
-  public lastName: string | null;
+  public lastName?: string;
+
+  @Column()
+  public hash: string;
+
+  @Column()
+  public salt: string;
 
   @OneToMany(() => Ring, m => m.ringerInformation)
   public ring: Ring[];
@@ -73,7 +81,7 @@ export class User {
   @OneToMany(() => BasaRing, m => m.ringer)
   public basaRing: BasaRing[];
 
-  public static async create(values: NewUser): Promise<User> {
+  public static async create(values: CreateUserDto): Promise<User> {
     const copyValues = Object.assign({}, values);
     const { salt, hash } = await getSaltAndHash(values.password);
     delete copyValues.password;
@@ -84,14 +92,15 @@ export class User {
     Object.assign(this, await getSaltAndHash(password));
   }
 
-  public sanitizeUser() {
+  public static sanitizeUser(user: User) {
     return Object.assign(
       {},
       {
-        email: this.email,
-        role: this.role,
-        firstName: this.firstName,
-        lastName: this.lastName,
+        id: user.id,
+        email: user.email,
+        role: user.role,
+        firstName: user.firstName,
+        lastName: user.lastName,
       },
     );
   }

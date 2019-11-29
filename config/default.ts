@@ -35,6 +35,7 @@ export default {
   paging: {
     pageNumberDefault: 0,
     pageSizeDefault: 5,
+    sortingDirectionDefault: 'ASC',
   },
   mailService: {
     name: process.env.MAIL_SERVICE_NAME || 'ptushki.by',

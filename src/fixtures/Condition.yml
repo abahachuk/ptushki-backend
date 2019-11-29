@@ -1,7 +1,0 @@
-entity: Condition
-processor: ./ConditionProcessor
-items:
-  condition{0..9}:
-    desc_eng: '{{lorem.sentence}}'
-    desc_rus: '{{lorem.sentence}}'
-    desc_byn: '{{lorem.sentence}}'

@@ -1,11 +1,28 @@
-import { NextFunction, Request, Response } from 'express';
+import { Validator } from 'class-validator';
+import { rowIdsError } from '../../validation/validation-messages';
+import { CustomError } from '../../utils/CustomError';
 
-export type ExporterType = 'EURING' | 'PDF' | 'XLS' | 'TEMPLATE';
+const validator = new Validator();
 
-export default abstract class AbstractExporter {
+export enum ExporterType {
+  xls = 'XLS',
+  template = 'TEMPLATE',
+  euring = 'EURING',
+  pdf = 'PDF',
+}
+
+export type ExportOutput = Buffer | string[];
+
+export default abstract class AbstractExporter<TExport extends ExportOutput = ExportOutput> {
   abstract type: ExporterType;
 
   abstract route: string;
 
-  public abstract async export(req: Request, res: Response, next: NextFunction): Promise<void>;
+  public abstract async export(ids?: string[], lang?: string): Promise<TExport>;
+
+  protected validateRowIds(rowIds: string[]) {
+    if (!validator.isArray(rowIds) || !validator.arrayNotEmpty(rowIds) || rowIds.some(el => !validator.isUUID(el))) {
+      throw new CustomError(rowIdsError, 400);
+    }
+  }
 }

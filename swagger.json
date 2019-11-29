@@ -194,6 +194,37 @@
         }
       }
     },
+    "/observations/set-verification": {
+      "get": {
+        "tags": ["Observation controller"],
+        "produces": ["application/json"],
+        "summary": "Set verified status to observations",
+        "parameters": [
+          {
+            "in": "body",
+            "name": "body",
+            "description": "Verified status and id of observation",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "status": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation"
+          }
+        }
+      }
+    },
     "/rings-by": {
       "get": {
         "summary": "get all rings",
@@ -1375,6 +1406,9 @@
         },
         "placeName": {
           "type": "string"
+        },
+        "placeCode": {
+          "$ref": "#/definitions/PlaceCode"
         },
         "remarks": {
           "type": "string"

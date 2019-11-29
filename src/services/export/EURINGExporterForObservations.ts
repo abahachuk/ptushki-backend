@@ -1,27 +1,20 @@
 import { getRepository, Repository } from 'typeorm';
-import { NextFunction, Request, Response } from 'express';
 import { AbleToExportAndImportEuring } from '../../entities/common-interfaces';
 import { Observation } from '../../entities/observation-entity';
 import AbstractExporter, { ExporterType } from './AbstractExporter';
 
-export default class EURINGExporterForObservation extends AbstractExporter {
-  public type: ExporterType = 'EURING';
+export default class EURINGExporterForObservation extends AbstractExporter<string[]> {
+  public type: ExporterType = ExporterType.euring;
 
   public route: string = 'observations';
 
   private observations: Repository<Observation> = getRepository(Observation);
 
-  /* eslint-disable-next-line class-methods-use-this */
-  public async export(req: Request, res: Response, next: NextFunction): Promise<void> {
-    try {
-      const ids = req.body;
-      const observations: AbleToExportAndImportEuring[] = await this.observations
-        .createQueryBuilder('obs')
-        .where('obs.id IN (:...ids)', { ids })
-        .getMany();
-      res.json(observations.map(e => e.exportEURING()));
-    } catch (e) {
-      next(e);
-    }
+  public async export(rowIds: string[]): Promise<string[]> {
+    this.validateRowIds(rowIds);
+    const observations: AbleToExportAndImportEuring[] = await this.observations.find({
+      where: rowIds.map(id => ({ id })),
+    });
+    return observations.map(e => e.exportEURING());
   }
 }

@@ -1,5 +1,5 @@
 import config from 'config';
-import { Request, Response, NextFunction } from 'express';
+import { Request, Response } from 'express';
 import { getRepository, Repository } from 'typeorm';
 import passport from 'passport';
 import passportLocal from 'passport-local';
@@ -7,6 +7,7 @@ import passportJWT, { VerifiedCallback } from 'passport-jwt';
 import { promisify } from 'util';
 import jwt from 'jsonwebtoken';
 
+import { PassportAuthenticator, Server } from 'typescript-rest';
 import { User, UserRole } from '../entities/user-entity';
 import { isCorrect } from '../services/user-crypto-service';
 import { CustomError } from '../utils/CustomError';
@@ -30,45 +31,47 @@ export interface ResetPasswordPayload {
 export const initPassport = (): void => {
   const repository: Repository<User> = getRepository(User);
 
-  passport.use(
-    new LocalStrategy(
-      {
-        usernameField: 'email',
-        passwordField: 'password',
-        session: false,
-      },
-      async (email: string, password: string, done: (error: null | CustomError, user?: User) => void) => {
-        try {
-          const user = await repository.findOne({ email });
-          const isPasswordCorrect = user ? await isCorrect(password, user.salt, user.hash) : false;
-          if (!user || !isPasswordCorrect) {
-            return done(new CustomError('Email or password is invalid', 401));
-          }
-          delete user.hash;
-          delete user.salt;
-          return done(null, user);
-        } catch (e) {
-          return done(new CustomError('Authorization Error', 401));
+  const localStrategy = new LocalStrategy(
+    {
+      usernameField: 'email',
+      passwordField: 'password',
+      session: false,
+    },
+    async (email: string, password: string, done: (error: null | CustomError, user?: User) => void) => {
+      try {
+        const user = await repository.findOne({ email });
+        const isPasswordCorrect = user ? await isCorrect(password, user.salt, user.hash) : false;
+        if (!user || !isPasswordCorrect) {
+          return done(new CustomError('Email or password is invalid', 401));
         }
-      },
-    ),
+        delete user.hash;
+        delete user.salt;
+        return done(null, user);
+      } catch (e) {
+        return done(new CustomError('Authorization Error', 401));
+      }
+    },
   );
 
-  passport.use(
-    new JWTStrategy(
-      {
-        jwtFromRequest: ExtractJWT.fromAuthHeaderAsBearerToken(),
-        secretOrKey: accessSecret,
-      },
-      async (jwtPayload: UserPayload, done: VerifiedCallback) => {
-        const user = await repository.findOne({ id: jwtPayload.userId });
-        if (user) {
-          return done(null, user);
-        }
-        return done(new CustomError('Authorization Error', 401));
-      },
-    ),
+  const jwtStrategy = new JWTStrategy(
+    {
+      jwtFromRequest: ExtractJWT.fromAuthHeaderAsBearerToken(),
+      secretOrKey: accessSecret,
+    },
+    async (jwtPayload: UserPayload, done: VerifiedCallback) => {
+      const user = await repository.findOne({ id: jwtPayload.userId });
+      if (user) {
+        return done(null, user);
+      }
+      return done(new CustomError('Authorization Error', 401));
+    },
   );
+
+  const jwtAuthenticator = new PassportAuthenticator(jwtStrategy, { authOptions: { session: false } });
+  const localAuthenticator = new PassportAuthenticator(localStrategy, { authOptions: { session: false } });
+
+  Server.registerAuthenticator(jwtAuthenticator);
+  Server.registerAuthenticator(localAuthenticator, 'local');
 };
 
 type AccessLevels = { [key in UserRole]: number };
@@ -102,14 +105,6 @@ export const verifyRefreshToken = async (refreshToken: string): Promise<UserPayl
   return { userId, userRole };
 };
 
-export const authenticateLocal = (req: Request, res: Response): Promise<User | Error> =>
-  new Promise((resolve, reject) => {
-    passport.authenticate('local', { session: false }, (err: Error, user: User) => {
-      if (err) reject(err);
-      resolve(user);
-    })(req, res);
-  });
-
 export const signTokens = (
   payload: UserPayload,
   {
@@ -122,16 +117,16 @@ export const signTokens = (
   return { token, refreshToken };
 };
 
+// TODO: investigate possibility to use roles in security middleware
 const checkUserRole = (userRole: UserRole) => {
-  return (req: Request, res: Response, next: NextFunction) => {
+  return (req: Request, res: Response) => {
     const user = req.user as User;
     if (!user) {
       return res.status(400).end();
     }
-    if (userAccessLevels[user.role] & userAccessLevelsMask[userRole]) {
-      return next();
+    if (!(userAccessLevels[user.role] & userAccessLevelsMask[userRole])) {
+      return res.status(403).end();
     }
-    return res.status(403).end();
   };
 };
 

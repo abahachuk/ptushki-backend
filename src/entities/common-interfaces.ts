@@ -31,10 +31,14 @@ export interface EURINGCodes {
   statusOfRing: any;
 }
 
-export interface Dictionary {
-  desc_eng: string | null;
-  desc_rus?: string | null;
-  desc_byn?: string | null;
+export interface WithDescription {
+  desc_eng?: string;
+  desc_rus?: string;
+  desc_byn?: string;
+}
+
+export interface EntityDto extends WithDescription {
+  id: string | number;
 }
 
 export interface AbleToExportAndImportEuring {

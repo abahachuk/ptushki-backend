@@ -4,7 +4,7 @@ import { Connection, getRepository, Repository } from 'typeorm';
 import createApp from '../app';
 import connectDB from '../db';
 import { signTokens } from '../services/auth-service';
-import { UserRole, User, NewUser } from '../entities/user-entity';
+import { UserRole, User, CreateUserDto } from '../entities/user-entity';
 import { RefreshToken } from '../entities/auth-entity';
 
 const delay = (ms: number): Promise<void> => new Promise(resolve => setTimeout(resolve, ms));
@@ -395,7 +395,7 @@ describe('Auth', () => {
     beforeAll(async () => {
       [observer, admin] = await Promise.all(
         [{ email: observerEmail, password }, { email: adminEmail, password, role: UserRole.Admin }].map(
-          (creds: NewUser) => User.create(creds).then(newUser => userRepository.save(newUser)),
+          (creds: CreateUserDto) => User.create(creds).then(newUser => userRepository.save(newUser)),
         ),
       );
       tokenPairs = [observer, admin].map(({ id, role }) => signTokens({ userId: id, userRole: role }));

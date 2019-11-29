@@ -1,82 +1,88 @@
-import { NextFunction, Request, Response, Router } from 'express';
+import { NextFunction, Request } from 'express';
 import { getRepository, Repository } from 'typeorm';
 import { TokenExpiredError, JsonWebTokenError } from 'jsonwebtoken';
+import { ContextNext, ContextRequest, GET, Path, POST, PreProcessor, Security } from 'typescript-rest';
+import { Tags, Response } from 'typescript-rest-swagger';
 
 import AbstractController from './abstract-controller';
-import { User, UserRole } from '../entities/user-entity';
-import { RefreshToken } from '../entities/auth-entity';
-import { ResetToken } from '../entities/reset-token';
+import { CreateUserDto, User, UserRole, WithCredentials } from '../entities/user-entity';
 import {
-  signTokens,
-  verifyRefreshToken,
-  auth,
-  authenticateLocal,
-  signResetToken,
-  verifyResetToken,
-} from '../services/auth-service';
+  ChangePasswordReqDto,
+  LogoutReqDto,
+  RefreshReqDto,
+  RefreshToken,
+  SuccessAuthDto,
+  TokensPairDto,
+} from '../entities/auth-entity';
+import { ResetToken } from '../entities/reset-token';
+import { signTokens, verifyRefreshToken, auth, signResetToken, verifyResetToken } from '../services/auth-service';
 import { isCorrect } from '../services/user-crypto-service';
 import { addAudit } from '../services/audit-service';
 import { sendChangeRequestMail, sendResetCompleteMail } from '../services/mail-service';
 import { CustomError } from '../utils/CustomError';
 
+@Path('auth')
+@Tags('auth')
 export default class AuthController extends AbstractController {
-  private router: Router;
-
   private users: Repository<User>;
 
   private tokens: Repository<RefreshToken>;
 
   private resetTokens: Repository<ResetToken>;
 
-  public init(): Router {
-    this.router = Router();
+  public constructor() {
+    super();
     this.users = getRepository(User);
     this.tokens = getRepository(RefreshToken);
     this.resetTokens = getRepository(ResetToken);
-
-    this.router.post('/signup', this.signUp);
-    this.router.post('/logout', this.logout);
-    this.router.post('/login', this.login);
-    this.router.post('/refresh', this.refresh);
-    this.router.post('/change-password', auth.required, this.changePassword);
-    this.router.post('/forgot', this.forgotPassword);
-    this.router.post('/reset', this.resetPassword);
-
-    /* use auth.required to secure route */
-    if (process.env.NODE_ENV !== 'production') {
-      this.router.get('/test', auth.required, auth.role(UserRole.Observer), this.test);
-      this.router.get('/admin-test', auth.required, auth.role(UserRole.Admin), this.adminTest);
-    }
-
-    return this.router;
   }
 
-  private signUp = async (req: Request, res: Response, next: NextFunction) => {
+  /**
+   * Sign up to the application.
+   * @param {CreateUserDto} newUser Data for new user
+   */
+  // TODO: move error handling to separate layer
+  @POST
+  @Path('/signup')
+  @Response<SuccessAuthDto>(200, 'Successfully signed up.')
+  @Response<CustomError>(401, 'Authentication failed.')
+  // @ts-ignore
+  // eslint-disable-next-line consistent-return
+  public async signUp(newUser: CreateUserDto, @ContextNext next: NextFunction): Promise<SuccessAuthDto> {
     try {
-      const user = await User.create(req.body);
+      const user = await User.create(newUser);
       await this.users.save(user);
       const { token, refreshToken } = signTokens({ userId: user.id, userRole: user.role });
       await this.tokens.save(new RefreshToken(refreshToken, user.id));
       await addAudit('registration', '', null, user.id);
-      return res.json({
-        user: user.sanitizeUser(),
+      return {
+        user: User.sanitizeUser(user),
         token,
         refreshToken,
-      });
+      };
     } catch (e) {
       if (e.code === '23505') {
         // README with any new user uniq constraint this will become invalid statement
-        return next(new CustomError('Such email already exists', 400));
+        next(new CustomError('Such email already exists', 400));
       }
-      return next(e);
+      next(e);
     }
-  };
+  }
 
-  private logout = async (req: Request, res: Response, next: NextFunction) => {
-    const {
-      refreshToken: refreshTokenFromBody,
-      closeAllSessions = false,
-    }: { refreshToken: string; closeAllSessions: boolean } = req.body;
+  // TODO: move error handling to separate layer
+  /**
+   * Log out from application.
+   * @param {LogoutReqDto} logoutPrams User credentials
+   */
+  @POST
+  @Path('/logout')
+  @Response<{ ok: boolean }>(200, 'Successfully logged out.')
+  @Response<CustomError>(400, 'Token not provided.')
+  @Response<CustomError>(401, 'Authentication failed.')
+  // @ts-ignore
+  // eslint-disable-next-line consistent-return
+  public async logout(logoutPrams: LogoutReqDto, @ContextNext next: NextFunction): Promise<{ ok: boolean }> {
+    const { refreshToken: refreshTokenFromBody, closeAllSessions = false } = logoutPrams;
 
     try {
       if (!refreshTokenFromBody) {
@@ -89,32 +95,51 @@ export default class AuthController extends AbstractController {
       }
       await this.tokens.delete(closeAllSessions ? { userId } : { token: refreshTokenFromBody });
       await addAudit('logout', '', null, userId);
-      return res.send({ ok: true });
+      return { ok: true };
     } catch (e) {
       // README goes first as it is subclass of JsonWebTokenError
       if (e instanceof TokenExpiredError) {
-        return next(new CustomError('Token expired', 401));
+        next(new CustomError('Token expired', 401));
       }
       if (e instanceof JsonWebTokenError) {
-        return next(new CustomError('Token invalid', 401));
+        next(new CustomError('Token invalid', 401));
       }
-      return next(e);
+      next(e);
     }
-  };
+  }
 
-  private login = async (req: Request, res: Response, next: NextFunction) => {
-    try {
-      const user: User = (await authenticateLocal(req, res)) as User;
-      const { token, refreshToken } = signTokens({ userId: user.id, userRole: user.role });
-      await this.tokens.save(new RefreshToken(refreshToken, user.id));
-      return res.json({ user, token, refreshToken });
-    } catch (e) {
-      return next(e);
-    }
-  };
+  // TODO: move error handling to separate layer
+  /**
+   * Login to application.
+   * @param {WithCredentials} _userCreds User credentials
+   */
+  @POST
+  @Path('/login')
+  @Security('*', 'local')
+  @Response<SuccessAuthDto>(200, 'Successfully logged in.')
+  @Response<CustomError>(401, 'Authentication failed.')
+  public async login(_userCreds: WithCredentials, @ContextRequest req: Request): Promise<SuccessAuthDto> {
+    // @ts-ignore FIXME
+    const { user } = req;
+    const { token, refreshToken } = signTokens({ userId: user.id, userRole: user.role });
+    await this.tokens.save(new RefreshToken(refreshToken, user.id));
+    return { user, token, refreshToken };
+  }
 
-  private refresh = async (req: Request, res: Response, next: NextFunction) => {
-    const refreshTokenFromBody: string = req.body.refreshToken;
+  // TODO: move error handling to separate layer
+  /**
+   * Refresh access token.
+   * @param {RefreshReqDto} refreshPrams User credentials
+   */
+  @POST
+  @Path('/refresh')
+  @Response<TokensPairDto>(200, 'Successfully refreshed.')
+  @Response<CustomError>(400, 'Token not provided.')
+  @Response<CustomError>(401, 'Token invalid or user not exists.')
+  // @ts-ignore
+  // eslint-disable-next-line consistent-return
+  public async refresh(refreshPrams: RefreshReqDto, @ContextNext next: NextFunction): Promise<TokensPairDto> {
+    const refreshTokenFromBody: string = refreshPrams.refreshToken;
     try {
       if (!refreshTokenFromBody) {
         throw new CustomError('Refresh token is required', 400);
@@ -130,42 +155,65 @@ export default class AuthController extends AbstractController {
       }
       const { token, refreshToken } = signTokens({ userId, userRole: user.role });
       await this.tokens.save(new RefreshToken(refreshToken, user.id));
-      return res.json({ token, refreshToken });
+      return { token, refreshToken };
     } catch (e) {
       // README goes first as it is subclass of JsonWebTokenError
       if (e instanceof TokenExpiredError) {
-        return next(new CustomError('Token expired', 401));
+        next(new CustomError('Token expired', 401));
       }
       if (e instanceof JsonWebTokenError) {
-        return next(new CustomError('Token invalid', 401));
+        next(new CustomError('Token invalid', 401));
       }
-      return next(e);
+      next(e);
     }
-  };
+  }
 
-  private changePassword = async (req: Request, res: Response, next: NextFunction) => {
-    const { oldPassword, newPassword } = req.body;
+  // TODO: move error handling to separate layer
+  /**
+   * Change existing password.
+   * @param {ChangePasswordReqDto} passwords Old and new passwords
+   */
+  @POST
+  @Path('/change-password')
+  @Security()
+  @Response<{ ok: boolean }>(200, 'Password was successfully changed.')
+  @Response<CustomError>(400, '')
+  @Response<CustomError>(401, 'Invalid old password.')
+  // eslint-disable-next-line consistent-return
+  public async changePassword(
+    passwords: ChangePasswordReqDto,
+    @ContextRequest req: Request,
+    @ContextNext next: NextFunction,
+    // @ts-ignore
+  ): Promise<{ ok: boolean }> {
+    const { oldPassword, newPassword } = passwords;
+    // @ts-ignore FIXME
     const user = req.user as User;
     if (!oldPassword || !newPassword || !user) {
-      return res.status(400).end();
+      // TODO: clarify
+      next(new CustomError('', 400));
     }
     const isPasswordCorrect = await isCorrect(oldPassword, user.salt, user.hash);
     if (!isPasswordCorrect) {
-      return res.status(401).end();
+      next(new CustomError('Invalid old password', 401));
     }
     try {
       await user.setPassword(newPassword);
       await this.users.save(user);
       await addAudit('passChange', '', null, user.id);
-      return res.send({ ok: true });
+      return { ok: true };
     } catch (e) {
-      return next(e);
+      next(e);
     }
-  };
+  }
 
-  private forgotPassword = async (req: Request, res: Response, next: NextFunction) => {
+  @POST
+  @Path('/forgot')
+  @Security()
+  @Response<{ ok: boolean }>(200, 'Request for password reset was successfully created.')
+  public async forgotPassword(body: any, @ContextRequest req: Request, @ContextNext next: NextFunction): Promise<any> {
     try {
-      const { email } = req.body;
+      const { email } = body;
       const { host }: any = req.headers;
       if (!email) {
         throw new CustomError('Email is required', 400);
@@ -177,18 +225,22 @@ export default class AuthController extends AbstractController {
       const token = signResetToken({ email, userId: user.id });
       await this.resetTokens.save(new ResetToken(token, user.id));
       await sendChangeRequestMail(token, email, host);
-      return res.send({ ok: true });
+      return { ok: true };
     } catch (e) {
       if (e instanceof JsonWebTokenError) {
         return next(new CustomError('Token invalid', 401));
       }
       return next(e);
     }
-  };
+  }
 
-  private resetPassword = async (req: Request, res: Response, next: NextFunction) => {
+  @POST
+  @Path('/reset')
+  @Security()
+  @Response<{ ok: boolean }>(200, 'Password was successfully reseted.')
+  public async resetPassword(body: any, @ContextNext next: NextFunction): Promise<any> {
     try {
-      const { token } = req.body;
+      const { token } = body;
       if (!token) {
         throw new CustomError('Reset token is required', 400);
       }
@@ -198,7 +250,7 @@ export default class AuthController extends AbstractController {
         throw new CustomError('Token already was used or never existed', 401);
       }
       await sendResetCompleteMail(email);
-      return res.send({ id: userId });
+      return { id: userId };
     } catch (e) {
       if (e instanceof TokenExpiredError) {
         return next(new CustomError('Token expired', 401));
@@ -208,13 +260,21 @@ export default class AuthController extends AbstractController {
       }
       return next(e);
     }
-  };
+  }
 
-  private test = (_req: Request, res: Response): void => {
-    res.json({ ok: true });
-  };
+  @GET
+  @Path('/test')
+  @Security()
+  @PreProcessor(auth.role(UserRole.Observer))
+  public async test() {
+    return { ok: true };
+  }
 
-  private adminTest = (_req: Request, res: Response): void => {
-    res.json({ ok: true });
-  };
+  @GET
+  @Path('/admin-test')
+  @Security()
+  @PreProcessor(auth.role(UserRole.Admin))
+  public async adminTest() {
+    return { ok: true };
+  }
 }

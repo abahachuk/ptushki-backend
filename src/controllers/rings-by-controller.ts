@@ -1,67 +1,105 @@
-import { NextFunction, Request, Response, Router } from 'express';
 import { getRepository, Repository } from 'typeorm';
+import { DELETE, GET, Path, PathParam, POST, PreProcessor, Security, QueryParam } from 'typescript-rest';
+import { Response, Tags } from 'typescript-rest-swagger';
 import AbstractController from './abstract-controller';
-import { Ring } from '../entities/ring-entity';
+import { Ring, RingDto } from '../entities/ring-entity';
+import { CustomError } from '../utils/CustomError';
+import { auth } from '../services/auth-service';
+import { UserRole } from '../entities/user-entity';
+import { parsePageParams, SortingDirection } from '../services/page-service';
 
-interface RequestWithRing extends Request {
-  ring: Ring;
+interface RingListResponse {
+  content: RingDto[];
+  pageNumber: number;
+  pageSize: number;
+  totalElements: number;
 }
 
+@Path('rings-by')
+@Tags('rings-by')
+@Security()
 export default class RingsByController extends AbstractController {
-  private router: Router;
+  private readonly rings: Repository<Ring>;
 
-  private rings: Repository<Ring>;
-
-  public init(): Router {
-    this.router = Router();
+  public constructor() {
+    super();
     this.rings = getRepository(Ring);
-    this.setMainEntity(this.rings, 'ring');
-
-    this.router.get('/', this.findRings);
-    this.router.param('id', this.checkId);
-    this.router.get('/:id', this.findOneRing);
-    this.router.delete('/:id', this.removeRing);
-    this.router.post('/', this.addRing);
-
-    return this.router;
+    this.setMainEntity(this.rings);
   }
 
-  private findRings = async (_req: Request, res: Response, next: NextFunction): Promise<void> => {
-    try {
-      const rings = await this.rings.find();
-      res.json(rings);
-    } catch (e) {
-      next(e);
-    }
-  };
+  /**
+   * Get all available observations.
+   * @param {number} pageNumber Page number, default value is set in config file
+   * @param {number} pageSize Page size, default value is set in config file
+   * @param {SortingDirection} sortingDirection Sorting direction
+   * @param {string} sortingColumn Column to search, can be any of ObservationDto field name
+   */
+  @GET
+  @Path('/')
+  @Response<RingListResponse>(200, 'List of all available rings.')
+  @Response<CustomError>(401, 'Unauthorised.')
+  public async findRings(
+    @QueryParam('pageNumber') pageNumber?: number,
+    @QueryParam('pageSize') pageSize?: number,
+    @QueryParam('sortingDirection') sortingDirection?: SortingDirection,
+    @QueryParam('sortingColumn') sortingColumn?: string,
+  ): Promise<RingListResponse> {
+    const paramsSearch = parsePageParams<Ring>({ pageNumber, pageSize, sortingColumn, sortingDirection });
+    const [rings, totalElements] = await this.rings.findAndCount(paramsSearch);
+    return {
+      content: rings,
+      pageNumber: paramsSearch.pageNumber,
+      pageSize: paramsSearch.pageSize,
+      totalElements,
+    };
+  }
 
-  private findOneRing = async (req: RequestWithRing, res: Response, next: NextFunction): Promise<void> => {
-    const { ring }: { ring: Ring } = req;
-    try {
-      res.json(ring);
-    } catch (e) {
-      next(e);
-    }
-  };
+  @GET
+  @Path('/aggregations')
+  @Response<CustomError>(401, 'Unauthorised.')
+  @Response<CustomError>(501, 'Unimplemented.')
+  public async getAggregations(): Promise<void> {
+    throw new CustomError('This operation is not available yet', 501);
+  }
 
-  private removeRing = async (req: RequestWithRing, res: Response, next: NextFunction): Promise<void> => {
-    const { ring }: { ring: Ring } = req;
-    try {
-      await this.rings.remove(ring);
-      res.json({ id: req.params.id, removed: true });
-    } catch (e) {
-      next(e);
-    }
-  };
+  /**
+   * Get ring by id,
+   * @param {string} id Id if requested ring.
+   */
+  @GET
+  @Path('/:id')
+  @Response<Ring>(200, 'Ring with passed id.')
+  @Response<CustomError>(401, 'Unauthorised.')
+  public async findOneRing(@PathParam('id') id: string): Promise<Ring> {
+    return this.getEntityById<Ring>(id);
+  }
 
-  private addRing = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
-    const data = req.body;
-    try {
-      await this.validate(data);
-      const result = await this.rings.save(data);
-      res.json(result);
-    } catch (e) {
-      next(e);
-    }
-  };
+  /**
+   * Delete ring by id,
+   * @param id Id of ring to delete.
+   */
+  @DELETE
+  @Path('/:id')
+  @Response<{ id: string; removed: boolean }>(200, 'Ring with passed id successfully deleted.')
+  @Response<CustomError>(401, 'Unauthorised.')
+  public async removeRing(@PathParam('id') id: string): Promise<{ id: string; removed: boolean }> {
+    const ring = await this.getEntityById<Ring>(id);
+    await this.rings.remove(ring);
+    return { removed: true, id };
+  }
+
+  /**
+   * Create new reng.
+   * @param {RingDto} rawRing Data for new ring.
+   */
+  @POST
+  @Path('/')
+  @PreProcessor(auth.role(UserRole.Ringer))
+  @Response<Ring>(200, 'Ring successfully created.')
+  @Response<CustomError>(401, 'Unauthorised.')
+  public async addRing(rawRing: RingDto): Promise<void> {
+    await this.validate(rawRing);
+    // @ts-ignore FIXME we need create method for Ring
+    return this.rings.save(rawRing);
+  }
 }
