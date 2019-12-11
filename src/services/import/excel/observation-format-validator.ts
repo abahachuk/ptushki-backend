@@ -1,6 +1,19 @@
-import { Length, IsDateString, IsString, IsOptional, IsAlpha, IsAlphanumeric, IsNumberString } from 'class-validator';
+import {
+  Length,
+  IsDateString,
+  IsString,
+  IsOptional,
+  IsAlpha,
+  IsAlphanumeric,
+  IsNumberString,
+  IsNumber,
+  Min,
+  Max,
+} from 'class-validator';
+import { Column } from 'typeorm';
 import { IsAlphaWithHyphen } from '../../../validation/custom-decorators';
 import { equalLength } from '../../../validation/validation-messages';
+import { ColumnNumericTransformer } from '../../../utils/ColumnNumericTransformer';
 
 export class ImportObservationsValidator {
   @IsString()
@@ -28,11 +41,33 @@ export class ImportObservationsValidator {
   @IsDateString()
   public date: Date | null;
 
-  @Length(7, 7, { message: equalLength(7) })
-  public latitude: string | null;
+  // Related fields in access 'Lat deg', 'Lat min', 'Lat sec'
+  @IsOptional()
+  @IsNumber()
+  @Min(-90)
+  @Max(90)
+  @Column('decimal', {
+    precision: 10,
+    scale: 8,
+    nullable: true,
+    default: null,
+    transformer: new ColumnNumericTransformer(),
+  })
+  public latitude: number;
 
-  @Length(7, 7, { message: equalLength(7) })
-  public longitude: string | null;
+  // Related fields in access 'Lon deg', 'Lon min', 'Lon sec'
+  @IsOptional()
+  @IsNumber()
+  @Min(-180)
+  @Max(180)
+  @Column('decimal', {
+    precision: 11,
+    scale: 8,
+    nullable: true,
+    default: null,
+    transformer: new ColumnNumericTransformer(),
+  })
+  public longitude: number;
 
   @IsAlphaWithHyphen()
   @Length(1, 1, { message: equalLength(1) })

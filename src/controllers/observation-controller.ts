@@ -331,35 +331,17 @@ export default class ObservationController extends AbstractController {
   }
 
   /**
-   * Import observations from xls file.
-   * @param files Files in xls format to export.
-   */
-  @POST
-  @Path('/import/xls')
-  @PreProcessor(auth.role(UserRole.Ringer))
-  @Response<{ ok: boolean }>(200, 'Successfully imported.')
-  @Response<CustomError>(401, 'Unauthorised.')
-  @Response<CustomError>(403, 'Forbidden.')
-  public async importXls(
-    @ContextRequest req: Request,
-    @FilesParam('file') files: Express.Multer.File[],
-  ): Promise<{ ok: boolean }> {
-    await this.importer.handle(ImporterType.xls, { sources: files, userId: req.user.id });
-    return { ok: true };
-  }
-
-  /**
    * Validate xls file with observations.
    * @param files Files in xls format to validate.
    */
   @POST
-  @Path('/import/validate-xls')
+  @Path('/import/xls')
   @PreProcessor(auth.role(UserRole.Ringer))
   @Response<DataCheckDto>(200, 'Possible errors.')
   @Response<CustomError>(401, 'Unauthorised.')
   @Response<CustomError>(403, 'Forbidden.')
-  public async validateXls(@FilesParam('file') files: Express.Multer.File[]): Promise<DataCheckDto> {
-    return this.importer.handle(ImporterType.validateXls, { sources: files });
+  public async validateXls(@FilesParam('files') files: Express.Multer.File[]): Promise<DataCheckDto> {
+    return this.importer.handle(ImporterType.xls, { sources: files });
   }
 
   /**

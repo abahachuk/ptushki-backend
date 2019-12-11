@@ -14,7 +14,6 @@ interface ParsedErrors {
 
 export enum ImporterType {
   xls = 'XLS',
-  validateXls = 'VALIDATE-XLS',
   euring = 'EURING',
 }
 

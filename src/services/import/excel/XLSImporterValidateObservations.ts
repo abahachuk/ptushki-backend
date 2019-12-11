@@ -1,5 +1,5 @@
 import Excel, { Workbook } from 'exceljs';
-import { getCustomRepository } from 'typeorm';
+import { getCustomRepository, getRepository, Repository } from 'typeorm';
 import {
   checkObservationImportedData,
   checkObservationsHeaderNames,
@@ -16,14 +16,17 @@ import AbstractImporter, { ImporterType, ImportInput } from '../AbstractImporter
 import { CustomError } from '../../../utils/CustomError';
 import { cachedEURINGCodes } from '../../../entities/euring-codes/cached-entities-fabric';
 import { Age, PlaceCode, Sex, Species, Status } from '../../../entities/euring-codes';
+import { Observation } from '../../../entities/observation-entity';
 
 export default class XLSImporterValidateObservations extends AbstractImporter<
   ImportInput<Express.Multer.File>,
   DataCheckDto
 > {
-  public type: ImporterType = ImporterType.validateXls;
+  public type: ImporterType = ImporterType.xls;
 
   public route: string = 'observations';
+
+  private observations: Repository<Observation> = getRepository(Observation);
 
   public options: MulterOptions = {
     extensions: ['.xls', '.xlsx'],
@@ -37,6 +40,7 @@ export default class XLSImporterValidateObservations extends AbstractImporter<
       const sexMentionedCached = await getCustomRepository(cachedEURINGCodes.CachedSex).find();
       const ageMentionedCached = await getCustomRepository(cachedEURINGCodes.CachedAge).find();
       const placeCodeCached = await getCustomRepository(cachedEURINGCodes.CachedPlaceCode).find();
+      console.log(excelData);
       /* eslint-disable */
       for (const row of excelData.validFormatData) {
         const { data, rowNumber }: RowValidatedData = row;
@@ -141,29 +145,51 @@ export default class XLSImporterValidateObservations extends AbstractImporter<
     delete excelData.addedData;
   };
 
+  private importValidRows = async (validObservations: RawData[]): Promise<void> => {
+    await this.observations.insert(validObservations);
+  };
+
   // TODO: clarify if we need to support multiple files
   public async import({ sources }: ImportInput<Express.Multer.File>): Promise<DataCheckDto> {
     if (!sources.length) {
       throw new CustomError('No files detected', 400);
     }
 
-    this.filterFiles(sources);
+    try {
+      this.filterFiles(sources);
 
-    const [file] = sources;
+      const [file] = sources;
 
-    const workbook: Workbook = await new Excel.Workbook().xlsx.load(file.buffer);
-    const excelHeaders: HeaderCheck = await checkObservationsHeaderNames(workbook, 'validate-xls');
+      const workbook: Workbook = await new Excel.Workbook().xlsx.load(file.buffer);
+      const excelHeaders: HeaderCheck = await checkObservationsHeaderNames(workbook, 'xls');
 
-    if (!excelHeaders.verified) {
-      throw new CustomError(`Missing header titles: ${excelHeaders.errors.join(',')}`, 400);
+      if (!excelHeaders.verified) {
+        throw new CustomError(`Missing header titles: ${excelHeaders.errors.join(',')}`, 400);
+      }
+
+      const checkedFormatData = await checkObservationImportedData(workbook);
+
+      if (checkedFormatData.invalidDataFormat.length) {
+        return checkedFormatData;
+      }
+
+      await this.checkEuRingCodes(checkedFormatData);
+
+      if (checkedFormatData.euRingErrors.length) {
+        return checkedFormatData;
+      }
+
+      await this.checkPossibleClones(checkedFormatData);
+      await this.setXLSDataToObservation(checkedFormatData);
+      await this.importValidRows(checkedFormatData.observations);
+
+      checkedFormatData.importedCount = checkedFormatData.observations.length;
+      delete checkedFormatData.validFormatData;
+      delete checkedFormatData.observations;
+
+      return checkedFormatData
+    } catch (e) {
+      throw new CustomError(e.message, 500);
     }
-
-    const checkedFormatData = await checkObservationImportedData(workbook);
-    await this.checkEuRingCodes(checkedFormatData);
-    await this.checkPossibleClones(checkedFormatData);
-    await this.setXLSDataToObservation(checkedFormatData);
-    delete checkedFormatData.validFormatData;
-
-    return checkedFormatData;
   }
 }
