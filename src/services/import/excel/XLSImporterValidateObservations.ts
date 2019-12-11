@@ -40,7 +40,7 @@ export default class XLSImporterValidateObservations extends AbstractImporter<
       const sexMentionedCached = await getCustomRepository(cachedEURINGCodes.CachedSex).find();
       const ageMentionedCached = await getCustomRepository(cachedEURINGCodes.CachedAge).find();
       const placeCodeCached = await getCustomRepository(cachedEURINGCodes.CachedPlaceCode).find();
-      console.log(excelData);
+
       /* eslint-disable */
       for (const row of excelData.validFormatData) {
         const { data, rowNumber }: RowValidatedData = row;
@@ -170,12 +170,14 @@ export default class XLSImporterValidateObservations extends AbstractImporter<
       const checkedFormatData = await checkObservationImportedData(workbook);
 
       if (checkedFormatData.invalidDataFormat.length) {
+        delete checkedFormatData.validFormatData;
         return checkedFormatData;
       }
 
       await this.checkEuRingCodes(checkedFormatData);
 
       if (checkedFormatData.euRingErrors.length) {
+        delete checkedFormatData.validFormatData;
         return checkedFormatData;
       }
 
