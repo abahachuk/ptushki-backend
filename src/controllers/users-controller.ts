@@ -1,11 +1,13 @@
+import { Request } from 'express';
 import { getRepository, Repository } from 'typeorm';
-import { DELETE, GET, Path, PathParam, PreProcessor, Security } from 'typescript-rest';
+import { DELETE, GET, PUT, Path, PathParam, PreProcessor, Security, ContextRequest } from 'typescript-rest';
 import { Tags, Response } from 'typescript-rest-swagger';
 import AbstractController from './abstract-controller';
 import { User, UserRole } from '../entities/user-entity';
 import { Ring } from '../entities/ring-entity';
 import { CustomError } from '../utils/CustomError';
 import { auth } from '../services/auth-service';
+import { isCorrect } from '../services/user-crypto-service';
 
 @Path('users')
 @Tags('users')
@@ -33,6 +35,30 @@ export default class UsersController extends AbstractController {
   @Response<CustomError>(401, 'Unauthorised.')
   public async findOne(@PathParam('id') id: string): Promise<User> {
     return this.getEntityById<User>(id);
+  }
+
+  @PUT
+  @Path('/:id/update-password')
+  @Response<{}>(200, 'Password succesfully updated.')
+  public async updatePassword(
+    body: any,
+    @PathParam('id') id: string,
+    @ContextRequest req: Request,
+  ): Promise<{} | void> {
+    console.log(req);
+    const { password, newPassword } = body;
+    // todo check that password corresponds some requirements
+    if (!password || !newPassword) {
+      throw new CustomError('Both User old and new passwords are required', 400);
+    }
+    const user: User = await this.getEntityById<User>(id);
+    if (!(await isCorrect(password, user.salt, user.hash))) {
+      throw new CustomError('Invalid password', 401);
+    }
+
+    await user.setPassword(password);
+    await this.users.save(user);
+    return {};
   }
 
   @DELETE
