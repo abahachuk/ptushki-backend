@@ -38,8 +38,25 @@ export default class UsersController extends AbstractController {
   }
 
   @PUT
+  @Path('/:id')
+  @Response<{}>(200, 'User successfully updated')
+  @Response<CustomError>(401, 'Unauthorised')
+  public async updateUser(body: any, @PathParam('id') id: string): Promise<{} | void> {
+    const { firstName, lastName } = body as User;
+
+    const user: User = await this.getEntityById<User>(id);
+    const newUser = Object.assign(user, { lastName, firstName });
+    await this.validate(newUser);
+    await this.users.save(newUser);
+    return {};
+  }
+
+  @PUT
   @Path('/:id/update-password')
-  @Response<{}>(200, 'Password succesfully updated.')
+  @Response<{}>(200, 'Password successfully updated')
+  @Response<CustomError>(401, 'Unauthorised')
+  @Response<CustomError>(401, 'Invalid password')
+  @Response<CustomError>(400, 'Both User old and new passwords are required')
   public async updatePassword(
     body: any,
     @PathParam('id') id: string,
@@ -59,6 +76,23 @@ export default class UsersController extends AbstractController {
     }
 
     await user.setPassword(password);
+    await this.users.save(user);
+    return {};
+  }
+
+  @PUT
+  @Path('/:id/update-role')
+  @PreProcessor(auth.role(UserRole.Admin))
+  @Response<{}>(200, 'Role successfully updated.')
+  @Response<CustomError>(400, 'Role is required')
+  public async updateRole(body: any, @PathParam('id') id: string): Promise<{} | void> {
+    const { role } = body;
+    if (!role) {
+      throw new CustomError('Role is required', 400);
+    }
+    const user: User = await this.getEntityById<User>(id);
+
+    user.role = role;
     await this.users.save(user);
     return {};
   }
