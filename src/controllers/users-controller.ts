@@ -45,7 +45,9 @@ export default class UsersController extends AbstractController {
     @PathParam('id') id: string,
     @ContextRequest req: Request,
   ): Promise<{} | void> {
-    console.log(req);
+    if (id !== req.user.id) {
+      throw new CustomError('Unauthorized', 401);
+    }
     const { password, newPassword } = body;
     // todo check that password corresponds some requirements
     if (!password || !newPassword) {
