@@ -67,7 +67,7 @@ export default class UsersController extends AbstractController {
   public async updatePassword(
     body: any,
     @PathParam('id') id: string,
-    @ContextRequest req: Request,
+    @ContextRequest req: Request & { user: User },
   ): Promise<{} | void> {
     if (id !== req.user.id) {
       throw new CustomError('Unauthorized', 401);
@@ -93,7 +93,11 @@ export default class UsersController extends AbstractController {
   @Response<CustomError>(401, 'Unauthorised')
   @Response<CustomError>(401, 'Invalid password')
   @Response<CustomError>(400, 'Both User password and new email are required')
-  public async updateEmail(body: any, @PathParam('id') id: string, @ContextRequest req: Request): Promise<{} | void> {
+  public async updateEmail(
+    body: any,
+    @PathParam('id') id: string,
+    @ContextRequest req: Request & { user: User },
+  ): Promise<{} | void> {
     if (id !== req.user.id) {
       throw new CustomError('Unauthorized', 401);
     }
