@@ -82,7 +82,7 @@ export default class UsersController extends AbstractController {
 
   @PUT
   @Path('/:id/update-email')
-  @Response<{}>(200, 'Password successfully updated')
+  @Response<{}>(200, 'Email successfully updated')
   @Response<CustomError>(401, 'Unauthorised')
   @Response<CustomError>(401, 'Invalid password')
   @Response<CustomError>(400, 'Both User password and new email are required')
