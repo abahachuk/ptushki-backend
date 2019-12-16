@@ -41,7 +41,14 @@ export default class UsersController extends AbstractController {
   @Path('/:id')
   @Response<{}>(200, 'User successfully updated')
   @Response<CustomError>(401, 'Unauthorised')
-  public async updateUser(body: any, @PathParam('id') id: string): Promise<{} | void> {
+  public async updateUser(
+    body: any,
+    @PathParam('id') id: string,
+    @ContextRequest req: Request & { user: User },
+  ): Promise<{} | void> {
+    if (id !== req.user.id) {
+      throw new CustomError('Unauthorized', 401);
+    }
     const { firstName, lastName } = body as User;
 
     const user: User = await this.getEntityById<User>(id);
