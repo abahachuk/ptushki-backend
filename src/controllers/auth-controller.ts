@@ -1,11 +1,11 @@
 import { NextFunction, Request } from 'express';
 import { getRepository, Repository } from 'typeorm';
 import { TokenExpiredError, JsonWebTokenError } from 'jsonwebtoken';
-import { ContextNext, ContextRequest, GET, Path, POST, PreProcessor, Security } from 'typescript-rest';
+import { ContextNext, ContextRequest, Path, POST, Security } from 'typescript-rest';
 import { Tags, Response } from 'typescript-rest-swagger';
 
 import AbstractController from './abstract-controller';
-import { CreateUserDto, User, UserRole, WithCredentials } from '../entities/user-entity';
+import { CreateUserDto, User, WithCredentials } from '../entities/user-entity';
 import {
   ChangePasswordReqDto,
   LogoutReqDto,
@@ -15,10 +15,11 @@ import {
   TokensPairDto,
 } from '../entities/auth-entity';
 import { ResetToken } from '../entities/reset-token';
-import { signTokens, verifyRefreshToken, auth, signResetToken, verifyResetToken } from '../services/auth-service';
+import { signTokens, verifyRefreshToken, signResetToken, verifyResetToken } from '../services/auth-service';
 import { isCorrect } from '../services/user-crypto-service';
 import { addAudit } from '../services/audit-service';
-import { sendChangeRequestMail, sendResetCompleteMail } from '../services/mail-service';
+// import { sendChangeRequestMail, sendResetCompleteMail } from '../services/mail-service';
+import { getMailServiceInstance } from '../services/mail-service';
 import { CustomError } from '../utils/CustomError';
 
 @Path('auth')
@@ -119,7 +120,6 @@ export default class AuthController extends AbstractController {
   @Response<SuccessAuthDto>(200, 'Successfully logged in.')
   @Response<CustomError>(401, 'Authentication failed.')
   public async login(_userCreds: WithCredentials, @ContextRequest req: Request): Promise<SuccessAuthDto> {
-    // @ts-ignore FIXME
     const { user } = req;
     const { token, refreshToken } = signTokens({ userId: user.id, userRole: user.role });
     await this.tokens.save(new RefreshToken(refreshToken, user.id));
@@ -211,20 +211,24 @@ export default class AuthController extends AbstractController {
   @Path('/forgot')
   @Security()
   @Response<{ ok: boolean }>(200, 'Request for password reset was successfully created.')
-  public async forgotPassword(body: any, @ContextRequest req: Request, @ContextNext next: NextFunction): Promise<any> {
+  public async forgotPassword(
+    body: any,
+    @ContextRequest req: Request,
+    @ContextNext next: NextFunction,
+  ): Promise<{ ok: boolean } | void> {
     try {
       const { email } = body;
-      const { host }: any = req.headers;
+      const { host } = req.headers;
       if (!email) {
         throw new CustomError('Email is required', 400);
       }
-      const user: User = (await this.users.findOne({ email })) as User;
+      const user = await this.users.findOne({ email });
       if (!user) {
         throw new CustomError('Non-existent user cannot be authorized', 401);
       }
       const token = signResetToken({ email, userId: user.id });
       await this.resetTokens.save(new ResetToken(token, user.id));
-      await sendChangeRequestMail(token, email, host);
+      await getMailServiceInstance().sendChangeRequestMail(token, email, host || '');
       return { ok: true };
     } catch (e) {
       if (e instanceof JsonWebTokenError) {
@@ -238,18 +242,23 @@ export default class AuthController extends AbstractController {
   @Path('/reset')
   @Security()
   @Response<{ ok: boolean }>(200, 'Password was successfully reseted.')
-  public async resetPassword(body: any, @ContextNext next: NextFunction): Promise<any> {
+  public async resetPassword(body: any, @ContextNext next: NextFunction): Promise<{ id: string } | void> {
     try {
       const { token } = body;
       if (!token) {
         throw new CustomError('Reset token is required', 400);
       }
       const { userId, email } = await verifyResetToken(token);
-      const resetToken: ResetToken = (await this.resetTokens.findOne({ token })) as ResetToken;
+
+      const resetToken = await this.resetTokens.findOne({ token });
+
       if (!resetToken) {
         throw new CustomError('Token already was used or never existed', 401);
       }
-      await sendResetCompleteMail(email);
+
+      await this.resetTokens.delete({ token });
+
+      await getMailServiceInstance().sendResetCompleteMail(email);
       return { id: userId };
     } catch (e) {
       if (e instanceof TokenExpiredError) {
@@ -262,19 +271,19 @@ export default class AuthController extends AbstractController {
     }
   }
 
-  @GET
-  @Path('/test')
-  @Security()
-  @PreProcessor(auth.role(UserRole.Observer))
-  public async test() {
-    return { ok: true };
-  }
+  // @GET
+  // @Path('/test')
+  // @Security()
+  // @PreProcessor(auth.role(UserRole.Observer))
+  // public async test() {
+  //   return { ok: true };
+  // }
 
-  @GET
-  @Path('/admin-test')
-  @Security()
-  @PreProcessor(auth.role(UserRole.Admin))
-  public async adminTest() {
-    return { ok: true };
-  }
+  // @GET
+  // @Path('/admin-test')
+  // @Security()
+  // @PreProcessor(auth.role(UserRole.Admin))
+  // public async adminTest() {
+  //   return { ok: true };
+  // }
 }

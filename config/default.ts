@@ -38,7 +38,7 @@ export default {
     sortingDirectionDefault: 'ASC',
   },
   mailService: {
-    name: process.env.MAIL_SERVICE_NAME || 'ptushki.by',
+    name: process.env.MAIL_SERVICE_NAME,
     service: process.env.MAIL_SERVICE_SERVICE || 'SendGrid',
     auth: {
       user: process.env.MAIL_SERVICE_AUTH_USER || 'fat_mike',
