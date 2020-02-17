@@ -38,13 +38,13 @@ export default class UsersController extends AbstractController {
 
   @PUT
   @Path('/:id')
-  @Response<{}>(200, 'User successfully updated')
+  @Response<void>(204, 'User successfully updated')
   @Response<CustomError>(401, 'Unauthorised')
   public async updateUser(
     body: any,
     @PathParam('id') id: string,
     @ContextRequest req: Request & { user: User },
-  ): Promise<{} | void> {
+  ): Promise<void> {
     if (id !== req.user.id) {
       throw new CustomError('Unauthorized', 401);
     }
@@ -54,12 +54,11 @@ export default class UsersController extends AbstractController {
     const newUser = Object.assign(user, { lastName, firstName });
     await this.validate(newUser);
     await this.users.save(newUser);
-    return {};
   }
 
   @PUT
   @Path('/:id/update-password')
-  @Response<{}>(200, 'Password successfully updated')
+  @Response<void>(204, 'Password successfully updated')
   @Response<CustomError>(401, 'Unauthorised')
   @Response<CustomError>(401, 'Invalid password')
   @Response<CustomError>(400, 'Both User old and new passwords are required')
@@ -67,7 +66,7 @@ export default class UsersController extends AbstractController {
     body: any,
     @PathParam('id') id: string,
     @ContextRequest req: Request & { user: User },
-  ): Promise<{} | void> {
+  ): Promise<void> {
     if (id !== req.user.id) {
       throw new CustomError('Unauthorized', 401);
     }
@@ -83,12 +82,11 @@ export default class UsersController extends AbstractController {
 
     await user.setPassword(password);
     await this.users.save(user);
-    return {};
   }
 
   @PUT
   @Path('/:id/update-email')
-  @Response<{}>(200, 'Email successfully updated')
+  @Response<void>(204, 'Email successfully updated')
   @Response<CustomError>(401, 'Unauthorised')
   @Response<CustomError>(401, 'Invalid password')
   @Response<CustomError>(400, 'Both User password and new email are required')
@@ -96,7 +94,7 @@ export default class UsersController extends AbstractController {
     body: any,
     @PathParam('id') id: string,
     @ContextRequest req: Request & { user: User },
-  ): Promise<{} | void> {
+  ): Promise<void> {
     if (id !== req.user.id) {
       throw new CustomError('Unauthorized', 401);
     }
@@ -113,16 +111,15 @@ export default class UsersController extends AbstractController {
     user.email = newEmail;
     await this.validate(user);
     await this.users.save(user);
-    return {};
   }
 
   @PUT
   @Path('/:id/update-role')
   @PreProcessor(auth.role(UserRole.Admin))
-  @Response<{}>(200, 'Role successfully updated.')
+  @Response<void>(204, 'Role successfully updated.')
   @Response<CustomError>(400, 'Role is required')
   @Response<CustomError>(400, 'Provided role is unsupported')
-  public async updateRole(body: any, @PathParam('id') id: string): Promise<{} | void> {
+  public async updateRole(body: any, @PathParam('id') id: string): Promise<void> {
     const { role } = body;
     if (!role) {
       throw new CustomError('Role is required', 400);
@@ -134,7 +131,6 @@ export default class UsersController extends AbstractController {
 
     user.role = role;
     await this.users.save(user);
-    return {};
   }
 
   @DELETE
