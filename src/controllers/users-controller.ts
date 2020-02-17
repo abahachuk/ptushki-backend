@@ -121,10 +121,14 @@ export default class UsersController extends AbstractController {
   @PreProcessor(auth.role(UserRole.Admin))
   @Response<{}>(200, 'Role successfully updated.')
   @Response<CustomError>(400, 'Role is required')
+  @Response<CustomError>(400, 'Provided role is unsupported')
   public async updateRole(body: any, @PathParam('id') id: string): Promise<{} | void> {
     const { role } = body;
     if (!role) {
       throw new CustomError('Role is required', 400);
+    }
+    if (!UserRole[role]) {
+      throw new CustomError('Provided role is unsupported', 400);
     }
     const user: User = await this.getEntityById<User>(id);
 
