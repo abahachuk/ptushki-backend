@@ -87,9 +87,8 @@ export default class UsersController extends AbstractController {
   @PUT
   @Path('/:id/update-password')
   @Response<void>(204, 'Password successfully updated')
-  @Response<CustomError>(401, 'Unauthorised')
-  @Response<CustomError>(401, 'Invalid password')
   @Response<CustomError>(400, 'Both User old and new passwords are required')
+  @Response<CustomError>(401, 'Unauthorised || Wrong Password')
   public async updatePassword(
     body: UpdateUserPasswordDto,
     @PathParam('id') id: string,
@@ -105,7 +104,7 @@ export default class UsersController extends AbstractController {
     }
     const user: User = await this.getEntityById<User>(id);
     if (!(await isCorrect(password, user.salt, user.hash))) {
-      throw new CustomError('Invalid password', 401);
+      throw new CustomError('Wrong password', 401);
     }
 
     await user.setPassword(password);
@@ -121,9 +120,9 @@ export default class UsersController extends AbstractController {
   @PUT
   @Path('/:id/update-email')
   @Response<void>(204, 'Email successfully updated')
+  @Response<CustomError>(400, 'Both User password and new email are required')
   @Response<CustomError>(401, 'Unauthorised')
   @Response<CustomError>(401, 'Invalid password')
-  @Response<CustomError>(400, 'Both User password and new email are required')
   public async updateEmail(
     body: UpdateUserEmailDto,
     @PathParam('id') id: string,
@@ -157,8 +156,7 @@ export default class UsersController extends AbstractController {
   @Path('/:id/update-role')
   @PreProcessor(auth.role(UserRole.Admin))
   @Response<void>(204, 'Role successfully updated.')
-  @Response<CustomError>(400, 'Role is required')
-  @Response<CustomError>(400, 'Provided role is unsupported')
+  @Response<CustomError>(400, 'Role is required || Provided role is unsupported')
   public async updateRole(body: UpdateUserRoleDto, @PathParam('id') id: string): Promise<void> {
     const { role } = body;
     if (!role) {
