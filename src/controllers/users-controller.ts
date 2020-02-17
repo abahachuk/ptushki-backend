@@ -4,7 +4,6 @@ import { DELETE, GET, PUT, Path, PathParam, PreProcessor, Security, ContextReque
 import { Tags, Response } from 'typescript-rest-swagger';
 import AbstractController from './abstract-controller';
 import { User, UserRole } from '../entities/user-entity';
-import { Ring } from '../entities/ring-entity';
 import { CustomError } from '../utils/CustomError';
 import { auth } from '../services/auth-service';
 import { isCorrect } from '../services/user-crypto-service';
@@ -31,7 +30,7 @@ export default class UsersController extends AbstractController {
 
   @GET
   @Path('/:id')
-  @Response<Ring>(200, 'User with passed id.')
+  @Response<User>(200, 'User with passed id.')
   @Response<CustomError>(401, 'Unauthorised.')
   public async findOne(@PathParam('id') id: string): Promise<User> {
     return this.getEntityById<User>(id);
