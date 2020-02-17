@@ -62,13 +62,14 @@ export default class UsersController extends AbstractController {
   @Path('/:id')
   @Response<void>(204, 'User successfully updated')
   @Response<CustomError>(401, 'Unauthorised')
+  @Response<CustomError>(403, 'Forbidden')
   public async updateUser(
     body: UpdateUserDto,
     @PathParam('id') id: string,
     @ContextRequest req: Request & { user: User },
   ): Promise<void> {
     if (id !== req.user.id) {
-      throw new CustomError('Unauthorized', 401);
+      throw new CustomError('Forbidden', 403);
     }
     const { firstName, lastName } = body;
 
@@ -89,13 +90,14 @@ export default class UsersController extends AbstractController {
   @Response<void>(204, 'Password successfully updated')
   @Response<CustomError>(400, 'Both User old and new passwords are required')
   @Response<CustomError>(401, 'Unauthorised || Wrong Password')
+  @Response<CustomError>(403, 'Forbidden')
   public async updatePassword(
     body: UpdateUserPasswordDto,
     @PathParam('id') id: string,
     @ContextRequest req: Request & { user: User },
   ): Promise<void> {
     if (id !== req.user.id) {
-      throw new CustomError('Unauthorized', 401);
+      throw new CustomError('Forbidden', 403);
     }
     const { password, newPassword } = body;
     // todo check that password corresponds some requirements
@@ -121,15 +123,15 @@ export default class UsersController extends AbstractController {
   @Path('/:id/update-email')
   @Response<void>(204, 'Email successfully updated')
   @Response<CustomError>(400, 'Both User password and new email are required')
-  @Response<CustomError>(401, 'Unauthorised')
-  @Response<CustomError>(401, 'Invalid password')
+  @Response<CustomError>(401, 'Unauthorised || Wrong password')
+  @Response<CustomError>(403, 'Forbidden')
   public async updateEmail(
     body: UpdateUserEmailDto,
     @PathParam('id') id: string,
     @ContextRequest req: Request & { user: User },
   ): Promise<void> {
     if (id !== req.user.id) {
-      throw new CustomError('Unauthorized', 401);
+      throw new CustomError('Forbidden', 403);
     }
     const { password, newEmail } = body;
     // todo check that password corresponds some requirements
@@ -157,6 +159,8 @@ export default class UsersController extends AbstractController {
   @PreProcessor(auth.role(UserRole.Admin))
   @Response<void>(204, 'Role successfully updated.')
   @Response<CustomError>(400, 'Role is required || Provided role is unsupported')
+  @Response<CustomError>(401, 'Unauthorised')
+  @Response<CustomError>(403, 'Forbidden')
   public async updateRole(body: UpdateUserRoleDto, @PathParam('id') id: string): Promise<void> {
     const { role } = body;
     if (!role) {
@@ -182,6 +186,7 @@ export default class UsersController extends AbstractController {
   @PreProcessor(auth.role(UserRole.Admin))
   @Response<{ id: string; removed: boolean }>(200, 'User with passed id successfully deleted.')
   @Response<CustomError>(401, 'Unauthorised.')
+  @Response<CustomError>(403, 'Forbidden.')
   public async remove(@PathParam('id') id: string): Promise<{ id: string; removed: boolean }> {
     const user = await this.getEntityById<User>(id);
     await this.users.remove(user);
