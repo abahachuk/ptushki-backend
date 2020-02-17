@@ -1,11 +1,13 @@
+/* eslint-disable @typescript-eslint/explicit-function-return-type */
 import request from 'supertest';
 import { Application } from 'express';
 import { Connection, getRepository, Repository } from 'typeorm';
 import createApp from '../app';
 import connectDB from '../db';
-import { signTokens } from '../services/auth-service';
+import { signTokens, signResetToken } from '../services/auth-service';
 import { UserRole, User, CreateUserDto } from '../entities/user-entity';
 import { RefreshToken } from '../entities/auth-entity';
+import { ResetToken } from '../entities/reset-token';
 
 const delay = (ms: number): Promise<void> => new Promise(resolve => setTimeout(resolve, ms));
 
@@ -17,6 +19,7 @@ const urls: { [index: string]: string } = {
   signup: '/auth/signup',
   refresh: '/auth/refresh',
   logout: '/auth/logout',
+  forgot: '/auth/forgot',
   test: '/auth/test',
   adminTest: '/auth/admin-test',
 };
@@ -25,12 +28,14 @@ jest.setTimeout(30000);
 
 let tokenRepository: Repository<RefreshToken>;
 let userRepository: Repository<User>;
+let resetTokeneRepository: Repository<ResetToken>;
 
 beforeAll(async () => {
   connection = await connectDB();
   app = await createApp();
   tokenRepository = getRepository(RefreshToken);
   userRepository = getRepository(User);
+  resetTokeneRepository = getRepository(ResetToken);
 });
 
 afterAll(async () => {
@@ -428,6 +433,35 @@ describe('Auth', () => {
         .set('Accept', 'application/json')
         .set('Authorization', adminToken);
       expect(status).toEqual(200);
+    });
+  });
+
+  describe('forgotten password flow', () => {
+    const email = 'forgot-password-test@mail.com';
+    const password = '12345';
+    let user: User;
+    let resetToken: string;
+
+    beforeAll(async () => {
+      user = await User.create({ email, password });
+      resetToken = await signResetToken({ email, userId: user.id });
+      await userRepository.save(user);
+      await resetTokeneRepository.save(new ResetToken(resetToken, user.id));
+    });
+
+    it('be able to generate reset token and overwrite existing if it exists', async () => {
+      const res = await request(app)
+        .post(urls.forgot)
+        .set('Accept', 'application/json')
+        .send({ email });
+
+      const currentResetToken = await resetTokeneRepository.findOne({ userId: user.id });
+      const previousResetToken = await resetTokeneRepository.findOne({ token: resetToken });
+
+      expect(res.status).toEqual(200);
+      expect(res.body.ok).toEqual(true);
+      expect(currentResetToken).not.toEqual(undefined);
+      expect(previousResetToken).toEqual(undefined);
     });
   });
 });
