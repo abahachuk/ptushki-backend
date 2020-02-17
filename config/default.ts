@@ -38,12 +38,7 @@ export default {
     sortingDirectionDefault: 'ASC',
   },
   mailService: {
-    name: process.env.MAIL_SERVICE_NAME,
-    service: process.env.MAIL_SERVICE_SERVICE || 'SendGrid',
-    auth: {
-      user: process.env.MAIL_SERVICE_AUTH_USER || 'fat_mike',
-      pass: process.env.MAIL_SERVICE_AUTH_PASSWORD || 'ptushki2006',
-    },
+    service: process.env.MAIL_SERVICE_SERVICE || 'Dummy',
     senderMail: process.env.MAIL_SERVICE_SENDER || 'resetpassword@ptushki.by',
     subject: {
       passwordChange: 'Your password has been changed',

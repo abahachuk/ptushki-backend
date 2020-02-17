@@ -1,11 +1,12 @@
+/* eslint-disable @typescript-eslint/explicit-function-return-type */
 import { NextFunction, Request } from 'express';
 import { getRepository, Repository } from 'typeorm';
 import { TokenExpiredError, JsonWebTokenError } from 'jsonwebtoken';
-import { ContextNext, ContextRequest, Path, POST, Security } from 'typescript-rest';
+import { ContextNext, ContextRequest, Path, POST, Security, GET, PreProcessor } from 'typescript-rest';
 import { Tags, Response } from 'typescript-rest-swagger';
 
 import AbstractController from './abstract-controller';
-import { CreateUserDto, User, WithCredentials } from '../entities/user-entity';
+import { CreateUserDto, User, WithCredentials, UserRole } from '../entities/user-entity';
 import {
   ChangePasswordReqDto,
   LogoutReqDto,
@@ -15,11 +16,11 @@ import {
   TokensPairDto,
 } from '../entities/auth-entity';
 import { ResetToken } from '../entities/reset-token';
-import { signTokens, verifyRefreshToken, signResetToken, verifyResetToken } from '../services/auth-service';
+import { signTokens, verifyRefreshToken, signResetToken, verifyResetToken, auth } from '../services/auth-service';
 import { isCorrect } from '../services/user-crypto-service';
 import { addAudit } from '../services/audit-service';
 // import { sendChangeRequestMail, sendResetCompleteMail } from '../services/mail-service';
-import { getMailServiceInstance } from '../services/mail-service';
+import { getMailServiceInstance, MailService } from '../services/mail-service/index.';
 import { CustomError } from '../utils/CustomError';
 
 @Path('auth')
@@ -31,11 +32,14 @@ export default class AuthController extends AbstractController {
 
   private resetTokens: Repository<ResetToken>;
 
+  private mailServise: MailService;
+
   public constructor() {
     super();
     this.users = getRepository(User);
     this.tokens = getRepository(RefreshToken);
     this.resetTokens = getRepository(ResetToken);
+    this.mailServise = getMailServiceInstance();
   }
 
   /**
@@ -187,7 +191,6 @@ export default class AuthController extends AbstractController {
     // @ts-ignore
   ): Promise<{ ok: boolean }> {
     const { oldPassword, newPassword } = passwords;
-    // @ts-ignore FIXME
     const user = req.user as User;
     if (!oldPassword || !newPassword || !user) {
       // TODO: clarify
@@ -209,16 +212,15 @@ export default class AuthController extends AbstractController {
 
   @POST
   @Path('/forgot')
-  @Security()
   @Response<{ ok: boolean }>(200, 'Request for password reset was successfully created.')
   public async forgotPassword(
     body: any,
-    @ContextRequest req: Request,
+    @ContextRequest _req: Request,
     @ContextNext next: NextFunction,
   ): Promise<{ ok: boolean } | void> {
     try {
       const { email } = body;
-      const { host } = req.headers;
+
       if (!email) {
         throw new CustomError('Email is required', 400);
       }
@@ -226,9 +228,17 @@ export default class AuthController extends AbstractController {
       if (!user) {
         throw new CustomError('Non-existent user cannot be authorized', 401);
       }
+
+      // if token already exists for that user
+      const existingToken = await this.resetTokens.findOne({ userId: user.id });
+      if (existingToken) {
+        await this.resetTokens.delete(existingToken);
+      }
+
       const token = signResetToken({ email, userId: user.id });
       await this.resetTokens.save(new ResetToken(token, user.id));
-      await getMailServiceInstance().sendChangeRequestMail(token, email, host || '');
+      await this.mailServise.sendChangeRequestMail(token, email);
+
       return { ok: true };
     } catch (e) {
       if (e instanceof JsonWebTokenError) {
@@ -244,21 +254,36 @@ export default class AuthController extends AbstractController {
   @Response<{ ok: boolean }>(200, 'Password was successfully reseted.')
   public async resetPassword(body: any, @ContextNext next: NextFunction): Promise<{ id: string } | void> {
     try {
-      const { token } = body;
-      if (!token) {
-        throw new CustomError('Reset token is required', 400);
+      const { token, passwords } = body;
+
+      const {
+        oldPassword,
+        newPassword,
+      }: { oldPassword: string | undefined; newPassword: string | undefined } = passwords;
+
+      if (!token || !oldPassword || !newPassword) {
+        throw new CustomError('Reset token and passwords are required', 400);
       }
-      const { userId, email } = await verifyResetToken(token);
 
       const resetToken = await this.resetTokens.findOne({ token });
-
       if (!resetToken) {
         throw new CustomError('Token already was used or never existed', 401);
       }
 
-      await this.resetTokens.delete({ token });
+      const { userId, email } = await verifyResetToken(token);
+      const user = await this.users.findOne({ id: userId });
+      if (!user) {
+        throw new CustomError('Non-existent user cannot be authorized', 401);
+      }
 
-      await getMailServiceInstance().sendResetCompleteMail(email);
+      const isPasswordCorrect = await isCorrect(oldPassword, user.salt, user.hash);
+      if (!isPasswordCorrect) {
+        throw new CustomError('Invalid old password', 401);
+      }
+
+      await this.resetTokens.delete({ token });
+      await this.mailServise.sendResetCompleteMail(email);
+
       return { id: userId };
     } catch (e) {
       if (e instanceof TokenExpiredError) {
@@ -271,19 +296,19 @@ export default class AuthController extends AbstractController {
     }
   }
 
-  // @GET
-  // @Path('/test')
-  // @Security()
-  // @PreProcessor(auth.role(UserRole.Observer))
-  // public async test() {
-  //   return { ok: true };
-  // }
+  @GET
+  @Path('/test')
+  @Security()
+  @PreProcessor(auth.role(UserRole.Observer))
+  public async test() {
+    return { ok: true };
+  }
 
-  // @GET
-  // @Path('/admin-test')
-  // @Security()
-  // @PreProcessor(auth.role(UserRole.Admin))
-  // public async adminTest() {
-  //   return { ok: true };
-  // }
+  @GET
+  @Path('/admin-test')
+  @Security()
+  @PreProcessor(auth.role(UserRole.Admin))
+  public async adminTest() {
+    return { ok: true };
+  }
 }

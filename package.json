@@ -5,6 +5,7 @@
   "scripts": {
     "start": "npm run build && cross-env NODE_ENV=production node dist/src/index.js",
     "start:dev": "npm run swagger && ts-node-dev src/index.ts",
+    "debug": "cross-env NODE_ENV=development ts-node-dev --inspect --respawn src/index.ts",
     "fixtures": "ts-node src/db/run-fixtures.ts",
     "importdb": "ts-node src/db/access-parser/run.ts",
     "setup-postgres": "docker-compose up",
@@ -42,6 +43,7 @@
     "express": "^4.16.4",
     "express-session": "^1.15.6",
     "express-validator": "^5.3.1",
+    "inversify": "^5.0.1",
     "jsonwebtoken": "^8.5.1",
     "morgan": "^1.9.1",
     "multer": "^1.4.1",

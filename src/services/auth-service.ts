@@ -130,7 +130,7 @@ const checkUserRole = (userRole: UserRole) => {
   };
 };
 
-export const signResetToken = (payload: ResetPasswordPayload): string => jwt.sign({ ...payload }, resetSecret, { expiresIn: accessExpires });
+export const signResetToken = (payload: ResetPasswordPayload, expiresIn: number = accessExpires): string => jwt.sign({ ...payload }, resetSecret, { expiresIn });
 export const verifyResetToken = (token: string): Promise<ResetPasswordPayload> => verify(token, resetSecret) as Promise<ResetPasswordPayload>;
 /* eslint-enable */
 
