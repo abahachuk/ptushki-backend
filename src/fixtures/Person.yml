@@ -1,5 +1,4 @@
 entity: Person
-processor: ./PersonProcessor
 items:
   person{0..15}:
     name: '{{name.firstName}} {{name.lastName}}'
