@@ -2,6 +2,7 @@ import { Entity, PrimaryColumn, Column, OneToMany } from 'typeorm';
 import { Length, IsAlpha, IsOptional, IsString } from 'class-validator';
 import { equalLength } from '../../validation/validation-messages';
 import { Ring } from '../ring-entity';
+import { Observation } from '../observation-entity';
 
 export interface RingingSchemeDto {
   id: string;
@@ -35,4 +36,7 @@ export class RingingScheme implements RingingSchemeDto {
 
   @OneToMany(() => Ring, m => m.ringingScheme)
   public ring: Ring[];
+
+  @OneToMany(() => Observation, m => m.ringingScheme)
+  public observation: Observation[];
 }
