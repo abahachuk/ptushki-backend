@@ -31,6 +31,6 @@ items:
     accuracyOfDate: '@accuracyOfDate*'
     euringCodeIdentifier: '@euringCodeIdentifier*'
     remarks: '{{lorem.words}}'
-    ringerInformation: '@user*'
+    ringer: '@user*'
     statusOfRing: '@statusOfRing*'
     date: '{{date.past}}'

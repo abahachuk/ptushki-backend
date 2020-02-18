@@ -79,7 +79,7 @@ export interface RingDto extends EURINGCodes {
   euringCodeIdentifier: EntityDto;
   remarks: string | null;
   offlineRinger: PersonDto;
-  ringerInformation: UserDto;
+  ringer: UserDto;
   statusOfRing: EntityDto;
 }
 
@@ -333,7 +333,7 @@ export class Ring implements RingDto, AbleToExportAndImportEuring {
   @ManyToOne(() => User, m => m.ring, {
     eager: true,
   })
-  public ringerInformation: User;
+  public ringer: User;
 
   // Related field in access 'Ringer' referred to table 'Ringer Information'
   @IsUUID()

@@ -104,7 +104,7 @@ export const ringMap: RingMap = {
   euringCodeIdentifier: 'Euring-code identifier',
   remarks: 'Note',
   offlineRinger,
-  ringerInformation: (): null => null,
+  ringer: (): null => null,
   statusOfRing: 'Status of ring',
 
   // README unhandled fields
