@@ -52,7 +52,7 @@ export class Person implements PersonDto {
   @IsOptional()
   @IsString()
   @MinLength(1)
-  @MaxLength(64)
+  @MaxLength(128)
   @Column('varchar', { length: 128, nullable: true, default: null })
   public address: string;
 
