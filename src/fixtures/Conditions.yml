@@ -1,5 +1,4 @@
 entity: Conditions
-processor: ./ConditionsProcessor
 items:
   condition0:
     id: 0
