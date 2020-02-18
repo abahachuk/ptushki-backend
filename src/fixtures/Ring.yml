@@ -1,7 +1,7 @@
 entity: Ring
 processor: ./RingProcessor
 items:
-  ring{0..50}:
+  ring{0..200}:
     ringingScheme: '@ringingScheme*'
     primaryIdentificationMethod: '@primaryIdentificationMethod*'
     verificationOfTheMetalRing: '@verificationOfTheMetalRing*'
@@ -32,5 +32,6 @@ items:
     euringCodeIdentifier: '@euringCodeIdentifier*'
     remarks: '{{lorem.words}}'
     ringer: '@user*'
+    offlineRinger: '@person*'
     statusOfRing: '@statusOfRing*'
     date: '{{date.past}}'

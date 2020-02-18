@@ -1,9 +1,11 @@
 entity: Observation
 processor: ./ObservationProcessor
 items:
-  observation{0..50}:
+  observation{0..500}:
     ring: '@ring*'
     finder: '@user*'
+    offlineFinder: '@person*'
+    offlineFinderNote: '{{name.firstName}} {{name.lastName}}, {{address.city}}'
     speciesMentioned: '@species*'
     speciesConcluded: '@species*'
     sexMentioned: '@sex*'
