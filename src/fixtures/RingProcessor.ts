@@ -31,11 +31,16 @@ export default class RingProcessor implements IProcessor<Ring> {
   public postProcess(_name: string, object: Ring): void {
     /* eslint-disable no-param-reassign */
     const offlineRingerProbability = Math.random();
-
     if (offlineRingerProbability < 0.2) {
       delete object.ringer;
     } else {
       delete object.offlineRinger;
+    }
+
+    const date = new Date(object.date as Date);
+    if (date.getFullYear() > 2017) {
+      date.setFullYear(2017);
+      object.date = date;
     }
   }
 }
