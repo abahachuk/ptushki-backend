@@ -1,20 +1,19 @@
 import { Entity, Column, PrimaryGeneratedColumn, ManyToOne } from 'typeorm';
 import { IsUUID, Length, IsString, IsOptional, IsAlpha, IsAlphanumeric, IsNumberString } from 'class-validator';
 import { equalLength } from '../validation/validation-messages';
-import { Species, SpeciesDto } from './euring-codes/species-entity';
+import { Species } from './euring-codes/species-entity';
 import { Sex } from './euring-codes/sex-entity';
 import { Age } from './euring-codes/age-entity';
-import { User, UserDto } from './user-entity';
+import { User } from './user-entity';
 
-export class BasaRingDto {
+@Entity()
+export class BasaRing {
   @PrimaryGeneratedColumn('uuid')
   public id: string;
 
   @IsAlphanumeric()
   @Column('varchar')
   public ringNumber: string;
-
-  public species: SpeciesDto;
 
   @IsOptional()
   @IsAlpha()
@@ -31,8 +30,6 @@ export class BasaRingDto {
     eager: true,
   })
   public age: Age;
-
-  public ringer: UserDto;
 
   @IsOptional()
   @IsString()
@@ -58,10 +55,7 @@ export class BasaRingDto {
   @IsString()
   @Column('varchar', { nullable: true, default: null })
   public note: string | null;
-}
 
-@Entity()
-export class BasaRing extends BasaRingDto {
   @IsOptional()
   @IsNumberString()
   @Length(5, 5, { message: equalLength(5) })
