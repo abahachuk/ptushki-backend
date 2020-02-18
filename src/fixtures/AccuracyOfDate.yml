@@ -1,43 +1,52 @@
 entity: AccuracyOfDate
-processor: ./AccuracyofDateProcessor
 items:
   accuracyOfDate0:
+    id: 0
     desc_eng: 'Accurate to the day'
     desc_rus: 'Точная дата'
     desc_byn: 'Дакладная дата'
   accuracyOfDate1:
+    id: 1
     desc_eng: 'Accurate to within 1 day either side of date coded'
     desc_rus: 'Точность до 1-го дня'
     desc_byn: 'Дакладнасць да 1-га дня'
   accuracyOfDate2:
+    id: 2
     desc_eng: 'Accurate to within 3 days either side of date coded'
     desc_rus: 'Точность до 3-х дней'
     desc_byn: 'Дакладнасць да 3-х дзён'
   accuracyOfDate3:
+    id: 3
     desc_eng: 'Accurate to within 1 week either side of date coded'
     desc_rus: 'Точность до 1-ой недели'
     desc_byn: 'Дакладнасць да 1-ага тыдня'
   accuracyOfDate4:
+    id: 4
     desc_eng: 'Accurate to within 2 weeks either side of date coded'
     desc_rus: 'Точность до 2-х недель'
     desc_byn: 'Дакладнасць да 2-х тыдняў'
   accuracyOfDate5:
+    id: 5
     desc_eng: 'Accurate to within 6 weeks either side of date coded'
     desc_rus: 'Точность до 6 недель'
     desc_byn: 'Дакладнасць да 6 тыдняў'
   accuracyOfDate6:
+    id: 6
     desc_eng: 'Accurate to within 3 months either side of date coded'
     desc_rus: 'Точность до 3-х месяцев с любой стороны'
     desc_byn: 'Дакладнасць да 3-х месяцаў з любога боку'
   accuracyOfDate7:
+    id: 7
     desc_eng: 'Accurate to within 6 months either side of date coded'
     desc_rus: 'Точность до 6 месяцев с любой стороны'
     desc_byn: 'Дакладнасць да 6 месяцаў з любога боку'
   accuracyOfDate8:
+    id: 8
     desc_eng: 'Accurate to within some years only'
     desc_rus: 'Точность до нескольких лет'
     desc_byn: 'Дакладнасць да некалькіх гадоў'
   accuracyOfDate9:
+    id: 9
     desc_eng: 'Date of issue of ring or other earliest possible use of ring'
     desc_rus: 'Дата выпуска кольца или другое более раннее возможное использование кольца'
     desc_byn: 'Дата выпуску кальца або іншае больш ранняе магчымае выкарыстанне кальца'
