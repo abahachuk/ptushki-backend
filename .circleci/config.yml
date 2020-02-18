@@ -58,7 +58,7 @@ jobs:
           fingerprints:
             - '41:c6:bf:6b:ce:39:15:9e:29:e3:21:8d:23:47:55:9a'
       - setup_remote_docker:
-          docker_layer_caching: true
+          docker_layer_caching: false
       - run:
           name: Build and push Docker image
           command: |
