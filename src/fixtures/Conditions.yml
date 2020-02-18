@@ -13,7 +13,7 @@ items:
   condition2:
     id: 2
     desc_eng: 'Freshly dead - within about a week'
-    desc_rus: 'Недавно погибла  - около недели'
+    desc_rus: 'Недавно погибла - около недели'
     desc_byn: 'Freshly dead - within about a week'
   condition3:
     id: 3
