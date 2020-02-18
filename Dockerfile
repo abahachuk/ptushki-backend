@@ -1,10 +1,10 @@
-FROM node:12.2-alpine
+FROM node:12.3-alpine
 
 RUN mkdir /app
 WORKDIR /app
 
-COPY package.json /app
-RUN npm install
+COPY package*.json ./
+RUN npm ci
 
 COPY . /app
 
