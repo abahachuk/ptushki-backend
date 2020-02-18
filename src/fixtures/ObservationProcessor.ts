@@ -13,5 +13,22 @@ export default class ObservationProcessor implements IProcessor<Observation> {
       object.pullusAge.id = '--';
       object.accuracyOfPullusAge.id = '-';
     }
+
+    const offlineFinderProbability = Math.random();
+
+    if (offlineFinderProbability < 0.2) {
+      delete object.finder;
+      delete object.offlineFinderNote;
+    } else if (offlineFinderProbability > 0.8) {
+      delete object.offlineFinder;
+      delete object.finder;
+    } else {
+      delete object.offlineFinder;
+      delete object.offlineFinderNote;
+    }
+
+    object.elapsedTime = Math.ceil(
+      (Number(new Date(object.date)) - Number(new Date(object.ring.date as Date))) / 86400000,
+    );
   }
 }

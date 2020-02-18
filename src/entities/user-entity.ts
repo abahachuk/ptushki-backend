@@ -91,7 +91,7 @@ export class User implements UserDto {
   @Column()
   public salt: string;
 
-  @OneToMany(() => Ring, m => m.ringerInformation)
+  @OneToMany(() => Ring, m => m.ringer)
   public ring: Ring[];
 
   @OneToMany(() => Observation, m => m.finder)

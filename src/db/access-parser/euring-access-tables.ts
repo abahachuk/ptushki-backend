@@ -1,7 +1,33 @@
 import * as entities from '../../entities/euring-codes';
 
+export type EuringAccessTable =
+  | 'Accuracy_of_coordinates'
+  | 'Accuracy_of_date'
+  | 'Accuracy_of_pullus_age'
+  | 'Age'
+  | 'Broodsize'
+  | 'Catching_method'
+  | 'Cathing_lures'
+  | 'Circumstances'
+  | 'Circumstances_presumed'
+  | 'Condition'
+  | 'Euring_cod_identifier'
+  | 'Manipulated'
+  | 'Metal_ring_information'
+  | 'Moved_before_the_capture'
+  | 'Other_marks_information_EUR'
+  | 'Place_code_n'
+  | 'Primary_identification_mehod'
+  | 'Pullus_age'
+  | 'Ringing_schem'
+  | 'Sex'
+  | 'Species'
+  | 'Status'
+  | 'Status_of_ring'
+  | 'Verification_of_the_metal_ring';
+
 /* eslint-disable @typescript-eslint/camelcase */
-export const EURINGs: { [index: string]: { Entity: any; mapping: Map<string, string> } } = {
+export const EURINGs: { [index in EuringAccessTable]: { Entity: any; mapping: Map<string, string> } } = {
   Accuracy_of_coordinates: {
     Entity: entities.AccuracyOfCoordinates,
     mapping: new Map([
@@ -65,7 +91,8 @@ export const EURINGs: { [index: string]: { Entity: any; mapping: Map<string, str
   },
   // Color_ring_information: { Entity: entities }, // FIXME невозможно заставить эту таблицу работать через node-adodb
   // ну и как бы она отсутствует в стандарте. скорее всего здесь она вспомогательная
-  Conditions: {
+  Condition: {
+    // конфликт имен взято множеств. число
     Entity: entities.Conditions,
     mapping: new Map([['id', 'n'], ['desc_eng', 'Conditions'], ['desc_rus', 'Rus'], ['desc_byn', 'Bel']]),
   },
@@ -159,3 +186,20 @@ export const EURINGs: { [index: string]: { Entity: any; mapping: Map<string, str
     ]),
   },
 };
+
+export function mapEURINGCode(table: EuringAccessTable, tableRecords: any[]): any[] {
+  const { Entity, mapping } = EURINGs[table];
+  const keys: string[] = [...mapping.keys()];
+  return tableRecords.map((item: { [index: string]: any }) =>
+    Object.assign(
+      new Entity(),
+      keys.reduce((acc: { [index: string]: string }, key: string) => {
+        const value = item[mapping.get(key) as string];
+        if (value) {
+          acc[key] = value;
+        }
+        return acc;
+      }, {}),
+    ),
+  );
+}

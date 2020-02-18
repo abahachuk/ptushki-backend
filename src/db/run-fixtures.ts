@@ -1,7 +1,7 @@
 import 'dotenv/config';
 import path from 'path';
 import { Builder, fixturesIterator, IFixture, Loader, Parser, Resolver } from 'typeorm-fixtures-cli/dist';
-import { Connection, createConnection } from 'typeorm';
+import { Connection, createConnection, DeepPartial } from 'typeorm';
 import config from './prepare-db-config';
 import { executeInThreadedQueue } from '../utils/async-queue';
 import { countedProgress, dotProgress } from '../utils/clean-write-line';
@@ -15,8 +15,9 @@ const load = async (connection: Connection): Promise<{ [index: string]: number }
   const builder = new Builder(connection, new Parser());
 
   const fixturing = [...fixturesIterator(fixtures)].map((f: IFixture, i: number, arr: IFixture[]) => async () => {
-    const entity = await builder.build(f);
-    await connection.getRepository(entity.constructor.name).save(entity);
+    const entity: unknown = await builder.build(f);
+    // @ts-ignore
+    await connection.getRepository(entity.constructor.name).insert(entity as DeepPartial<any>);
     countedProgress(i, arr.length, 'fixtures loaded:');
   });
 

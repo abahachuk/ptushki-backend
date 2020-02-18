@@ -1,15 +1,17 @@
 entity: Sex
-processor: ./SexProcessor
 items:
   sex0:
-    desc_eng: '[F] Female'
-    desc_rus: '[F] Female'
-    desc_byn: '[F] Female'
+    id: F
+    desc_eng: 'Female'
+    desc_rus: 'Женский'
+    desc_byn: 'Жаночы'
   sex1:
-    desc_eng: '[M] Male'
-    desc_rus: '[M] Male'
-    desc_byn: '[M] Male'
+    id: M
+    desc_eng: 'Male'
+    desc_rus: 'Мужской'
+    desc_byn: 'Мужчынскi'
   sex2:
-    desc_eng: '[U] Unknown'
-    desc_rus: '[U] Unknown'
-    desc_byn: '[U] Unknown'
+    id: U
+    desc_eng: 'Unknown'
+    desc_rus: 'Неизвестен'
+    desc_byn: 'Невядомы'
