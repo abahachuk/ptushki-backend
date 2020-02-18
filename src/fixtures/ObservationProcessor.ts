@@ -26,5 +26,9 @@ export default class ObservationProcessor implements IProcessor<Observation> {
       delete object.offlineFinder;
       delete object.offlineFinderNote;
     }
+
+    object.elapsedTime =
+      (Date.parse((object.date as Date).toString()) - Date.parse((object.ring.date as Date).toString())) /
+      (365 * 24 * 60 * 60 * 1000);
   }
 }

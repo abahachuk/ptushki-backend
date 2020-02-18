@@ -34,4 +34,4 @@ items:
     ringer: '@user*'
     offlineRinger: '@person*'
     statusOfRing: '@statusOfRing*'
-    date: '{{date.past}}'
+    date: '{{date.past(5, "2018-01-01")}}'
