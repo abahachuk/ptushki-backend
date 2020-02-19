@@ -1,9 +1,8 @@
 import AbstractImporter, { ImporterType, ImportInput, ImportOutput } from './AbstractImporter';
 import EURINGImporterForObservations from './EURINGImporterForObservations';
-import XLSImporterForObservations from './XLSImporterForObservations';
-import XLSImporterValidateObservations from './excel/XLSImporterValidateObservations';
+import ExcelObservationImporter from './ExcelObservationImporter';
 import { CustomError } from '../../utils/CustomError';
-import { DataCheckDto } from './excel/helper';
+import { DataCheckDto } from './excel-helper/observation/workbook-validator';
 
 export default class Importer {
   private exporters: AbstractImporter[];
@@ -12,11 +11,7 @@ export default class Importer {
 
   public constructor(route: string) {
     this.route = route;
-    this.exporters = [
-      new EURINGImporterForObservations(),
-      new XLSImporterForObservations(),
-      new XLSImporterValidateObservations(),
-    ];
+    this.exporters = [new EURINGImporterForObservations(), new ExcelObservationImporter()];
   }
 
   private getImporter(type: ImporterType): AbstractImporter | undefined {
@@ -25,8 +20,7 @@ export default class Importer {
 
   // eslint can't handle method overload
   /* eslint-disable no-dupe-class-members, lines-between-class-members */
-  public async handle(type: ImporterType.xls, sources: ImportInput<Express.Multer.File>): Promise<void>;
-  public async handle(type: ImporterType.validateXls, sources: ImportInput<Express.Multer.File>): Promise<DataCheckDto>;
+  public async handle(type: ImporterType.xls, sources: ImportInput<Express.Multer.File>): Promise<DataCheckDto>;
   public async handle(type: ImporterType.euring, sources: ImportInput<string>): Promise<void>;
   public async handle(type: ImporterType, sources: ImportInput): Promise<ImportOutput> {
     const importer = this.getImporter(type);

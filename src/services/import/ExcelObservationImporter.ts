@@ -1,36 +1,39 @@
-import Excel, { Workbook } from 'exceljs';
-import { getCustomRepository } from 'typeorm';
+import XLSX, { WorkBook } from 'xlsx';
+import { getCustomRepository, getRepository, Repository } from 'typeorm';
 import {
-  checkObservationImportedData,
+  checkWorkBookData,
   checkObservationsHeaderNames,
-  DataCheck,
+  WorkBookData,
   DataCheckDto,
   EURingError,
   HeaderCheck,
   RawData,
   RowErorr,
   RowValidatedData,
-} from './helper';
-import { MulterOptions } from '../../../controllers/upload-files-controller';
-import AbstractImporter, { ImporterType, ImportInput } from '../AbstractImporter';
-import { CustomError } from '../../../utils/CustomError';
-import { cachedEURINGCodes } from '../../../entities/euring-codes/cached-entities-fabric';
-import { Age, PlaceCode, Sex, Species, Status } from '../../../entities/euring-codes';
+} from './excel-helper/observation/workbook-validator';
+import { MulterOptions } from '../../controllers/upload-files-controller';
+import AbstractImporter, { ImporterType, ImportInput } from './AbstractImporter';
+import { CustomError } from '../../utils/CustomError';
+import { cachedEURINGCodes } from '../../entities/euring-codes/cached-entities-fabric';
+import { Age, PlaceCode, Sex, Species, Status } from '../../entities/euring-codes';
+import { Observation } from '../../entities/observation-entity';
 
 export default class XLSImporterValidateObservations extends AbstractImporter<
   ImportInput<Express.Multer.File>,
   DataCheckDto
 > {
-  public type: ImporterType = ImporterType.validateXls;
+  public type: ImporterType = ImporterType.xls;
 
   public route: string = 'observations';
+
+  private observations: Repository<Observation> = getRepository(Observation);
 
   public options: MulterOptions = {
     extensions: ['.xls', '.xlsx'],
     any: true,
   };
 
-  private checkEuRingCodes = async (excelData: DataCheck): Promise<void> => {
+  private checkEuRingCodes = async (workBookData: WorkBookData): Promise<void> => {
     try {
       const statusCached = await getCustomRepository(cachedEURINGCodes.CachedStatus).find();
       const speciesMentionedCached = await getCustomRepository(cachedEURINGCodes.CachedSpecies).find();
@@ -38,7 +41,7 @@ export default class XLSImporterValidateObservations extends AbstractImporter<
       const ageMentionedCached = await getCustomRepository(cachedEURINGCodes.CachedAge).find();
       const placeCodeCached = await getCustomRepository(cachedEURINGCodes.CachedPlaceCode).find();
       /* eslint-disable */
-      for (const row of excelData.validFormatData) {
+      for (const row of workBookData.validFormatData) {
         const { data, rowNumber }: RowValidatedData = row;
         const { eu_statusCode, eu_species, eu_sexCode, eu_ageCode, eu_placeCode }: RawData = data;
 
@@ -80,13 +83,13 @@ export default class XLSImporterValidateObservations extends AbstractImporter<
           if (euCodeErrors.length) {
             const rowStatus: RowErorr = {
               verifiedEuRingCodes: false,
-              error: `Can not find euRing codes: ${euCodeErrors.join(',')}`,
+              error: `Can not find euRing codes: ${euCodeErrors.join(', ')}`,
             };
             const error: EURingError = { rowNumber, status: rowStatus };
 
-            excelData.euRingErrors.push(error);
+            workBookData.euRingErrors.push(error);
           } else {
-            excelData.addedData.push(row);
+            workBookData.addedData.push(row);
           }
         }
       }
@@ -95,23 +98,23 @@ export default class XLSImporterValidateObservations extends AbstractImporter<
     }
   };
 
-  private checkPossibleClones = async (excelData: DataCheck): Promise<void> => {
+  private checkPossibleClones = async (workBookData: WorkBookData): Promise<void> => {
     const map = new Map();
     try {
-      for (const row of excelData.addedData) {
+      for (const row of workBookData.addedData) {
         const { data, rowNumber }: RowValidatedData = row;
 
         if (data) {
           map.set(JSON.stringify(data), rowNumber);
         }
       }
-      excelData.possibleClones = excelData.addedData.length - map.size;
+      workBookData.possibleClones = workBookData.addedData.length - map.size;
     } catch (e) {
       throw new CustomError(e.message, 400);
     }
   };
 
-  private setXLSDataToObservation = async (excelData: DataCheck): Promise<void> => {
+  private setXLSDataToObservation = async (excelData: WorkBookData): Promise<void> => {
     const defaults = {
       manipulated: 'U',
       catchingMethod: 'U',
@@ -141,8 +144,12 @@ export default class XLSImporterValidateObservations extends AbstractImporter<
     delete excelData.addedData;
   };
 
+  private importValidRows = async (validObservations: RawData[]): Promise<void> => {
+    await this.observations.insert(validObservations);
+  };
+
   // TODO: clarify if we need to support multiple files
-  public async import({ sources }: ImportInput<Express.Multer.File>): Promise<DataCheckDto> {
+  public async import({ sources }: ImportInput<Express.Multer.File>): Promise<any> {
     if (!sources.length) {
       throw new CustomError('No files detected', 400);
     }
@@ -151,19 +158,33 @@ export default class XLSImporterValidateObservations extends AbstractImporter<
 
     const [file] = sources;
 
-    const workbook: Workbook = await new Excel.Workbook().xlsx.load(file.buffer);
-    const excelHeaders: HeaderCheck = await checkObservationsHeaderNames(workbook, 'validate-xls');
+    try {
+      const workBook: WorkBook = await XLSX.read(file.buffer, { type: 'buffer' });
+      const excelHeaders: HeaderCheck = await checkObservationsHeaderNames(workBook, 'validate-xls');
 
-    if (!excelHeaders.verified) {
-      throw new CustomError(`Missing header titles: ${excelHeaders.errors.join(',')}`, 400);
+      if (!excelHeaders.verified) {
+        throw new CustomError(`Missing header titles: ${excelHeaders.errors.join(',')}`, 400);
+      }
+
+      const workBookData: WorkBookData = await checkWorkBookData(workBook);
+
+      if (workBookData.invalidDataFormat.length) {
+        return { errors: workBookData.invalidDataFormat };
+      }
+
+      await this.checkEuRingCodes(workBookData);
+
+      if (workBookData.euRingErrors.length) {
+        return { errors: workBookData.euRingErrors };
+      }
+
+      await this.checkPossibleClones(workBookData);
+      await this.setXLSDataToObservation(workBookData);
+
+      await this.importValidRows(workBookData.observations);
+    } catch (e) {
+      console.log(e);
+      throw new CustomError(e.detail, 500);
     }
-
-    const checkedFormatData = await checkObservationImportedData(workbook);
-    await this.checkEuRingCodes(checkedFormatData);
-    await this.checkPossibleClones(checkedFormatData);
-    await this.setXLSDataToObservation(checkedFormatData);
-    delete checkedFormatData.validFormatData;
-
-    return checkedFormatData;
   }
 }
