@@ -1,6 +1,12 @@
-import { container } from '../../infrastructure';
-import { TYPES } from '../../infrastructure/types';
-import { MailSender } from './MailSender';
+import config from 'config';
+import { MailSender, DummyMailSender, SendGridMailSender } from './MailSender';
+
+const { service } = config.get('mailService');
+
+const mailSenderMap: { [key: string]: { new (...args: string[]): MailSender } } = {
+  Dummy: DummyMailSender,
+  SendGrid: SendGridMailSender,
+};
 
 export class MailService {
   private mailSender: MailSender;
@@ -28,6 +34,6 @@ export const getMailServiceInstance = (): MailService => {
 };
 
 export function initMailService(): void {
-  const senderInstance = container.get<MailSender>(TYPES.MailSender);
+  const senderInstance = new mailSenderMap[service]();
   mailService = new MailService(senderInstance);
 }

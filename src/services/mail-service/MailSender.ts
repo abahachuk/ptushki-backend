@@ -1,7 +1,6 @@
 /* eslint-disable no-unused-vars */
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import config from 'config';
-import { injectable } from 'inversify';
 import { createTransport } from 'nodemailer';
 import { passwordChangeMail, passwordResetMail } from '../../templates/mail';
 
@@ -17,7 +16,6 @@ export interface MailSender {
   sendResetCompleteMail(email: string): Promise<void>;
 }
 
-@injectable()
 export class DummyMailSender implements MailSender {
   public sendChangeRequestMail(_token: string, _email: string): Promise<void> {
     console.log('dummy sent Change request mail');
@@ -30,7 +28,6 @@ export class DummyMailSender implements MailSender {
   }
 }
 
-@injectable()
 export class SendGridMailSender implements MailSender {
   public constructor() {
     this.smtpTransport = createTransport({ service, auth });
