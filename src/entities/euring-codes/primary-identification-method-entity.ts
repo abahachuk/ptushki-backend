@@ -3,6 +3,7 @@ import { Length, IsAlphanumeric, IsOptional, IsString } from 'class-validator';
 import { equalLength } from '../../validation/validation-messages';
 import { EntityDto } from '../common-interfaces';
 import { Ring } from '../ring-entity';
+import { Observation } from '../observation-entity';
 
 // Related table in access 'Primary identification mehod'
 @Entity()
@@ -29,4 +30,7 @@ export class PrimaryIdentificationMethod implements EntityDto {
 
   @OneToMany(() => Ring, m => m.primaryIdentificationMethod)
   public ring: Ring[];
+
+  @OneToMany(() => Observation, m => m.primaryIdentificationMethod)
+  public observation: Observation[];
 }

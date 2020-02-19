@@ -7,3 +7,10 @@ export function fromStringToValueOrNull(
   }
   return to(val);
 }
+
+export function fromNumberToPaddedString(val: number, grade: number): string | null {
+  if (!val || !grade) {
+    return null;
+  }
+  return val.toString(10).padStart(grade, '0');
+}

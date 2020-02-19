@@ -1,4 +1,3 @@
-import { path } from 'ramda';
 import { Entity, Column, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
 import {
   IsUUID,
@@ -38,12 +37,19 @@ import {
   CircumstancesPresumed,
   PlaceCode,
   PlaceCodeDto,
+  RingingScheme,
+  PrimaryIdentificationMethod,
+  VerificationOfTheMetalRing,
+  MetalRingInformation,
+  OtherMarksInformation,
+  EURINGCodeIdentifier,
+  BroodSize,
 } from './euring-codes';
-import { AbleToExportAndImportEuring, EntityDto } from './common-interfaces';
+import { AbleToExportAndImportEuring, EntityDto, EURINGCodes } from './common-interfaces';
 import { ColumnNumericTransformer } from '../utils/ColumnNumericTransformer';
 import { fromDateToEuringDate, fromDateToEuringTime, fromEuringToDate } from '../utils/date-parser';
 import { fromDecimalToEuring, DecimalCoordinates, fromEuringToDecimal } from '../utils/coords-parser';
-import { fromStringToValueOrNull } from '../utils/custom-parsers';
+import { fromStringToValueOrNull, fromNumberToPaddedString } from '../utils/custom-parsers';
 
 export interface NewObservation {
   finder: User;
@@ -85,6 +91,13 @@ export interface ObservationBase<TFinder, TCommon, TRing, TSpecies, TPlaceCode>
   finder: TFinder;
   elapsedTime: number | null;
   colorRing: string | null;
+  ringingScheme: EntityDto;
+  primaryIdentificationMethod: EntityDto;
+  verificationOfTheMetalRing: EntityDto;
+  metalRingInformation: EntityDto;
+  otherMarksInformation: EntityDto;
+  euringCodeIdentifier: EntityDto;
+  broodSize: EntityDto;
   manipulated: EntityDto;
   movedBeforeTheCapture: EntityDto;
   catchingMethod: EntityDto;
@@ -109,7 +122,7 @@ export interface ObservationBaseDto extends ObservationBase<string, string, stri
 export interface ObservationDto extends ObservationBase<UserDto, EntityDto, RingDto, SpeciesDto, PlaceCodeDto> {}
 
 @Entity()
-export class Observation implements ObservationDto, AbleToExportAndImportEuring {
+export class Observation implements ObservationDto, AbleToExportAndImportEuring, EURINGCodes {
   @PrimaryGeneratedColumn('uuid')
   public id: string;
 
@@ -126,6 +139,10 @@ export class Observation implements ObservationDto, AbleToExportAndImportEuring 
   @Column('varchar', { nullable: true, default: null })
   public ringMentioned: string;
 
+  public get identificationNumber(): string {
+    return this.ringMentioned;
+  }
+
   @IsOptional()
   @IsUUID()
   @ManyToOne(() => User, m => m.observation, {
@@ -137,6 +154,58 @@ export class Observation implements ObservationDto, AbleToExportAndImportEuring 
   @IsString({ each: true })
   @Column('varchar', { array: true, nullable: true, default: null })
   public photos: string[];
+
+  @IsAlpha()
+  @Length(3, 3, { message: equalLength(3) })
+  @ManyToOne(() => RingingScheme, m => m.observation, {
+    eager: true,
+  })
+  public ringingScheme: RingingScheme;
+
+  @IsAlphanumeric()
+  @Length(2, 2, { message: equalLength(2) })
+  @ManyToOne(() => PrimaryIdentificationMethod, m => m.observation, {
+    eager: true,
+  })
+  public primaryIdentificationMethod: PrimaryIdentificationMethod;
+
+  @IsInt()
+  @Min(0)
+  @Max(9)
+  @ManyToOne(() => VerificationOfTheMetalRing, m => m.observation, {
+    eager: true,
+  })
+  public verificationOfTheMetalRing: VerificationOfTheMetalRing;
+
+  @IsInt()
+  @Min(0)
+  @Max(7)
+  @ManyToOne(() => MetalRingInformation, m => m.observation, {
+    eager: true,
+  })
+  public metalRingInformation: MetalRingInformation;
+
+  @IsAlpha()
+  @Length(2, 2, { message: equalLength(2) })
+  @ManyToOne(() => OtherMarksInformation, m => m.observation, {
+    eager: true,
+  })
+  public otherMarksInformation: OtherMarksInformation;
+
+  @IsInt()
+  @Min(0)
+  @Max(4)
+  @ManyToOne(() => EURINGCodeIdentifier, m => m.observation, {
+    eager: true,
+  })
+  public euringCodeIdentifier: EURINGCodeIdentifier;
+
+  @IsNumberStringWithHyphen()
+  @Length(2, 2, { message: equalLength(2) })
+  @ManyToOne(() => BroodSize, m => m.observation, {
+    eager: true,
+  })
+  public broodSize: BroodSize;
 
   @IsNumberString()
   @Length(5, 5, { message: equalLength(5) })
@@ -380,38 +449,38 @@ export class Observation implements ObservationDto, AbleToExportAndImportEuring 
 
   public exportEURING(): string {
     return [
-      path(['ring', 'ringingScheme', 'id'], this),
-      path(['ring', 'primaryIdentificationMethod', 'id'], this),
-      path(['ring', 'identificationNumber'], this),
-      path(['ring', 'verificationOfTheMetalRing', 'id'], this),
-      path(['ring', 'metalRingInformation', 'id'], this),
-      path(['ring', 'otherMarksInformation', 'id'], this),
-      path(['speciesMentioned', 'id'], this),
-      path(['manipulated', 'id'], this),
-      path(['movedBeforeTheCapture', 'id'], this),
-      path(['catchingMethod', 'id'], this),
-      path(['catchingLures', 'id'], this),
-      path(['sexMentioned', 'id'], this),
-      path(['sexConcluded', 'id'], this),
-      path(['ageMentioned', 'id'], this),
-      path(['ageConcluded', 'id'], this),
-      path(['status', 'id'], this),
-      path(['ring', 'broodSize', 'id'], this),
-      path(['pullusAge', 'id'], this),
-      path(['accuracyOfPullusAge', 'id'], this),
+      this.ringingScheme.id,
+      this.primaryIdentificationMethod.id,
+      this.identificationNumber, // we are using mentioned instead related
+      this.verificationOfTheMetalRing.id,
+      this.metalRingInformation.id,
+      this.otherMarksInformation.id,
+      this.speciesMentioned.id,
+      this.manipulated.id,
+      this.movedBeforeTheCapture.id,
+      this.catchingMethod.id,
+      this.catchingLures.id,
+      this.sexMentioned.id,
+      this.sexConcluded.id,
+      this.ageMentioned.id,
+      this.ageConcluded.id,
+      this.status.id,
+      this.broodSize.id,
+      this.pullusAge.id,
+      this.accuracyOfPullusAge.id,
       fromDateToEuringDate(this.date),
-      path(['accuracyOfDate', 'id'], this),
+      this.accuracyOfDate.id,
       fromDateToEuringTime(this.date),
-      path(['placeCode', 'id'], this),
+      this.placeCode.id,
       fromDecimalToEuring(this.latitude, this.longitude),
-      path(['accuracyOfCoordinates', 'id'], this),
-      path(['condition', 'id'], this),
-      path(['circumstances', 'id'], this),
-      path(['circumstancesPresumed', 'id'], this),
-      path(['ring', 'euringCodeIdentifier', 'id'], this),
-      this.distance,
-      this.direction,
-      this.elapsedTime,
+      this.accuracyOfCoordinates.id,
+      this.condition.id,
+      this.circumstances.id,
+      this.circumstancesPresumed.id,
+      this.euringCodeIdentifier.id,
+      fromNumberToPaddedString(this.distance, 5) || '-'.repeat(5),
+      fromNumberToPaddedString(this.direction, 3) || '-'.repeat(3),
+      fromNumberToPaddedString(this.elapsedTime as number, 5) || '-'.repeat(5),
       // Below unsupported parameters that presented in EURING
       '', // wing length
       '', // third primary
@@ -444,19 +513,14 @@ export class Observation implements ObservationDto, AbleToExportAndImportEuring 
   }
 
   /* eslint-disable */
-  public importEURING(code: string): any {
+  public importEURING(code: string): Observation {
     const [
-      // @ts-ignore
-      ringingScheme, // Presented in ring entity
-      // @ts-ignore
-      primaryIdentificationMethod, // Presented in ring entity
+      ringingScheme,
+      primaryIdentificationMethod,
       identificationNumber,
-      // @ts-ignore
-      verificationOfTheMetalRing, // Presented in ring entity
-      // @ts-ignore
-      metalRingInformation, // Presented in ring entity
-      // @ts-ignore
-      otherMarksInformation, // Presented in ring entity
+      verificationOfTheMetalRing,
+      metalRingInformation,
+      otherMarksInformation,
       speciesMentioned,
       manipulated,
       movedBeforeTheCapture,
@@ -467,8 +531,7 @@ export class Observation implements ObservationDto, AbleToExportAndImportEuring 
       ageMentioned,
       ageConcluded,
       status,
-      // @ts-ignore
-      broodSize, // Presented in ring entity
+      broodSize,
       pullusAge,
       accuracyOfPullusAge,
       date,
@@ -480,8 +543,7 @@ export class Observation implements ObservationDto, AbleToExportAndImportEuring 
       condition,
       circumstances,
       circumstancesPresumed,
-      // @ts-ignore
-      euringCodeIdentifier, // Presented in ring entity
+      euringCodeIdentifier,
       distance,
       direction,
       elapsedTime,
@@ -544,6 +606,13 @@ export class Observation implements ObservationDto, AbleToExportAndImportEuring 
     const { latitude, longitude }: DecimalCoordinates = fromEuringToDecimal(latitudeLongitude);
 
     return Object.assign(this, {
+      ringingScheme: fromStringToValueOrNull(ringingScheme),
+      primaryIdentificationMethod: fromStringToValueOrNull(primaryIdentificationMethod),
+      verificationOfTheMetalRing: fromStringToValueOrNull(verificationOfTheMetalRing, Number),
+      metalRingInformation: fromStringToValueOrNull(metalRingInformation, Number),
+      otherMarksInformation: fromStringToValueOrNull(otherMarksInformation),
+      broodSize: fromStringToValueOrNull(broodSize),
+      euringCodeIdentifier: fromStringToValueOrNull(euringCodeIdentifier, Number),
       ringMentioned: fromStringToValueOrNull(identificationNumber),
       speciesMentioned: fromStringToValueOrNull(speciesMentioned),
       manipulated: fromStringToValueOrNull(manipulated),

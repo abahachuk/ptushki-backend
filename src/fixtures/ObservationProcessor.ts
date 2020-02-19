@@ -6,5 +6,12 @@ export default class ObservationProcessor implements IProcessor<Observation> {
   public postProcess(_name: string, object: Observation): void {
     /* eslint-disable no-param-reassign */
     object.ringMentioned = object.ring.identificationNumber;
+    // simplified pullus flow
+    if (object.ageMentioned.id === '1') {
+      object.status.id = '-';
+    } else {
+      object.pullusAge.id = '--';
+      object.accuracyOfPullusAge.id = '-';
+    }
   }
 }
