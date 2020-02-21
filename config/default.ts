@@ -31,6 +31,7 @@ export default {
     resetSecret: process.env.JWT_RESET_TOKEN_SECRET || 'secret',
     accessExpires: Number.parseInt(process.env.JWT_ACCESS_TOKEN_EXPIRES as string, 10) || '1h',
     refreshExpires: process.env.JWT_REFRESH_TOKEN_EXPIRES || '30d',
+    resetExpires: process.env.JWT_RESET_TOKEN_EXPIRES || '30d',
   },
   paging: {
     pageNumberDefault: 0,

@@ -250,18 +250,11 @@ export default class AuthController extends AbstractController {
 
   @POST
   @Path('/reset')
-  @Security()
   @Response<{ ok: boolean }>(200, 'Password was successfully reseted.')
-  public async resetPassword(body: any, @ContextNext next: NextFunction): Promise<{ id: string } | void> {
+  public async resetPassword(body: any, @ContextNext next: NextFunction): Promise<{ ok: boolean } | void> {
     try {
-      const { token, passwords } = body;
-
-      const {
-        oldPassword,
-        newPassword,
-      }: { oldPassword: string | undefined; newPassword: string | undefined } = passwords;
-
-      if (!token || !oldPassword || !newPassword) {
+      const { token, password, newPassword }: { token: string; password: string; newPassword: string } = body;
+      if (!token || !password || !newPassword) {
         throw new CustomError('Reset token and passwords are required', 400);
       }
 
@@ -276,15 +269,16 @@ export default class AuthController extends AbstractController {
         throw new CustomError('Non-existent user cannot be authorized', 401);
       }
 
-      const isPasswordCorrect = await isCorrect(oldPassword, user.salt, user.hash);
+      const isPasswordCorrect = await isCorrect(password, user.salt, user.hash);
       if (!isPasswordCorrect) {
         throw new CustomError('Invalid old password', 401);
       }
 
+      await user.setPassword(newPassword);
+      await this.users.save(user);
       await this.resetTokens.delete({ token });
       await this.mailServise.sendResetCompleteMail(email);
-
-      return { id: userId };
+      return { ok: true };
     } catch (e) {
       if (e instanceof TokenExpiredError) {
         return next(new CustomError('Token expired', 401));
