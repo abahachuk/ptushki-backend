@@ -20,7 +20,7 @@ import { signTokens, verifyRefreshToken, signResetToken, verifyResetToken, auth 
 import { isCorrect } from '../services/user-crypto-service';
 import { addAudit } from '../services/audit-service';
 // import { sendChangeRequestMail, sendResetCompleteMail } from '../services/mail-service';
-import { getMailServiceInstance, MailService } from '../services/mail-service/index.';
+import { getMailServiceInstance, MailService } from '../services/mail-service';
 import { CustomError } from '../utils/CustomError';
 
 @Path('auth')

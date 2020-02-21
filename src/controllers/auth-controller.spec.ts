@@ -7,6 +7,7 @@ import createApp from '../app';
 import connectDB from '../db';
 import { isCorrect } from '../services/user-crypto-service';
 import { signTokens, signResetToken } from '../services/auth-service';
+import { getMailServiceInstance, MailService } from '../services/mail-service';
 import { UserRole, User, CreateUserDto } from '../entities/user-entity';
 import { RefreshToken } from '../entities/auth-entity';
 import { ResetToken } from '../entities/reset-token';
@@ -32,6 +33,7 @@ jest.setTimeout(30000);
 let tokenRepository: Repository<RefreshToken>;
 let userRepository: Repository<User>;
 let resetTokeneRepository: Repository<ResetToken>;
+let mailServise: MailService;
 
 beforeAll(async () => {
   connection = await connectDB();
@@ -39,6 +41,7 @@ beforeAll(async () => {
   tokenRepository = getRepository(RefreshToken);
   userRepository = getRepository(User);
   resetTokeneRepository = getRepository(ResetToken);
+  mailServise = getMailServiceInstance();
 });
 
 afterAll(async () => {
@@ -444,12 +447,14 @@ describe('Auth', () => {
     const password = '12345';
     let user: User;
     let resetToken: string;
+    let spyOnSendChangeRequestMail: jest.SpyInstance<Promise<void>, [string, string]>;
 
     beforeAll(async () => {
       user = await User.create({ email, password });
       resetToken = await signResetToken({ email, userId: user.id });
       await userRepository.save(user);
       await resetTokeneRepository.save(new ResetToken(resetToken, user.id));
+      spyOnSendChangeRequestMail = jest.spyOn(mailServise, 'sendChangeRequestMail');
     });
 
     it('be able to generate reset token and overwrite existing if it exists', async () => {
@@ -465,6 +470,7 @@ describe('Auth', () => {
       expect(res.body.ok).toEqual(true);
       expect(currentResetToken).not.toEqual(undefined);
       expect(previousResetToken).toEqual(undefined);
+      expect(spyOnSendChangeRequestMail).toHaveBeenCalledWith(currentResetToken!.token, email);
     });
   });
 
