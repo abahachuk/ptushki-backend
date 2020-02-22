@@ -27,7 +27,6 @@ export class MailService {
 let mailService: MailService | null;
 
 export const getMailServiceInstance = (): MailService => {
-  console.log('------------getMailServiceInstance');
   if (mailService === null) {
     throw new Error('mail service was not initiated');
   }
@@ -35,8 +34,6 @@ export const getMailServiceInstance = (): MailService => {
 };
 
 export function initMailService(): void {
-  console.log('------------initMailService', service);
-
   const senderInstance = new mailSenderMap[service]();
   mailService = new MailService(senderInstance);
 }
