@@ -41,3 +41,15 @@ export class ChangePasswordReqDto {
 export class SuccessAuthDto extends TokensPairDto {
   public readonly user: UserDto;
 }
+
+export class ForgotPasswordReqDto {
+  public readonly email: string;
+}
+
+export class ResetPasswordReqDto {
+  public readonly token: string;
+
+  public readonly password: string;
+
+  public readonly newPassword: string;
+}

@@ -14,6 +14,8 @@ import {
   RefreshToken,
   SuccessAuthDto,
   TokensPairDto,
+  ForgotPasswordReqDto,
+  ResetPasswordReqDto,
 } from '../entities/auth-entity';
 import { ResetToken } from '../entities/reset-token';
 import { signTokens, verifyRefreshToken, signResetToken, verifyResetToken, auth } from '../services/auth-service';
@@ -210,17 +212,21 @@ export default class AuthController extends AbstractController {
     }
   }
 
+  /**
+   * Initiating process of reseting password.
+   * @param {ForgotPasswordReqDto} payload
+   */
   @POST
   @Path('/forgot')
   @Response<{ ok: boolean }>(200, 'Request for password reset was successfully created.')
+  @Response<CustomError>(400, 'Email is required')
+  @Response<CustomError>(401, 'Non-existent user cannot be authorized')
   public async forgotPassword(
-    body: any,
-    @ContextRequest _req: Request,
+    payload: ForgotPasswordReqDto,
     @ContextNext next: NextFunction,
   ): Promise<{ ok: boolean } | void> {
     try {
-      const { email } = body;
-
+      const { email } = payload;
       if (!email) {
         throw new CustomError('Email is required', 400);
       }
@@ -241,19 +247,28 @@ export default class AuthController extends AbstractController {
 
       return { ok: true };
     } catch (e) {
-      if (e instanceof JsonWebTokenError) {
-        return next(new CustomError('Token invalid', 401));
-      }
       return next(e);
     }
   }
 
+  /**
+   * Finishing process of reseting password.
+   * @param {ResetPasswordReqDto} payload
+   */
   @POST
   @Path('/reset')
   @Response<{ ok: boolean }>(200, 'Password was successfully reseted.')
-  public async resetPassword(body: any, @ContextNext next: NextFunction): Promise<{ ok: boolean } | void> {
+  @Response<CustomError>(400, 'Reset token and passwords are required')
+  @Response<CustomError>(401, 'Token already was used or never existed')
+  @Response<CustomError>(401, 'Non-existent user cannot be authorized')
+  @Response<CustomError>(401, 'Invalid old password')
+  @Response<CustomError>(401, 'Token expired')
+  public async resetPassword(
+    payload: ResetPasswordReqDto,
+    @ContextNext next: NextFunction,
+  ): Promise<{ ok: boolean } | void> {
     try {
-      const { token, password, newPassword }: { token: string; password: string; newPassword: string } = body;
+      const { token, password, newPassword } = payload;
       if (!token || !password || !newPassword) {
         throw new CustomError('Reset token and passwords are required', 400);
       }
@@ -282,9 +297,6 @@ export default class AuthController extends AbstractController {
     } catch (e) {
       if (e instanceof TokenExpiredError) {
         return next(new CustomError('Token expired', 401));
-      }
-      if (e instanceof JsonWebTokenError) {
-        return next(new CustomError('Token invalid', 401));
       }
       return next(e);
     }
