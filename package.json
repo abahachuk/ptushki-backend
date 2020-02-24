@@ -59,7 +59,7 @@
     "swagger-ui-express": "^4.0.2",
     "tslib": "^1.9.3",
     "typeorm": "0.2.16",
-    "typeorm-fixtures-cli": "^1.1.1",
+    "typeorm-fixtures-cli": "^1.5.0",
     "typescript-rest": "^2.2.2",
     "typescript-rest-swagger": "^1.0.4",
     "winston": "^3.2.1",

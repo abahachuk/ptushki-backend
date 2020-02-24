@@ -1,9 +1,11 @@
 entity: Observation
 processor: ./ObservationProcessor
 items:
-  observation{0..50}:
+  observation{0..500}:
     ring: '@ring*'
     finder: '@user*'
+    offlineFinder: '@person*'
+    offlineFinderNote: '{{name.firstName}} {{name.lastName}}, {{address.city}}'
     speciesMentioned: '@species*'
     speciesConcluded: '@species*'
     sexMentioned: '@sex*'
@@ -30,13 +32,12 @@ items:
     condition: '@condition*'
     circumstances: '@circumstances*'
     circumstancesPresumed: '@circumstancesPresumed*'
-    date: '{{date.past}}'
+    date: '{{date.past(2)}}'
     accuracyOfDate: '@accuracyOfDate*'
     placeName: '{{address.state}} {{address.city}}'
     placeCode: '@placeCode*'
     distance: '{{random.number(99999)}}'
     direction: '{{random.number(359)}}'
-    elapsedTime: '{{random.number(99999)}}'
     colorRing: '{{lorem.words}}'
     remarks: '{{lorem.words}}'
     verified: 'pending'

@@ -20,7 +20,7 @@ const gettingAllObservations = {
 
 export const sanitizeUser = (observationEntry: [string, any]): [string, any] => {
   const [observationKey, observationValue] = observationEntry;
-  if (observationKey === 'finder') {
+  if (observationKey === 'finder' && observationValue) {
     const finder = User.sanitizeUser(observationValue);
 
     return [observationKey, finder];
