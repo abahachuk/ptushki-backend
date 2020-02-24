@@ -258,11 +258,11 @@ export default class AuthController extends AbstractController {
   @POST
   @Path('/reset')
   @Response<{ ok: boolean }>(200, 'Password was successfully reseted.')
-  @Response<CustomError>(400, 'Reset token and passwords are required')
-  @Response<CustomError>(401, 'Token already was used or never existed')
-  @Response<CustomError>(401, 'Non-existent user cannot be authorized')
-  @Response<CustomError>(401, 'Invalid old password')
-  @Response<CustomError>(401, 'Token expired')
+  @Response<CustomError>(400, 'Reset token and passwords are required.')
+  @Response<CustomError>('Token already was used or never existed.')
+  @Response<CustomError>('Non-existent user cannot be authorized.')
+  @Response<CustomError>('Invalid password.')
+  @Response<CustomError>('Token expired')
   public async resetPassword(
     payload: ResetPasswordReqDto,
     @ContextNext next: NextFunction,
