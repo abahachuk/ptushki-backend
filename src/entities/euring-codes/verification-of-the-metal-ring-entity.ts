@@ -2,6 +2,7 @@ import { Entity, PrimaryColumn, Column, OneToMany } from 'typeorm';
 import { IsInt, Min, Max, IsOptional, IsString } from 'class-validator';
 import { EntityDto } from '../common-interfaces';
 import { Ring } from '../ring-entity';
+import { Observation } from '../observation-entity';
 
 // Related table in access 'Verification of the metal ring'
 @Entity()
@@ -29,4 +30,7 @@ export class VerificationOfTheMetalRing implements EntityDto {
 
   @OneToMany(() => Ring, m => m.verificationOfTheMetalRing)
   public ring: Ring[];
+
+  @OneToMany(() => Observation, m => m.verificationOfTheMetalRing)
+  public observation: Observation[];
 }

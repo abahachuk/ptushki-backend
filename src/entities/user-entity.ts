@@ -26,6 +26,25 @@ export interface NewUser {
 
 export interface CreateUserDto extends NewUser, WithCredentials {}
 
+export interface UpdateUserDto {
+  firstName?: string;
+  lastName?: string;
+}
+
+export interface UpdateUserEmailDto {
+  newEmail: string;
+  password: string;
+}
+
+export interface UpdateUserPasswordDto {
+  newPassword: string;
+  password: string;
+}
+
+export interface UpdateUserRoleDto {
+  role: UserRole;
+}
+
 export interface UserDto extends NewUser {
   id: string;
   role: UserRole;
@@ -72,7 +91,7 @@ export class User implements UserDto {
   @Column()
   public salt: string;
 
-  @OneToMany(() => Ring, m => m.ringerInformation)
+  @OneToMany(() => Ring, m => m.ringer)
   public ring: Ring[];
 
   @OneToMany(() => Observation, m => m.finder)

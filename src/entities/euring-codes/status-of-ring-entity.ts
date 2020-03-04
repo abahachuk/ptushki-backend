@@ -5,6 +5,7 @@ import { EntityDto } from '../common-interfaces';
 import { Ring } from '../ring-entity';
 
 // Related table in access 'Status of ring'
+// FIXME it isn't EURING code
 @Entity()
 export class StatusOfRing implements EntityDto {
   @IsAlpha()

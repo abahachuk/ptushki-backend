@@ -4,6 +4,7 @@ import { IsNumberStringWithHyphen } from '../../validation/custom-decorators';
 import { equalLength } from '../../validation/validation-messages';
 import { EntityDto } from '../common-interfaces';
 import { Ring } from '../ring-entity';
+import { Observation } from '../observation-entity';
 
 // Related table in access 'Broodsize'
 @Entity()
@@ -30,4 +31,7 @@ export class BroodSize implements EntityDto {
 
   @OneToMany(() => Ring, m => m.broodSize)
   public ring: Ring[];
+
+  @OneToMany(() => Observation, m => m.broodSize)
+  public observation: Observation[];
 }

@@ -28,7 +28,6 @@ export interface EURINGCodes {
   circumstancesPresumed: any;
   accuracyOfDate: any;
   euringCodeIdentifier: any;
-  statusOfRing: any;
 }
 
 export interface WithDescription {

@@ -1,60 +1,61 @@
 import 'dotenv/config';
-// @ts-ignore
-// eslint-disable-next-line import/no-extraneous-dependencies
-import ADODB from 'node-adodb';
-import { Connection, createConnection, getRepository, Repository } from 'typeorm';
+import { Connection, createConnection } from 'typeorm';
+
+import './access-connection';
 import config from '../prepare-db-config';
-import { EURINGs } from './EURING-access-tables';
+import { EURINGs, EuringAccessTable } from './euring-access-tables';
+import { prepareToUploadEURING, uploadEURING, uploadPersons, uploadRings, uploadObservations } from './handlers';
 import { logger } from '../../utils/logger';
-
-const accessConnection = ADODB.open(
-  'Provider=Microsoft.ACE.OLEDB.12.0;Data Source=MBCRB(2007-30.01.2012).mdb;Persist Security Info=False;',
-);
-
-async function query(table: string): Promise<any[]> {
-  try {
-    const { Entity, mapping } = EURINGs[table];
-    const keys: string[] = [...mapping.keys()];
-    const content: { [index: string]: any }[] = await accessConnection.query(`SELECT * FROM ${table}`);
-    return content.map((item: { [index: string]: any }) =>
-      Object.assign(
-        new Entity(),
-        keys.reduce((acc: { [index: string]: string }, key: string) => {
-          const value = item[mapping.get(key) as string];
-          if (value) {
-            acc[key] = value;
-          }
-          return acc;
-        }, {}),
-      ),
-    );
-  } catch (error) {
-    logger.error(table, error);
-    return [];
-  }
-}
-
-async function load(instances: any[], tableName: string) {
-  const { Entity } = EURINGs[tableName];
-  const repository: Repository<any> = getRepository(Entity);
-  await repository.insert(instances);
-}
 
 let db: Connection | undefined;
 
+const tables: { [index: string]: { name: string; id?: string } } = {
+  persons: {
+    name: 'Ringer_information',
+  },
+  rings: {
+    name: 'Ringby',
+    id: 'RN',
+  },
+  observations: {
+    name: 'Ringby_recov',
+    id: 'RefNo',
+  },
+};
+
 (async () => {
   try {
+    console.time('Total');
+    logger.info('Parsing started');
     db = await createConnection(config);
+    logger.info('DB connected');
     await db.synchronize(true);
+    logger.info('DB dropped and synced');
+
+    console.time('EURING codes');
     // eslint-disable-next-line no-restricted-syntax
-    for (const tableName of Object.keys(EURINGs)) {
+    for (const tableName of Object.keys(EURINGs) as EuringAccessTable[]) {
       // eslint-disable-next-line no-await-in-loop
-      const instances = await query(tableName);
-      if (instances.length) {
+      const records = await prepareToUploadEURING(tableName);
+      if (records.length) {
         // eslint-disable-next-line no-await-in-loop
-        await load(instances, tableName);
+        await uploadEURING(records, tableName);
       }
     }
+    console.timeEnd('EURING codes');
+
+    console.time('Persons');
+    const personsHash = await uploadPersons(tables.persons.name);
+    console.timeEnd('Persons');
+
+    console.time('Rings');
+    const ringsHash = await uploadRings(tables.rings.name, tables.rings.id as string, personsHash);
+    console.timeEnd('Rings');
+
+    console.time('Observations');
+    await uploadObservations(tables.observations.name, tables.observations.id as string, personsHash, ringsHash);
+    console.timeEnd('Observations');
+    console.timeEnd('Total');
   } catch (error) {
     logger.error(error);
   }
