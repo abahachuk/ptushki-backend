@@ -166,7 +166,6 @@ const validateImportedData = async (data: any): Promise<any> => {
 };
 
 export const checkObservationImportedData = async (workbook: Workbook): Promise<DataCheck> => {
-  const headers: string[] = [];
   const worksheet = workbook.getWorksheet(1);
   const fileImportStatus: DataCheck = {
     emptyRowCount: 0,
@@ -182,13 +181,7 @@ export const checkObservationImportedData = async (workbook: Workbook): Promise<
   let rowNumber = 2;
   if (worksheet) {
     fileImportStatus.rowCount = worksheet.rowCount - 1;
-    worksheet.getRow(1).eachCell(
-      (cell: Cell): void => {
-        if (cell.model.value) {
-          headers.push(cell.model.value.toString());
-        }
-      },
-    );
+    const headers: string[] = getHeaderNames(worksheet);
 
     while (rowNumber <= worksheet.rowCount) {
       const rawData: RawData = {};
