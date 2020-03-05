@@ -9,7 +9,6 @@ import {
   DataCheck,
   DataCheckDto,
   EURingError,
-  HeaderCheck,
   RawData,
   RowErorr,
   RowValidatedData,
@@ -45,11 +44,7 @@ export default class XLSImporterForObservations extends AbstractImporter<
       const [file] = sources;
 
       const workbook: Workbook = await new Excel.Workbook().xlsx.load(file.buffer);
-      const excelHeaders: HeaderCheck = await checkObservationsHeaderNames(workbook, 'xls');
-
-      if (!excelHeaders.verified) {
-        throw new CustomError(`Missing header titles: ${excelHeaders.errors.join(',')}`, 400);
-      }
+      await checkObservationsHeaderNames(workbook, 'xls');
 
       const checkedFormatData = await checkObservationImportedData(workbook);
 

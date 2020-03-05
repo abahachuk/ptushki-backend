@@ -3,17 +3,13 @@ import { validate, ValidationError } from 'class-validator';
 import { columns } from './columns';
 import { properties } from './properties';
 import { ImportObservationsValidator } from './observation-format-validator';
+import { CustomError } from '../../utils/CustomError';
 
 interface ParsedErrors {
   [key: string]: string[];
 }
 export interface RawData {
   [key: string]: {} | string;
-}
-
-export interface HeaderCheck {
-  verified: boolean;
-  errors: string[];
 }
 
 export interface EURingError {
@@ -117,7 +113,7 @@ const getHeaderNames = (worksheet: Worksheet): string[] => {
   return headers;
 };
 
-export const checkObservationsHeaderNames = async (workbook: Workbook, type: string): Promise<HeaderCheck> => {
+export const checkObservationsHeaderNames = async (workbook: Workbook, type: string): Promise<void> => {
   const columnNames = columns[type];
   const worksheet = workbook.getWorksheet(1);
   const errors: string[] = [];
@@ -141,9 +137,9 @@ export const checkObservationsHeaderNames = async (workbook: Workbook, type: str
     );
   }
 
-  const verified = errors.length <= 0;
-
-  return { verified, errors };
+  if (errors.length > 0) {
+    throw new CustomError(`Missed column titles: ${excelHeaders.join(',')}`, 400);
+  }
 };
 
 /* eslint-disable */
@@ -207,7 +203,7 @@ export const checkObservationImportedData = async (workbook: Workbook): Promise<
           } else if (headers[index - 1] === 'latitude' || headers[index - 1] === 'longitude') {
             // @ts-ignore
             rawData[headers[index - 1]] = +cell.model.value;
-          }else if (cell.model.value) {
+          } else if (cell.model.value) {
             rawData[headers[index - 1]] = cell.model.value.toString();
           }
         },
