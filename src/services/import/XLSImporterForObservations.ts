@@ -13,7 +13,7 @@ import {
   RawData,
   RowErorr,
   RowValidatedData,
-} from './excel/helper';
+} from '../excel-service/helper';
 // TODO: import { Observation } from '../../entities/observation-entity';
 import { cachedEURINGCodes } from '../../entities/euring-codes/cached-entities-fabric';
 import { Age, PlaceCode, Sex, Species, Status } from '../../entities/euring-codes';

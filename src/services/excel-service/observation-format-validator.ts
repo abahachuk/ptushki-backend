@@ -11,9 +11,9 @@ import {
   Max,
 } from 'class-validator';
 import { Column } from 'typeorm';
-import { IsAlphaWithHyphen } from '../../../validation/custom-decorators';
-import { equalLength } from '../../../validation/validation-messages';
-import { ColumnNumericTransformer } from '../../../utils/ColumnNumericTransformer';
+import { IsAlphaWithHyphen } from '../../validation/custom-decorators';
+import { equalLength } from '../../validation/validation-messages';
+import { ColumnNumericTransformer } from '../../utils/ColumnNumericTransformer';
 
 export class ImportObservationsValidator {
   @IsString()

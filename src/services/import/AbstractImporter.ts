@@ -1,6 +1,6 @@
 import path from 'path';
 import { validate, ValidationError } from 'class-validator';
-import { DataCheckDto } from './excel/helper';
+import { DataCheckDto } from '../excel-service/helper';
 import { CustomError } from '../../utils/CustomError';
 
 export interface MulterOptions {

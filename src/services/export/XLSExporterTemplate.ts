@@ -1,5 +1,5 @@
 import AbstractExporter, { ExporterType } from './AbstractExporter';
-import { createExcelWorkBook } from '../import/excel/helper';
+import { createExcelWorkBook } from '../excel-service/helper';
 
 export default class XLSExporterTemplate extends AbstractExporter<Buffer> {
   public type: ExporterType = ExporterType.template;

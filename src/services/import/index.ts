@@ -2,7 +2,7 @@ import AbstractImporter, { ImporterType, ImportInput, ImportOutput } from './Abs
 import EURINGImporterForObservations from './EURINGImporterForObservations';
 import XLSImporterForObservations from './XLSImporterForObservations';
 import { CustomError } from '../../utils/CustomError';
-import { DataCheckDto } from './excel/helper';
+import { DataCheckDto } from '../excel-service/helper';
 
 export default class Importer {
   private exporters: AbstractImporter[];

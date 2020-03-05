@@ -35,7 +35,7 @@ import { auth } from '../services/auth-service';
 import { UserRole } from '../entities/user-entity';
 import { ExporterType } from '../services/export/AbstractExporter';
 import { ImporterType } from '../services/import/AbstractImporter';
-import { DataCheckDto } from '../services/import/excel/helper';
+import { DataCheckDto } from '../services/excel-service/helper';
 import { parsePageParams, SortingDirection } from '../services/page-service';
 
 interface RequestWithPageParams extends Request {
