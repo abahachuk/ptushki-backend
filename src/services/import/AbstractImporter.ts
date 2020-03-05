@@ -36,10 +36,13 @@ export default abstract class AbstractImporter<
   public abstract async import(sources: TSource): Promise<TReturn>;
 
   protected filterFiles(files: Express.Multer.File[]) {
-    if (files.every(({ originalname }) => this.options.extensions.includes(path.extname(originalname)))) {
+    if (files.every(({ originalname: file }) => this.options.extensions.includes(path.extname(file)))) {
       return true;
     }
-    throw new Error(`Incorrect file extension. It is possible to upload only: ${this.options.extensions.join(',')}`);
+    throw new CustomError(
+      `Incorrect file extension. It is possible to upload only: ${this.options.extensions.join(', ')}`,
+      400,
+    );
   }
 
   protected async validate(data: any[]): Promise<void> {
