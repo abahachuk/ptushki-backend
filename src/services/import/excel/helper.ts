@@ -51,6 +51,7 @@ export interface DataCheckDto {
   possibleClones: number;
   addedData: RowValidatedData[];
   observations: RawData[];
+  importedCount: number;
   euRingErrors: EURingError[];
   invalidDataFormat: RowValidationError[];
 }
@@ -173,12 +174,12 @@ export const checkObservationImportedData = async (workbook: Workbook): Promise<
     possibleClones: 0,
     addedData: [],
     observations: [],
+    importedCount: 0,
     euRingErrors: [],
     validFormatData: [],
     invalidDataFormat: [],
   };
   let rowNumber = 2;
-
   if (worksheet) {
     fileImportStatus.rowCount = worksheet.rowCount - 1;
     worksheet.getRow(1).eachCell(
@@ -210,11 +211,15 @@ export const checkObservationImportedData = async (workbook: Workbook): Promise<
             } catch (e) {
               rawData[headers[index - 1]] = '';
             }
-          } else if (cell.model.value) {
+          } else if (headers[index - 1] === 'latitude' || headers[index - 1] === 'longitude') {
+            // @ts-ignore
+            rawData[headers[index - 1]] = +cell.model.value;
+          }else if (cell.model.value) {
             rawData[headers[index - 1]] = cell.model.value.toString();
           }
         },
       );
+
       // eslint-disable-next-line no-await-in-loop
       const result = await validateImportedData(rawData);
 

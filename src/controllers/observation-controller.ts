@@ -79,10 +79,10 @@ export default class ObservationController extends AbstractController {
 
   /**
    * Get all available observations.
-   * @param {number} pageNumber Page number, default value is set in config file
-   * @param {number} pageSize Page size, default value is set in config file
-   * @param {SortingDirection} sortingDirection Sorting direction
-   * @param {string} sortingColumn Column to search, can be any of ObservationDto field name
+   * @param pageNumber Page number, default value is set in config file
+   * @param pageSize Page size, default value is set in config file
+   * @param sortingDirection Sorting direction
+   * @param sortingColumn Column to search, can be any of ObservationDto field name
    */
   @GET
   @Path('/')
@@ -163,8 +163,10 @@ export default class ObservationController extends AbstractController {
   }
 
   /**
-   * Create new observation.
-   * @param {RawObservationDto} rawObservation Data for new observation.
+   * Create new observation. This observation will be automatically assigned to the sender of this request.
+   * The specified field `ringMentioned` will be searched by the table of rings,
+   * if found, it will be assigned a link to the ring.
+   * @param rawObservation Data for new observation.
    */
   @POST
   @Path('/')
@@ -190,8 +192,8 @@ export default class ObservationController extends AbstractController {
   }
 
   /**
-   * Get observation by id,
-   * @param {string} id Id if requested observation.
+   * Get observation by id.
+   * @param id Id if requested observation.
    */
   @GET
   @Path('/:id')
@@ -203,7 +205,9 @@ export default class ObservationController extends AbstractController {
   }
 
   /**
-   * Update observation by id,
+   * Update observation by id, if the observation does not have a linked ring (`ring`),
+   * or the ring number (`ringMentioned`) has been modified, a search will be made for the ring base
+   * and a link to the ring will be updated or added if found.
    * @param rawObservation Data for new updating.
    * @param id Id of updated observation.
    */
@@ -244,7 +248,7 @@ export default class ObservationController extends AbstractController {
 
   /**
    * Update verification status for observation.
-   * @param payload Id of updated observation and new verification status.
+   * @param payload Object with properties: id of updated observation and status as new verification status.
    */
   @POST
   @Path('/set-verification')
@@ -265,8 +269,7 @@ export default class ObservationController extends AbstractController {
 
   /**
    * Export observations with passed ids to xls.
-   * @param exportedContent.ids Ids of observations to export.
-   * @param exportedContent.lang New verified status.
+   * @param exportedContent Object with data about observations to export.
    */
   @POST
   @Path('/export/xls')
@@ -282,6 +285,8 @@ export default class ObservationController extends AbstractController {
 
   /**
    * Get xls template for observations.
+   * After that, the template should be filled with data with new observations
+   * and imported by the same endpoint only using the POST method.
    */
   @GET
   @Path('/export/xls')
@@ -289,9 +294,9 @@ export default class ObservationController extends AbstractController {
   @PreProcessor(auth.role(UserRole.Ringer))
   @Response<CustomError>(401, 'Unauthorised.')
   @Response<CustomError>(403, 'Forbidden.')
-  public async getExportTemplate(): Promise<Return.DownloadBinaryData> {
+  public async exportXlsTemplate(): Promise<Return.DownloadBinaryData> {
     const buffer = await this.exporter.handle(ExporterType.template);
-    return new Return.DownloadBinaryData(buffer, 'application/xlsx', 'obs_template.xlsx');
+    return new Return.DownloadBinaryData(buffer, 'application/xlsx', 'template-for-observations.xlsx');
   }
 
   /**
@@ -311,7 +316,7 @@ export default class ObservationController extends AbstractController {
 
   /**
    * Export observations with passed id to xls.
-   * @param exportedContent contains target language.
+   * @param exportedContent Object containing target language.
    * @param id Id of observation to export.
    */
   @POST
@@ -331,40 +336,23 @@ export default class ObservationController extends AbstractController {
   }
 
   /**
-   * Import observations from xls file.
-   * @param files Files in xls format to export.
+   * Import xls file with observations. First each file is validated, and only then imported.
+   * All observations will be assigned to the user making request.
+   * @param files Files in xls format to import. (for a while is only used first file)
    */
   @POST
   @Path('/import/xls')
   @PreProcessor(auth.role(UserRole.Ringer))
-  @Response<{ ok: boolean }>(200, 'Successfully imported.')
+  @Response<DataCheckDto>(200, 'Object of import result, with errors if needed.')
   @Response<CustomError>(401, 'Unauthorised.')
   @Response<CustomError>(403, 'Forbidden.')
-  public async importXls(
-    @ContextRequest req: Request,
-    @FilesParam('file') files: Express.Multer.File[],
-  ): Promise<{ ok: boolean }> {
-    await this.importer.handle(ImporterType.xls, { sources: files, userId: req.user.id });
-    return { ok: true };
+  public async importXls(@FilesParam('files') files: Express.Multer.File[]): Promise<DataCheckDto> {
+    return this.importer.handle(ImporterType.xls, { sources: files });
   }
 
   /**
-   * Validate xls file with observations.
-   * @param files Files in xls format to validate.
-   */
-  @POST
-  @Path('/import/validate-xls')
-  @PreProcessor(auth.role(UserRole.Ringer))
-  @Response<DataCheckDto>(200, 'Possible errors.')
-  @Response<CustomError>(401, 'Unauthorised.')
-  @Response<CustomError>(403, 'Forbidden.')
-  public async validateXls(@FilesParam('file') files: Express.Multer.File[]): Promise<DataCheckDto> {
-    return this.importer.handle(ImporterType.validateXls, { sources: files });
-  }
-
-  /**
-   * Import observations from euring codes.
-   * @param codes Euring codes to export.
+   * Import observations from EURING codes. All observations will be assigned to the user making request.
+   * @param codes EURING codes to import.
    */
   @POST
   @Path('/import/euring')
