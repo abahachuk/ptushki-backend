@@ -24,6 +24,7 @@ const urls: { [index: string]: string } = {
   logout: '/auth/logout',
   forgot: '/auth/forgot',
   reset: '/auth/reset',
+  changePass: '/change-password',
   test: '/auth/test',
   adminTest: '/auth/admin-test',
 };
@@ -270,7 +271,9 @@ describe('Auth', () => {
     });
   });
 
-  describe('on multidevices user should:', () => {
+  describe('on change password route user should:', () => {});
+
+  describe('on multiply devices user should:', () => {
     let user: User;
     let userId: string;
     let userRole: UserRole;
