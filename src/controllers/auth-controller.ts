@@ -30,7 +30,7 @@ import { CustomError } from '../utils/CustomError';
 export default class AuthController extends AbstractController {
   private users: Repository<User>;
 
-  private tokens: Repository<RefreshToken>;
+  private refreshTokens: Repository<RefreshToken>;
 
   private resetTokens: Repository<ResetToken>;
 
@@ -39,7 +39,7 @@ export default class AuthController extends AbstractController {
   public constructor() {
     super();
     this.users = getRepository(User);
-    this.tokens = getRepository(RefreshToken);
+    this.refreshTokens = getRepository(RefreshToken);
     this.resetTokens = getRepository(ResetToken);
     this.mailServise = getMailServiceInstance();
   }
@@ -60,7 +60,7 @@ export default class AuthController extends AbstractController {
       const user = await User.create(newUser);
       await this.users.save(user);
       const { token, refreshToken } = signTokens({ userId: user.id, userRole: user.role });
-      await this.tokens.save(new RefreshToken(refreshToken, user.id));
+      await this.refreshTokens.save(new RefreshToken(refreshToken, user.id));
       await addAudit('registration', '', null, user.id);
       return {
         user: User.sanitizeUser(user),
@@ -96,11 +96,11 @@ export default class AuthController extends AbstractController {
         throw new CustomError('Refresh token is required', 400);
       }
       const { userId } = await verifyRefreshToken(refreshTokenFromBody);
-      const refreshToken = await this.tokens.findOne({ token: refreshTokenFromBody });
+      const refreshToken = await this.refreshTokens.findOne({ token: refreshTokenFromBody });
       if (!refreshToken) {
         throw new CustomError('Token already was used or never existed', 401);
       }
-      await this.tokens.delete(closeAllSessions ? { userId } : { token: refreshTokenFromBody });
+      await this.refreshTokens.delete(closeAllSessions ? { userId } : { token: refreshTokenFromBody });
       await addAudit('logout', '', null, userId);
       return { ok: true };
     } catch (e) {
@@ -128,7 +128,7 @@ export default class AuthController extends AbstractController {
   public async login(_userCreds: WithCredentials, @ContextRequest req: Request): Promise<SuccessAuthDto> {
     const { user } = req;
     const { token, refreshToken } = signTokens({ userId: user.id, userRole: user.role });
-    await this.tokens.save(new RefreshToken(refreshToken, user.id));
+    await this.refreshTokens.save(new RefreshToken(refreshToken, user.id));
     return { user, token, refreshToken };
   }
 
@@ -151,7 +151,7 @@ export default class AuthController extends AbstractController {
         throw new CustomError('Refresh token is required', 400);
       }
       const { userId } = await verifyRefreshToken(refreshTokenFromBody);
-      const { affected } = await this.tokens.delete({ token: refreshTokenFromBody });
+      const { affected } = await this.refreshTokens.delete({ token: refreshTokenFromBody });
       if (!affected) {
         throw new CustomError('Token already was used or never existed', 401);
       }
@@ -160,7 +160,7 @@ export default class AuthController extends AbstractController {
         throw new CustomError('Non-existent user cannot be authorized', 401);
       }
       const { token, refreshToken } = signTokens({ userId, userRole: user.role });
-      await this.tokens.save(new RefreshToken(refreshToken, user.id));
+      await this.refreshTokens.save(new RefreshToken(refreshToken, user.id));
       return { token, refreshToken };
     } catch (e) {
       // README goes first as it is subclass of JsonWebTokenError
@@ -252,7 +252,7 @@ export default class AuthController extends AbstractController {
   }
 
   /**
-   * Finishing process of reseting password.
+   * Finishing process of resetting password.
    * @param {ResetPasswordReqDto} payload
    */
   @POST
