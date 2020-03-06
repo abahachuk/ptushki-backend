@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/explicit-function-return-type */
 import { NextFunction, Request } from 'express';
 import { getRepository, Repository } from 'typeorm';
 import { TokenExpiredError, JsonWebTokenError } from 'jsonwebtoken';
