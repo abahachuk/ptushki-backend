@@ -15,6 +15,7 @@ import {
 import { CustomError } from '../utils/CustomError';
 import { auth } from '../services/auth-service';
 import { isCorrect } from '../services/user-crypto-service';
+import UserPlace from '../entities/submodels/UserPlace';
 
 @Path('users')
 @Tags('users')
@@ -186,12 +187,17 @@ export default class UsersController extends AbstractController {
   @PUT
   @Path('/:id/update-places')
   @Response<void>(204, 'Places successfully updated.')
+  @Response<CustomError>(400, 'Array of user places is required')
   @Response<CustomError>(401, 'Unauthorised')
   @Response<CustomError>(403, 'Forbidden')
+  @Response<CustomError>(422, 'Unprocessable Entity')
   public async updatePlaces(body: UpdateUserPlacesDto, @PathParam('id') id: string): Promise<void> {
     const { places } = body;
-    // todo add validation
+    if (!places || !Array.isArray(places)) {
+      throw new CustomError('Array of user places is required', 400);
+    }
     const user: User = await this.getEntityById<User>(id);
+    await Promise.all(places.map(place => this.validate(UserPlace.create(place), undefined, UserPlace)));
     user.places = places;
     await this.users.save(user);
   }
