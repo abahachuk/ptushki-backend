@@ -52,9 +52,7 @@ export default class AuthController extends AbstractController {
   @Path('/signup')
   @Response<SuccessAuthDto>(200, 'Successfully signed up.')
   @Response<CustomError>(401, 'Authentication failed.')
-  // @ts-ignore
-  // eslint-disable-next-line consistent-return
-  public async signUp(newUser: CreateUserDto, @ContextNext next: NextFunction): Promise<SuccessAuthDto> {
+  public async signUp(newUser: CreateUserDto, @ContextNext next: NextFunction): Promise<SuccessAuthDto | void> {
     try {
       const user = await User.create(newUser);
       await this.users.save(user);
@@ -69,9 +67,9 @@ export default class AuthController extends AbstractController {
     } catch (e) {
       if (e.code === '23505') {
         // README with any new user uniq constraint this will become invalid statement
-        next(new CustomError('Such email already exists', 400));
+        return next(new CustomError('Such email already exists', 400));
       }
-      next(e);
+      return next(e);
     }
   }
 
@@ -85,9 +83,7 @@ export default class AuthController extends AbstractController {
   @Response<{ ok: boolean }>(200, 'Successfully logged out.')
   @Response<CustomError>(400, 'Token not provided.')
   @Response<CustomError>(401, 'Authentication failed.')
-  // @ts-ignore
-  // eslint-disable-next-line consistent-return
-  public async logout(logoutPrams: LogoutReqDto, @ContextNext next: NextFunction): Promise<{ ok: boolean }> {
+  public async logout(logoutPrams: LogoutReqDto, @ContextNext next: NextFunction): Promise<{ ok: boolean } | void> {
     const { refreshToken: refreshTokenFromBody, closeAllSessions = false } = logoutPrams;
 
     try {
@@ -105,12 +101,12 @@ export default class AuthController extends AbstractController {
     } catch (e) {
       // README goes first as it is subclass of JsonWebTokenError
       if (e instanceof TokenExpiredError) {
-        next(new CustomError('Token expired', 401));
+        return next(new CustomError('Token expired', 401));
       }
       if (e instanceof JsonWebTokenError) {
-        next(new CustomError('Token invalid', 401));
+        return next(new CustomError('Token invalid', 401));
       }
-      next(e);
+      return next(e);
     }
   }
 
@@ -141,8 +137,6 @@ export default class AuthController extends AbstractController {
   @Response<TokensPairDto>(200, 'Successfully refreshed.')
   @Response<CustomError>(400, 'Token not provided.')
   @Response<CustomError>(401, 'Token invalid or user not exists.')
-  // @ts-ignore
-  // eslint-disable-next-line consistent-return
   public async refresh(refreshPrams: RefreshReqDto, @ContextNext next: NextFunction): Promise<TokensPairDto | void> {
     const refreshTokenFromBody: string = refreshPrams.refreshToken;
     try {
@@ -184,12 +178,10 @@ export default class AuthController extends AbstractController {
   @Response<{ ok: boolean }>(200, 'Password was successfully changed.')
   @Response<CustomError>(400, 'Both old and new passwords are required')
   @Response<CustomError>(401, 'Invalid old password.')
-  // eslint-disable-next-line consistent-return
   public async changePassword(
     passwords: ChangePasswordReqDto,
     @ContextRequest req: Request,
     @ContextNext next: NextFunction,
-    // @ts-ignore
   ): Promise<{ ok: boolean } | void> {
     try {
       const { oldPassword, newPassword } = passwords;
