@@ -1,9 +1,10 @@
 import { Entity, PrimaryGeneratedColumn, Column, OneToMany } from 'typeorm';
-import { IsEmail, MinLength, MaxLength, IsEnum, IsString, IsOptional } from 'class-validator';
+import { IsEmail, MinLength, MaxLength, IsEnum, IsString, IsOptional, IsArray } from 'class-validator';
 import { getSaltAndHash } from '../services/user-crypto-service';
 import { Observation } from './observation-entity';
 import { Ring } from './ring-entity';
 import { BasaRing } from './basa-ring-entity';
+import UserPlace from './submodels/UserPlace';
 
 export interface WithCredentials {
   email: string;
@@ -50,13 +51,6 @@ export interface UserDto extends NewUser {
   role: UserRole;
 }
 
-export interface UserPlace {
-  customName: string;
-  geoName: string;
-  latitude: number;
-  longitude: number;
-}
-
 export interface UpdateUserPlacesDto {
   places: UserPlace[];
 }
@@ -97,7 +91,8 @@ export class User implements UserDto {
   public lastName?: string;
 
   @IsOptional()
-  @Column('jsonb', { nullable: true })
+  @IsArray()
+  @Column('jsonb', { nullable: true, default: null })
   public places?: UserPlace[];
 
   @Column()
