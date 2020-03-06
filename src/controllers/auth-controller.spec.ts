@@ -32,7 +32,7 @@ jest.setTimeout(30000);
 
 let tokenRepository: Repository<RefreshToken>;
 let userRepository: Repository<User>;
-let resetTokeneRepository: Repository<ResetToken>;
+let resetTokenRepository: Repository<ResetToken>;
 let mailServise: MailService;
 
 let spyOnSendChangeRequestMail: jest.SpyInstance<Promise<void>, [string, string]>;
@@ -43,7 +43,7 @@ beforeAll(async () => {
   app = await createApp();
   tokenRepository = getRepository(RefreshToken);
   userRepository = getRepository(User);
-  resetTokeneRepository = getRepository(ResetToken);
+  resetTokenRepository = getRepository(ResetToken);
   mailServise = getMailServiceInstance();
 
   spyOnSendChangeRequestMail = jest.spyOn(mailServise, 'sendChangeRequestMail');
@@ -458,7 +458,7 @@ describe('Auth', () => {
       user = await User.create({ email, password });
       resetToken = await signResetToken({ email, userId: user.id });
       await userRepository.save(user);
-      await resetTokeneRepository.save(new ResetToken(resetToken, user.id));
+      await resetTokenRepository.save(new ResetToken(resetToken, user.id));
     });
 
     beforeEach(() => {
@@ -471,8 +471,8 @@ describe('Auth', () => {
         .set('Accept', 'application/json')
         .send({ email });
 
-      const currentResetToken = await resetTokeneRepository.findOne({ userId: user.id });
-      const previousResetToken = await resetTokeneRepository.findOne({ token: resetToken });
+      const currentResetToken = await resetTokenRepository.findOne({ userId: user.id });
+      const previousResetToken = await resetTokenRepository.findOne({ token: resetToken });
 
       expect(res.status).toEqual(200);
       expect(res.body.ok).toEqual(true);
@@ -493,7 +493,7 @@ describe('Auth', () => {
       initUser = await User.create({ email, password });
       await userRepository.save(initUser);
       initResetToken = signResetToken({ email, userId: initUser.id });
-      await resetTokeneRepository.save(new ResetToken(initResetToken, initUser.id));
+      await resetTokenRepository.save(new ResetToken(initResetToken, initUser.id));
     });
 
     beforeEach(() => {
@@ -505,7 +505,7 @@ describe('Auth', () => {
         .post(urls.reset)
         .set('Accept', 'application/json')
         .send({ token: initResetToken, password: '134', newPassword });
-      const token = await resetTokeneRepository.findOne({ token: initResetToken });
+      const token = await resetTokenRepository.findOne({ token: initResetToken });
       expect(res.status).toEqual(401);
       expect(token).toBeDefined();
       expect(token!.token).toEqual(initResetToken);
@@ -518,7 +518,7 @@ describe('Auth', () => {
         .post(urls.reset)
         .set('Accept', 'application/json')
         .send({ token: initResetToken, password: '134' });
-      const token = await resetTokeneRepository.findOne({ token: initResetToken });
+      const token = await resetTokenRepository.findOne({ token: initResetToken });
       expect(res.status).toEqual(400);
       expect(token).toBeDefined();
       expect(token!.token).toEqual(initResetToken);
@@ -531,7 +531,7 @@ describe('Auth', () => {
         .post(urls.reset)
         .set('Accept', 'application/json')
         .send({ password, newPassword });
-      const token = await resetTokeneRepository.findOne({ token: initResetToken });
+      const token = await resetTokenRepository.findOne({ token: initResetToken });
       expect(res.status).toEqual(400);
       expect(token).toBeDefined();
       expect(token!.token).toEqual(initResetToken);
@@ -545,7 +545,7 @@ describe('Auth', () => {
         .set('Accept', 'application/json')
         .send({ token: initResetToken, password, newPassword });
 
-      const resetToken = await resetTokeneRepository.findOne({ userId: initUser.id });
+      const resetToken = await resetTokenRepository.findOne({ userId: initUser.id });
       const user = await userRepository.findOne({ id: initUser.id });
 
       if (!user) {
@@ -566,7 +566,7 @@ describe('Auth', () => {
         .set('Accept', 'application/json')
         .send({ token: initResetToken, password: newPassword, newPassword: 'qwerty' });
 
-      const resetToken = await resetTokeneRepository.findOne({ token: initResetToken });
+      const resetToken = await resetTokenRepository.findOne({ token: initResetToken });
 
       expect(res.status).toEqual(401);
       expect(resetToken).not.toBeDefined();
@@ -603,7 +603,7 @@ describe('Auth', () => {
       initUser = await User.create({ email, password });
       await userRepository.save(initUser);
       token = signResetToken({ email, userId: initUser.id }, -1);
-      await resetTokeneRepository.save(new ResetToken(token, initUser.id));
+      await resetTokenRepository.save(new ResetToken(token, initUser.id));
     });
 
     beforeEach(() => {
@@ -638,12 +638,12 @@ describe('Auth', () => {
       user1 = await User.create({ email: email1, password: password1 });
       token1 = signResetToken({ email: email1, userId: user1.id });
       await userRepository.save(user1);
-      await resetTokeneRepository.save(new ResetToken(token1, user1.id));
+      await resetTokenRepository.save(new ResetToken(token1, user1.id));
 
       user2 = await User.create({ email: email2, password: password2 });
       token2 = signResetToken({ email: email2, userId: user2.id });
       await userRepository.save(user2);
-      await resetTokeneRepository.save(new ResetToken(token2, user2.id));
+      await resetTokenRepository.save(new ResetToken(token2, user2.id));
     });
 
     beforeEach(() => {
