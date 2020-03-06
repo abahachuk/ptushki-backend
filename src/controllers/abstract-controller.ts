@@ -9,6 +9,11 @@ interface ParsedErrors {
   [key: string]: string[];
 }
 
+interface ConstructorFabric {
+  create(...args: any): any;
+  new (): any;
+}
+
 export default abstract class AbstractController {
   private entity: Repository<any>;
 
@@ -37,8 +42,8 @@ export default abstract class AbstractController {
   }
 
   // Argument 'data' it is a new data, and argument existedData is optional and needed for refreshing existing data in db
-  protected async validate(data: any, existedData: any = {}): Promise<void> {
-    const createdModel = await this.entity.create(Object.assign(existedData, data));
+  protected async validate(data: any, existedData: any = {}, entity?: ConstructorFabric): Promise<void> {
+    const createdModel = await (entity || this.entity).create(Object.assign(existedData, data));
     const errors = await validate(createdModel);
     if (errors.length) {
       const parsedErrors = errors.reduce(
