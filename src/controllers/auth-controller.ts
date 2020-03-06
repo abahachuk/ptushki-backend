@@ -144,7 +144,7 @@ export default class AuthController extends AbstractController {
   @Response<CustomError>(401, 'Token invalid or user not exists.')
   // @ts-ignore
   // eslint-disable-next-line consistent-return
-  public async refresh(refreshPrams: RefreshReqDto, @ContextNext next: NextFunction): Promise<TokensPairDto> {
+  public async refresh(refreshPrams: RefreshReqDto, @ContextNext next: NextFunction): Promise<TokensPairDto | void> {
     const refreshTokenFromBody: string = refreshPrams.refreshToken;
     try {
       if (!refreshTokenFromBody) {
@@ -165,12 +165,12 @@ export default class AuthController extends AbstractController {
     } catch (e) {
       // README goes first as it is subclass of JsonWebTokenError
       if (e instanceof TokenExpiredError) {
-        next(new CustomError('Token expired', 401));
+        return next(new CustomError('Token expired', 401));
       }
       if (e instanceof JsonWebTokenError) {
-        next(new CustomError('Token invalid', 401));
+        return next(new CustomError('Token invalid', 401));
       }
-      next(e);
+      return next(e);
     }
   }
 
@@ -183,7 +183,7 @@ export default class AuthController extends AbstractController {
   @Path('/change-password')
   @Security()
   @Response<{ ok: boolean }>(200, 'Password was successfully changed.')
-  @Response<CustomError>(400, '')
+  @Response<CustomError>(400, 'Both old and new passwords are required')
   @Response<CustomError>(401, 'Invalid old password.')
   // eslint-disable-next-line consistent-return
   public async changePassword(
@@ -191,30 +191,29 @@ export default class AuthController extends AbstractController {
     @ContextRequest req: Request,
     @ContextNext next: NextFunction,
     // @ts-ignore
-  ): Promise<{ ok: boolean }> {
-    const { oldPassword, newPassword } = passwords;
-    const user = req.user as User;
-    if (!oldPassword || !newPassword || !user) {
-      // TODO: clarify
-      next(new CustomError('', 400));
-    }
-    const isPasswordCorrect = await isCorrect(oldPassword, user.salt, user.hash);
-    if (!isPasswordCorrect) {
-      next(new CustomError('Invalid old password', 401));
-    }
+  ): Promise<{ ok: boolean } | void> {
     try {
+      const { oldPassword, newPassword } = passwords;
+      const user = req.user as User;
+      if (!oldPassword || !newPassword || !user) {
+        throw new CustomError('Both old and new passwords are required', 400);
+      }
+      const isPasswordCorrect = await isCorrect(oldPassword, user.salt, user.hash);
+      if (!isPasswordCorrect) {
+        throw new CustomError('Invalid old password', 401);
+      }
       await user.setPassword(newPassword);
       await this.users.save(user);
       await addAudit('passChange', '', null, user.id);
       return { ok: true };
     } catch (e) {
-      next(e);
+      return next(e);
     }
   }
 
   /**
-   * Initiating process of reseting password.
-   * @param {ForgotPasswordReqDto} payload
+   * Initiating process of resetting password.
+   * @param {ForgotPasswordReqDto} payload To start it is only needed email
    */
   @POST
   @Path('/forgot')
@@ -259,10 +258,10 @@ export default class AuthController extends AbstractController {
   @Path('/reset')
   @Response<{ ok: boolean }>(200, 'Password was successfully reseted.')
   @Response<CustomError>(400, 'Reset token and passwords are required.')
-  @Response<CustomError>('Token already was used or never existed.')
-  @Response<CustomError>('Non-existent user cannot be authorized.')
-  @Response<CustomError>('Invalid password.')
-  @Response<CustomError>('Token expired')
+  @Response<CustomError>(
+    401,
+    'Token already was used or never existed | Non-existent user cannot be authorized | Invalid password | Invalid token | Token expired',
+  )
   public async resetPassword(
     payload: ResetPasswordReqDto,
     @ContextNext next: NextFunction,
@@ -297,6 +296,9 @@ export default class AuthController extends AbstractController {
     } catch (e) {
       if (e instanceof TokenExpiredError) {
         return next(new CustomError('Token expired', 401));
+      }
+      if (e instanceof JsonWebTokenError) {
+        return next(new CustomError('Token invalid', 401));
       }
       return next(e);
     }
