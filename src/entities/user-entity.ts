@@ -57,6 +57,10 @@ export interface UserPlace {
   longitude: number;
 }
 
+export interface UpdateUserPlacesDto {
+  places: UserPlace[];
+}
+
 @Entity()
 export class User implements UserDto {
   @PrimaryGeneratedColumn('uuid')

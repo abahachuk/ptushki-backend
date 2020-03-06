@@ -10,6 +10,7 @@ import {
   UpdateUserEmailDto,
   UpdateUserRoleDto,
   UpdateUserPasswordDto,
+  UpdateUserPlacesDto,
 } from '../entities/user-entity';
 import { CustomError } from '../utils/CustomError';
 import { auth } from '../services/auth-service';
@@ -173,6 +174,25 @@ export default class UsersController extends AbstractController {
     const user: User = await this.getEntityById<User>(id);
 
     user.role = role;
+    await this.users.save(user);
+  }
+
+  /**
+   * Update user places by id
+   * @param {UpdateUserPlacesDto} body Array of updated places
+   * @param {string} id Id of updated user
+   */
+
+  @PUT
+  @Path('/:id/update-places')
+  @Response<void>(204, 'Places successfully updated.')
+  @Response<CustomError>(401, 'Unauthorised')
+  @Response<CustomError>(403, 'Forbidden')
+  public async updatePlaces(body: UpdateUserPlacesDto, @PathParam('id') id: string): Promise<void> {
+    const { places } = body;
+    // todo add validation
+    const user: User = await this.getEntityById<User>(id);
+    user.places = places;
     await this.users.save(user);
   }
 
