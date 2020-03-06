@@ -50,6 +50,13 @@ export interface UserDto extends NewUser {
   role: UserRole;
 }
 
+export interface UserPlace {
+  customName: string;
+  geoName: string;
+  latitude: number;
+  longitude: number;
+}
+
 @Entity()
 export class User implements UserDto {
   @PrimaryGeneratedColumn('uuid')
@@ -84,6 +91,10 @@ export class User implements UserDto {
   @MaxLength(64)
   @Column('varchar', { length: 64, nullable: true, default: null })
   public lastName?: string;
+
+  @IsOptional()
+  @Column('jsonb', { nullable: true })
+  public places?: UserPlace[];
 
   @Column()
   public hash: string;
