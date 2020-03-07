@@ -1,13 +1,11 @@
 import Excel, { Column, Worksheet, Workbook, Row, Cell } from 'exceljs';
-import { validate, ValidationError } from 'class-validator';
+import { validate } from 'class-validator';
 import { columns } from './columns';
 import { properties } from './properties';
 import { ImportObservationsValidator } from './observation-format-validator';
 import { CustomError } from '../../utils/CustomError';
+import { parseValidationErrors } from '../../validation/validation-results-parser';
 
-interface ParsedErrors {
-  [key: string]: string[];
-}
 export interface RawData {
   [key: string]: {} | string;
 }
@@ -146,18 +144,8 @@ export const checkObservationsHeaderNames = async (workbook: Workbook, type: str
 const validateImportedData = async (data: any): Promise<any> => {
   const createdModel = await ImportObservationsValidator.create(data);
   const errors = await validate(createdModel);
-  // @ts-ignore
-  let parsedErrors: Record<string, any> = [];
-
   if (errors.length) {
-    parsedErrors = errors.reduce(
-      (acc: ParsedErrors, error: ValidationError): ParsedErrors => ({
-        ...acc,
-        [error.property]: Object.values(error.constraints),
-      }),
-      {},
-    );
-    return parsedErrors;
+    return parseValidationErrors(errors);
   }
 };
 

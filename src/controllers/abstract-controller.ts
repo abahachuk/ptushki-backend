@@ -1,13 +1,10 @@
 import config from 'config';
 import { Repository } from 'typeorm';
-import { validate, ValidationError } from 'class-validator';
+import { validate } from 'class-validator';
 import { CustomError } from '../utils/CustomError';
+import { parseValidationErrors } from '../validation/validation-results-parser';
 
 const UUID_LENGTH = config.get('UUID_LENGTH');
-
-interface ParsedErrors {
-  [key: string]: string[];
-}
 
 export default abstract class AbstractController {
   private entity: Repository<any>;
@@ -41,13 +38,7 @@ export default abstract class AbstractController {
     const createdModel = await this.entity.create(Object.assign(existedData, data));
     const errors = await validate(createdModel);
     if (errors.length) {
-      const parsedErrors = errors.reduce(
-        (acc: ParsedErrors, error: ValidationError): ParsedErrors => ({
-          ...acc,
-          [error.property]: Object.values(error.constraints),
-        }),
-        {},
-      );
+      const parsedErrors = parseValidationErrors(errors);
       throw new CustomError(parsedErrors as string, 422);
     }
   }

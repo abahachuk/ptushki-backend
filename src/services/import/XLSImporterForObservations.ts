@@ -1,6 +1,6 @@
 import Excel, { Workbook } from 'exceljs';
 import { getCustomRepository, getRepository, Repository } from 'typeorm';
-import { validate, ValidationError } from 'class-validator';
+import { validate } from 'class-validator';
 import AbstractImporter, { ImporterType, ImportInput } from './AbstractImporter';
 import { MulterOptions } from '../../controllers/upload-files-controller';
 import { CustomError } from '../../utils/CustomError';
@@ -18,10 +18,7 @@ import {
 import { Observation } from '../../entities/observation-entity';
 import { cachedEURINGCodes } from '../../entities/euring-codes/cached-entities-fabric';
 import { Age, PlaceCode, Sex, Species, Status } from '../../entities/euring-codes';
-
-interface ParsedErrors {
-  [key: string]: string[];
-}
+import { parseValidationErrors } from '../../validation/validation-results-parser';
 
 type ExpectedColumnHeaders =
   | 'ringNumber'
@@ -134,7 +131,7 @@ export default class XLSImporterForObservations extends AbstractImporter<
       return mappedRow;
     }
     // eslint-disable-next-line no-param-reassign
-    status.formatErrors[i] = `Unable ${errors.join(', ')}`;
+    status.formatErrors[i] = `Unable map next fields: ${errors.join(', ')}`;
     throw new Error();
   }
 
@@ -146,15 +143,9 @@ export default class XLSImporterForObservations extends AbstractImporter<
     const entity = Observation.create(row);
     const errors = await validate(entity);
     if (errors.length) {
-      const parsedErrors = errors.reduce(
-        (acc: ParsedErrors, error: ValidationError): ParsedErrors => ({
-          ...acc,
-          [error.property]: Object.values(error.constraints),
-        }),
-        {},
-      );
+      const parsedErrors = parseValidationErrors(errors);
       // eslint-disable-next-line no-param-reassign
-      status.formatErrors[i] = `Unable ${parsedErrors.toString()}`;
+      status.formatErrors[i] = `Unable create entity because next fields: ${parsedErrors.toString()}`;
       throw new Error();
     }
     return entity;
