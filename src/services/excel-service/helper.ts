@@ -226,3 +226,68 @@ export const checkObservationImportedData = async (workbook: Workbook): Promise<
 
   return fileImportStatus;
 };
+
+export type WorksheetParsingResult = { headers: string[]; data: object[] };
+interface WorksheetParsingStatus {
+  rowCount: number;
+  emptyRowCount: number;
+}
+
+export const validateWorksheetColumnHeaders = (headers: string[], expectedHeaders: string[]): void => {
+  const errors = expectedHeaders.reduce(
+    (acc: string[], item: string) => (!headers.includes(item) ? acc.concat(item) : acc),
+    [],
+  );
+  if (errors.length) {
+    throw new CustomError(`Missed column titles: ${errors.join(', ')}`, 400);
+  }
+};
+
+const worksheetParser = (
+  worksheet: Worksheet,
+  expectedHeaders: string[],
+  status: WorksheetParsingStatus,
+): WorksheetParsingResult => {
+  let rowNumber = 1;
+  const headers: string[] = [];
+  const data: any[] = [];
+  status.rowCount = worksheet.rowCount - 1;
+  while (rowNumber <= worksheet.rowCount) {
+    const row = worksheet.getRow(rowNumber);
+
+    if (row.values.length === 0) {
+      if (rowNumber === 1) {
+        status.emptyRowCount += 1;
+        throw new CustomError('Column headers are missed: parsing stopped', 400);
+      }
+      rowNumber += 1;
+      continue;
+    }
+
+    let rowData: { [index: string]: any } = {};
+    row.eachCell(
+      (cell: Cell, index: number): void => {
+        if (rowNumber === 1) {
+          cell.model.value && headers.push(cell.model.value.toString());
+        } else rowData[headers[index - 1]] = cell.model.value;
+      },
+    );
+    rowNumber !== 1 && data.push(rowData);
+    rowNumber += 1;
+  }
+
+  validateWorksheetColumnHeaders(headers, expectedHeaders);
+
+  return Object.assign(status, { headers, data });
+};
+
+export const workbookParser = (
+  workbook: Workbook,
+  expectedHeaders: string[],
+  status: WorksheetParsingStatus,
+): WorksheetParsingResult[] => {
+  const worksheet = workbook.getWorksheet(1);
+  // README for a while parsed only first sheet, but returned array,
+  //  like it were parsed all sheets in book. It's predefined contract
+  return [worksheetParser(worksheet, expectedHeaders, status)];
+};

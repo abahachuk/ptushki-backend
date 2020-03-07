@@ -1,5 +1,6 @@
 import Excel, { Workbook } from 'exceljs';
-import { getCustomRepository /* , getRepository, Repository */ } from 'typeorm';
+import { getCustomRepository, getRepository, Repository } from 'typeorm';
+import { validate, ValidationError } from 'class-validator';
 import AbstractImporter, { ImporterType, ImportInput } from './AbstractImporter';
 import { MulterOptions } from '../../controllers/upload-files-controller';
 import { CustomError } from '../../utils/CustomError';
@@ -12,10 +13,59 @@ import {
   RawData,
   RowErorr,
   RowValidatedData,
+  workbookParser,
 } from '../excel-service/helper';
-// TODO: import { Observation } from '../../entities/observation-entity';
+import { Observation } from '../../entities/observation-entity';
 import { cachedEURINGCodes } from '../../entities/euring-codes/cached-entities-fabric';
 import { Age, PlaceCode, Sex, Species, Status } from '../../entities/euring-codes';
+
+interface ParsedErrors {
+  [key: string]: string[];
+}
+
+type ExpectedColumnHeaders =
+  | 'ringNumber'
+  | 'colorRing'
+  | 'sex'
+  | 'species'
+  | 'status'
+  | 'date'
+  | 'accuracyOfDate'
+  | 'age'
+  | 'place'
+  | 'latitude'
+  | 'longitude'
+  | 'ringer'
+  | 'manipulated'
+  | 'catchingMethod'
+  | 'catchingLures'
+  | 'remarks';
+
+interface EURINGs {
+  [index: string]: string[] | number[];
+}
+
+// todo next one interface should extend ImportWorksheetXLSDto
+
+export interface ImportWorksheetObservationXLSDto {
+  rowCount: number; // берется из XLS
+  emptyRowCount: number; // пустышки
+  importedCount: number; // и его количество
+  EURINGErrors: { [index: number]: string }; // ошибки с кодами
+  formatErrors: { [index: number]: string }; // ошибки валидации
+  clones: string[]; // вызов метода
+}
+
+interface ImportWorksheetObservationXLSStatus extends ImportWorksheetObservationXLSDto {
+  rowCount: number; // берется из XLS
+  emptyRowCount: number;
+  headers: any[];
+  data: any[];
+  EURINGErrors: { [index: number]: string };
+  formatErrors: { [index: number]: string };
+  clones: string[];
+  validEntities: any[];
+}
 
 export default class XLSImporterForObservations extends AbstractImporter<
   ImportInput<Express.Multer.File>,
@@ -25,12 +75,98 @@ export default class XLSImporterForObservations extends AbstractImporter<
 
   public route: string = 'observations';
 
-  // TODO: private observations: Repository<Observation> = getRepository(Observation);
+  private observations: Repository<Observation> = getRepository(Observation);
 
   public options: MulterOptions = {
     extensions: ['.xls', '.xlsx'],
     any: true,
   };
+
+  public static EURINGcodes: Promise<EURINGs> = (async () => {
+    return Object.keys(cachedEURINGCodes).reduce(async (promise: Promise<EURINGs>, key: string) => {
+      const acc = await promise;
+      acc[key] = (await getCustomRepository(cachedEURINGCodes[key]).find()).map(
+        ({ id }: { id: string | number }) => id,
+      );
+      return acc;
+    }, Promise.resolve({}));
+  })();
+
+  public static mappers: { [index in ExpectedColumnHeaders]: (arg: any) => any } = {
+    /* eslint-disable @typescript-eslint/camelcase */
+    ringNumber: v => v.toString(),
+    colorRing: v => v.toString(),
+    sex: v => v.toString().toUpperCase(),
+    species: v => v.toString().toUpperCase(),
+    status: v => v.toString().toUpperCase(),
+    date: v => new Date(v.toString()).toISOString(),
+    age: v => v.toString().toUpperCase(),
+    place: v => v.toString(),
+    latitude: v => Number(v),
+    longitude: v => Number(v),
+    ringer: v => v.toString(),
+    remarks: v => v.toString(),
+    manipulated: v => v.toString().toUpperCase() || 'U',
+    catchingMethod: v => v.toString().toUpperCase() || 'U',
+    catchingLures: v => v.toString().toUpperCase() || 'U',
+    accuracyOfDate: v => Number(v) || 9,
+    /* eslint-enable @typescript-eslint/camelcase */
+  };
+
+  public static expectedColumnHeaders: string[] = Object.keys(XLSImporterForObservations.mappers);
+
+  // eslint-disable-next-line no-unused-vars
+  public mapParsedWorksheetRow(row: any, status: ImportWorksheetObservationXLSStatus, i: number): any {
+    const errors: string[] = [];
+    const mappedRow = Object.entries(XLSImporterForObservations.mappers).reduce(
+      (acc: { [index: string]: any }, [key, f]) => {
+        try {
+          acc[key] = f(row[key]);
+        } catch (e) {
+          errors.push(key);
+        }
+        return acc;
+      },
+      {},
+    );
+
+    if (errors.length) {
+      return mappedRow;
+    }
+    // eslint-disable-next-line no-param-reassign
+    status.formatErrors[i] = `Unable ${errors.join(', ')}`;
+    throw new Error();
+  }
+
+  public async createEntityAndValidate(
+    row: any,
+    status: ImportWorksheetObservationXLSStatus,
+    i: number,
+  ): Promise<void | any> {
+    const entity = Observation.create(row);
+    const errors = await validate(entity);
+    if (errors.length) {
+      const parsedErrors = errors.reduce(
+        (acc: ParsedErrors, error: ValidationError): ParsedErrors => ({
+          ...acc,
+          [error.property]: Object.values(error.constraints),
+        }),
+        {},
+      );
+      // eslint-disable-next-line no-param-reassign
+      status.formatErrors[i] = `Unable ${parsedErrors.toString()}`;
+      throw new Error();
+    }
+    return entity;
+  }
+
+  public checkEURINGcodes(entity: any, status: ImportWorksheetObservationXLSStatus, i: number, codes: any) {
+    const wrongKeys = Object.entries(entity).filter(([key, value]) => codes[key].includes(value));
+    if (!wrongKeys.length) return entity;
+    // eslint-disable-next-line no-param-reassign
+    status.EURINGErrors[i] = `Unable ${wrongKeys.join(', ')}`;
+    throw new Error();
+  }
 
   // TODO: clarify if we need to support multiple files
 
@@ -71,6 +207,66 @@ export default class XLSImporterForObservations extends AbstractImporter<
       delete checkedFormatData.observations;
 
       return checkedFormatData;
+    } catch (e) {
+      if (e instanceof CustomError) throw e;
+      throw new CustomError(e.message, 500);
+    }
+  }
+
+  public async import2({ sources }: ImportInput<Express.Multer.File>): Promise<ImportWorksheetObservationXLSDto> {
+    try {
+      if (!sources.length) {
+        throw new CustomError('No files detected', 400);
+      }
+      this.filterFiles(sources);
+
+      const [file] = sources;
+
+      const workbook: Workbook = await new Excel.Workbook().xlsx.load(file.buffer);
+      const importStatus: ImportWorksheetObservationXLSStatus = {
+        rowCount: 0,
+        emptyRowCount: 0,
+        importedCount: 0,
+        headers: [],
+        data: [],
+        validEntities: [],
+        EURINGErrors: {},
+        formatErrors: {},
+        clones: [],
+      };
+
+      const [worksheet] = workbookParser(workbook, XLSImporterForObservations.expectedColumnHeaders, importStatus);
+      const codes = await XLSImporterForObservations.EURINGcodes;
+
+      // eslint-disable-next-line no-plusplus
+      for (let i = 0; i < worksheet.data.length; i++) {
+        let newRow;
+        try {
+          newRow = this.mapParsedWorksheetRow(worksheet.data[i], importStatus, i);
+          // eslint-disable-next-line no-await-in-loop
+          newRow = await this.createEntityAndValidate(newRow, importStatus, i);
+          newRow = this.checkEURINGcodes(newRow, importStatus, i, codes);
+          importStatus.validEntities.push(newRow);
+          // eslint-disable-next-line no-empty
+        } catch {}
+      }
+
+      if (
+        !Object.keys(importStatus.EURINGErrors).length ||
+        !Object.keys(importStatus.formatErrors || !importStatus.clones.length).length
+      ) {
+        await this.observations.insert(importStatus.validEntities);
+      }
+
+      const { rowCount, emptyRowCount, EURINGErrors, formatErrors, importedCount, clones } = importStatus;
+      return {
+        rowCount,
+        emptyRowCount,
+        importedCount,
+        EURINGErrors,
+        formatErrors,
+        clones,
+      };
     } catch (e) {
       if (e instanceof CustomError) throw e;
       throw new CustomError(e.message, 500);
