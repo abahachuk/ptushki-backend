@@ -1,15 +1,12 @@
 import path from 'path';
-import { validate, ValidationError } from 'class-validator';
+import { validate } from 'class-validator';
 import { DataCheckDto } from '../excel-service/helper';
 import { CustomError } from '../../utils/CustomError';
+import { parseValidationErrors } from '../../validation/validation-results-parser';
 
 export interface MulterOptions {
   extensions: string[];
   any: boolean;
-}
-
-interface ParsedErrors {
-  [key: string]: string[];
 }
 
 export enum ImporterType {
@@ -49,13 +46,7 @@ export default abstract class AbstractImporter<
     const mapWithErrors = await data.reduce(async (accumulator, item, id): Promise<any> => {
       const errors = await validate(item);
       if (errors.length) {
-        const parsedErrors = errors.reduce(
-          (acc: ParsedErrors, error: ValidationError): ParsedErrors => ({
-            ...acc,
-            [error.property]: Object.values(error.constraints),
-          }),
-          {},
-        );
+        const parsedErrors = parseValidationErrors(errors);
         return {
           ...(await accumulator),
           [id]: parsedErrors,
