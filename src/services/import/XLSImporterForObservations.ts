@@ -20,6 +20,7 @@ import { cachedEURINGCodes } from '../../entities/euring-codes/cached-entities-f
 import { Age, PlaceCode, Sex, Species, Status } from '../../entities/euring-codes';
 import { parseValidationErrors } from '../../validation/validation-results-parser';
 
+// TODO should be used by exporter too
 type ExpectedColumnHeaders =
   | 'ringNumber'
   | 'colorRing'
@@ -45,22 +46,23 @@ interface EURINGs {
 // todo next one interface should extend ImportWorksheetXLSDto
 
 export interface ImportWorksheetObservationXLSDto {
-  rowCount: number; // берется из XLS
-  emptyRowCount: number; // пустышки
-  importedCount: number; // и его количество
-  EURINGErrors: { [index: number]: string }; // ошибки с кодами
-  formatErrors: { [index: number]: string }; // ошибки валидации
-  clones: number[]; // вызов метода
-}
-
-interface ImportWorksheetObservationXLSStatus extends ImportWorksheetObservationXLSDto {
-  rowCount: number; // берется из XLS
+  rowCount: number;
   emptyRowCount: number;
-  headers: any[];
-  data: any[];
+  importedCount: number;
   EURINGErrors: { [index: number]: string };
   formatErrors: { [index: number]: string };
   clones: number[];
+}
+
+interface ImportWorksheetObservationXLSStatus extends ImportWorksheetObservationXLSDto {
+  rowCount: number;
+  emptyRowCount: number;
+  importedCount: number;
+  EURINGErrors: { [index: number]: string };
+  formatErrors: { [index: number]: string };
+  clones: number[];
+  headers: any[];
+  data: any[];
   validEntities: any[];
 }
 
@@ -82,6 +84,7 @@ export default class XLSImporterForObservations extends AbstractImporter<
   public static EURINGcodes: Promise<EURINGs> = (async () => {
     return Object.keys(cachedEURINGCodes).reduce(async (promise: Promise<EURINGs>, key: string) => {
       const acc = await promise;
+      // FIXME there should be issues with matching keys between data, codes and models
       acc[key] = (await getCustomRepository(cachedEURINGCodes[key]).find()).map(
         ({ id }: { id: string | number }) => id,
       );
@@ -89,8 +92,11 @@ export default class XLSImporterForObservations extends AbstractImporter<
     }, Promise.resolve({}));
   })();
 
+  // FIXME there should be issues with matching keys between data and models
+  // TODO fields should be declared in other way using model as source
+  //  but also should be considered fact that names wouldn't match model's fields,
+  //  then these mappings should be redefined
   public static mappers: { [index in ExpectedColumnHeaders]: (arg: any) => any } = {
-    /* eslint-disable @typescript-eslint/camelcase */
     ringNumber: v => v.toString(),
     colorRing: v => v.toString(),
     sex: v => v.toString().toUpperCase(),
@@ -107,12 +113,10 @@ export default class XLSImporterForObservations extends AbstractImporter<
     catchingMethod: v => v.toString().toUpperCase() || 'U',
     catchingLures: v => v.toString().toUpperCase() || 'U',
     accuracyOfDate: v => Number(v) || 9,
-    /* eslint-enable @typescript-eslint/camelcase */
   };
 
   public static expectedColumnHeaders: string[] = Object.keys(XLSImporterForObservations.mappers);
 
-  // eslint-disable-next-line no-unused-vars
   public mapParsedWorksheetRow(row: any, status: ImportWorksheetObservationXLSStatus, i: number): any {
     const errors: string[] = [];
     const mappedRow = Object.entries(XLSImporterForObservations.mappers).reduce(
@@ -236,7 +240,6 @@ export default class XLSImporterForObservations extends AbstractImporter<
 
       const workbook: Workbook = await new Excel.Workbook().xlsx.load(file.buffer);
       const importStatus: ImportWorksheetObservationXLSStatus = this.initImportStatus();
-
       const [worksheet] = workbookParser(workbook, XLSImporterForObservations.expectedColumnHeaders, importStatus);
       const codes = await XLSImporterForObservations.EURINGcodes;
 
