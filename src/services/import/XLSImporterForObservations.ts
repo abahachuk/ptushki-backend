@@ -242,8 +242,9 @@ export default class XLSImporterForObservations extends AbstractImporter<
       }
 
       if (
-        !Object.keys(importStatus.EURINGErrors).length ||
-        !Object.keys(importStatus.formatErrors || !importStatus.clones.length).length
+        !Object.keys(importStatus.EURINGErrors).length &&
+        !Object.keys(importStatus.formatErrors).length &&
+        !importStatus.clones.length
       ) {
         await this.observations.insert(importStatus.validEntities);
       }
