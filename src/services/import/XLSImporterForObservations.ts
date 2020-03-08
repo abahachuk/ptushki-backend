@@ -159,10 +159,11 @@ export default class XLSImporterForObservations extends AbstractImporter<
     const wrongKeys = Object.entries(entity).filter(([key, value]) =>
       codes[key] ? !codes[key].includes(value) : false,
     );
-    if (!wrongKeys.length) return entity;
-    // eslint-disable-next-line no-param-reassign
-    status.EURINGErrors[i] = `Unable ${wrongKeys.join(', ')}`;
-    throw new Error();
+    if (wrongKeys.length) {
+      // eslint-disable-next-line no-param-reassign
+      status.EURINGErrors[i] = `Unable ${wrongKeys.join(', ')}`;
+      throw new Error();
+    }
   }
 
   public checkForClones(status: ImportWorksheetObservationXLSStatus): void {
