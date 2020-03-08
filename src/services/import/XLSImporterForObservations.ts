@@ -50,7 +50,7 @@ export interface ImportWorksheetObservationXLSDto {
   importedCount: number; // и его количество
   EURINGErrors: { [index: number]: string }; // ошибки с кодами
   formatErrors: { [index: number]: string }; // ошибки валидации
-  clones: string[]; // вызов метода
+  clones: number[]; // вызов метода
 }
 
 interface ImportWorksheetObservationXLSStatus extends ImportWorksheetObservationXLSDto {
@@ -60,7 +60,7 @@ interface ImportWorksheetObservationXLSStatus extends ImportWorksheetObservation
   data: any[];
   EURINGErrors: { [index: number]: string };
   formatErrors: { [index: number]: string };
-  clones: string[];
+  clones: number[];
   validEntities: any[];
 }
 
@@ -159,6 +159,25 @@ export default class XLSImporterForObservations extends AbstractImporter<
     throw new Error();
   }
 
+  public checkForClones(status: ImportWorksheetObservationXLSStatus): void {
+    const { data } = status;
+    const map = new Map();
+
+    // eslint-disable-next-line no-plusplus
+    for (let i = 0; i < data.length; i++) {
+      const row = JSON.stringify(data);
+      if (!row) {
+        // eslint-disable-next-line no-continue
+        continue;
+      }
+      if (map.has(row)) {
+        status.clones.push(i + 2);
+      } else {
+        map.set(JSON.stringify(data), i);
+      }
+    }
+  }
+
   // TODO: clarify if we need to support multiple files
 
   public async import({ sources }: ImportInput<Express.Multer.File>): Promise<DataCheckDto> {
@@ -240,6 +259,8 @@ export default class XLSImporterForObservations extends AbstractImporter<
           // eslint-disable-next-line no-empty
         } catch {}
       }
+
+      this.checkForClones(importStatus);
 
       if (
         !Object.keys(importStatus.EURINGErrors).length &&
