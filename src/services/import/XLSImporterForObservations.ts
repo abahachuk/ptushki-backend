@@ -265,15 +265,7 @@ export default class XLSImporterForObservations extends AbstractImporter<
         await this.observations.insert(importStatus.validEntities);
       }
 
-      const { rowCount, emptyRowCount, EURINGErrors, formatErrors, importedCount, clones } = importStatus;
-      return {
-        rowCount,
-        emptyRowCount,
-        importedCount,
-        EURINGErrors,
-        formatErrors,
-        clones,
-      };
+      return this.translateStatusForResponse(importStatus);
     } catch (e) {
       if (e instanceof CustomError) throw e;
       throw new CustomError(e.message, 500);
@@ -411,5 +403,17 @@ export default class XLSImporterForObservations extends AbstractImporter<
         clones: [],
       },
     );
+  }
+
+  private translateStatusForResponse(status: ImportWorksheetObservationXLSStatus): ImportWorksheetObservationXLSDto {
+    const { rowCount, emptyRowCount, EURINGErrors, formatErrors, importedCount, clones } = status;
+    return {
+      rowCount,
+      emptyRowCount,
+      importedCount,
+      EURINGErrors,
+      formatErrors,
+      clones,
+    };
   }
 }
