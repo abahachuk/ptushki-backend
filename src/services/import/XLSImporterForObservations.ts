@@ -152,7 +152,9 @@ export default class XLSImporterForObservations extends AbstractImporter<
   }
 
   public checkEURINGcodes(entity: any, status: ImportWorksheetObservationXLSStatus, i: number, codes: any): void {
-    const wrongKeys = Object.entries(entity).filter(([key, value]) => codes[key].includes(value));
+    const wrongKeys = Object.entries(entity).filter(([key, value]) =>
+      codes[key] ? !codes[key].includes(value) : false,
+    );
     if (!wrongKeys.length) return entity;
     // eslint-disable-next-line no-param-reassign
     status.EURINGErrors[i] = `Unable ${wrongKeys.join(', ')}`;
