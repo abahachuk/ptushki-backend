@@ -136,11 +136,11 @@ export default class XLSImporterForObservations extends AbstractImporter<
   }
 
   public async createEntityAndValidate(
-    row: any,
+    preEntity: any,
     status: ImportWorksheetObservationXLSStatus,
     i: number,
   ): Promise<void | any> {
-    const entity = Observation.create(row);
+    const entity = Observation.create(preEntity);
     const errors = await validate(entity);
     if (errors.length) {
       const parsedErrors = parseValidationErrors(errors);
@@ -151,7 +151,7 @@ export default class XLSImporterForObservations extends AbstractImporter<
     return entity;
   }
 
-  public checkEURINGcodes(entity: any, status: ImportWorksheetObservationXLSStatus, i: number, codes: any) {
+  public checkEURINGcodes(entity: any, status: ImportWorksheetObservationXLSStatus, i: number, codes: any): void {
     const wrongKeys = Object.entries(entity).filter(([key, value]) => codes[key].includes(value));
     if (!wrongKeys.length) return entity;
     // eslint-disable-next-line no-param-reassign
@@ -231,13 +231,12 @@ export default class XLSImporterForObservations extends AbstractImporter<
 
       // eslint-disable-next-line no-plusplus
       for (let i = 0; i < worksheet.data.length; i++) {
-        let newRow;
         try {
-          newRow = this.mapParsedWorksheetRow(worksheet.data[i], importStatus, i);
+          const preEntity = this.mapParsedWorksheetRow(worksheet.data[i], importStatus, i);
           // eslint-disable-next-line no-await-in-loop
-          newRow = await this.createEntityAndValidate(newRow, importStatus, i);
-          newRow = this.checkEURINGcodes(newRow, importStatus, i, codes);
-          importStatus.validEntities.push(newRow);
+          const entity = await this.createEntityAndValidate(preEntity, importStatus, i);
+          this.checkEURINGcodes(entity, importStatus, i, codes);
+          importStatus.validEntities.push(entity);
           // eslint-disable-next-line no-empty
         } catch {}
       }
