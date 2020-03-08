@@ -235,17 +235,7 @@ export default class XLSImporterForObservations extends AbstractImporter<
       const [file] = sources;
 
       const workbook: Workbook = await new Excel.Workbook().xlsx.load(file.buffer);
-      const importStatus: ImportWorksheetObservationXLSStatus = {
-        rowCount: 0,
-        emptyRowCount: 0,
-        importedCount: 0,
-        headers: [],
-        data: [],
-        validEntities: [],
-        EURINGErrors: {},
-        formatErrors: {},
-        clones: [],
-      };
+      const importStatus: ImportWorksheetObservationXLSStatus = this.initImportStatus();
 
       const [worksheet] = workbookParser(workbook, XLSImporterForObservations.expectedColumnHeaders, importStatus);
       const codes = await XLSImporterForObservations.EURINGcodes;
@@ -402,4 +392,21 @@ export default class XLSImporterForObservations extends AbstractImporter<
   // TODO private importValidRows = async (validObservations: RawData[]): Promise<void> => {
   //   await this.observations.insert(validObservations);
   // };
+
+  private initImportStatus(): ImportWorksheetObservationXLSStatus {
+    return Object.assign(
+      {},
+      {
+        rowCount: 0,
+        emptyRowCount: 0,
+        importedCount: 0,
+        headers: [],
+        data: [],
+        validEntities: [],
+        EURINGErrors: {},
+        formatErrors: {},
+        clones: [],
+      },
+    );
+  }
 }
