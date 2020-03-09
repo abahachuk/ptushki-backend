@@ -10,8 +10,8 @@ interface ParsedErrors {
 }
 
 interface ConstructorFabric {
-  create(...args: any): any;
-  new (): any;
+  create(...args: any): Record<string, any>;
+  new (): {};
 }
 
 export default abstract class AbstractController {
