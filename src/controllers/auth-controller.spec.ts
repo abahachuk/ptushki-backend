@@ -5,7 +5,6 @@ import { Application } from 'express';
 import { Connection, getRepository, Repository } from 'typeorm';
 import createApp from '../app';
 import connectDB from '../db';
-import { isCorrect } from '../services/user-crypto-service';
 import { signTokens, signResetToken } from '../services/auth-service';
 import { getMailServiceInstance, MailService } from '../services/mail-service';
 import { UserRole, User, CreateUserDto } from '../entities/user-entity';
@@ -271,8 +270,6 @@ describe('Auth', () => {
     });
   });
 
-  describe('on change password route user should:', () => {});
-
   describe('on multiply devices user should:', () => {
     let user: User;
     let userId: string;
@@ -452,43 +449,71 @@ describe('Auth', () => {
   });
 
   describe('forgotten password flow', () => {
-    const email = 'forgot-password-test@mail.com';
-    const password = '12345';
-    let user: User;
-    let resetToken: string;
+    const firstUserEmail = 'forgot-password@mail.com';
+    const firstUserpassword = '12345';
+    let firstUser: User;
+
+    const secondUserEmail = 'second-forgot-password@mail.com';
+    const secondUserpassword = '54321';
+    let secondUser: User;
 
     beforeAll(async () => {
-      user = await User.create({ email, password });
-      resetToken = await signResetToken({ email, userId: user.id });
-      await userRepository.save(user);
-      await resetTokenRepository.save(new ResetToken(resetToken, user.id));
+      firstUser = await User.create({ email: firstUserEmail, password: firstUserpassword });
+      secondUser = await User.create({ email: secondUserEmail, password: secondUserpassword });
+      await userRepository.save(firstUser);
+      await userRepository.save(secondUser);
     });
 
     beforeEach(() => {
       spyOnSendChangeRequestMail.mockClear();
     });
 
-    it('be able to generate reset token and overwrite existing if it exists', async () => {
+    it('be able to gererate reset token and send it via mail service', async () => {
       const res = await request(app)
         .post(urls.forgot)
         .set('Accept', 'application/json')
-        .send({ email });
+        .send({ email: firstUserEmail });
 
-      const currentResetToken = await resetTokenRepository.findOne({ userId: user.id });
-      const previousResetToken = await resetTokenRepository.findOne({ token: resetToken });
-
+      const resetTokens = await resetTokenRepository.find({ userId: firstUser.id });
       expect(res.status).toEqual(200);
       expect(res.body.ok).toEqual(true);
-      expect(currentResetToken).not.toEqual(undefined);
-      expect(previousResetToken).toEqual(undefined);
-      expect(spyOnSendChangeRequestMail).toHaveBeenCalledWith(currentResetToken!.token, email);
+      expect(resetTokens.length).toEqual(1);
+      expect(spyOnSendChangeRequestMail).toHaveBeenCalledWith(resetTokens[0].token, firstUserEmail);
+    });
+
+    it('be able to generate reset token and overwrite existing if it exists', async () => {
+      const firstResponse = await request(app)
+        .post(urls.forgot)
+        .set('Accept', 'application/json')
+        .send({ email: secondUserEmail });
+
+      expect(firstResponse.status).toEqual(200);
+      expect(firstResponse.body.ok).toEqual(true);
+
+      const firstTryResetTokens = await resetTokenRepository.find({ userId: secondUser.id });
+
+      console.log('---------------------------- 111', JSON.stringify(firstTryResetTokens, null, 2));
+
+      const secondResponse = await request(app)
+        .post(urls.forgot)
+        .set('Accept', 'application/json')
+        .send({ email: secondUserEmail });
+
+      expect(secondResponse.status).toEqual(200);
+      expect(secondResponse.body.ok).toEqual(true);
+
+      const secondTryResetTokens = await resetTokenRepository.find({ userId: secondUser.id });
+
+      console.log('---------------------------- 2222', JSON.stringify(firstTryResetTokens, null, 2));
+
+      expect(secondTryResetTokens.length).toEqual(1);
+      expect(secondTryResetTokens[0].token).not.toEqual(firstTryResetTokens[0].token);
     });
   });
 
   describe('on reset password', () => {
     const email = 'reset-password-test@mail.com';
     const password = '12345';
-    const newPassword = '54321';
     let initUser: User;
     let initResetToken: string;
 
@@ -503,24 +528,11 @@ describe('Auth', () => {
       spyOnSendResetCompleteMail.mockClear();
     });
 
-    it('trying to reset with incorrect password', async () => {
-      const res = await request(app)
-        .post(urls.reset)
-        .set('Accept', 'application/json')
-        .send({ token: initResetToken, password: '134', newPassword });
-      const token = await resetTokenRepository.findOne({ token: initResetToken });
-      expect(res.status).toEqual(401);
-      expect(token).toBeDefined();
-      expect(token!.token).toEqual(initResetToken);
-      expect(JSON.parse(res.text).error).toEqual('Invalid old password');
-      expect(spyOnSendResetCompleteMail).not.toHaveBeenCalled();
-    });
-
     it('trying to reset without new password', async () => {
       const res = await request(app)
         .post(urls.reset)
         .set('Accept', 'application/json')
-        .send({ token: initResetToken, password: '134' });
+        .send({ token: initResetToken });
       const token = await resetTokenRepository.findOne({ token: initResetToken });
       expect(res.status).toEqual(400);
       expect(token).toBeDefined();
@@ -533,7 +545,7 @@ describe('Auth', () => {
       const res = await request(app)
         .post(urls.reset)
         .set('Accept', 'application/json')
-        .send({ password, newPassword });
+        .send({ password });
       const token = await resetTokenRepository.findOne({ token: initResetToken });
       expect(res.status).toEqual(400);
       expect(token).toBeDefined();
@@ -546,7 +558,7 @@ describe('Auth', () => {
       const res = await request(app)
         .post(urls.reset)
         .set('Accept', 'application/json')
-        .send({ token: initResetToken, password, newPassword });
+        .send({ token: initResetToken, password });
 
       const resetToken = await resetTokenRepository.findOne({ userId: initUser.id });
       const user = await userRepository.findOne({ id: initUser.id });
@@ -559,7 +571,6 @@ describe('Auth', () => {
       expect(res.status).toEqual(200);
       expect(resetToken).not.toBeDefined();
       expect(user).toBeDefined();
-      expect(await isCorrect(newPassword, user.salt, user.hash)).toBeTruthy();
       expect(spyOnSendResetCompleteMail).toHaveBeenCalled();
     });
 
@@ -567,7 +578,7 @@ describe('Auth', () => {
       const res = await request(app)
         .post(urls.reset)
         .set('Accept', 'application/json')
-        .send({ token: initResetToken, password: newPassword, newPassword: 'qwerty' });
+        .send({ token: initResetToken, password });
 
       const resetToken = await resetTokenRepository.findOne({ token: initResetToken });
 
@@ -577,92 +588,29 @@ describe('Auth', () => {
       expect(spyOnSendResetCompleteMail).not.toHaveBeenCalled();
     });
 
-    it('trying to login with the NEW password', async () => {
-      const res = await request(app)
-        .post(urls.login)
-        .set('Accept', 'application/json')
-        .send({ password: newPassword, email });
-      expect(res.status).toEqual(200);
-      expect(res.body.user).toEqual(expect.any(Object));
-    });
+    describe('on reset password with expired reset token', () => {
+      const email1 = 'reset-password-test1@mail.com';
+      const password1 = '45678';
+      let initUser1: User;
+      let token: string;
 
-    it('trying to login with the OLD password', async () => {
-      const res = await request(app)
-        .post(urls.login)
-        .set('Accept', 'application/json')
-        .send({ password, email });
-      expect(res.status).toEqual(401);
-      expect(JSON.parse(res.text).error).toEqual('Email or password is invalid');
-    });
-  });
+      beforeAll(async () => {
+        initUser1 = await User.create({ email: email1, password: password1 });
+        await userRepository.save(initUser);
+        token = signResetToken({ email, userId: initUser1.id }, -1);
+        await resetTokenRepository.save(new ResetToken(token, initUser.id));
+      });
 
-  describe('on reset password with expired reset token', () => {
-    const email = 'reset-password-test1@mail.com';
-    const password = '45678';
-    let initUser: User;
-    let token: string;
+      it('trying to use expired token', async () => {
+        const res = await request(app)
+          .post(urls.reset)
+          .set('Accept', 'application/json')
+          .send({ token, password: '123' });
 
-    beforeAll(async () => {
-      initUser = await User.create({ email, password });
-      await userRepository.save(initUser);
-      token = signResetToken({ email, userId: initUser.id }, -1);
-      await resetTokenRepository.save(new ResetToken(token, initUser.id));
-    });
-
-    beforeEach(() => {
-      spyOnSendResetCompleteMail.mockClear();
-    });
-
-    it('trying to use expired token', async () => {
-      const newPassword = 'qwerty';
-      const res = await request(app)
-        .post(urls.reset)
-        .set('Accept', 'application/json')
-        .send({ token, password, newPassword });
-
-      expect(res.status).toEqual(401);
-      expect(JSON.parse(res.text).error).toEqual('Token expired');
-      expect(spyOnSendResetCompleteMail).not.toHaveBeenCalled();
-    });
-  });
-
-  describe('on reset password with token which signed to another user', () => {
-    const email1 = 'reset-password-test-1@mail.com';
-    const password1 = '123qwerty';
-    let user1: User;
-    let token1: string;
-
-    const email2 = 'reset-password-test-2@mail.com';
-    const password2 = 'qwerty123';
-    let user2: User;
-    let token2: string;
-
-    beforeAll(async () => {
-      user1 = await User.create({ email: email1, password: password1 });
-      token1 = signResetToken({ email: email1, userId: user1.id });
-      await userRepository.save(user1);
-      await resetTokenRepository.save(new ResetToken(token1, user1.id));
-
-      user2 = await User.create({ email: email2, password: password2 });
-      token2 = signResetToken({ email: email2, userId: user2.id });
-      await userRepository.save(user2);
-      await resetTokenRepository.save(new ResetToken(token2, user2.id));
-    });
-
-    beforeEach(() => {
-      spyOnSendResetCompleteMail.mockClear();
-    });
-
-    it('trying to use expired token', async () => {
-      const newPassword = 'qwerty';
-      const res = await request(app)
-        .post(urls.reset)
-        .set('Accept', 'application/json')
-        .send({ token: token2, password: password1, newPassword });
-
-      expect(res.status).toEqual(401);
-      expect(JSON.parse(res.text).error).toEqual('Non-existent user cannot be authorized');
-      expect(spyOnSendResetCompleteMail).not.toHaveBeenCalled();
+        expect(res.status).toEqual(401);
+        expect(JSON.parse(res.text).error).toEqual('Token expired');
+        expect(spyOnSendResetCompleteMail).not.toHaveBeenCalled();
+      });
     });
   });
 });
