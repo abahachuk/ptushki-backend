@@ -495,7 +495,7 @@ describe('Auth', () => {
 
       const firstTryResetTokens = await resetTokenRepository.find({ userId: secondUser.id });
 
-      const secondResponse = await delay(3000).then(() =>
+      const secondResponse = await delay(1000).then(() =>
         request(app)
           .post(urls.forgot)
           .set('Accept', 'application/json')
