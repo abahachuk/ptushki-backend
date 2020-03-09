@@ -468,7 +468,7 @@ describe('Auth', () => {
       spyOnSendChangeRequestMail.mockClear();
     });
 
-    it('be able to gererate reset token and send it via mail service', async () => {
+    it('be able to generate reset token and send it via mail service', async () => {
       const res = await request(app)
         .post(urls.forgot)
         .set('Accept', 'application/json')
