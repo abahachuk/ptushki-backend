@@ -7,7 +7,6 @@ import { Tags, Response } from 'typescript-rest-swagger';
 import AbstractController from './abstract-controller';
 import { CreateUserDto, User, WithCredentials, UserRole } from '../entities/user-entity';
 import {
-  ChangePasswordReqDto,
   LogoutReqDto,
   RefreshReqDto,
   RefreshToken,
@@ -18,9 +17,7 @@ import {
 } from '../entities/auth-entity';
 import { ResetToken } from '../entities/reset-token';
 import { signTokens, verifyRefreshToken, signResetToken, verifyResetToken, auth } from '../services/auth-service';
-import { isCorrect } from '../services/user-crypto-service';
 import { addAudit } from '../services/audit-service';
-// import { sendChangeRequestMail, sendResetCompleteMail } from '../services/mail-service';
 import { getMailServiceInstance, MailService } from '../services/mail-service';
 import { CustomError } from '../utils/CustomError';
 
@@ -167,41 +164,6 @@ export default class AuthController extends AbstractController {
     }
   }
 
-  // TODO: move error handling to separate layer
-  /**
-   * Change existing password.
-   * @param {ChangePasswordReqDto} passwords Old and new passwords
-   */
-  @POST
-  @Path('/change-password')
-  @Security()
-  @Response<{ ok: boolean }>(200, 'Password was successfully changed.')
-  @Response<CustomError>(400, 'Both old and new passwords are required')
-  @Response<CustomError>(401, 'Invalid old password.')
-  public async changePassword(
-    passwords: ChangePasswordReqDto,
-    @ContextRequest req: Request,
-    @ContextNext next: NextFunction,
-  ): Promise<{ ok: boolean } | void> {
-    try {
-      const { oldPassword, newPassword } = passwords;
-      const user = req.user as User;
-      if (!oldPassword || !newPassword || !user) {
-        throw new CustomError('Both old and new passwords are required', 400);
-      }
-      const isPasswordCorrect = await isCorrect(oldPassword, user.salt, user.hash);
-      if (!isPasswordCorrect) {
-        throw new CustomError('Invalid old password', 401);
-      }
-      await user.setPassword(newPassword);
-      await this.users.save(user);
-      await addAudit('passChange', '', null, user.id);
-      return { ok: true };
-    } catch (e) {
-      return next(e);
-    }
-  }
-
   /**
    * Initiating process of resetting password.
    * @param {ForgotPasswordReqDto} payload To start it is only needed email
@@ -227,11 +189,13 @@ export default class AuthController extends AbstractController {
 
       // if token already exists for that user
       const existingToken = await this.resetTokens.findOne({ userId: user.id });
+
       if (existingToken) {
         await this.resetTokens.delete(existingToken);
       }
 
       const token = signResetToken({ email, userId: user.id });
+
       await this.resetTokens.save(new ResetToken(token, user.id));
       await this.mailServise.sendChangeRequestMail(token, email);
 
@@ -249,17 +213,14 @@ export default class AuthController extends AbstractController {
   @Path('/reset')
   @Response<{ ok: boolean }>(200, 'Password was successfully reseted.')
   @Response<CustomError>(400, 'Reset token and passwords are required.')
-  @Response<CustomError>(
-    401,
-    'Token already was used or never existed | Non-existent user cannot be authorized | Invalid password | Invalid token | Token expired',
-  )
+  @Response<CustomError>(401, 'Token already was used or never existed | Token invalid | Token expired')
   public async resetPassword(
     payload: ResetPasswordReqDto,
     @ContextNext next: NextFunction,
   ): Promise<{ ok: boolean } | void> {
     try {
-      const { token, password, newPassword } = payload;
-      if (!token || !password || !newPassword) {
+      const { token, password } = payload;
+      if (!token || !password) {
         throw new CustomError('Reset token and passwords are required', 400);
       }
 
@@ -271,15 +232,11 @@ export default class AuthController extends AbstractController {
       const { userId, email } = await verifyResetToken(token);
       const user = await this.users.findOne({ id: userId });
       if (!user) {
-        throw new CustomError('Non-existent user cannot be authorized', 401);
+        // clarify custom error;
+        throw new CustomError('', 401);
       }
 
-      const isPasswordCorrect = await isCorrect(password, user.salt, user.hash);
-      if (!isPasswordCorrect) {
-        throw new CustomError('Invalid old password', 401);
-      }
-
-      await user.setPassword(newPassword);
+      await user.setPassword(password);
       await this.users.save(user);
       await this.resetTokens.delete({ token });
       await this.mailServise.sendResetCompleteMail(email);
@@ -299,7 +256,7 @@ export default class AuthController extends AbstractController {
   @Path('/test')
   @Security()
   @PreProcessor(auth.role(UserRole.Observer))
-  public async test() {
+  public async test(): Promise<{ ok: boolean }> {
     return { ok: true };
   }
 
@@ -307,7 +264,7 @@ export default class AuthController extends AbstractController {
   @Path('/admin-test')
   @Security()
   @PreProcessor(auth.role(UserRole.Admin))
-  public async adminTest() {
+  public async adminTest(): Promise<{ ok: boolean }> {
     return { ok: true };
   }
 }
