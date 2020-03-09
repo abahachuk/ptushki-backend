@@ -492,26 +492,24 @@ describe('Auth', () => {
 
       const firstTryResetTokens = await resetTokenRepository.find({ userId: secondUser.id });
 
-      console.log('---------------------------- 111', JSON.stringify(firstTryResetTokens, null, 2));
-
-      const secondResponse = await request(app)
-        .post(urls.forgot)
-        .set('Accept', 'application/json')
-        .send({ email: secondUserEmail });
+      const secondResponse = await delay(3000).then(() =>
+        request(app)
+          .post(urls.forgot)
+          .set('Accept', 'application/json')
+          .send({ email: secondUserEmail }),
+      );
 
       expect(secondResponse.status).toEqual(200);
       expect(secondResponse.body.ok).toEqual(true);
 
       const secondTryResetTokens = await resetTokenRepository.find({ userId: secondUser.id });
 
-      console.log('---------------------------- 2222', JSON.stringify(firstTryResetTokens, null, 2));
-
       expect(secondTryResetTokens.length).toEqual(1);
       expect(secondTryResetTokens[0].token).not.toEqual(firstTryResetTokens[0].token);
     });
   });
 
-  describe('on reset password', () => {
+  describe('reset password flow', () => {
     const email = 'reset-password-test@mail.com';
     const password = '12345';
     let initUser: User;
