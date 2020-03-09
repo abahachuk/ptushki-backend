@@ -458,10 +458,13 @@ describe('Auth', () => {
     let secondUser: User;
 
     beforeAll(async () => {
-      firstUser = await User.create({ email: firstUserEmail, password: firstUserpassword });
-      secondUser = await User.create({ email: secondUserEmail, password: secondUserpassword });
-      await userRepository.save(firstUser);
-      await userRepository.save(secondUser);
+      [firstUser, secondUser] = await Promise.all(
+        [
+          { email: firstUserEmail, password: firstUserpassword },
+          { email: secondUserEmail, password: secondUserpassword },
+        ].map((creds: CreateUserDto) => User.create(creds)),
+      );
+      await Promise.all([firstUser, secondUser].map(user => userRepository.save(user)));
     });
 
     beforeEach(() => {
