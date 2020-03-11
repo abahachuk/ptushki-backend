@@ -513,16 +513,34 @@ describe('Auth', () => {
   });
 
   describe('reset password flow', () => {
-    const email = 'reset-password-test@mail.com';
-    const password = '12345';
-    let initUser: User;
-    let initResetToken: string;
+    const firstUserEmail = 'reset-password-test@mail.com';
+    const firstUserPassword = '12345';
+    const firstUserNewPassword = 'newPasword';
+    let firstUser: User;
+    let firstUserResetToken: string;
+
+    const secondUserEmail = 'reset-password-expired@mail.com';
+    const secondUserPassword = '45678';
+    let secondUser: User;
+    let expiredResetToken: string;
 
     beforeAll(async () => {
-      initUser = await User.create({ email, password });
-      await userRepository.save(initUser);
-      initResetToken = signResetToken({ email, userId: initUser.id });
-      await resetTokenRepository.save(new ResetToken(initResetToken, initUser.id));
+      [firstUser, secondUser] = await Promise.all(
+        [
+          { email: firstUserEmail, password: firstUserPassword },
+          { email: secondUserEmail, password: secondUserPassword },
+        ].map(creds => User.create(creds)),
+      );
+      await Promise.all([firstUser, secondUser].map(user => userRepository.save(user)));
+
+      firstUserResetToken = signResetToken({ email: firstUserEmail, userId: firstUser.id });
+      expiredResetToken = signResetToken({ email: secondUserEmail, userId: secondUser.id }, -1);
+
+      await Promise.all(
+        [{ user: firstUser, token: firstUserResetToken }, { user: secondUser, token: expiredResetToken }].map(
+          ({ user, token }) => resetTokenRepository.save(new ResetToken(token, user.id)),
+        ),
+      );
     });
 
     beforeEach(() => {
@@ -533,11 +551,11 @@ describe('Auth', () => {
       const res = await request(app)
         .post(urls.reset)
         .set('Accept', 'application/json')
-        .send({ token: initResetToken });
-      const token = await resetTokenRepository.findOne({ token: initResetToken });
+        .send({ token: firstUserResetToken });
+      const token = await resetTokenRepository.findOne({ token: firstUserResetToken });
       expect(res.status).toEqual(400);
       expect(token).toBeDefined();
-      expect(token!.token).toEqual(initResetToken);
+      expect(token!.token).toEqual(firstUserResetToken);
       expect(JSON.parse(res.text).error).toEqual('Reset token and passwords are required');
       expect(spyOnSendResetCompleteMail).not.toHaveBeenCalled();
     });
@@ -546,72 +564,73 @@ describe('Auth', () => {
       const res = await request(app)
         .post(urls.reset)
         .set('Accept', 'application/json')
-        .send({ password });
-      const token = await resetTokenRepository.findOne({ token: initResetToken });
+        .send({ password: firstUserPassword });
+      const token = await resetTokenRepository.findOne({ token: firstUserResetToken });
       expect(res.status).toEqual(400);
       expect(token).toBeDefined();
-      expect(token!.token).toEqual(initResetToken);
+      expect(token!.token).toEqual(firstUserResetToken);
       expect(JSON.parse(res.text).error).toEqual('Reset token and passwords are required');
       expect(spyOnSendResetCompleteMail).not.toHaveBeenCalled();
     });
 
     it('check that password was reset succefully and reset toket was deleted', async () => {
-      const res = await request(app)
+      const response = await request(app)
         .post(urls.reset)
         .set('Accept', 'application/json')
-        .send({ token: initResetToken, password });
+        .send({ token: firstUserResetToken, password: firstUserNewPassword });
 
-      const resetToken = await resetTokenRepository.findOne({ userId: initUser.id });
-      const user = await userRepository.findOne({ id: initUser.id });
+      const sameToken = await resetTokenRepository.findOne({ userId: firstUser.id });
+      const sameUser = await userRepository.findOne({ id: firstUser.id });
 
-      if (!user) {
+      if (!sameUser) {
         throw new Error('user should exist');
       }
 
-      expect(res.body.ok).toEqual(true);
-      expect(res.status).toEqual(200);
-      expect(resetToken).not.toBeDefined();
-      expect(user).toBeDefined();
+      expect(response.status).toEqual(200);
+      expect(response.body.ok).toEqual(true);
+      expect(response.status).toEqual(200);
+      expect(sameToken).not.toBeDefined();
+      expect(sameUser).toBeDefined();
       expect(spyOnSendResetCompleteMail).toHaveBeenCalled();
+
+      const loginResponse = await request(app)
+        .post(urls.login)
+        .set('Accept', 'application/json')
+        .send({ email: firstUserEmail, password: firstUserNewPassword });
+
+      expect(loginResponse.status).toEqual(200);
     });
 
     it('trying to reset password with already used reset token', async () => {
       const res = await request(app)
         .post(urls.reset)
         .set('Accept', 'application/json')
-        .send({ token: initResetToken, password });
+        .send({ token: firstUserResetToken, password: firstUserPassword });
 
-      const resetToken = await resetTokenRepository.findOne({ token: initResetToken });
+      const token = await resetTokenRepository.findOne({ token: firstUserResetToken });
 
       expect(res.status).toEqual(401);
-      expect(resetToken).not.toBeDefined();
+      expect(token).not.toBeDefined();
       expect(JSON.parse(res.text).error).toEqual('Token already was used or never existed');
       expect(spyOnSendResetCompleteMail).not.toHaveBeenCalled();
+
+      const loginResponse = await request(app)
+        .post(urls.login)
+        .set('Accept', 'application/json')
+        .send({ email: firstUserEmail, password: firstUserNewPassword });
+
+      expect(loginResponse.status).toEqual(200);
     });
 
-    describe('on reset password with expired reset token', () => {
-      const email1 = 'reset-password-test1@mail.com';
-      const password1 = '45678';
-      let initUser1: User;
-      let token: string;
+    it('trying to use expired token', async () => {
+      const res = await request(app)
+        .post(urls.reset)
+        .set('Accept', 'application/json')
+        .send({ token: expiredResetToken, password: 'newPasword' });
 
-      beforeAll(async () => {
-        initUser1 = await User.create({ email: email1, password: password1 });
-        await userRepository.save(initUser);
-        token = signResetToken({ email, userId: initUser1.id }, -1);
-        await resetTokenRepository.save(new ResetToken(token, initUser.id));
-      });
-
-      it('trying to use expired token', async () => {
-        const res = await request(app)
-          .post(urls.reset)
-          .set('Accept', 'application/json')
-          .send({ token, password: '123' });
-
-        expect(res.status).toEqual(401);
-        expect(JSON.parse(res.text).error).toEqual('Token expired');
-        expect(spyOnSendResetCompleteMail).not.toHaveBeenCalled();
-      });
+      expect(res.status).toEqual(401);
+      expect(JSON.parse(res.text).error).toEqual('Token expired');
+      expect(spyOnSendResetCompleteMail).not.toHaveBeenCalled();
     });
   });
 });
