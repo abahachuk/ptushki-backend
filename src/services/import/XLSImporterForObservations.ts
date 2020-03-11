@@ -131,7 +131,7 @@ export default class XLSImporterForObservations extends AbstractImporter<
       {},
     );
 
-    if (errors.length) {
+    if (!errors.length) {
       return mappedRow;
     }
     // eslint-disable-next-line no-param-reassign
