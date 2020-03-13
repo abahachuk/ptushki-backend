@@ -573,7 +573,7 @@ describe('Auth', () => {
       expect(spyOnSendResetCompleteMail).not.toHaveBeenCalled();
     });
 
-    it('check that password was reset succefully and reset toket was deleted', async () => {
+    it('check that password was reset successfully and reset token was deleted', async () => {
       const response = await request(app)
         .post(urls.reset)
         .set('Accept', 'application/json')
