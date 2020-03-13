@@ -581,18 +581,18 @@ describe('Auth', () => {
         .set('Accept', 'application/json')
         .send({ token: firstUserResetToken, password: firstUserNewPassword });
 
-      const sameToken = await resetTokenRepository.findOne({ userId: firstUser.id });
-      const sameUser = await userRepository.findOne({ id: firstUser.id });
+      const dbToken = await resetTokenRepository.findOne({ userId: firstUser.id });
+      const dbUser = await userRepository.findOne({ id: firstUser.id });
 
-      if (!sameUser) {
+      if (!dbUser) {
         throw new Error('user should exist');
       }
 
       expect(response.status).toEqual(200);
       expect(response.body.ok).toEqual(true);
       expect(response.status).toEqual(200);
-      expect(sameToken).not.toBeDefined();
-      expect(sameUser).toBeDefined();
+      expect(dbToken).not.toBeDefined();
+      expect(dbUser).toBeDefined();
       expect(spyOnSendResetCompleteMail).toHaveBeenCalled();
 
       const loginResponse = await request(app)
@@ -624,7 +624,7 @@ describe('Auth', () => {
       expect(loginResponse.status).toEqual(200);
     });
 
-    it('be not able to reset password by the expired reset token', async () => {
+    it('be not able to reset password by the expired reset token and get 401', async () => {
       const res = await request(app)
         .post(urls.reset)
         .set('Accept', 'application/json')
