@@ -448,7 +448,7 @@ describe('Auth', () => {
     });
   });
 
-  describe('forgotten password flow', () => {
+  describe('on forgot password route user should:', () => {
     const firstUserEmail = 'forgot-password@mail.com';
     const firstUserpassword = '12345';
     let firstUser: User;
@@ -471,7 +471,7 @@ describe('Auth', () => {
       spyOnSendChangeRequestMail.mockClear();
     });
 
-    it('be able to generate reset token and send it via mail service', async () => {
+    it('be able to request reset and get email', async () => {
       const res = await request(app)
         .post(urls.forgot)
         .set('Accept', 'application/json')
@@ -484,7 +484,7 @@ describe('Auth', () => {
       expect(spyOnSendChangeRequestMail).toHaveBeenCalledWith(resetTokens[0].token, firstUserEmail);
     });
 
-    it('be able to generate reset token and overwrite existing if it exists', async () => {
+    it('be able to request reset again and by this disable previous token', async () => {
       const firstResponse = await request(app)
         .post(urls.forgot)
         .set('Accept', 'application/json')
@@ -510,9 +510,11 @@ describe('Auth', () => {
       expect(secondTryResetTokens.length).toEqual(1);
       expect(secondTryResetTokens[0].token).not.toEqual(firstTryResetTokens[0].token);
     });
+
+    it.todo('not be able to request reset if provided email not exists in database', async () => {});
   });
 
-  describe('reset password flow', () => {
+  describe('on reset password route user should:', () => {
     const firstUserEmail = 'reset-password-test@mail.com';
     const firstUserPassword = '12345';
     const firstUserNewPassword = 'newPasword';
@@ -547,7 +549,7 @@ describe('Auth', () => {
       spyOnSendResetCompleteMail.mockClear();
     });
 
-    it('trying to reset without new password', async () => {
+    it('not be able update password without new password provided', async () => {
       const res = await request(app)
         .post(urls.reset)
         .set('Accept', 'application/json')
@@ -560,7 +562,7 @@ describe('Auth', () => {
       expect(spyOnSendResetCompleteMail).not.toHaveBeenCalled();
     });
 
-    it('trying to reset without reset token', async () => {
+    it('not be able update password without reset token provided', async () => {
       const res = await request(app)
         .post(urls.reset)
         .set('Accept', 'application/json')
@@ -573,7 +575,7 @@ describe('Auth', () => {
       expect(spyOnSendResetCompleteMail).not.toHaveBeenCalled();
     });
 
-    it('check that password was reset successfully and reset token was deleted', async () => {
+    it('be able to update password with passed token and new password; and by this disable used token', async () => {
       const response = await request(app)
         .post(urls.reset)
         .set('Accept', 'application/json')
@@ -601,7 +603,7 @@ describe('Auth', () => {
       expect(loginResponse.status).toEqual(200);
     });
 
-    it('trying to reset password with already used reset token', async () => {
+    it('be not able to reset password by the same reset token twice', async () => {
       const res = await request(app)
         .post(urls.reset)
         .set('Accept', 'application/json')
@@ -622,7 +624,7 @@ describe('Auth', () => {
       expect(loginResponse.status).toEqual(200);
     });
 
-    it('trying to use expired token', async () => {
+    it('be not able to reset password by the expired reset token', async () => {
       const res = await request(app)
         .post(urls.reset)
         .set('Accept', 'application/json')
