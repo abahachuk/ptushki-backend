@@ -511,7 +511,7 @@ describe('Auth', () => {
       expect(secondTryResetTokens[0].token).not.toEqual(firstTryResetTokens[0].token);
     });
 
-    it.todo('not be able to request reset if provided email not exists in database', async () => {});
+    it.todo('not be able to request reset if provided email not exists in database');
   });
 
   describe('on reset password route user should:', () => {
