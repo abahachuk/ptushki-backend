@@ -511,7 +511,15 @@ describe('Auth', () => {
       expect(secondTryResetTokens[0].token).not.toEqual(firstTryResetTokens[0].token);
     });
 
-    it.todo('not be able to request reset if provided email not exists in database');
+    it('not be able to request reset if provided email does not exist in database', async () => {
+      const response = await request(app)
+        .post(urls.forgot)
+        .set('Accept', 'application/json')
+        .send({ email: 'i-do-not-exist@mail.com' });
+
+      expect(response.status).toEqual(401);
+      expect(spyOnSendChangeRequestMail).not.toHaveBeenCalledWith();
+    });
   });
 
   describe('on reset password route user should:', () => {
