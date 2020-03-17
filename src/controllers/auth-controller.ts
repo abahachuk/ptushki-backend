@@ -172,7 +172,7 @@ export default class AuthController extends AbstractController {
   @Path('/forgot')
   @Response<{ ok: boolean }>(200, 'Request for password reset was successfully created.')
   @Response<CustomError>(400, 'Email is required')
-  @Response<CustomError>(401, 'Non-existent user cannot be authorized')
+  @Response<CustomError>(401, 'There is no user with this email')
   public async forgotPassword(
     payload: ForgotPasswordReqDto,
     @ContextNext next: NextFunction,
@@ -184,7 +184,7 @@ export default class AuthController extends AbstractController {
       }
       const user = await this.users.findOne({ email });
       if (!user) {
-        throw new CustomError('Non-existent user cannot be authorized', 401);
+        throw new CustomError('There is no user with this email', 401);
       }
 
       // if token already exists for that user
