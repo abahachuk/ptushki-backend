@@ -41,9 +41,5 @@ export default {
   mailService: {
     service: process.env.MAIL_SERVICE_SERVICE || 'Dummy',
     senderMail: process.env.MAIL_SERVICE_SENDER || 'resetpassword@ptushki.by',
-    subject: {
-      passwordChange: 'Your password has been changed',
-      passwordReset: 'Your password has been reset',
-    },
   },
 };

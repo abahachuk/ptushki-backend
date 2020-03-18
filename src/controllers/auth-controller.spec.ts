@@ -23,7 +23,6 @@ const urls: { [index: string]: string } = {
   logout: '/auth/logout',
   forgot: '/auth/forgot',
   reset: '/auth/reset',
-  changePass: '/change-password',
   test: '/auth/test',
   adminTest: '/auth/admin-test',
 };

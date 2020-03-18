@@ -4,20 +4,15 @@ import config from 'config';
 import { createTransport } from 'nodemailer';
 import { passwordChangeMail, passwordResetMail } from '../../templates/mail';
 
-const {
-  service,
-  senderMail,
-  auth,
-  subject: { passwordChange, passwordReset },
-} = config.get('mailService');
+const { service, senderMail, auth } = config.get('mailService');
 
 export interface MailSender {
-  sendChangeRequestMail(token: string, email: string): Promise<void>;
+  sendChangeRequestMail(email: string, token: string): Promise<void>;
   sendResetCompleteMail(email: string): Promise<void>;
 }
 
 export class DummyMailSender implements MailSender {
-  public sendChangeRequestMail(_token: string, _email: string): Promise<void> {
+  public sendChangeRequestMail(_email: string, _token: string): Promise<void> {
     console.log('dummy sent Change request mail');
     return Promise.resolve();
   }
@@ -35,22 +30,24 @@ export class SendGridMailSender implements MailSender {
 
   private smtpTransport: ReturnType<typeof createTransport>;
 
-  public sendChangeRequestMail(token: string, email: string): Promise<void> {
+  public sendChangeRequestMail(to: string, token: string): Promise<void> {
+    const { subject, body } = passwordChangeMail(token);
     const mailOptions = {
-      to: email,
+      to,
       from: senderMail,
-      subject: passwordChange,
-      text: passwordChangeMail(token),
+      subject,
+      text: body,
     };
     return this.smtpTransport.sendMail(mailOptions);
   }
 
-  public sendResetCompleteMail(email: string): Promise<void> {
+  public sendResetCompleteMail(to: string): Promise<void> {
+    const { subject, body } = passwordResetMail(to);
     const mailOptions = {
-      to: email,
+      to,
       from: senderMail,
-      subject: passwordReset,
-      text: passwordResetMail(email),
+      subject,
+      text: body,
     };
     return this.smtpTransport.sendMail(mailOptions);
   }
