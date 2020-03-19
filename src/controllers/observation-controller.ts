@@ -155,7 +155,9 @@ export default class ObservationController extends AbstractController {
         } else {
           const f = pipe((arg: [string, any]) => sanitizeUser(arg));
           const [, value] = f([column, observation[column]]);
-          acc[column].push({ value, count: 1 });
+          if (value !== null) {
+            acc[column].push({ value, count: 1 });
+          }
         }
       });
       return acc;
