@@ -37,7 +37,7 @@ export default abstract class AbstractController {
     return instance;
   }
 
-  protected setMainEntity(entity: Repository<any>) {
+  protected setMainEntity(entity: Repository<any>): void {
     this.entity = entity;
   }
 

@@ -32,12 +32,16 @@ export class LogoutReqDto extends RefreshReqDto {
   public closeAllSessions?: boolean;
 }
 
-export class ChangePasswordReqDto {
-  public readonly oldPassword: string;
-
-  public readonly newPassword: string;
-}
-
 export class SuccessAuthDto extends TokensPairDto {
   public readonly user: UserDto;
+}
+
+export class ForgotPasswordReqDto {
+  public readonly email: string;
+}
+
+export class ResetPasswordReqDto {
+  public readonly token: string;
+
+  public readonly password: string;
 }
