@@ -146,7 +146,7 @@ export default class ObservationController extends AbstractController {
       this.requiredColumns.forEach(column => {
         const desired = acc[column].find(({ value, value: { id } = {} }) => {
           if (typeof observation[column] === 'object' && observation[column] !== null && id) {
-            return id === (observation[column] as any).id;
+            return id === (observation[column] as Record<string, any>).id;
           }
           return value === observation[column];
         });
