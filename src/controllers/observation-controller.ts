@@ -144,11 +144,11 @@ export default class ObservationController extends AbstractController {
 
     return observations.reduce((acc, observation) => {
       this.requiredColumns.forEach(column => {
-        const desired = acc[column].find(item => {
-          if (typeof observation[column] === 'object' && observation[column] !== null) {
-            return item.value.id === (observation[column] as any).id;
+        const desired = acc[column].find(({ value, value: { id } = {} }) => {
+          if (typeof observation[column] === 'object' && observation[column] !== null && id) {
+            return id === (observation[column] as any).id;
           }
-          return item.value === observation[column];
+          return value === observation[column];
         });
         if (desired) {
           desired.count += 1;
