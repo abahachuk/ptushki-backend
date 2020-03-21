@@ -66,7 +66,7 @@ export default class ObservationController extends AbstractController {
 
   private importer: Importer;
 
-  private requiredColumns: ObservationKeyUnion[] = ['speciesMentioned', 'verified', 'finder', 'ringMentioned'];
+  private aggregatedColumns: ObservationKeyUnion[] = ['speciesMentioned', 'verified', 'finder', 'ringMentioned'];
 
   public constructor() {
     super();
@@ -138,28 +138,33 @@ export default class ObservationController extends AbstractController {
 
     const paramsAggregation = parseWhereParams(user, query);
     const observations = await this.observations.find({ ...paramsAggregation });
-    const requiredColumnsMap: AggregationsMap = this.requiredColumns.reduce((acc, column) => {
-      return Object.assign(acc, { [column]: [] });
-    }, {});
+    const aggregationMap: AggregationsMap = this.aggregatedColumns.reduce(
+      (map, column) => Object.assign(map, { [column]: [] }),
+      {},
+    );
 
-    return observations.reduce((acc, observation) => {
-      this.requiredColumns.forEach(column => {
-        const desired = acc[column].find(item => {
-          if (typeof observation[column] === 'object' && observation[column] !== null) {
-            return item.value.id === (observation[column] as any).id;
+    return observations.reduce((aggregation, observation) => {
+      this.aggregatedColumns.forEach(column => {
+        const desired = aggregation[column].find(({ value, value: { id } }) => {
+          if (typeof observation[column] === 'object' && observation[column] !== null && id) {
+            return id === (observation[column] as Record<string, any>).id;
           }
-          return item.value === observation[column];
+          return value === observation[column];
         });
+
         if (desired) {
           desired.count += 1;
         } else {
           const f = pipe((arg: [string, any]) => sanitizeUser(arg));
           const [, value] = f([column, observation[column]]);
-          acc[column].push({ value, count: 1 });
+          // readme disable aggregation by untruly values:  at first null
+          if (value !== null) {
+            aggregation[column].push({ value, count: 1 });
+          }
         }
       });
-      return acc;
-    }, requiredColumnsMap);
+      return aggregation;
+    }, aggregationMap);
   }
 
   /**
