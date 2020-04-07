@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/explicit-function-return-type */
 // @ts-ignore
 import 'dotenv/config';
 import config from 'config';
