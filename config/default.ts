@@ -5,7 +5,7 @@ export default {
   dbConfig: {
     type: 'postgres',
     url: process.env.PG_URL || null,
-    host: process.env.PG_HOST || 'localhost',
+    host: process.env.PG_HOST || 'ptushki-database-1.ctkxc4sv9pzn.eu-central-1.rds.amazonaws.com',
     port: Number.parseInt(process.env.PG_PORT as string, 10) || 5432,
     database: process.env.PG_DBNAME || 'ptushki',
     username: process.env.PG_USER || 'username',
