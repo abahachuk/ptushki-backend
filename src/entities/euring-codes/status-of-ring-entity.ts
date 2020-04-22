@@ -1,13 +1,13 @@
 import { Entity, PrimaryColumn, Column, OneToMany } from 'typeorm';
 import { Length, IsAlpha, IsOptional, IsString } from 'class-validator';
 import { equalLength } from '../../validation/validation-messages';
-import { EntityDto } from '../common-interfaces';
+import { EURINGEntityDto } from '../common-interfaces';
 import { Ring } from '../ring-entity';
 
 // Related table in access 'Status of ring'
 // FIXME it isn't EURING code
 @Entity()
-export class StatusOfRing implements EntityDto {
+export class StatusOfRing implements EURINGEntityDto {
   @IsAlpha()
   @Length(1, 1, { message: equalLength(1) })
   @PrimaryColumn()

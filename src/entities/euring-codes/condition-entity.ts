@@ -1,13 +1,13 @@
 import { Entity, PrimaryColumn, Column, OneToMany } from 'typeorm';
 import { IsInt, Min, Max, IsOptional, IsString } from 'class-validator';
-import { EntityDto } from '../common-interfaces';
+import { EURINGEntityDto } from '../common-interfaces';
 import { Ring } from '../ring-entity';
 import { Observation } from '../observation-entity';
 
 // Related table in access 'Conditions'
 // Can not be 'Condition' bue to error like in this issue https://github.com/thiagobustamante/typescript-rest-swagger/issues/27
 @Entity()
-export class Conditions implements EntityDto {
+export class Conditions implements EURINGEntityDto {
   @IsInt()
   @Min(0)
   @Max(9)

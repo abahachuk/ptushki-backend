@@ -1,13 +1,13 @@
 import { Entity, PrimaryColumn, Column, OneToMany } from 'typeorm';
 import { Length, IsNumberString, IsOptional, IsString } from 'class-validator';
 import { equalLength } from '../../validation/validation-messages';
-import { EntityDto } from '../common-interfaces';
+import { EURINGEntityDto } from '../common-interfaces';
 import { Ring } from '../ring-entity';
 import { Observation } from '../observation-entity';
 
 // Related table in access 'Circumstances'
 @Entity()
-export class Circumstances implements EntityDto {
+export class Circumstances implements EURINGEntityDto {
   @IsNumberString()
   @Length(2, 2, { message: equalLength(2) })
   @PrimaryColumn()

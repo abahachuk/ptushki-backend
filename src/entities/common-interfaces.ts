@@ -36,7 +36,7 @@ export interface WithDescription {
   desc_byn?: string;
 }
 
-export interface EntityDto extends WithDescription {
+export interface EURINGEntityDto extends WithDescription {
   id: string | number;
 }
 

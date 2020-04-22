@@ -46,41 +46,41 @@ import {
 import { User, UserDto } from './user-entity';
 import { Person, PersonDto } from './person-entity';
 import { Observation } from './observation-entity';
-import { EURINGCodes, AbleToExportAndImportEuring, EntityDto } from './common-interfaces';
+import { EURINGCodes, AbleToExportAndImportEuring, EURINGEntityDto } from './common-interfaces';
 import { ColumnNumericTransformer } from '../utils/ColumnNumericTransformer';
 
 export interface RingDto extends EURINGCodes {
   id: string;
-  metalRingInformation: EntityDto;
-  otherMarksInformation: EntityDto;
+  metalRingInformation: EURINGEntityDto;
+  otherMarksInformation: EURINGEntityDto;
   speciesMentioned: SpeciesDto;
   speciesConcluded: SpeciesDto;
-  manipulated: EntityDto;
-  movedBeforeTheCapture: EntityDto;
-  catchingMethod: EntityDto;
-  catchingLures: EntityDto;
-  sexMentioned: EntityDto;
-  sexConcluded: EntityDto;
-  ageMentioned: EntityDto;
-  ageConcluded: EntityDto;
-  status: EntityDto;
-  broodSize: EntityDto;
-  pullusAge: EntityDto;
-  accuracyOfPullusAge: EntityDto;
+  manipulated: EURINGEntityDto;
+  movedBeforeTheCapture: EURINGEntityDto;
+  catchingMethod: EURINGEntityDto;
+  catchingLures: EURINGEntityDto;
+  sexMentioned: EURINGEntityDto;
+  sexConcluded: EURINGEntityDto;
+  ageMentioned: EURINGEntityDto;
+  ageConcluded: EURINGEntityDto;
+  status: EURINGEntityDto;
+  broodSize: EURINGEntityDto;
+  pullusAge: EURINGEntityDto;
+  accuracyOfPullusAge: EURINGEntityDto;
   latitude: number | null;
   longitude: number | null;
   placeCode: PlaceCodeDto;
-  accuracyOfCoordinates: EntityDto;
-  condition: EntityDto;
-  circumstances: EntityDto;
-  circumstancesPresumed: EntityDto;
+  accuracyOfCoordinates: EURINGEntityDto;
+  condition: EURINGEntityDto;
+  circumstances: EURINGEntityDto;
+  circumstancesPresumed: EURINGEntityDto;
   date: Date | null;
-  accuracyOfDate: EntityDto;
-  euringCodeIdentifier: EntityDto;
+  accuracyOfDate: EURINGEntityDto;
+  euringCodeIdentifier: EURINGEntityDto;
   remarks: string | null;
   offlineRinger: PersonDto;
   ringer: UserDto;
-  statusOfRing: EntityDto;
+  statusOfRing: EURINGEntityDto;
 }
 
 @Entity()

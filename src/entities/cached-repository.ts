@@ -15,7 +15,7 @@ export class CachedRepository<T> extends Repository<T> {
       cache.set(key, await super.find());
     }
     const langsToRemove = languages.map(i => `desc_${i}`).filter((desc: string) => !(desc.indexOf(ln) > -1));
-    // @ts-ignore
+
     const result = cache.get(key).map((item: T) => {
       const newItem: { [index: string]: any } = Object.assign({}, item);
       langsToRemove.forEach(lang => {

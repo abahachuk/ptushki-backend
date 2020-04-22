@@ -2,9 +2,9 @@ import { Entity, PrimaryColumn, Column, OneToMany } from 'typeorm';
 import { Length, IsAlphanumeric, IsOptional, IsString } from 'class-validator';
 import { equalLength } from '../../validation/validation-messages';
 import { Ring } from '../ring-entity';
-import { EntityDto } from '../common-interfaces';
+import { EURINGEntityDto } from '../common-interfaces';
 
-export interface PlaceCodeDto extends EntityDto {
+export interface PlaceCodeDto extends EURINGEntityDto {
   country?: string | null;
   region?: string | null;
 }
