@@ -26,7 +26,7 @@ export default class InitialDataController extends AbstractController {
   public async heatUp() {
     try {
       await executeInThreadedQueue(
-        this.cached.map((repository: CachedRepository<any>) => async () => repository.findByLang()),
+        this.cached.map((repository: CachedRepository<any>) => async () => repository.findAll()),
       );
       logger.info(`Initial data was heated up`);
     } catch (e) {
@@ -41,7 +41,7 @@ export default class InitialDataController extends AbstractController {
   public async getInitialData(@QueryParam('lang') lang: string): Promise<{ [index: string]: any[] }> {
     return (await Promise.all(
       this.cached.map(async (repository: CachedRepository<any>) => ({
-        records: await repository.findByLang(lang),
+        records: await repository.filterByLang(lang),
         tableName: repository.tableName,
       })),
     )).reduce((acc: { [index: string]: any[] }, { records, tableName }) => {
