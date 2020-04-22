@@ -39,6 +39,11 @@ export default class InitialDataController extends AbstractController {
     }
   }
 
+  /**
+   * Get all EURING codes with descriptions filtered by specified language.
+   * @param lang Language to filter codes descriptions
+   */
+
   @GET
   @Path('/')
   @Response<InitialDataDto>(200, 'All available EURING codes with descriptions.')
