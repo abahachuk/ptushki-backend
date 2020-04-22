@@ -1,12 +1,13 @@
 import { Repository } from 'typeorm';
 import cache from './repositories-cache';
+import { Lang } from '../common-types/Lang';
 
 const languages = ['eng', 'rus', 'byn'];
 const camelCase = (s: string): string => s[0].toLowerCase() + s.slice(1);
 
 export class CachedRepository<T> extends Repository<T> {
   public async filterByLang(
-    ln: string,
+    ln: Lang,
   ): Promise<(Pick<T, Exclude<keyof T, 'desc_rus' | 'desc_eng' | 'desc_byn'>> & { desc: any })[]> {
     const lang = languages.includes(ln) ? ln : languages[0];
     const key = `${this.metadata.name}_${lang}`;
