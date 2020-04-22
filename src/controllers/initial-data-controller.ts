@@ -6,6 +6,7 @@ import { Tags, Response } from 'typescript-rest-swagger';
 import AbstractController from './abstract-controller';
 import { cachedEURINGCodes } from '../entities/euring-codes/cached-entities-fabric';
 import { CachedRepository } from '../entities/cached-repository';
+import { Lang } from '../common-types/Lang';
 import { executeInThreadedQueue } from '../utils/async-queue';
 import { logger } from '../utils/logger';
 import { CustomError } from '../utils/CustomError';
@@ -42,7 +43,7 @@ export default class InitialDataController extends AbstractController {
   @Path('/')
   @Response<InitialDataDto>(200, 'All available EURING codes with descriptions.')
   @Response<CustomError>(401, 'Unauthorised.')
-  public async getInitialData(@QueryParam('lang') lang: string): Promise<InitialDataDto> {
+  public async getInitialData(@QueryParam('lang') lang: Lang): Promise<InitialDataDto> {
     return (await Promise.all(
       this.cached.map(async (repository: CachedRepository<any>) => ({
         records: await repository.filterByLang(lang),
