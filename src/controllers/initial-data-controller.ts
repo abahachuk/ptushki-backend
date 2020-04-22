@@ -10,6 +10,10 @@ import { executeInThreadedQueue } from '../utils/async-queue';
 import { logger } from '../utils/logger';
 import { CustomError } from '../utils/CustomError';
 
+interface InitialDataDto {
+  [index: string]: { id: string; desc: string; [index: string]: any }[];
+}
+
 @Path('initial-data')
 @Tags('initial-data')
 @Security()
@@ -36,9 +40,9 @@ export default class InitialDataController extends AbstractController {
 
   @GET
   @Path('/')
-  @Response<{ [index: string]: any[] }>(200, 'All available EURING codes with descriptions.')
+  @Response<InitialDataDto>(200, 'All available EURING codes with descriptions.')
   @Response<CustomError>(401, 'Unauthorised.')
-  public async getInitialData(@QueryParam('lang') lang: string): Promise<{ [index: string]: any[] }> {
+  public async getInitialData(@QueryParam('lang') lang: string): Promise<InitialDataDto> {
     return (await Promise.all(
       this.cached.map(async (repository: CachedRepository<any>) => ({
         records: await repository.filterByLang(lang),
