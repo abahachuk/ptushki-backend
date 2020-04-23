@@ -74,6 +74,8 @@ const worksheetParser = (
   let rowNumber = 1;
   const headers: string[] = [];
   const data: any[] = [];
+  // README worksheet.rowCount not always shows correct amount of rows
+  //  try delete row from .xls
   // eslint-disable-next-line no-param-reassign
   status.rowCount = worksheet.rowCount - 1;
   while (rowNumber <= worksheet.rowCount) {
