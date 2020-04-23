@@ -135,7 +135,7 @@ export default class XLSImporterForObservations extends AbstractImporter<
       return mappedRow;
     }
     // eslint-disable-next-line no-param-reassign
-    status.formatErrors[i] = `Unable map next fields: ${errors.join(', ')}`;
+    status.formatErrors[i + 1] = `Unable map next fields: ${errors.join(', ')}`;
     throw new Error();
   }
 
@@ -149,7 +149,7 @@ export default class XLSImporterForObservations extends AbstractImporter<
     if (errors.length) {
       const parsedErrors = parseValidationErrors(errors);
       // eslint-disable-next-line no-param-reassign
-      status.formatErrors[i] = `Unable create entity because next fields: ${parsedErrors.toString()}`;
+      status.formatErrors[i] = `Unable create entity because next fields: ${JSON.stringify(parsedErrors)}`;
       throw new Error();
     }
     return entity;
