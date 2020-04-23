@@ -50,8 +50,8 @@ export interface ImportWorksheetObservationXLSDto {
   rowCount: number;
   emptyRowCount: number;
   importedCount: number;
-  EURINGErrors: { [index: number]: string };
-  formatErrors: { [index: number]: string };
+  EURINGErrors: { rowNumber: number; result: { [index: string]: any[] } }[];
+  formatErrors: { rowNumber: number; result: { [index: string]: any[] } }[];
   clones: number[];
 }
 
@@ -124,13 +124,13 @@ export default class XLSImporterForObservations extends AbstractImporter<
   public static expectedColumnHeaders: string[] = Object.keys(XLSImporterForObservations.mappers);
 
   public mapParsedWorksheetRow(row: any, status: ImportWorksheetObservationXLSStatus, i: number): any {
-    const errors: string[] = [];
+    const errors: { [index: string]: string[] } = {};
     const mappedRow = Object.entries(XLSImporterForObservations.mappers).reduce(
       (acc: { [index: string]: any }, [key, f]) => {
         try {
           acc[key] = f(row[key]);
         } catch (e) {
-          errors.push(key);
+          errors[key] = [e.message];
         }
         return acc;
       },
@@ -141,7 +141,7 @@ export default class XLSImporterForObservations extends AbstractImporter<
       return mappedRow;
     }
     // eslint-disable-next-line no-param-reassign
-    status.formatErrors[i + 1] = `Unable map next fields: ${errors.join(', ')}`;
+    status.formatErrors.push({ rowNumber: i + 1, result: errors });
     throw new Error();
   }
 
@@ -155,7 +155,7 @@ export default class XLSImporterForObservations extends AbstractImporter<
     if (errors.length) {
       const parsedErrors = parseValidationErrors(errors);
       // eslint-disable-next-line no-param-reassign
-      status.formatErrors[i] = `Unable create entity because next fields: ${JSON.stringify(parsedErrors)}`;
+      status.formatErrors.push({ rowNumber: i + 1, result: parsedErrors });
       throw new Error();
     }
     return entity;
@@ -164,10 +164,13 @@ export default class XLSImporterForObservations extends AbstractImporter<
   public checkEURINGcodes(entity: any, status: ImportWorksheetObservationXLSStatus, i: number, codes: any): void {
     const wrongKeys = Object.entries(entity)
       .filter(([key, value]) => (codes[key] ? !codes[key].includes(value) : false))
-      .map(([key, value]) => `${key}: ${value}`);
-    if (wrongKeys.length) {
+      .reduce((acc: { [index: string]: any }, [key, value]) => {
+        acc[key] = value;
+        return acc;
+      }, {});
+    if (Object.keys(wrongKeys).length) {
       // eslint-disable-next-line no-param-reassign
-      status.EURINGErrors[i + 1] = wrongKeys.join(', ');
+      status.EURINGErrors.push({ rowNumber: i + 1, result: wrongKeys });
       throw new Error();
     }
   }
@@ -256,8 +259,8 @@ export default class XLSImporterForObservations extends AbstractImporter<
         headers: [],
         data: [],
         validEntities: [],
-        EURINGErrors: {},
-        formatErrors: {},
+        EURINGErrors: [],
+        formatErrors: [],
         clones: [],
       },
     );
