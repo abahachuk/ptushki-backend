@@ -409,11 +409,11 @@ export default class XLSImporterForObservations extends AbstractImporter<
   }
 
   private translateStatusForResponse(status: ImportWorksheetObservationXLSStatus): ImportWorksheetObservationXLSDto {
-    const { rowCount, emptyRowCount, EURINGErrors, formatErrors, importedCount, clones } = status;
+    const { rowCount, emptyRowCount, EURINGErrors, formatErrors, clones, validEntities } = status;
     return {
       rowCount,
       emptyRowCount,
-      importedCount,
+      importedCount: validEntities.length,
       EURINGErrors,
       formatErrors,
       clones,
