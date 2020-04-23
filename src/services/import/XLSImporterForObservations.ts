@@ -9,36 +9,27 @@ import { Observation } from '../../entities/observation-entity';
 import { cachedEURINGCodes } from '../../entities/euring-codes/cached-entities-fabric';
 import { parseValidationErrors } from '../../validation/validation-results-parser';
 
-// TODO should be used by exporter too
-type ExpectedColumnHeaders =
-  | 'ringNumber'
-  | 'colorRing'
-  | 'ringingScheme'
-  | 'primaryIdentificationMethod'
-  | 'verificationOfTheMetalRing'
-  | 'metalRingInformation'
-  | 'otherMarksInformation'
-  | 'euringCodeIdentifier'
-  | 'speciesMentioned'
-  | 'sexMentioned'
-  | 'ageMentioned'
-  | 'placeCode'
-  | 'euringCodeIdentifier'
-  | 'broodSize'
-  | 'sex'
-  | 'species'
-  | 'status'
-  | 'date'
-  | 'accuracyOfDate'
-  | 'age'
-  | 'place'
-  | 'latitude'
-  | 'longitude'
-  | 'ringer'
-  | 'manipulated'
-  | 'catchingMethod'
-  | 'catchingLures'
-  | 'remarks';
+type Omit<T, K extends keyof T> = Pick<T, Exclude<keyof T, K>>;
+export type ObservationFieldsRequiredForXLS = Omit<
+  Observation,
+  | 'id'
+  | 'photos'
+  | 'finder' // for a while skipped for simplicity
+  | 'offlineFinder' // for a while skipped for simplicity
+  | 'offlineFinderNote' // for a while skipped for simplicity
+  | 'exportEURING' // skip model method
+  | 'importEURING' // skip model method
+  | 'ring' // unknown -- can be added only by lookup through ring's table
+  // with ringMentioned by this we can fill other fields below:
+  | 'identificationNumber' // filled only if corresponding ring found
+  | 'speciesConcluded' // can be computed only through ring
+  | 'ageConcluded' // can be computed only through ring
+  | 'sexConcluded' // can be computed only through ring
+  | 'verified' // model sets it to pending by default
+  | 'distance' // can be computed only through ring
+  | 'direction' // can be computed only through ring
+  | 'elapsedTime' // can be computed only through ring
+>;
 
 interface EURINGs {
   [index: string]: string[] | number[];
@@ -91,8 +82,8 @@ export default class XLSImporterForObservations extends AbstractImporter<
   // TODO fields should be declared in other way using model as source
   //  but also should be considered fact that names wouldn't match model's fields,
   //  then these mappings should be redefined
-  public static mappers: { [index in ExpectedColumnHeaders]: (arg: any) => any } = {
-    ringNumber: v => v.toString(),
+  public static mappers: { [index in keyof ObservationFieldsRequiredForXLS]: (arg: any) => any } = {
+    ringMentioned: v => v.toString(),
     ringingScheme: v => v.toString().toUpperCase(),
     primaryIdentificationMethod: v => v.toString().toUpperCase(),
     verificationOfTheMetalRing: v => Number(v),
@@ -103,22 +94,25 @@ export default class XLSImporterForObservations extends AbstractImporter<
     sexMentioned: v => v.toString().toUpperCase(),
     ageMentioned: v => v.toString(),
     placeCode: v => v.toString().toUpperCase(),
+    placeName: v => v.toString().toUpperCase(),
     broodSize: v => v.toString(),
+    movedBeforeTheCapture: v => v.toString(),
     colorRing: v => (v ? v.toString() : null),
-    sex: v => v.toString().toUpperCase(),
-    species: v => v.toString().toUpperCase(),
     status: v => v.toString().toUpperCase(),
+    condition: v => v.toString().toUpperCase(),
+    circumstances: v => v.toString().toUpperCase(),
+    circumstancesPresumed: v => v.toString().toUpperCase(),
     date: v => new Date(v.toString()).toISOString(),
-    age: v => v.toString().toUpperCase(),
-    place: v => v.toString(),
     latitude: v => Number(v),
     longitude: v => Number(v),
-    ringer: v => (v ? v.toString() : null),
     remarks: v => (v ? v.toString() : null),
     manipulated: v => v.toString().toUpperCase() || 'U',
     catchingMethod: v => v.toString().toUpperCase() || 'U',
     catchingLures: v => v.toString().toUpperCase() || 'U',
+    pullusAge: v => v.toString().toUpperCase() || 'U',
     accuracyOfDate: v => Number(v) || 9, // could be 0
+    accuracyOfCoordinates: v => Number(v) || 9, // could be 0
+    accuracyOfPullusAge: v => Number(v) || 9, // could be 0
   };
 
   public static expectedColumnHeaders: string[] = Object.keys(XLSImporterForObservations.mappers);
