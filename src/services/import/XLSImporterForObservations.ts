@@ -4,20 +4,9 @@ import { validate } from 'class-validator';
 import AbstractImporter, { ImporterType, ImportInput } from './AbstractImporter';
 import { MulterOptions } from '../../controllers/upload-files-controller';
 import { CustomError } from '../../utils/CustomError';
-import {
-  checkObservationImportedData,
-  checkObservationsHeaderNames,
-  DataCheck,
-  DataCheckDto,
-  EURingError,
-  RawData,
-  RowErorr,
-  RowValidatedData,
-  workbookParser,
-} from '../excel-service/helper';
+import { workbookParser } from '../excel-service/helper';
 import { Observation } from '../../entities/observation-entity';
 import { cachedEURINGCodes } from '../../entities/euring-codes/cached-entities-fabric';
-import { Age, PlaceCode, Sex, Species, Status } from '../../entities/euring-codes';
 import { parseValidationErrors } from '../../validation/validation-results-parser';
 
 // TODO should be used by exporter too
@@ -67,12 +56,6 @@ export interface ImportWorksheetObservationXLSDto {
 }
 
 interface ImportWorksheetObservationXLSStatus extends ImportWorksheetObservationXLSDto {
-  rowCount: number;
-  emptyRowCount: number;
-  importedCount: number;
-  EURINGErrors: { [index: number]: string };
-  formatErrors: { [index: number]: string };
-  clones: number[];
   headers: any[];
   data: any[];
   validEntities: any[];
@@ -80,7 +63,7 @@ interface ImportWorksheetObservationXLSStatus extends ImportWorksheetObservation
 
 export default class XLSImporterForObservations extends AbstractImporter<
   ImportInput<Express.Multer.File>,
-  DataCheckDto
+  ImportWorksheetObservationXLSDto
 > {
   public type: ImporterType = ImporterType.xls;
 
@@ -189,71 +172,9 @@ export default class XLSImporterForObservations extends AbstractImporter<
     }
   }
 
-  public checkForClones(status: ImportWorksheetObservationXLSStatus): void {
-    const { data } = status;
-    const map = new Map();
-
-    // eslint-disable-next-line no-plusplus
-    for (let i = 0; i < data.length; i++) {
-      const row = JSON.stringify(data);
-      if (!row) {
-        // eslint-disable-next-line no-continue
-        continue;
-      }
-      if (map.has(row)) {
-        status.clones.push(i + 2);
-      } else {
-        map.set(JSON.stringify(data), i);
-      }
-    }
-  }
-
   // TODO: clarify if we need to support multiple files
 
-  public async import({ sources }: ImportInput<Express.Multer.File>): Promise<DataCheckDto> {
-    try {
-      if (!sources.length) {
-        throw new CustomError('No files detected', 400);
-      }
-      this.filterFiles(sources);
-
-      const [file] = sources;
-
-      const workbook: Workbook = await new Excel.Workbook().xlsx.load(file.buffer);
-      await checkObservationsHeaderNames(workbook, 'xls');
-
-      const checkedFormatData = await checkObservationImportedData(workbook);
-
-      if (checkedFormatData.invalidDataFormat.length) {
-        delete checkedFormatData.validFormatData;
-        return checkedFormatData;
-      }
-
-      await this.checkEuRingCodes(checkedFormatData);
-
-      if (checkedFormatData.euRingErrors.length) {
-        delete checkedFormatData.validFormatData;
-        return checkedFormatData;
-      }
-
-      await this.checkPossibleClones(checkedFormatData);
-      await this.setXLSDataToObservation(checkedFormatData);
-
-      // FIXME enable importing when logic will be cleared and fits models
-      // await this.importValidRows(checkedFormatData.observations);
-
-      checkedFormatData.importedCount = checkedFormatData.observations.length;
-      delete checkedFormatData.validFormatData;
-      delete checkedFormatData.observations;
-
-      return checkedFormatData;
-    } catch (e) {
-      if (e instanceof CustomError) throw e;
-      throw new CustomError(e.message, 500);
-    }
-  }
-
-  public async import2({ sources }: ImportInput<Express.Multer.File>): Promise<ImportWorksheetObservationXLSDto> {
+  public async import({ sources }: ImportInput<Express.Multer.File>): Promise<ImportWorksheetObservationXLSDto> {
     try {
       if (!sources.length) {
         throw new CustomError('No files detected', 400);
@@ -298,121 +219,32 @@ export default class XLSImporterForObservations extends AbstractImporter<
     }
   }
 
-  private checkEuRingCodes = async (excelData: DataCheck): Promise<void> => {
-    try {
-      const statusCached = await getCustomRepository(cachedEURINGCodes.CachedStatus).find();
-      const speciesMentionedCached = await getCustomRepository(cachedEURINGCodes.CachedSpecies).find();
-      const sexMentionedCached = await getCustomRepository(cachedEURINGCodes.CachedSex).find();
-      const ageMentionedCached = await getCustomRepository(cachedEURINGCodes.CachedAge).find();
-      const placeCodeCached = await getCustomRepository(cachedEURINGCodes.CachedPlaceCode).find();
+  public checkForClones(status: ImportWorksheetObservationXLSStatus): void {
+    // redefine place in process of checking: right now it's done on data
+    // and already validated entities are skipped by this there are two options
+    // to do this on validated entities
+    // or do it before validation
 
-      /* eslint-disable */
-      for (const row of excelData.validFormatData) {
-        const { data, rowNumber }: RowValidatedData = row;
-        const { eu_statusCode, eu_species, eu_sexCode, eu_ageCode, eu_placeCode }: RawData = data;
+    // take in account that order needs to be preserved
+    // to correctly specify row number
 
-        if (data) {
-          const status = statusCached.filter(
-            (statusRow: Status) => statusRow.id === eu_statusCode.toString().toUpperCase(),
-          );
-          const speciesMentioned = speciesMentionedCached.filter(
-            (speciesRow: Species) => speciesRow.id === eu_species.toString(),
-          );
-          const sexMentioned = sexMentionedCached.filter(
-            (sexRow: Sex) => sexRow.id === eu_sexCode.toString().toUpperCase(),
-          );
-          const ageMentioned = ageMentionedCached.filter(
-            (ageRow: Age) => ageRow.id === eu_ageCode.toString().toUpperCase(),
-          );
-          const placeCode = placeCodeCached.filter(
-            (placeCodeRow: PlaceCode) => placeCodeRow.id === eu_placeCode.toString().toUpperCase(),
-          );
-
-          const euCodeErrors: string[] = [];
-
-          if (!status.length) {
-            euCodeErrors.push('status');
-          }
-          if (!speciesMentioned.length) {
-            euCodeErrors.push('species');
-          }
-          if (!sexMentioned.length) {
-            euCodeErrors.push('sex');
-          }
-          if (!ageMentioned.length) {
-            euCodeErrors.push('age');
-          }
-          if (!placeCode.length) {
-            euCodeErrors.push('place code');
-          }
-
-          if (euCodeErrors.length) {
-            const rowStatus: RowErorr = {
-              verifiedEuRingCodes: false,
-              error: `Can not find euRing codes: ${euCodeErrors.join(',')}`,
-            };
-            const error: EURingError = { rowNumber, status: rowStatus };
-
-            excelData.euRingErrors.push(error);
-          } else {
-            excelData.addedData.push(row);
-          }
-        }
-      }
-    } catch (e) {
-      throw new CustomError(e.message, 400);
-    }
-  };
-
-  private checkPossibleClones = async (excelData: DataCheck): Promise<void> => {
+    const { data } = status;
     const map = new Map();
-    try {
-      for (const row of excelData.addedData) {
-        const { data, rowNumber }: RowValidatedData = row;
 
-        if (data) {
-          map.set(JSON.stringify(data), rowNumber);
-        }
+    // eslint-disable-next-line no-plusplus
+    for (let i = 0; i < data.length; i++) {
+      const row = JSON.stringify(data);
+      if (!row) {
+        // eslint-disable-next-line no-continue
+        continue;
       }
-      excelData.possibleClones = excelData.addedData.length - map.size;
-    } catch (e) {
-      throw new CustomError(e.message, 400);
+      if (map.has(row)) {
+        status.clones.push(i + 2);
+      } else {
+        map.set(JSON.stringify(data), i);
+      }
     }
-  };
-
-  private setXLSDataToObservation = async (excelData: DataCheck): Promise<void> => {
-    const defaults = {
-      manipulated: 'U',
-      catchingMethod: 'U',
-      catchingLures: 'U',
-      accuracyOfDate: 9,
-    };
-
-    for (const row of excelData.addedData) {
-      const rowData = {
-        speciesMentioned: row.data.eu_species,
-        sexMentioned: row.data.eu_sexCode.toString().toUpperCase(),
-        ageMentioned: row.data.eu_ageCode.toString().toUpperCase(),
-        date: row.data.date,
-        longitude: row.data.longitude,
-        latitude: row.data.latitude,
-        status: row.data.eu_statusCode.toString().toUpperCase(),
-        ringMentioned: row.data.ringNumber,
-        colorRing: row.data.colorRing,
-        placeName: row.data.place,
-        placeCode: row.data.eu_placeCode.toString().toUpperCase(),
-        remarks: `${row.data.ringer || ''} ${row.data.remarks || ''}`,
-      };
-
-      excelData.observations.push(Object.assign({}, rowData, defaults));
-    }
-
-    delete excelData.addedData;
-  };
-
-  // TODO private importValidRows = async (validObservations: RawData[]): Promise<void> => {
-  //   await this.observations.insert(validObservations);
-  // };
+  }
 
   private initImportStatus(): ImportWorksheetObservationXLSStatus {
     return Object.assign(

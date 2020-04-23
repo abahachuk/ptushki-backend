@@ -1,8 +1,7 @@
 import AbstractImporter, { ImporterType, ImportInput, ImportOutput } from './AbstractImporter';
 import EURINGImporterForObservations from './EURINGImporterForObservations';
-import XLSImporterForObservations from './XLSImporterForObservations';
+import XLSImporterForObservations, { ImportWorksheetObservationXLSDto } from './XLSImporterForObservations';
 import { CustomError } from '../../utils/CustomError';
-import { DataCheckDto } from '../excel-service/helper';
 
 export default class Importer {
   private exporters: AbstractImporter[];
@@ -20,14 +19,16 @@ export default class Importer {
 
   // eslint can't handle method overload
   /* eslint-disable no-dupe-class-members, lines-between-class-members */
-  public async handle(type: ImporterType.xls, sources: ImportInput<Express.Multer.File>): Promise<DataCheckDto>;
+  public async handle(
+    type: ImporterType.xls,
+    sources: ImportInput<Express.Multer.File>,
+  ): Promise<ImportWorksheetObservationXLSDto>;
   public async handle(type: ImporterType.euring, sources: ImportInput<string>): Promise<void>;
   public async handle(type: ImporterType, sources: ImportInput): Promise<ImportOutput> {
     const importer = this.getImporter(type);
     if (!importer) {
       throw new CustomError(`Type ${type} isn't supported import type for ${this.route}`, 400);
     }
-
     return importer.import(sources);
   }
   /* eslint-enable no-dupe-class-members, lines-between-class-members */

@@ -35,7 +35,7 @@ import { auth } from '../services/auth-service';
 import { UserRole } from '../entities/user-entity';
 import { ExporterType } from '../services/export/AbstractExporter';
 import { ImporterType } from '../services/import/AbstractImporter';
-import { DataCheckDto } from '../services/excel-service/helper';
+import { ImportWorksheetObservationXLSDto } from '../services/import/XLSImporterForObservations';
 import { parsePageParams, SortingDirection } from '../services/page-service';
 
 interface RequestWithPageParams extends Request {
@@ -343,10 +343,10 @@ export default class ObservationController extends AbstractController {
   @POST
   @Path('/import/xls')
   @PreProcessor(auth.role(UserRole.Ringer))
-  @Response<DataCheckDto>(200, 'Object of import result, with errors if needed.')
+  @Response<ImportWorksheetObservationXLSDto>(200, 'Object of import result, with errors if needed.')
   @Response<CustomError>(401, 'Unauthorised.')
   @Response<CustomError>(403, 'Forbidden.')
-  public async importXls(@FilesParam('files') files: Express.Multer.File[]): Promise<DataCheckDto> {
+  public async importXls(@FilesParam('files') files: Express.Multer.File[]): Promise<ImportWorksheetObservationXLSDto> {
     return this.importer.handle(ImporterType.xls, { sources: files });
   }
 
