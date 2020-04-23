@@ -1,5 +1,5 @@
 import Excel, { Workbook } from 'exceljs';
-import { getCustomRepository, getRepository, Repository } from 'typeorm';
+import { getCustomRepository, getRepository, Repository, QueryFailedError } from 'typeorm';
 import { validate } from 'class-validator';
 import AbstractImporter, { ImporterType, ImportInput } from './AbstractImporter';
 import { MulterOptions } from '../../controllers/upload-files-controller';
@@ -269,6 +269,8 @@ export default class XLSImporterForObservations extends AbstractImporter<
       return this.translateStatusForResponse(importStatus);
     } catch (e) {
       if (e instanceof CustomError) throw e;
+      // @ts-ignore-next-line
+      if (e instanceof QueryFailedError) throw new CustomError(`${e.name}: ${e.detail}`, 500);
       throw new CustomError(e.message, 500);
     }
   }
