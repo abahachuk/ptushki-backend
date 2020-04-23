@@ -81,53 +81,51 @@ export default class XLSImporterForObservations extends AbstractImporter<
     }, Promise.resolve({}));
   })();
 
-  // FIXME there should be issues with matching keys between data and models
-  // TODO fields should be declared in other way using model as source
-  //  but also should be considered fact that names wouldn't match model's fields,
-  //  then these mappings should be redefined
-  public static mappers: { [index in keyof ObservationFieldsRequiredForXLS]: (arg: any) => any } = {
-    ringMentioned: v => v.toString(),
-    ringingScheme: v => v.toString().toUpperCase(),
-    primaryIdentificationMethod: v => v.toString().toUpperCase(),
-    verificationOfTheMetalRing: v => Number(v),
-    metalRingInformation: v => Number(v),
-    otherMarksInformation: v => v.toString().toUpperCase(),
-    euringCodeIdentifier: v => Number(v),
-    speciesMentioned: v => v.toString(),
-    sexMentioned: v => v.toString().toUpperCase(),
-    ageMentioned: v => v.toString(),
-    placeCode: v => v.toString().toUpperCase(),
-    placeName: v => v.toString().toUpperCase(),
-    broodSize: v => v.toString(),
-    movedBeforeTheCapture: v => v.toString(),
-    colorRing: v => (v ? v.toString() : null),
-    status: v => v.toString().toUpperCase(),
-    condition: v => v.toString().toUpperCase(),
-    circumstances: v => v.toString().toUpperCase(),
-    circumstancesPresumed: v => v.toString().toUpperCase(),
-    date: v => new Date(v.toString()).toISOString(),
-    latitude: v => Number(v),
-    longitude: v => Number(v),
-    remarks: v => (v ? v.toString() : null),
-    manipulated: v => v.toString().toUpperCase() || 'U',
-    catchingMethod: v => v.toString().toUpperCase() || 'U',
-    catchingLures: v => v.toString().toUpperCase() || 'U',
-    pullusAge: v => v.toString().toUpperCase() || 'U',
-    accuracyOfDate: v => Number(v) || 9, // could be 0
-    accuracyOfCoordinates: v => Number(v) || 9, // could be 0
-    accuracyOfPullusAge: v => Number(v) || 9, // could be 0
+  public static mappers: { [index in keyof ObservationFieldsRequiredForXLS]: [string, (arg: any) => any] } = {
+    ringMentioned: ['Номер кольца', v => v.toString()],
+    ringingScheme: ['Схема кольцевания', v => v.toString().toUpperCase()],
+    primaryIdentificationMethod: ['Первичный метод идентификации', v => v.toString().toUpperCase()],
+    verificationOfTheMetalRing: ['Верификация металлического кольца', v => Number(v)],
+    metalRingInformation: ['Информация о металлическом кольце', v => Number(v)],
+    otherMarksInformation: ['Информация о других метках', v => v.toString().toUpperCase()],
+    euringCodeIdentifier: ['EURING идентификатор', v => Number(v)],
+    speciesMentioned: ['Вид', v => v.toString().toUpperCase()],
+    sexMentioned: ['Пол', v => v.toString().toUpperCase()],
+    ageMentioned: ['Возраст', v => v.toString().toUpperCase()],
+    placeCode: ['Код места', v => v.toString().toUpperCase()],
+    placeName: ['Место', v => v.toString().toUpperCase()],
+    broodSize: ['Размер гнезда', v => v.toString()],
+    movedBeforeTheCapture: ['Передвижения до наблюдения', v => v.toString()],
+    colorRing: ['Цветное кольцо', v => (v ? v.toString() : null)],
+    status: ['Статус', v => v.toString().toUpperCase()],
+    condition: ['Состояние', v => v.toString().toUpperCase()],
+    circumstances: ['Обстоятельства', v => v.toString().toUpperCase()],
+    circumstancesPresumed: ['Точность обстоятельств', v => v.toString().toUpperCase()],
+    date: ['Дата', v => new Date(v.toString()).toISOString()],
+    latitude: ['Широта', v => Number(v)],
+    longitude: ['Долгота', v => Number(v)],
+    remarks: ['Пометки', v => (v ? v.toString() : null)],
+    manipulated: ['Проведенные манипуляции', v => v.toString().toUpperCase() || 'U'],
+    catchingMethod: ['Метод отлова', v => v.toString().toUpperCase() || 'U'],
+    catchingLures: ['Приманки для отлова', v => v.toString().toUpperCase() || 'U'],
+    pullusAge: ['Возраст птенца', v => v.toString().toUpperCase() || 'U'],
+    accuracyOfDate: ['Точность даты', v => Number(v) || 9],
+    accuracyOfCoordinates: ['Точность координат', v => Number(v) || 9],
+    accuracyOfPullusAge: ['Точность возраста птенца', v => Number(v) || 9],
   };
 
-  public static expectedColumnHeaders: string[] = Object.keys(XLSImporterForObservations.mappers);
+  public static expectedColumnHeaders: string[] = Object.values(XLSImporterForObservations.mappers).map(
+    ([header]) => header,
+  );
 
   public mapParsedWorksheetRow(row: any, status: ImportWorksheetObservationXLSStatus, i: number): any {
     const errors: { [index: string]: string[] } = {};
     const mappedRow = Object.entries(XLSImporterForObservations.mappers).reduce(
-      (acc: { [index: string]: any }, [key, f]) => {
+      (acc: { [index: string]: any }, [key, [field, f]]) => {
         try {
-          acc[key] = f(row[key]);
+          acc[key] = f(row[field]);
         } catch (e) {
-          errors[key] = [e.message];
+          errors[field] = [e.message];
         }
         return acc;
       },
