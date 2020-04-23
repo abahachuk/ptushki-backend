@@ -185,7 +185,7 @@ export default class ObservationController extends AbstractController {
         ring = ringEntity.id;
       }
     }
-    const newObservation = await Observation.create({ ...rawObservation, ring, finder: req.user.id });
+    const newObservation = Observation.create({ ...rawObservation, ring, finder: req.user.id });
     await this.validate(newObservation);
     // @ts-ignore see https://github.com/typeorm/typeorm/issues/3490
     return this.observations.save(newObservation);

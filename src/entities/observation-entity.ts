@@ -461,7 +461,7 @@ export class Observation implements ObservationDto, AbleToExportAndImportEuring,
   })
   public verified: Verified;
 
-  public static async create(observation: RawObservationDto & { finder: string }): Promise<Observation> {
+  public static create(observation: RawObservationDto & { finder: string }): Observation {
     return Object.assign(new Observation(), observation);
   }
 
