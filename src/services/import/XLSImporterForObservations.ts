@@ -156,12 +156,12 @@ export default class XLSImporterForObservations extends AbstractImporter<
   }
 
   public checkEURINGcodes(entity: any, status: ImportWorksheetObservationXLSStatus, i: number, codes: any): void {
-    const wrongKeys = Object.entries(entity).filter(([key, value]) =>
-      codes[key] ? !codes[key].includes(value) : false,
-    );
+    const wrongKeys = Object.entries(entity)
+      .filter(([key, value]) => (codes[key] ? !codes[key].includes(value) : false))
+      .map(([key, value]) => `${key}: ${value}`);
     if (wrongKeys.length) {
       // eslint-disable-next-line no-param-reassign
-      status.EURINGErrors[i] = `Unable ${wrongKeys.join(', ')}`;
+      status.EURINGErrors[i + 1] = wrongKeys.join(', ');
       throw new Error();
     }
   }
