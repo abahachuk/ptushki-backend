@@ -37,16 +37,19 @@ interface EURINGs {
 
 // todo next one interface should extend ImportWorksheetXLSDto
 
-export interface ImportWorksheetObservationXLSDto {
+interface ImportWorksheetObservationXLSCommon {
   rowCount: number;
   emptyRowCount: number;
-  importedCount: number;
   EURINGErrors: { rowNumber: number; result: { [index: string]: any[] } }[];
   formatErrors: { rowNumber: number; result: { [index: string]: any[] } }[];
   clones: number[];
 }
 
-interface ImportWorksheetObservationXLSStatus extends ImportWorksheetObservationXLSDto {
+export interface ImportWorksheetObservationXLSDto extends ImportWorksheetObservationXLSCommon {
+  importedCount: number;
+}
+
+interface ImportWorksheetObservationXLSStatus extends ImportWorksheetObservationXLSCommon {
   headers: any[];
   data: any[];
   validEntities: any[];
@@ -249,7 +252,6 @@ export default class XLSImporterForObservations extends AbstractImporter<
       {
         rowCount: 0,
         emptyRowCount: 0,
-        importedCount: 0,
         headers: [],
         data: [],
         validEntities: [],
