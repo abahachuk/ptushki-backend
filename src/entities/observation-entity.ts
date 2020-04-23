@@ -154,6 +154,7 @@ export class Observation implements ObservationDto, AbleToExportAndImportEuring,
   })
   public finder: User;
 
+  @IsOptional()
   @IsUUID()
   @ManyToOne(() => Person, m => m.observation, {
     eager: true,
