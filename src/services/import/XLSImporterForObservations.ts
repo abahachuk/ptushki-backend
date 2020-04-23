@@ -84,8 +84,8 @@ export default class XLSImporterForObservations extends AbstractImporter<
   public static EURINGcodes: Promise<EURINGs> = (async () => {
     return Object.keys(cachedEURINGCodes).reduce(async (promise: Promise<EURINGs>, key: string) => {
       const acc = await promise;
-      // FIXME there should be issues with matching keys between data, codes and models
-      acc[key] = (await getCustomRepository(cachedEURINGCodes[key]).find()).map(
+      const splitKey = (s => s[0].toLowerCase() + s.slice(1))(key.replace('Cached', ''));
+      acc[splitKey] = (await getCustomRepository(cachedEURINGCodes[key]).find()).map(
         ({ id }: { id: string | number }) => id,
       );
       return acc;
