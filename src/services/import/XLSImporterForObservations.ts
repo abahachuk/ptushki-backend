@@ -24,6 +24,18 @@ import { parseValidationErrors } from '../../validation/validation-results-parse
 type ExpectedColumnHeaders =
   | 'ringNumber'
   | 'colorRing'
+  | 'ringingScheme'
+  | 'primaryIdentificationMethod'
+  | 'verificationOfTheMetalRing'
+  | 'metalRingInformation'
+  | 'otherMarksInformation'
+  | 'euringCodeIdentifier'
+  | 'speciesMentioned'
+  | 'sexMentioned'
+  | 'ageMentioned'
+  | 'placeCode'
+  | 'euringCodeIdentifier'
+  | 'broodSize'
   | 'sex'
   | 'species'
   | 'status'
@@ -98,7 +110,18 @@ export default class XLSImporterForObservations extends AbstractImporter<
   //  then these mappings should be redefined
   public static mappers: { [index in ExpectedColumnHeaders]: (arg: any) => any } = {
     ringNumber: v => v.toString(),
-    colorRing: v => v.toString(),
+    ringingScheme: v => v.toString().toUpperCase(),
+    primaryIdentificationMethod: v => v.toString().toUpperCase(),
+    verificationOfTheMetalRing: v => Number(v),
+    metalRingInformation: v => Number(v),
+    otherMarksInformation: v => v.toString().toUpperCase(),
+    euringCodeIdentifier: v => Number(v),
+    speciesMentioned: v => v.toString(),
+    sexMentioned: v => v.toString().toUpperCase(),
+    ageMentioned: v => v.toString(),
+    placeCode: v => v.toString().toUpperCase(),
+    broodSize: v => v.toString(),
+    colorRing: v => (v ? v.toString() : null),
     sex: v => v.toString().toUpperCase(),
     species: v => v.toString().toUpperCase(),
     status: v => v.toString().toUpperCase(),
@@ -107,12 +130,12 @@ export default class XLSImporterForObservations extends AbstractImporter<
     place: v => v.toString(),
     latitude: v => Number(v),
     longitude: v => Number(v),
-    ringer: v => v.toString(),
-    remarks: v => v.toString(),
+    ringer: v => (v ? v.toString() : null),
+    remarks: v => (v ? v.toString() : null),
     manipulated: v => v.toString().toUpperCase() || 'U',
     catchingMethod: v => v.toString().toUpperCase() || 'U',
     catchingLures: v => v.toString().toUpperCase() || 'U',
-    accuracyOfDate: v => Number(v) || 9,
+    accuracyOfDate: v => Number(v) || 9, // could be 0
   };
 
   public static expectedColumnHeaders: string[] = Object.keys(XLSImporterForObservations.mappers);
