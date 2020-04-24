@@ -38,6 +38,7 @@ interface EURINGs {
 // todo next one interface should extend ImportWorksheetXLSDto
 
 interface ImportWorksheetObservationXLSCommon {
+  importedCount: number;
   rowCount: number;
   emptyRowCount: number;
   EURINGErrors: { rowNumber: number; result: { [index: string]: any[] } }[];
@@ -45,9 +46,8 @@ interface ImportWorksheetObservationXLSCommon {
   clones: number[];
 }
 
-export interface ImportWorksheetObservationXLSDto extends ImportWorksheetObservationXLSCommon {
-  importedCount: number;
-}
+// eslint-disable-next-line @typescript-eslint/no-empty-interface
+export interface ImportWorksheetObservationXLSDto extends ImportWorksheetObservationXLSCommon {}
 
 interface ImportWorksheetObservationXLSStatus extends ImportWorksheetObservationXLSCommon {
   headers: any[];
@@ -204,6 +204,7 @@ export default class XLSImporterForObservations extends AbstractImporter<
         !importStatus.clones.length
       ) {
         await this.observations.insert(importStatus.validEntities);
+        importStatus.importedCount = importStatus.validEntities.length;
       }
 
       return this.translateStatusForResponse(importStatus);
@@ -247,6 +248,7 @@ export default class XLSImporterForObservations extends AbstractImporter<
       {},
       {
         rowCount: 0,
+        importedCount: 0,
         emptyRowCount: 0,
         headers: [],
         data: [],
@@ -259,11 +261,11 @@ export default class XLSImporterForObservations extends AbstractImporter<
   }
 
   private translateStatusForResponse(status: ImportWorksheetObservationXLSStatus): ImportWorksheetObservationXLSDto {
-    const { rowCount, emptyRowCount, EURINGErrors, formatErrors, clones, validEntities } = status;
+    const { rowCount, emptyRowCount, EURINGErrors, formatErrors, clones, importedCount } = status;
     return {
       rowCount,
       emptyRowCount,
-      importedCount: validEntities.length,
+      importedCount,
       EURINGErrors,
       formatErrors,
       clones,
