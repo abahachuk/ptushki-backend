@@ -1,6 +1,7 @@
 import path from 'path';
 import express, { Application } from 'express';
 import bodyParser from 'body-parser';
+import cors from 'cors';
 import { Server } from 'typescript-rest';
 
 import { setLogger } from './utils/logger';
@@ -16,6 +17,7 @@ const createApp = async (): Promise<Application> => {
   initMailService();
 
   app.use(setLogger);
+  app.use(cors()); // Enable All CORS Requests; need to narrow CORS for only one domain
   app.use(bodyParser.json());
   app.use(bodyParser.urlencoded({ extended: true }));
 
