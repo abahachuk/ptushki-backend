@@ -1,5 +1,4 @@
 import Excel, { Column, Worksheet, Workbook, Row, Cell } from 'exceljs';
-import { columns } from './columns';
 import { properties } from './properties';
 import { CustomError } from '../../utils/CustomError';
 
@@ -27,10 +26,9 @@ const setStyleToRow = (row: Row, styles: Partial<Cell>): void => {
   );
 };
 
-export const createExcelWorkBook = async (type: string): Promise<Workbook> => {
+export const createExcelWorkBook = async (columnNames: string[]): Promise<Workbook> => {
   const workbook: Workbook = new Excel.Workbook();
   const worksheet: Worksheet = workbook.addWorksheet(properties.sheetName);
-  const columnNames: string[] = columns[type];
   const columnNamesLength: number = columnNames ? columnNames.length : 0;
   const extendedFilter = Object.assign({}, properties.wsAutoFilter, { to: { row: 1, column: columnNamesLength } });
 
