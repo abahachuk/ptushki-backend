@@ -2,6 +2,7 @@ import AbstractImporter, { ImporterType, ImportInput, ImportOutput } from './Abs
 import EURINGImporterForObservations from './EURINGImporterForObservations';
 import { ImportWorksheetXLSDto } from './XLSBaseImporter';
 import XLSImporterForObservations from './XLSImporterForObservations';
+import XLSImporterForRings from './XLSImporterForRings';
 import { CustomError } from '../../utils/CustomError';
 
 export default class Importer {
@@ -11,7 +12,7 @@ export default class Importer {
 
   public constructor(route: string) {
     this.route = route;
-    this.exporters = [new EURINGImporterForObservations(), new XLSImporterForObservations()];
+    this.exporters = [new EURINGImporterForObservations(), new XLSImporterForObservations(), new XLSImporterForRings()];
   }
 
   private getImporter(type: ImporterType): AbstractImporter | undefined {
