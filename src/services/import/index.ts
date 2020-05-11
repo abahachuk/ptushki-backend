@@ -1,6 +1,7 @@
 import AbstractImporter, { ImporterType, ImportInput, ImportOutput } from './AbstractImporter';
 import EURINGImporterForObservations from './EURINGImporterForObservations';
-import XLSImporterForObservations, { ImportWorksheetObservationXLSDto } from './XLSImporterForObservations';
+import { ImportWorksheetXLSDto } from './XLSBaseImporter';
+import XLSImporterForObservations from './XLSImporterForObservations';
 import { CustomError } from '../../utils/CustomError';
 
 export default class Importer {
@@ -22,7 +23,7 @@ export default class Importer {
   public async handle(
     type: ImporterType.xls,
     sources: ImportInput<Express.Multer.File>,
-  ): Promise<ImportWorksheetObservationXLSDto>;
+  ): Promise<ImportWorksheetXLSDto>;
   public async handle(type: ImporterType.euring, sources: ImportInput<string>): Promise<void>;
   public async handle(type: ImporterType, sources: ImportInput): Promise<ImportOutput> {
     const importer = this.getImporter(type);

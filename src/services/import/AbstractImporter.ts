@@ -1,6 +1,6 @@
 import path from 'path';
 import { validate } from 'class-validator';
-import { ImportWorksheetObservationXLSDto } from '../import/XLSImporterForObservations';
+import { ImportWorksheetXLSDto } from '../import/XLSBaseImporter';
 import { CustomError } from '../../utils/CustomError';
 import { parseValidationErrors } from '../../validation/validation-results-parser';
 
@@ -18,7 +18,7 @@ export interface ImportInput<T = Express.Multer.File | string> {
   sources: T[];
   userId?: string;
 }
-export type ImportOutput = void | ImportWorksheetObservationXLSDto;
+export type ImportOutput = void | ImportWorksheetXLSDto;
 
 export default abstract class AbstractImporter<
   TSource extends ImportInput = ImportInput,
