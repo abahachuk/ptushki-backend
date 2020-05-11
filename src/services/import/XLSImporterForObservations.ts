@@ -168,8 +168,6 @@ export default class XLSImporterForObservations extends AbstractImporter<
     }
   }
 
-  // TODO: clarify if we need to support multiple files
-
   public async import({ sources }: ImportInput<Express.Multer.File>): Promise<ImportWorksheetObservationXLSDto> {
     try {
       if (!sources.length) {
@@ -177,6 +175,7 @@ export default class XLSImporterForObservations extends AbstractImporter<
       }
       this.filterFiles(sources);
 
+      // TODO: clarify if we need to support multiple files
       const [file] = sources;
 
       const workbook: Workbook = await new Excel.Workbook().xlsx.load(file.buffer);
@@ -196,6 +195,13 @@ export default class XLSImporterForObservations extends AbstractImporter<
         } catch {}
       }
 
+      // redefine place in process of checking: right now it's done on data
+      // and already validated entities are skipped by this there are two options
+      // to do this on validated entities
+      // or do it before validation
+
+      // take in account that order needs to be preserved
+      // to correctly specify row number
       this.checkForClones(importStatus);
 
       if (
@@ -217,14 +223,6 @@ export default class XLSImporterForObservations extends AbstractImporter<
   }
 
   public checkForClones(status: ImportWorksheetObservationXLSStatus): void {
-    // redefine place in process of checking: right now it's done on data
-    // and already validated entities are skipped by this there are two options
-    // to do this on validated entities
-    // or do it before validation
-
-    // take in account that order needs to be preserved
-    // to correctly specify row number
-
     const { data } = status;
     const map = new Map();
 
