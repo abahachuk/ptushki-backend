@@ -49,6 +49,12 @@ import { Observation } from './observation-entity';
 import { EURINGCodes, AbleToExportAndImportEuring, EntityDto } from './common-interfaces';
 import { ColumnNumericTransformer } from '../utils/ColumnNumericTransformer';
 
+export interface RawRingDto {
+  // FIXME update DTO
+  latitude: number | null;
+  longitude: number | null;
+}
+
 export interface RingDto extends EURINGCodes {
   id: string;
   metalRingInformation: EntityDto;
@@ -350,6 +356,10 @@ export class Ring implements RingDto, AbleToExportAndImportEuring {
     eager: true,
   })
   public statusOfRing: StatusOfRing;
+
+  public static create(ring: RawRingDto & { ringer: string }): Ring {
+    return Object.assign(new Ring(), ring);
+  }
 
   public exportEURING(): string {
     // todo
