@@ -109,7 +109,7 @@ export default class XLSImporterForObservations extends AbstractImporter<
     pullusAge: ['Возраст птенца', v => v.toString().toUpperCase() || 'U'],
     accuracyOfDate: ['Точность даты', v => Number(v) || 9],
     accuracyOfCoordinates: ['Точность координат', v => Number(v) || 9],
-    accuracyOfPullusAge: ['Точность возраста птенца', v => Number(v) || 9],
+    accuracyOfPullusAge: ['Точность возраста птенца', v => v.toString().toUpperCase()],
   };
 
   public static expectedColumnHeaders: string[] = Object.values(XLSImporterForObservations.mappers).map(
