@@ -9,7 +9,7 @@ import { CustomError } from '../../utils/CustomError';
 export default class Exporter {
   private exporters: AbstractExporter[];
 
-  private route: string;
+  private readonly route: string;
 
   public constructor(route: string) {
     this.route = route;
