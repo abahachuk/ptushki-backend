@@ -1,9 +1,6 @@
-import Excel, { Workbook } from 'exceljs';
-import { getRepository, Repository, QueryFailedError } from 'typeorm';
-import { ImporterType, ImportInput } from './AbstractImporter';
-import XLSBaseImporter, { ImportWorksheetXLSDto } from './XLSBaseImporter';
-import { CustomError } from '../../utils/CustomError';
-import { workbookParser } from '../excel-service/helper';
+import { getRepository, Repository } from 'typeorm';
+import { ImporterType } from './AbstractImporter';
+import XLSBaseImporter from './XLSBaseImporter';
 import { Observation } from '../../entities/observation-entity';
 
 type Omit<T, K extends keyof T> = Pick<T, Exclude<keyof T, K>>;
@@ -29,13 +26,15 @@ export type ObservationFieldsRequiredForXLS = Omit<
 >;
 
 export default class XLSImporterForObservations extends XLSBaseImporter {
-  public type: ImporterType = ImporterType.xls;
+  public readonly type: ImporterType = ImporterType.xls;
 
-  public route: string = 'observations';
+  public readonly route: string = 'observations';
 
-  private observations: Repository<Observation> = getRepository(Observation);
+  public readonly entity = Observation;
 
-  public static mappers: { [index in keyof ObservationFieldsRequiredForXLS]: [string, (arg: any) => any] } = {
+  public readonly repository: Repository<Observation> = getRepository(Observation);
+
+  public static readonly mappers: { [index in keyof ObservationFieldsRequiredForXLS]: [string, (arg: any) => any] } = {
     ringMentioned: ['Номер кольца', v => v.toString()],
     ringingScheme: ['Схема кольцевания', v => v.toString().toUpperCase()],
     primaryIdentificationMethod: ['Первичный метод идентификации', v => v.toString().toUpperCase()],
@@ -68,57 +67,11 @@ export default class XLSImporterForObservations extends XLSBaseImporter {
     accuracyOfPullusAge: ['Точность возраста птенца', v => v.toString().toUpperCase()],
   };
 
-  public async import({ sources }: ImportInput<Express.Multer.File>): Promise<ImportWorksheetXLSDto> {
-    try {
-      if (!sources.length) {
-        throw new CustomError('No files detected', 400);
-      }
-      this.filterFiles(sources);
+  public static readonly expectedColumnHeaders: string[] = XLSBaseImporter.getHeaders(
+    XLSImporterForObservations.mappers,
+  );
 
-      // TODO: clarify if we need to support multiple files
-      const [file] = sources;
+  public readonly expectedColumnHeaders = XLSImporterForObservations.expectedColumnHeaders;
 
-      const workbook: Workbook = await new Excel.Workbook().xlsx.load(file.buffer);
-      const importStatus = this.initImportStatus();
-      const [worksheet] = workbookParser(workbook, XLSImporterForObservations.expectedColumnHeaders, importStatus);
-      const codes = await XLSImporterForObservations.EURINGcodes;
-
-      // eslint-disable-next-line no-plusplus
-      for (let i = 0; i < worksheet.data.length; i++) {
-        try {
-          const preEntity = this.mapParsedWorksheetRow(worksheet.data[i], importStatus, i);
-          // eslint-disable-next-line no-await-in-loop
-          const entity = await this.createEntityAndValidate(Observation, preEntity, importStatus, i);
-          this.checkEURINGcodes(entity, importStatus, i, codes);
-          importStatus.validEntities.push(entity);
-          // eslint-disable-next-line no-empty
-        } catch {}
-      }
-
-      // redefine place in process of checking: right now it's done on data
-      // and already validated entities are skipped by this there are two options
-      // to do this on validated entities
-      // or do it before validation
-
-      // take in account that order needs to be preserved
-      // to correctly specify row number
-      this.checkForClones(importStatus);
-
-      if (
-        !Object.keys(importStatus.EURINGErrors).length &&
-        !Object.keys(importStatus.formatErrors).length &&
-        !importStatus.clones.length
-      ) {
-        await this.observations.insert(importStatus.validEntities);
-        importStatus.importedCount = importStatus.validEntities.length;
-      }
-
-      return this.translateStatusForResponse(importStatus);
-    } catch (e) {
-      if (e instanceof CustomError) throw e;
-      // @ts-ignore-next-line
-      if (e instanceof QueryFailedError) throw new CustomError(`${e.name}: ${e.detail}`, 500);
-      throw new CustomError(e.message, 500);
-    }
-  }
+  public readonly mappers = XLSImporterForObservations.mappers;
 }
