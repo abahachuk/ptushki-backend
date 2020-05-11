@@ -2,7 +2,7 @@ import AbstractExporter, { ExporterType } from './AbstractExporter';
 import { createExcelWorkBook } from '../excel-service/helper';
 import XLSImporterForObservations from '../import/XLSImporterForObservations';
 
-export default class XLSExporterTemplate extends AbstractExporter<Buffer> {
+export default class XLSTemplateExporterForObservations extends AbstractExporter<Buffer> {
   public type: ExporterType = ExporterType.template;
 
   public route: string = 'observations';

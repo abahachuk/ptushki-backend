@@ -2,7 +2,7 @@ import AbstractExporter, { ExporterType, ExportOutput } from './AbstractExporter
 import EURINGExporterForObservations from './EURINGExporterForObservations';
 import PDFExporterForObservations from './PDFExporterForObservations';
 import XLSExporterForObservations from './XLSExporterForObservations';
-import XLSExporterTemplate from './XLSExporterTemplate';
+import XLSTemplateExporterForObservations from './XLSTemplateExporterForObservations';
 
 import { CustomError } from '../../utils/CustomError';
 
@@ -19,7 +19,7 @@ export default class Exporter {
       // @ts-ignore FIXME while implementing pdf export
       new PDFExporterForObservations(),
       new XLSExporterForObservations(),
-      new XLSExporterTemplate(),
+      new XLSTemplateExporterForObservations(),
     ];
   }
 
