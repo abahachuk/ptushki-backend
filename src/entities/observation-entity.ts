@@ -130,6 +130,7 @@ export class Observation implements ObservationDto, AbleToExportAndImportEuring,
   @PrimaryGeneratedColumn('uuid')
   public id: string;
 
+  // Readme it isn't presented in EURING scheme
   @IsOptional()
   @IsUUID()
   @ManyToOne(() => Ring, m => m.observation, {
@@ -137,6 +138,7 @@ export class Observation implements ObservationDto, AbleToExportAndImportEuring,
   })
   public ring: Ring;
 
+  // Readme it isn't presented in EURING scheme
   @IsOptional()
   @IsString()
   @Length(10, 10, { message: equalLength(10) })
@@ -147,6 +149,7 @@ export class Observation implements ObservationDto, AbleToExportAndImportEuring,
     return this.ringMentioned;
   }
 
+  // Readme it isn't presented in EURING scheme
   @IsOptional()
   @IsUUID()
   @ManyToOne(() => User, m => m.observation, {
@@ -154,12 +157,14 @@ export class Observation implements ObservationDto, AbleToExportAndImportEuring,
   })
   public finder: User;
 
+  // Readme it isn't presented in EURING scheme
   @IsUUID()
   @ManyToOne(() => Person, m => m.observation, {
     eager: true,
   })
   public offlineFinder: Person;
 
+  // Readme it isn't presented in EURING scheme
   @IsOptional()
   @IsString()
   @Column('varchar', { nullable: true, default: null })
@@ -167,6 +172,7 @@ export class Observation implements ObservationDto, AbleToExportAndImportEuring,
   // in other words it's alternate to offlineFinder field to store data
   public offlineFinderNote: string | null;
 
+  // Readme ofc that it isn't presented in EURING scheme
   @IsOptional()
   @IsString({ each: true })
   @Column('varchar', { array: true, nullable: true, default: null })
@@ -293,7 +299,7 @@ export class Observation implements ObservationDto, AbleToExportAndImportEuring,
   @Column('integer', { nullable: true, default: null })
   public elapsedTime: number | null;
 
-  // Not presented in euring standart
+  // README colorRing isn't presented in euring standard
   @IsOptional()
   @IsString()
   @Column('varchar', { nullable: true, default: null })
@@ -450,7 +456,7 @@ export class Observation implements ObservationDto, AbleToExportAndImportEuring,
   @Column('varchar', { nullable: true, default: null })
   public remarks: string;
 
-  // Not presented in euring standart
+  // README verified isn't presented in euring standard
   @IsOptional()
   @IsEnum(Verified)
   @Column({
