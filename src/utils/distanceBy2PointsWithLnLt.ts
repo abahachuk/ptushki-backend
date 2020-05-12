@@ -1,6 +1,6 @@
 interface GeoPoint {
-  longitude: number;
-  latitude: number;
+  longitude: number | null;
+  latitude: number | null;
 }
 
 export default (end: GeoPoint, start: GeoPoint): number | null => {
