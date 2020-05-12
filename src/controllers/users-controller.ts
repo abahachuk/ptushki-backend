@@ -140,7 +140,7 @@ export default class UsersController extends AbstractController {
     }
     const { password, newEmail } = body;
     // todo check that password corresponds some requirements
-    if (!newEmail && !password) {
+    if (!newEmail || !password) {
       throw new CustomError('Both User password and new email are required', 400);
     }
     const user: User = await this.getEntityById<User>(id);
