@@ -252,7 +252,7 @@ export class Observation implements ObservationDto, AbleToExportAndImportEuring,
   @ManyToOne(() => Sex, m => m.concludedInObservation, {
     eager: true,
   })
-  public sexConcluded: Species;
+  public sexConcluded: Sex;
 
   @IsAlphanumeric()
   @Length(1, 1, { message: equalLength(1) })
