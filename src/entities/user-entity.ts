@@ -69,10 +69,11 @@ export class User implements UserDto {
   public role: UserRole;
 
   @IsEmail()
+  @MinLength(6)
   @MaxLength(64)
   @Column({
     type: 'varchar',
-    length: 150,
+    length: 64,
     unique: true,
   })
   public email: string;
@@ -89,6 +90,12 @@ export class User implements UserDto {
   @MaxLength(64)
   @Column('varchar', { length: 64, nullable: true, default: null })
   public lastName?: string;
+
+  @IsOptional()
+  @MinLength(3)
+  @MaxLength(64)
+  @Column('varchar', { length: 64, nullable: true, default: null })
+  public phone?: string;
 
   @IsOptional()
   @IsArray()
