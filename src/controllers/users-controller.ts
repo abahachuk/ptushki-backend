@@ -114,7 +114,7 @@ export default class UsersController extends AbstractController {
       throw new CustomError('Wrong password', 401);
     }
 
-    await user.setPassword(password);
+    await user.setPassword(newPassword);
     await this.users.save(user);
   }
 
