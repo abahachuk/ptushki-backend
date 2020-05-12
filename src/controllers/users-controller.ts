@@ -136,7 +136,6 @@ export default class UsersController extends AbstractController {
     @ContextRequest req: Request & { user: User },
   ): Promise<void> {
     if (id !== req.user.id) {
-      console.log(id, req.user.id);
       throw new CustomError('Forbidden', 403);
     }
     const { password, newEmail } = body;
@@ -150,7 +149,6 @@ export default class UsersController extends AbstractController {
     }
 
     user.email = newEmail;
-    console.log(user);
     await this.validate(user);
     await this.users.save(user);
   }
