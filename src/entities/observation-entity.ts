@@ -73,8 +73,6 @@ interface RawObservationBase<TCommon, TRing, TSpecies, TPlaceCode> {
   latitude?: number;
   longitude?: number;
   photos?: string[];
-  distance?: number;
-  direction?: number;
   remarks?: string;
   date?: Date;
   accuracyOfDate: TCommon;
@@ -93,6 +91,8 @@ export interface ObservationBase<TFinder, TOfFinder, TCommon, TRing, TSpecies, T
   offlineFinder: TOfFinder;
   offlineFinderNote: string | null;
   elapsedTime: number | null;
+  distance: number | null;
+  direction: number | null;
   colorRing: string | null;
   ringingScheme: EntityDto;
   primaryIdentificationMethod: EntityDto;
@@ -281,7 +281,7 @@ export class Observation implements ObservationDto, AbleToExportAndImportEuring,
   @Min(0)
   @Max(99999)
   @Column('integer', { nullable: true, default: null })
-  public distance: number;
+  public distance: number | null;
 
   // Related field in access 'Derived data directions'
   @IsOptional()
@@ -289,7 +289,7 @@ export class Observation implements ObservationDto, AbleToExportAndImportEuring,
   @Min(0)
   @Max(359)
   @Column('smallint', { nullable: true, default: null })
-  public direction: number;
+  public direction: number | null;
 
   // Related field in access 'Derived data elapsed time'
   @IsOptional()
