@@ -106,6 +106,9 @@ export default class UsersController extends AbstractController {
     if (!password || !newPassword) {
       throw new CustomError('Both User old and new passwords are required', 400);
     }
+    if (password === newPassword) {
+      throw new CustomError('Old and new passwords are the same', 400);
+    }
     const user: User = await this.getEntityById<User>(id);
     if (!(await isCorrect(password, user.salt, user.hash))) {
       throw new CustomError('Wrong password', 401);
