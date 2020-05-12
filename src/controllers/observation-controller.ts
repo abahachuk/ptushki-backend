@@ -231,6 +231,8 @@ export default class ObservationController extends AbstractController {
         ring = ringEntity.id;
       }
     }
+
+    observation.reFillByRing(observation.ring);
     await this.validate(Object.assign(rawObservation, { ring }), observation);
     // TODO protect from finder updating
     // @ts-ignore see https://github.com/typeorm/typeorm/issues/3490

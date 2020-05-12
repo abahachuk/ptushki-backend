@@ -51,6 +51,9 @@ import { ColumnNumericTransformer } from '../utils/ColumnNumericTransformer';
 import { fromDateToEuringDate, fromDateToEuringTime, fromEuringToDate } from '../utils/date-parser';
 import { fromDecimalToEuring, DecimalCoordinates, fromEuringToDecimal } from '../utils/coords-parser';
 import { fromStringToValueOrNull, fromNumberToPaddedString } from '../utils/custom-parsers';
+import directionBy2PointsWithLnLt from '../utils/directionBy2PointsWithLnLt';
+import elapsedTimeBetween2Dates from '../utils/elapsedTimeBetween2Dates';
+import distanceBy2PointsWithLnLt from '../utils/distanceBy2PointsWithLnLt';
 
 export interface NewObservation {
   finder: User;
@@ -470,6 +473,18 @@ export class Observation implements ObservationDto, AbleToExportAndImportEuring,
     return Object.assign(new Observation(), observation);
   }
 
+  public reFillByRing(ring: Ring): void {
+    if (!ring) return;
+    const { speciesConcluded, ageConcluded, sexConcluded } = ring;
+    this.ring.id = ring.id;
+    this.speciesConcluded = speciesConcluded || null;
+    this.ageConcluded = ageConcluded || null;
+    this.sexConcluded = sexConcluded || null;
+    this.direction = directionBy2PointsWithLnLt(this, ring);
+    this.elapsedTime = elapsedTimeBetween2Dates(this, ring);
+    this.distance = distanceBy2PointsWithLnLt(this, ring);
+  }
+
   public exportEURING(): string {
     return [
       this.ringingScheme.id,
@@ -501,8 +516,8 @@ export class Observation implements ObservationDto, AbleToExportAndImportEuring,
       this.circumstances.id,
       this.circumstancesPresumed.id,
       this.euringCodeIdentifier.id,
-      fromNumberToPaddedString(this.distance, 5) || '-'.repeat(5),
-      fromNumberToPaddedString(this.direction, 3) || '-'.repeat(3),
+      fromNumberToPaddedString(this.distance as number, 5) || '-'.repeat(5),
+      fromNumberToPaddedString(this.direction as number, 3) || '-'.repeat(3),
       fromNumberToPaddedString(this.elapsedTime as number, 5) || '-'.repeat(5),
       // Below unsupported parameters that presented in EURING
       '', // wing length
