@@ -73,10 +73,10 @@ export default class UsersController extends AbstractController {
     if (id !== req.user.id) {
       throw new CustomError('Forbidden', 403);
     }
-    const { firstName, lastName } = body;
+    const { firstName, lastName, phone } = body;
 
     const user: User = await this.getEntityById<User>(id);
-    const newUser = Object.assign(user, { lastName, firstName });
+    const newUser = Object.assign(user, { lastName, firstName, phone });
     await this.validate(newUser);
     await this.users.save(newUser);
   }
@@ -136,6 +136,7 @@ export default class UsersController extends AbstractController {
     @ContextRequest req: Request & { user: User },
   ): Promise<void> {
     if (id !== req.user.id) {
+      console.log(id, req.user.id);
       throw new CustomError('Forbidden', 403);
     }
     const { password, newEmail } = body;
@@ -149,6 +150,7 @@ export default class UsersController extends AbstractController {
     }
 
     user.email = newEmail;
+    console.log(user);
     await this.validate(user);
     await this.users.save(user);
   }

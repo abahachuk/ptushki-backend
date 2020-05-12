@@ -30,6 +30,7 @@ export interface CreateUserDto extends NewUser, WithCredentials {}
 export interface UpdateUserDto {
   firstName?: string;
   lastName?: string;
+  phone?: string;
 }
 
 export interface UpdateUserEmailDto {
