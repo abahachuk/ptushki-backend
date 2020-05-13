@@ -46,10 +46,9 @@ import {
   EURINGCodeIdentifier,
   BroodSize,
 } from './euring-codes';
-import { AbleToExportAndImportEuring, EntityDto, EURINGCodes } from './common-interfaces';
+import { AbleToImportEURINGCode, EntityDto, EURINGCodes } from './common-interfaces';
 import { ColumnNumericTransformer } from '../utils/ColumnNumericTransformer';
 import EURINGCodeParser from '../utils/EURINGCodeParser';
-import EURINGCodeExporter from '../utils/EURINGCodeExporter';
 
 export interface NewObservation {
   finder: User;
@@ -125,7 +124,7 @@ export interface ObservationDto
   extends ObservationBase<UserDto, PersonDto, EntityDto, RingDto, SpeciesDto, PlaceCodeDto> {}
 
 @Entity()
-export class Observation implements ObservationDto, AbleToExportAndImportEuring, EURINGCodes {
+export class Observation implements ObservationDto, AbleToImportEURINGCode, EURINGCodes {
   @PrimaryGeneratedColumn('uuid')
   public id: string;
 
@@ -461,10 +460,6 @@ export class Observation implements ObservationDto, AbleToExportAndImportEuring,
 
   public static async create(observation: RawObservationDto & { finder: string }): Promise<Observation> {
     return Object.assign(new Observation(), observation);
-  }
-
-  public exportEURING(): string {
-    return EURINGCodeExporter(this);
   }
 
   public importEURING(code: string): Observation {

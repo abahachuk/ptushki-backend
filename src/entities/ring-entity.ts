@@ -46,9 +46,8 @@ import {
 import { User, UserDto } from './user-entity';
 import { Person, PersonDto } from './person-entity';
 import { Observation } from './observation-entity';
-import { EURINGCodes, AbleToExportAndImportEuring, EntityDto } from './common-interfaces';
+import { EURINGCodes, AbleToImportEURINGCode, EntityDto } from './common-interfaces';
 import { ColumnNumericTransformer } from '../utils/ColumnNumericTransformer';
-import EURINGCodeExporter from '../utils/EURINGCodeExporter';
 import EURINGCodeParser from '../utils/EURINGCodeParser';
 
 export interface RingDto extends EURINGCodes {
@@ -86,7 +85,7 @@ export interface RingDto extends EURINGCodes {
 }
 
 @Entity()
-export class Ring implements RingDto, AbleToExportAndImportEuring {
+export class Ring implements RingDto, AbleToImportEURINGCode {
   @PrimaryGeneratedColumn('uuid')
   public id: string;
 
@@ -367,10 +366,6 @@ export class Ring implements RingDto, AbleToExportAndImportEuring {
 
   public get direction(): null {
     return null;
-  }
-
-  public exportEURING(): string {
-    return EURINGCodeExporter(this);
   }
 
   public importEURING(code: string): Ring {

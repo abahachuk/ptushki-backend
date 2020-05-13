@@ -182,7 +182,6 @@ export interface EntityDto extends WithDescription {
   id: string | number;
 }
 
-export interface AbleToExportAndImportEuring {
-  exportEURING(): string;
+export interface AbleToImportEURINGCode {
   importEURING(code: string): any;
 }
