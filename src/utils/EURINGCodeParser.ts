@@ -4,7 +4,6 @@ import { fromEuringToDate } from './date-parser';
 import { DecimalCoordinates, fromEuringToDecimal } from './coords-parser';
 import { CustomError } from './CustomError';
 
-/* eslint-disable no-unused-vars */
 const parseEURINGCodeToObject = (code: string): EURINGCodeAsRawObject => {
   const arrayOfCodes = code.split('|') as EURINGCodeAsArray;
 
