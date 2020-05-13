@@ -1,20 +1,20 @@
 import { getRepository, Repository } from 'typeorm';
-import { Observation } from '../../entities/observation-entity';
+import { Ring } from '../../entities/ring-entity';
 import AbstractExporter, { ExporterType } from './AbstractExporter';
 import EURINGSingleEntityExporter from './EURINGSingleEntityExporter';
 
 export default class EURINGExporterForObservation extends AbstractExporter<string[]> {
   public type: ExporterType = ExporterType.euring;
 
-  public route: string = 'observations';
+  public route: string = 'rings-by';
 
-  private observations: Repository<Observation> = getRepository(Observation);
+  private rings: Repository<Ring> = getRepository(Ring);
 
   public async export(rowIds: string[]): Promise<string[]> {
     this.validateRowIds(rowIds);
-    const observations: Observation[] = await this.observations.find({
+    const rings: Ring[] = await this.rings.find({
       where: rowIds.map(id => ({ id })),
     });
-    return observations.map(e => EURINGSingleEntityExporter.export(e));
+    return rings.map(e => EURINGSingleEntityExporter.export(e));
   }
 }
