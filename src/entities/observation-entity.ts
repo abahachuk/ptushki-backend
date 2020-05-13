@@ -48,10 +48,11 @@ import {
 } from './euring-codes';
 import { AbleToExportAndImportEuring, EntityDto, EURINGCodes } from './common-interfaces';
 import { ColumnNumericTransformer } from '../utils/ColumnNumericTransformer';
-import { fromDateToEuringDate, fromDateToEuringTime, fromEuringToDate } from '../utils/date-parser';
-import { fromDecimalToEuring, DecimalCoordinates, fromEuringToDecimal } from '../utils/coords-parser';
-import { fromStringToValueOrNull, fromNumberToPaddedString } from '../utils/custom-parsers';
+import { fromEuringToDate } from '../utils/date-parser';
+import { DecimalCoordinates, fromEuringToDecimal } from '../utils/coords-parser';
+import { fromStringToValueOrNull } from '../utils/custom-parsers';
 import EURINGCodeParser from '../utils/EURINGCodeParser';
+import EURINGCodeExporter from '../utils/EURINGCodeExporter';
 
 export interface NewObservation {
   finder: User;
@@ -466,69 +467,7 @@ export class Observation implements ObservationDto, AbleToExportAndImportEuring,
   }
 
   public exportEURING(): string {
-    return [
-      this.ringingScheme.id,
-      this.primaryIdentificationMethod.id,
-      this.identificationNumber, // we are using mentioned instead related
-      this.verificationOfTheMetalRing.id,
-      this.metalRingInformation.id,
-      this.otherMarksInformation.id,
-      this.speciesMentioned.id,
-      this.speciesConcluded.id,
-      this.manipulated.id,
-      this.movedBeforeTheCapture.id,
-      this.catchingMethod.id,
-      this.catchingLures.id,
-      this.sexMentioned.id,
-      this.sexConcluded.id,
-      this.ageMentioned.id,
-      this.ageConcluded.id,
-      this.status.id,
-      this.broodSize.id,
-      this.pullusAge.id,
-      this.accuracyOfPullusAge.id,
-      fromDateToEuringDate(this.date),
-      this.accuracyOfDate.id,
-      fromDateToEuringTime(this.date),
-      this.placeCode.id,
-      fromDecimalToEuring(this.latitude, this.longitude),
-      this.accuracyOfCoordinates.id,
-      this.condition.id,
-      this.circumstances.id,
-      this.circumstancesPresumed.id,
-      this.euringCodeIdentifier.id,
-      fromNumberToPaddedString(this.distance, 5) || '-'.repeat(5),
-      fromNumberToPaddedString(this.direction, 3) || '-'.repeat(3),
-      fromNumberToPaddedString(this.elapsedTime as number, 5) || '-'.repeat(5),
-      // Below unsupported parameters that presented in EURING
-      '', // wing length
-      '', // third primary
-      '', // state of wing point
-      '', // mass
-      '', // moult
-      '', // plumage code
-      '', // hind claw
-      '', // bill length
-      '', // bill method
-      '', // total head length
-      '', // tarsus
-      '', // tarsus method
-      '', // tail length
-      '', // tail differnce
-      '', // fat score
-      '', // fat score method
-      '', // pectoral muscle
-      '', // brood patch
-      '', // primary score
-      '', // primary moult
-      '', // old greater coverts
-      '', // alula
-      '', // carpal covert
-      '', // sexing method
-      this.placeName,
-      this.remarks,
-      '', // reference
-    ].join('|');
+    return EURINGCodeExporter(this);
   }
 
   /* eslint-disable */

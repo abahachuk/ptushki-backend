@@ -48,6 +48,7 @@ import { Person, PersonDto } from './person-entity';
 import { Observation } from './observation-entity';
 import { EURINGCodes, AbleToExportAndImportEuring, EntityDto } from './common-interfaces';
 import { ColumnNumericTransformer } from '../utils/ColumnNumericTransformer';
+import EURINGCodeExporter from '../utils/EURINGCodeExporter';
 
 export interface RingDto extends EURINGCodes {
   id: string;
@@ -368,8 +369,7 @@ export class Ring implements RingDto, AbleToExportAndImportEuring {
   }
 
   public exportEURING(): string {
-    // todo
-    return [this.identificationNumber, this.ageConcluded.id, this.ageMentioned.id].join('|');
+    return EURINGCodeExporter(this);
   }
 
   public importEURING(code: string): any {
