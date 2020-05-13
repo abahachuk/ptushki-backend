@@ -48,9 +48,6 @@ import {
 } from './euring-codes';
 import { AbleToExportAndImportEuring, EntityDto, EURINGCodes } from './common-interfaces';
 import { ColumnNumericTransformer } from '../utils/ColumnNumericTransformer';
-import { fromEuringToDate } from '../utils/date-parser';
-import { DecimalCoordinates, fromEuringToDecimal } from '../utils/coords-parser';
-import { fromStringToValueOrNull } from '../utils/custom-parsers';
 import EURINGCodeParser from '../utils/EURINGCodeParser';
 import EURINGCodeExporter from '../utils/EURINGCodeExporter';
 
@@ -470,48 +467,9 @@ export class Observation implements ObservationDto, AbleToExportAndImportEuring,
     return EURINGCodeExporter(this);
   }
 
-  /* eslint-disable */
   public importEURING(code: string): Observation {
-    const EObj = EURINGCodeParser(code);
-
-    const { latitude, longitude }: DecimalCoordinates = fromEuringToDecimal(EObj.latitudeLongitude);
-
-    return Object.assign(this, {
-      ringingScheme: fromStringToValueOrNull(EObj.ringingScheme),
-      primaryIdentificationMethod: fromStringToValueOrNull(EObj.primaryIdentificationMethod),
-      verificationOfTheMetalRing: fromStringToValueOrNull(EObj.verificationOfTheMetalRing, Number),
-      metalRingInformation: fromStringToValueOrNull(EObj.metalRingInformation, Number),
-      otherMarksInformation: fromStringToValueOrNull(EObj.otherMarksInformation),
-      broodSize: fromStringToValueOrNull(EObj.broodSize),
-      euringCodeIdentifier: fromStringToValueOrNull(EObj.euringCodeIdentifier, Number),
-      ringMentioned: fromStringToValueOrNull(EObj.identificationNumber),
-      speciesMentioned: fromStringToValueOrNull(EObj.speciesMentioned),
-      speciesConcluded: fromStringToValueOrNull(EObj.speciesConcluded),
-      manipulated: fromStringToValueOrNull(EObj.manipulated),
-      movedBeforeTheCapture: fromStringToValueOrNull(EObj.movedBeforeTheCapture, Number),
-      catchingMethod: fromStringToValueOrNull(EObj.catchingMethod),
-      catchingLures: fromStringToValueOrNull(EObj.catchingLures),
-      sexMentioned: fromStringToValueOrNull(EObj.sexMentioned),
-      sexConcluded: fromStringToValueOrNull(EObj.sexConcluded),
-      ageMentioned: fromStringToValueOrNull(EObj.ageMentioned),
-      ageConcluded: fromStringToValueOrNull(EObj.ageConcluded),
-      status: fromStringToValueOrNull(EObj.status),
-      pullusAge: fromStringToValueOrNull(EObj.pullusAge),
-      accuracyOfPullusAge: fromStringToValueOrNull(EObj.accuracyOfPullusAge),
-      date: fromEuringToDate(EObj.date, EObj.time),
-      accuracyOfDate: fromStringToValueOrNull(EObj.accuracyOfDate, Number),
-      placeCode: fromStringToValueOrNull(EObj.placeCode),
-      latitude,
-      longitude,
-      accuracyOfCoordinates: fromStringToValueOrNull(EObj.accuracyOfCoordinates, Number),
-      condition: fromStringToValueOrNull(EObj.condition, Number),
-      circumstances: fromStringToValueOrNull(EObj.circumstances),
-      circumstancesPresumed: fromStringToValueOrNull(EObj.circumstancesPresumed, Number),
-      distance: fromStringToValueOrNull(EObj.distance, Number),
-      direction: fromStringToValueOrNull(EObj.direction, Number),
-      elapsedTime: fromStringToValueOrNull(EObj.elapsedTime, Number),
-      placeName: fromStringToValueOrNull(EObj.placeName),
-      remarks: fromStringToValueOrNull(EObj.remarks),
-    });
+    const preEntity = EURINGCodeParser(code);
+    // todo add handling of needed props
+    return Object.assign(this, preEntity);
   }
 }
