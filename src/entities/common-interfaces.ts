@@ -62,6 +62,84 @@ export type EURINGCodeAsArray = [
   string // reference
 ];
 
+export interface EURINGCodeAsRawObject {
+  identificationNumber: string;
+  ringingScheme: string;
+  primaryIdentificationMethod: string;
+  verificationOfTheMetalRing: string;
+  metalRingInformation: string;
+  otherMarksInformation: string;
+  speciesMentioned: string;
+  speciesConcluded: string;
+  manipulated: string;
+  movedBeforeTheCapture: string;
+  catchingMethod: string;
+  catchingLures: string;
+  sexMentioned: string;
+  sexConcluded: string;
+  ageMentioned: string;
+  ageConcluded: string;
+  status: string;
+  broodSize: string;
+  pullusAge: string;
+  accuracyOfPullusAge: string;
+  placeCode: string;
+  accuracyOfCoordinates: string;
+  condition: string;
+  circumstances: string;
+  circumstancesPresumed: string;
+  accuracyOfDate: string;
+  euringCodeIdentifier: string;
+  date: string;
+  time: string;
+  latitudeLongitude: string;
+  distance: string;
+  direction: string;
+  elapsedTime: string;
+  placeName: string;
+  remarks: string;
+  reference: string;
+}
+
+export interface EURINGCodeAsPreEntity {
+  ringingScheme: any;
+  primaryIdentificationMethod: any;
+  identificationNumber: any;
+  verificationOfTheMetalRing: any;
+  metalRingInformation: any;
+  otherMarksInformation: any;
+  speciesMentioned: any;
+  speciesConcluded: any;
+  manipulated: any;
+  movedBeforeTheCapture: any;
+  catchingMethod: any;
+  catchingLures: any;
+  sexMentioned: any;
+  sexConcluded: any;
+  ageMentioned: any;
+  ageConcluded: any;
+  status: any;
+  broodSize: any;
+  pullusAge: any;
+  accuracyOfPullusAge: any;
+  date: string | null;
+  accuracyOfDate: any;
+  placeCode: any;
+  latitude: any;
+  longitude: any;
+  accuracyOfCoordinates: any;
+  condition: any;
+  circumstances: any;
+  circumstancesPresumed: any;
+  euringCodeIdentifier: any;
+  distance: number | null;
+  direction: number | null;
+  elapsedTime: number | null;
+  placeName: string | null;
+  remarks: string | null;
+  // reference: string | null;
+}
+
 export interface EURINGCodes {
   identificationNumber: any;
   ringingScheme: any;
