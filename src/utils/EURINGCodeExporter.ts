@@ -8,7 +8,7 @@ import { fromNumberToPaddedString } from './custom-parsers';
 const safeNumtoString = (num: number | null): string => (typeof num === 'number' ? num.toString(10) : '');
 
 export default (entity: Observation | Ring): string => {
-  const arrayPropsForString: EURINGCodeAsArray = [
+  const codeAsArray: EURINGCodeAsArray = [
     entity.ringingScheme.id,
     entity.primaryIdentificationMethod.id,
     entity.identificationNumber, // we are using mentioned instead related
@@ -71,5 +71,5 @@ export default (entity: Observation | Ring): string => {
     '', // reference
   ];
 
-  return arrayPropsForString.join('|');
+  return codeAsArray.join('|');
 };
