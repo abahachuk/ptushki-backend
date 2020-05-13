@@ -51,6 +51,7 @@ import { ColumnNumericTransformer } from '../utils/ColumnNumericTransformer';
 import { fromDateToEuringDate, fromDateToEuringTime, fromEuringToDate } from '../utils/date-parser';
 import { fromDecimalToEuring, DecimalCoordinates, fromEuringToDecimal } from '../utils/coords-parser';
 import { fromStringToValueOrNull, fromNumberToPaddedString } from '../utils/custom-parsers';
+import EURINGCodeParser from '../utils/EURINGCodeParser';
 
 export interface NewObservation {
   finder: User;
@@ -532,134 +533,46 @@ export class Observation implements ObservationDto, AbleToExportAndImportEuring,
 
   /* eslint-disable */
   public importEURING(code: string): Observation {
-    const [
-      ringingScheme,
-      primaryIdentificationMethod,
-      identificationNumber,
-      verificationOfTheMetalRing,
-      metalRingInformation,
-      otherMarksInformation,
-      speciesMentioned,
-      speciesConcluded,
-      manipulated,
-      movedBeforeTheCapture,
-      catchingMethod,
-      catchingLures,
-      sexMentioned,
-      sexConcluded,
-      ageMentioned,
-      ageConcluded,
-      status,
-      broodSize,
-      pullusAge,
-      accuracyOfPullusAge,
-      date,
-      accuracyOfDate,
-      time,
-      placeCode,
-      latitudeLongitude,
-      accuracyOfCoordinates,
-      condition,
-      circumstances,
-      circumstancesPresumed,
-      euringCodeIdentifier,
-      distance,
-      direction,
-      elapsedTime,
-      // Below params except "placeName" and "remarks" are unsupported, but they presented in EURING
-      // @ts-ignore
-      wingLength,
-      // @ts-ignore
-      thirdPrimary,
-      // @ts-ignore
-      stateOfWingPoint,
-      // @ts-ignore
-      mass,
-      // @ts-ignore
-      moult,
-      // @ts-ignore
-      plumageCode,
-      // @ts-ignore
-      hindClaw,
-      // @ts-ignore
-      billLength,
-      // @ts-ignore
-      billMethod,
-      // @ts-ignore
-      totalHeadLength,
-      // @ts-ignore
-      tarsus,
-      // @ts-ignore
-      tarsusMethod,
-      // @ts-ignore
-      tailLength,
-      // @ts-ignore
-      tailDiffernce,
-      // @ts-ignore
-      fatScore,
-      // @ts-ignore
-      fatScoreMethod,
-      // @ts-ignore
-      pectoralMuscle,
-      // @ts-ignore
-      broodPatch,
-      // @ts-ignore
-      primaryScore,
-      // @ts-ignore
-      primaryMoult,
-      // @ts-ignore
-      oldGreaterCoverts,
-      // @ts-ignore
-      alula,
-      // @ts-ignore
-      carpalCovert,
-      // @ts-ignore
-      sexingMethod,
-      // @ts-ignore
-      placeName,
-      remarks,
-      // @ts-ignore
-      reference,
-    ] = code.split('|');
+    const EObj = EURINGCodeParser(code);
 
-    const { latitude, longitude }: DecimalCoordinates = fromEuringToDecimal(latitudeLongitude);
+    const { latitude, longitude }: DecimalCoordinates = fromEuringToDecimal(EObj.latitudeLongitude);
 
     return Object.assign(this, {
-      ringingScheme: fromStringToValueOrNull(ringingScheme),
-      primaryIdentificationMethod: fromStringToValueOrNull(primaryIdentificationMethod),
-      verificationOfTheMetalRing: fromStringToValueOrNull(verificationOfTheMetalRing, Number),
-      metalRingInformation: fromStringToValueOrNull(metalRingInformation, Number),
-      otherMarksInformation: fromStringToValueOrNull(otherMarksInformation),
-      broodSize: fromStringToValueOrNull(broodSize),
-      euringCodeIdentifier: fromStringToValueOrNull(euringCodeIdentifier, Number),
-      ringMentioned: fromStringToValueOrNull(identificationNumber),
-      speciesMentioned: fromStringToValueOrNull(speciesMentioned),
-      speciesConcluded: fromStringToValueOrNull(speciesConcluded),
-      manipulated: fromStringToValueOrNull(manipulated),
-      movedBeforeTheCapture: fromStringToValueOrNull(movedBeforeTheCapture, Number),
-      catchingMethod: fromStringToValueOrNull(catchingMethod),
-      catchingLures: fromStringToValueOrNull(catchingLures),
-      sexMentioned: fromStringToValueOrNull(sexMentioned),
-      sexConcluded: fromStringToValueOrNull(sexConcluded),
-      ageMentioned: fromStringToValueOrNull(ageMentioned),
-      ageConcluded: fromStringToValueOrNull(ageConcluded),
-      status: fromStringToValueOrNull(status),
-      pullusAge: fromStringToValueOrNull(pullusAge),
-      accuracyOfPullusAge: fromStringToValueOrNull(accuracyOfPullusAge),
-      date: fromEuringToDate(date, time),
-      accuracyOfDate: fromStringToValueOrNull(accuracyOfDate, Number),
-      placeCode: fromStringToValueOrNull(placeCode),
+      ringingScheme: fromStringToValueOrNull(EObj.ringingScheme),
+      primaryIdentificationMethod: fromStringToValueOrNull(EObj.primaryIdentificationMethod),
+      verificationOfTheMetalRing: fromStringToValueOrNull(EObj.verificationOfTheMetalRing, Number),
+      metalRingInformation: fromStringToValueOrNull(EObj.metalRingInformation, Number),
+      otherMarksInformation: fromStringToValueOrNull(EObj.otherMarksInformation),
+      broodSize: fromStringToValueOrNull(EObj.broodSize),
+      euringCodeIdentifier: fromStringToValueOrNull(EObj.euringCodeIdentifier, Number),
+      ringMentioned: fromStringToValueOrNull(EObj.identificationNumber),
+      speciesMentioned: fromStringToValueOrNull(EObj.speciesMentioned),
+      speciesConcluded: fromStringToValueOrNull(EObj.speciesConcluded),
+      manipulated: fromStringToValueOrNull(EObj.manipulated),
+      movedBeforeTheCapture: fromStringToValueOrNull(EObj.movedBeforeTheCapture, Number),
+      catchingMethod: fromStringToValueOrNull(EObj.catchingMethod),
+      catchingLures: fromStringToValueOrNull(EObj.catchingLures),
+      sexMentioned: fromStringToValueOrNull(EObj.sexMentioned),
+      sexConcluded: fromStringToValueOrNull(EObj.sexConcluded),
+      ageMentioned: fromStringToValueOrNull(EObj.ageMentioned),
+      ageConcluded: fromStringToValueOrNull(EObj.ageConcluded),
+      status: fromStringToValueOrNull(EObj.status),
+      pullusAge: fromStringToValueOrNull(EObj.pullusAge),
+      accuracyOfPullusAge: fromStringToValueOrNull(EObj.accuracyOfPullusAge),
+      date: fromEuringToDate(EObj.date, EObj.time),
+      accuracyOfDate: fromStringToValueOrNull(EObj.accuracyOfDate, Number),
+      placeCode: fromStringToValueOrNull(EObj.placeCode),
       latitude,
       longitude,
-      accuracyOfCoordinates: fromStringToValueOrNull(accuracyOfCoordinates, Number),
-      condition: fromStringToValueOrNull(condition, Number),
-      circumstances: fromStringToValueOrNull(circumstances),
-      circumstancesPresumed: fromStringToValueOrNull(circumstancesPresumed, Number),
-      distance: fromStringToValueOrNull(distance, Number),
-      direction: fromStringToValueOrNull(direction, Number),
-      elapsedTime: fromStringToValueOrNull(elapsedTime, Number),
-      placeName: fromStringToValueOrNull(placeName),
-      remarks: fromStringToValueOrNull(remarks),
+      accuracyOfCoordinates: fromStringToValueOrNull(EObj.accuracyOfCoordinates, Number),
+      condition: fromStringToValueOrNull(EObj.condition, Number),
+      circumstances: fromStringToValueOrNull(EObj.circumstances),
+      circumstancesPresumed: fromStringToValueOrNull(EObj.circumstancesPresumed, Number),
+      distance: fromStringToValueOrNull(EObj.distance, Number),
+      direction: fromStringToValueOrNull(EObj.direction, Number),
+      elapsedTime: fromStringToValueOrNull(EObj.elapsedTime, Number),
+      placeName: fromStringToValueOrNull(EObj.placeName),
+      remarks: fromStringToValueOrNull(EObj.remarks),
     });
   }
 }
