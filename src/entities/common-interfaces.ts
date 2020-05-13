@@ -1,4 +1,4 @@
-export type EURINGParsedString = [
+export type EURINGCodeAsArray = [
   string, // ringingScheme
   string, // primaryIdentificationMethod
   string, // identificationNumber

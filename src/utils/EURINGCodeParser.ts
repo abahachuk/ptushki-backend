@@ -1,4 +1,4 @@
-import { EURINGCodes, EURINGParsedString } from '../entities/common-interfaces';
+import { EURINGCodes, EURINGCodeAsArray } from '../entities/common-interfaces';
 
 type Omit<T, K extends keyof T> = Pick<T, Exclude<keyof T, K>>;
 export type EURINGCodeAsString = Omit<EURINGCodes, 'longitude' | 'latitude'> & {
@@ -15,7 +15,7 @@ export type EURINGCodeAsString = Omit<EURINGCodes, 'longitude' | 'latitude'> & {
 
 /* eslint-disable no-unused-vars */
 export default (code: string): EURINGCodeAsString => {
-  const arrayOfCodes: EURINGParsedString = code.split('|') as EURINGParsedString;
+  const arrayOfCodes = code.split('|') as EURINGCodeAsArray;
 
   const [
     ringingScheme,

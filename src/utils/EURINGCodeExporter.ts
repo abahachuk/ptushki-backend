@@ -1,4 +1,4 @@
-import { EURINGParsedString } from '../entities/common-interfaces';
+import { EURINGCodeAsArray } from '../entities/common-interfaces';
 import { Observation } from '../entities/observation-entity';
 import { Ring } from '../entities/ring-entity';
 import { fromDateToEuringDate, fromDateToEuringTime } from './date-parser';
@@ -8,7 +8,7 @@ import { fromNumberToPaddedString } from './custom-parsers';
 const safeNumtoString = (num: number | null): string => (typeof num === 'number' ? num.toString(10) : '');
 
 export default (entity: Observation | Ring): string => {
-  const arrayPropsForString: EURINGParsedString = [
+  const arrayPropsForString: EURINGCodeAsArray = [
     entity.ringingScheme.id,
     entity.primaryIdentificationMethod.id,
     entity.identificationNumber, // we are using mentioned instead related
