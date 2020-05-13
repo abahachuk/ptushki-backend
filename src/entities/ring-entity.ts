@@ -271,6 +271,10 @@ export class Ring implements RingDto, AbleToExportAndImportEuring {
   })
   public placeCode: PlaceCode;
 
+  public get placeName(): null {
+    return null;
+  }
+
   @IsInt()
   @Min(0)
   @Max(9)
@@ -350,6 +354,18 @@ export class Ring implements RingDto, AbleToExportAndImportEuring {
     eager: true,
   })
   public statusOfRing: StatusOfRing;
+
+  public get distance(): null {
+    return null;
+  }
+
+  public get elapsedTime(): null {
+    return null;
+  }
+
+  public get direction(): null {
+    return null;
+  }
 
   public exportEURING(): string {
     // todo
