@@ -464,7 +464,8 @@ export class Observation implements ObservationDto, AbleToImportEURINGCode, EURI
 
   public importEURING(code: string): Observation {
     const preEntity = EURINGCodeParser(code);
-    // todo add handling of needed props
-    return Object.assign(this, preEntity);
+    const { identificationNumber: ringMentioned } = preEntity;
+    delete preEntity.identificationNumber;
+    return Object.assign(this, preEntity, { ringMentioned, ring: ringMentioned }); // может проще переименовать в
   }
 }
