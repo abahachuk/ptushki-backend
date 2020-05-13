@@ -1,12 +1,13 @@
 import { EURINGParsedString } from '../entities/common-interfaces';
 import { Observation } from '../entities/observation-entity';
+import { Ring } from '../entities/ring-entity';
 import { fromDateToEuringDate, fromDateToEuringTime } from './date-parser';
 import { fromDecimalToEuring } from './coords-parser';
 import { fromNumberToPaddedString } from './custom-parsers';
 
 const safeNumtoString = (num: number | null): string => (typeof num === 'number' ? num.toString(10) : '');
 
-export default (entity: Observation): string => {
+export default (entity: Observation | Ring): string => {
   const arrayPropsForString: EURINGParsedString = [
     entity.ringingScheme.id,
     entity.primaryIdentificationMethod.id,
@@ -38,8 +39,8 @@ export default (entity: Observation): string => {
     entity.circumstances.id,
     safeNumtoString(entity.circumstancesPresumed.id),
     safeNumtoString(entity.euringCodeIdentifier.id),
-    fromNumberToPaddedString(entity.distance, 5) || '-'.repeat(5),
-    fromNumberToPaddedString(entity.direction, 3) || '-'.repeat(3),
+    fromNumberToPaddedString(entity.distance as number, 5) || '-'.repeat(5),
+    fromNumberToPaddedString(entity.direction as number, 3) || '-'.repeat(3),
     fromNumberToPaddedString(entity.elapsedTime as number, 5) || '-'.repeat(5),
     '', // wing length
     '', // third primary
