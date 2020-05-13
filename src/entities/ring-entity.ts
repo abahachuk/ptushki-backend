@@ -49,6 +49,7 @@ import { Observation } from './observation-entity';
 import { EURINGCodes, AbleToExportAndImportEuring, EntityDto } from './common-interfaces';
 import { ColumnNumericTransformer } from '../utils/ColumnNumericTransformer';
 import EURINGCodeExporter from '../utils/EURINGCodeExporter';
+import EURINGCodeParser from '../utils/EURINGCodeParser';
 
 export interface RingDto extends EURINGCodes {
   id: string;
@@ -372,9 +373,9 @@ export class Ring implements RingDto, AbleToExportAndImportEuring {
     return EURINGCodeExporter(this);
   }
 
-  public importEURING(code: string): any {
-    // todo
-    const [identificationNumber, status] = code.split('|');
-    Object.assign(this, { identificationNumber, status });
+  public importEURING(code: string): Ring {
+    const preEntity = EURINGCodeParser(code);
+    // todo add handling of needed props
+    return Object.assign(this, preEntity);
   }
 }
