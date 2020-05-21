@@ -52,10 +52,6 @@ import { fromDateToEuringDate, fromDateToEuringTime, fromEuringToDate } from '..
 import { fromDecimalToEuring, DecimalCoordinates, fromEuringToDecimal } from '../utils/coords-parser';
 import { fromStringToValueOrNull, fromNumberToPaddedString } from '../utils/custom-parsers';
 
-export interface NewObservation {
-  finder: User;
-}
-
 export enum Verified {
   Pending = 'pending',
   Approved = 'approved',
