@@ -64,7 +64,7 @@ export enum Verified {
 
 // TODO: extract right fields for raw observation from mobile and web
 // From mobile and web we accept entity with not all field filled
-interface RawObservationBase<TCommon, TRing, TSpecies, TPlaceCode> {
+interface RawObservationBase<TCommon, TRing, TSpecies> {
   ring: TRing;
   ringMentioned: string;
   speciesMentioned: TSpecies;
@@ -73,18 +73,15 @@ interface RawObservationBase<TCommon, TRing, TSpecies, TPlaceCode> {
   latitude?: number;
   longitude?: number;
   photos?: string[];
-  distance?: number;
-  direction?: number;
   remarks?: string;
   date?: Date;
   accuracyOfDate: TCommon;
-  placeCode: TPlaceCode;
 }
 
 // Model for observation with all not technical fields
 // Used for dtos for responses
 export interface ObservationBase<TFinder, TOfFinder, TCommon, TRing, TSpecies, TPlaceCode>
-  extends RawObservationBase<TCommon, TRing, TSpecies, TPlaceCode> {
+  extends RawObservationBase<TCommon, TRing, TSpecies> {
   id: string;
   speciesConcluded: TSpecies;
   sexConcluded: TCommon;
@@ -92,6 +89,8 @@ export interface ObservationBase<TFinder, TOfFinder, TCommon, TRing, TSpecies, T
   finder: TFinder;
   offlineFinder: TOfFinder;
   offlineFinderNote: string | null;
+  distance: number | null;
+  direction: number | null;
   elapsedTime: number | null;
   colorRing: string | null;
   ringingScheme: EntityDto;
@@ -112,13 +111,14 @@ export interface ObservationBase<TFinder, TOfFinder, TCommon, TRing, TSpecies, T
   condition: EntityDto;
   circumstances: EntityDto;
   circumstancesPresumed: EntityDto;
+  placeCode: TPlaceCode;
   placeName: string | null;
   verified: Verified;
 }
 
 // Can't use type due to typescript-swagger restrictions
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
-export interface RawObservationDto extends RawObservationBase<string, string, string, string> {}
+export interface RawObservationDto extends RawObservationBase<string, string, string> {}
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
 export interface ObservationBaseDto extends ObservationBase<string, string, string, string, string, string> {}
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
