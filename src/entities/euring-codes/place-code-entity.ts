@@ -1,8 +1,9 @@
 import { Entity, PrimaryColumn, Column, OneToMany } from 'typeorm';
-import { Length, IsAlphanumeric, IsOptional, IsString } from 'class-validator';
+import { Length, IsOptional, IsString } from 'class-validator';
 import { equalLength } from '../../validation/validation-messages';
 import { Ring } from '../ring-entity';
 import { EntityDto } from '../common-interfaces';
+import { IsAlphanumericWithHyphen } from '../../validation/custom-decorators';
 
 export interface PlaceCodeDto extends EntityDto {
   country?: string | null;
@@ -12,7 +13,7 @@ export interface PlaceCodeDto extends EntityDto {
 // Related table in access 'Place_code_n'
 @Entity()
 export class PlaceCode implements PlaceCodeDto {
-  @IsAlphanumeric()
+  @IsAlphanumericWithHyphen()
   @Length(4, 4, { message: equalLength(4) })
   @PrimaryColumn()
   public id: string;

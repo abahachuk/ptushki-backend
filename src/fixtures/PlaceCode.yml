@@ -5,47 +5,47 @@ items:
     id: BY23
     country: Belarus
     region: 'Grodno O.'
-    desc_rus: 'Grodno O.'
-    desc_byn: 'Grodno O.'
+    desc_rus: 'Гродненская обл.'
+    desc_byn: 'Гродзенская вобл.'
 
   placeCode2:
     id: BY20
     country: Belarus
     region: 'Brest O.'
-    desc_rus: 'Brest O.'
-    desc_byn: 'Brest O.'
+    desc_rus: 'Брестская обл.'
+    desc_byn: 'Брэсцкая вобл.'
 
   placeCode3:
     id: BY26
     country: Belarus
     region: 'Mogilev O.'
-    desc_rus: 'Mogilev O.'
-    desc_byn: 'Mogilev O.'
+    desc_rus: 'Могилевская обл.'
+    desc_byn: 'Магілёўская вобл.'
 
   placeCode4:
     id: BY25
     country: Belarus
     region: 'Minsk O.'
-    desc_rus: 'Minsk O.'
-    desc_byn: 'Minsk O.'
+    desc_rus: 'Минская обл.'
+    desc_byn: 'Мінская вобл.'
 
   placeCode5:
     id: BY--
     country: Belarus
     region: 'not specified'
-    desc_rus: 'Belarus'
-    desc_byn: 'Belarus'
+    desc_rus: 'Беларусь'
+    desc_byn: 'Беларусь'
 
   placeCode6:
     id: BY22
     country: Belarus
     region: 'Gomel O.'
-    desc_rus: 'Gomel O.'
-    desc_byn: 'Gomel O.'
+    desc_rus: 'Гомельская обл.'
+    desc_byn: 'Гомельская вобл.'
 
   placeCode7:
     id: BY28
     country: Belarus
     region: 'Vitebsk O.'
-    desc_rus: 'Vitebsk O.'
-    desc_byn: 'Vitebsk O.'
+    desc_rus: 'Витебская обл.'
+    desc_byn: 'Віцебская вобл.'
