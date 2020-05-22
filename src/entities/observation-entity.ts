@@ -58,27 +58,26 @@ export enum Verified {
   Rejected = 'rejected',
 }
 
-// TODO: extract right fields for raw observation from mobile and web
 // From mobile and web we accept entity with not all field filled
-interface RawObservationBase<TCommon, TRing, TSpecies> {
-  ring: TRing;
+interface RawObservationBase<TCommon, TSpecies> {
   ringMentioned: string;
   speciesMentioned: TSpecies;
   sexMentioned: TCommon;
   ageMentioned: TCommon;
-  latitude?: number;
-  longitude?: number;
+  latitude: number;
+  longitude: number;
+  date: Date;
+  accuracyOfDate: TCommon;
   photos?: string[];
   remarks?: string;
-  date?: Date;
-  accuracyOfDate: TCommon;
 }
 
 // Model for observation with all not technical fields
 // Used for dtos for responses
 export interface ObservationBase<TFinder, TOfFinder, TCommon, TRing, TSpecies, TPlaceCode>
-  extends RawObservationBase<TCommon, TRing, TSpecies> {
+  extends RawObservationBase<TCommon, TSpecies> {
   id: string;
+  ring: TRing;
   speciesConcluded: TSpecies;
   sexConcluded: TCommon;
   ageConcluded: TCommon;
@@ -114,7 +113,7 @@ export interface ObservationBase<TFinder, TOfFinder, TCommon, TRing, TSpecies, T
 
 // Can't use type due to typescript-swagger restrictions
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
-export interface RawObservationDto extends RawObservationBase<string, string, string> {}
+export interface RawObservationDto extends RawObservationBase<string, string> {}
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
 export interface ObservationBaseDto extends ObservationBase<string, string, string, string, string, string> {}
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
