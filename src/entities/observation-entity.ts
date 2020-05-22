@@ -3,6 +3,7 @@ import {
   IsUUID,
   Length,
   IsDateString,
+  IsArray,
   IsString,
   IsOptional,
   IsAlpha,
@@ -17,6 +18,7 @@ import {
 import { IsAlphaWithHyphen, IsAlphanumericWithHyphen, IsNumberStringWithHyphen } from '../validation/custom-decorators';
 import { equalLength } from '../validation/validation-messages';
 import { User, UserDto } from './user-entity';
+import Mark from './submodels/Mark';
 import { Person, PersonDto } from './person-entity';
 import { Ring, RingDto } from './ring-entity';
 import {
@@ -298,6 +300,12 @@ export class Observation implements ObservationDto, AbleToExportAndImportEuring,
   @IsString()
   @Column('varchar', { nullable: true, default: null })
   public colorRing: string | null;
+
+  // Not presented in euring standart
+  @IsOptional()
+  @IsArray()
+  @Column('jsonb', { nullable: true, default: null })
+  public otherMarks: Mark[];
 
   @IsOptional()
   @IsAlpha()
