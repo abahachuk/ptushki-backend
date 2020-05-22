@@ -168,6 +168,7 @@ export class Observation implements ObservationDto, AbleToExportAndImportEuring,
   @Column('varchar', { array: true, nullable: true, default: null })
   public photos: string[];
 
+  @IsOptional()
   @IsAlpha()
   @Length(3, 3, { message: equalLength(3) })
   @ManyToOne(() => RingingScheme, m => m.observation, {
@@ -175,6 +176,7 @@ export class Observation implements ObservationDto, AbleToExportAndImportEuring,
   })
   public ringingScheme: RingingScheme;
 
+  @IsOptional()
   @IsAlphanumeric()
   @Length(2, 2, { message: equalLength(2) })
   @ManyToOne(() => PrimaryIdentificationMethod, m => m.observation, {
@@ -182,6 +184,7 @@ export class Observation implements ObservationDto, AbleToExportAndImportEuring,
   })
   public primaryIdentificationMethod: PrimaryIdentificationMethod;
 
+  @IsOptional()
   @IsInt()
   @Min(0)
   @Max(9)
@@ -190,6 +193,7 @@ export class Observation implements ObservationDto, AbleToExportAndImportEuring,
   })
   public verificationOfTheMetalRing: VerificationOfTheMetalRing;
 
+  @IsOptional()
   @IsInt()
   @Min(0)
   @Max(7)
@@ -198,6 +202,7 @@ export class Observation implements ObservationDto, AbleToExportAndImportEuring,
   })
   public metalRingInformation: MetalRingInformation;
 
+  @IsOptional()
   @IsAlpha()
   @Length(2, 2, { message: equalLength(2) })
   @ManyToOne(() => OtherMarksInformation, m => m.observation, {
@@ -205,6 +210,7 @@ export class Observation implements ObservationDto, AbleToExportAndImportEuring,
   })
   public otherMarksInformation: OtherMarksInformation;
 
+  @IsOptional()
   @IsInt()
   @Min(0)
   @Max(4)
@@ -213,6 +219,7 @@ export class Observation implements ObservationDto, AbleToExportAndImportEuring,
   })
   public euringCodeIdentifier: EURINGCodeIdentifier;
 
+  @IsOptional()
   @IsNumberStringWithHyphen()
   @Length(2, 2, { message: equalLength(2) })
   @ManyToOne(() => BroodSize, m => m.observation, {
@@ -368,6 +375,7 @@ export class Observation implements ObservationDto, AbleToExportAndImportEuring,
   })
   public longitude: number;
 
+  @IsOptional()
   @IsAlphanumeric()
   @Length(4, 4, { message: equalLength(4) })
   @ManyToOne(() => PlaceCode, m => m.ring, {
