@@ -95,7 +95,6 @@ export interface ObservationBase<TFinder, TOfFinder, TCommon, TRing, TSpecies, T
   offlineFinder: TOfFinder;
   offlineFinderNote: string | null;
   elapsedTime: number | null;
-  colorRing: string | null;
   ringingScheme: EntityDto;
   primaryIdentificationMethod: EntityDto;
   verificationOfTheMetalRing: EntityDto;
@@ -294,12 +293,6 @@ export class Observation implements ObservationDto, AbleToExportAndImportEuring,
   @Max(99999)
   @Column('integer', { nullable: true, default: null })
   public elapsedTime: number | null;
-
-  // Not presented in euring standart
-  @IsOptional()
-  @IsString()
-  @Column('varchar', { nullable: true, default: null })
-  public colorRing: string | null;
 
   // Not presented in euring standart
   @IsOptional()
