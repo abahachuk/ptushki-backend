@@ -376,7 +376,7 @@ export class Observation implements ObservationDto, AbleToExportAndImportEuring,
   public longitude: number;
 
   @IsOptional()
-  @IsAlphanumeric()
+  @IsAlphanumericWithHyphen()
   @Length(4, 4, { message: equalLength(4) })
   @ManyToOne(() => PlaceCode, m => m.ring, {
     eager: true,
