@@ -184,9 +184,11 @@ export default class ObservationController extends AbstractController {
   /**
    * Create new observation. This observation will be automatically assigned to the sender of this request.
    * The specified field `ringMentioned` will be searched by the table of rings,
-   * if found, it will be assigned a link to the ring.
+   * next search will be made by bird's marks from specified `otherMark` field.
+   * If finally ring found, it will be assigned as link to the ring.
    * @param rawObservation Data for new observation.
    */
+
   @POST
   @Path('/')
   @Response<ObservationBaseDto>(200, 'New observation.')
@@ -197,54 +199,12 @@ export default class ObservationController extends AbstractController {
     rawObservation: RawObservationDto,
     @ContextRequest req: Request,
   ): Promise<ObservationBaseDto> {
-    const ringEntity = await this.rings.findOne({ identificationNumber: rawObservation.ringMentioned });
-    const ring = ringEntity ? ringEntity.id : null;
-    const newObservation = await Observation.create({ ...rawObservation, ring, finder: req.user.id });
-    await this.validate(newObservation);
-    // @ts-ignore see https://github.com/typeorm/typeorm/issues/3490
-    return this.observations.save(newObservation);
-  }
+    const { ringMentioned, otherMarks } = rawObservation;
 
-  /**
-   * Create new observation from mobile client. This observation will be automatically assigned to the sender of this request.
-   * Provided array of rings will be parsed and metal ring extracted from it, then
-   * The specified metal ring will be will be searched by the table of rings,
-   * if found, it will be assigned a link to the ring.
-   * Other rings or marks will be stored separately.
-   * @param rawObservation Data for new observation.
-   */
-  @POST
-  @Path('/mobile')
-  @Response<ObservationBaseDto>(200, 'New observation.')
-  @Response<CustomError>(401, 'Unauthorised.')
-  @Response<CustomError>(422, 'Unprocessable entity.')
-  // eslint-disable-next-line consistent-return
-  public async addMobileObservation(
-    rawObservation: RawObservationDto,
-    @ContextRequest req: Request,
-  ): Promise<ObservationBaseDto> {
-    let { marks } = rawObservation;
-    const metalRing = marks.findIndex(m => m.type === 'metalring');
-    marks = marks.filter(m => m.type !== 'metalring');
-
-    await Promise.all(marks.map(mark => this.validate(Mark.create(mark), undefined, Mark)));
-
-    // поиск по металлическому и потом по остальным кольцам
-
-    let { ring } = rawObservation;
-    if (!ring) {
-      let ringEntity = await this.rings.findOne({ identificationNumber: metalRing.identificationNumber });
-      if (ringEntity) {
-        ring = ringEntity.id;
-      } else if (marks.length) {
-        ringEntity = await this.rings.find(); // TODO
-      }
-    }
-
+    const ring = await this.connectObservationWithRing(ringMentioned, otherMarks);
     const newObservation = await Observation.create({
       ...rawObservation,
-      ring,
-      otherMarks: marks,
+      ring: ring ? ring.id : null,
       finder: req.user.id,
     });
     await this.validate(newObservation);
@@ -266,9 +226,9 @@ export default class ObservationController extends AbstractController {
   }
 
   /**
-   * Update observation by id, if the observation does not have a linked ring (`ring`),
-   * or the ring number (`ringMentioned`) has been modified, a search will be made for the ring base
-   * and a link to the ring will be updated or added if found.
+   * Update observation by id, if the observation the ring number or bird's marks
+   * (`ringMentioned` & `otherMarks` accordingly) have been changed, a search will
+   * be made for the ring base and a link to the ring will be removed or updated or added if found.
    * @param rawObservation Data for new updating.
    * @param id Id of updated observation.
    */
@@ -277,18 +237,24 @@ export default class ObservationController extends AbstractController {
   @Response<Observation>(200, 'Updated observation.')
   @Response<CustomError>(401, 'Unauthorised.')
   @Response<CustomError>(422, 'Unprocessable entity.')
-  public async editObservation(rawObservation: RawObservationDto, @PathParam('id') id: string): Promise<Observation> {
+  public async editObservation(rawObservation: ObservationBaseDto, @PathParam('id') id: string): Promise<Observation> {
     // TODO: check user id and role
-    let ring = null;
+    const { ringMentioned, otherMarks } = rawObservation;
     const observation = await this.getEntityById<Observation>(id);
-    if (rawObservation.ringMentioned !== observation.ringMentioned) {
-      const ringEntity = await this.rings.findOne({ identificationNumber: rawObservation.ringMentioned });
-      ring = ringEntity ? ringEntity.id : null;
+    let ring: string | null = observation.ring.id || null;
+
+    if (
+      ringMentioned !== observation.ringMentioned ||
+      JSON.stringify(otherMarks) !== JSON.stringify(observation.otherMarks)
+    ) {
+      ({ id: ring = null } = (await this.connectObservationWithRing(ringMentioned, otherMarks)) as Ring);
     }
-    await this.validate(Object.assign(rawObservation, { ring }), observation);
+
+    const newObservation = Object.assign(rawObservation, { ring });
+    await this.validate(newObservation, observation);
     // TODO protect from finder updating
     // @ts-ignore see https://github.com/typeorm/typeorm/issues/3490
-    const updatedObservation = await this.observations.merge(observation, rawObservation);
+    const updatedObservation = await this.observations.merge(observation, newObservation);
     return this.observations.save(updatedObservation);
   }
 
