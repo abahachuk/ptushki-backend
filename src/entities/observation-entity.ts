@@ -52,46 +52,40 @@ import { fromDateToEuringDate, fromDateToEuringTime, fromEuringToDate } from '..
 import { fromDecimalToEuring, DecimalCoordinates, fromEuringToDecimal } from '../utils/coords-parser';
 import { fromStringToValueOrNull, fromNumberToPaddedString } from '../utils/custom-parsers';
 
-export interface NewObservation {
-  finder: User;
-}
-
 export enum Verified {
   Pending = 'pending',
   Approved = 'approved',
   Rejected = 'rejected',
 }
 
-// TODO: extract right fields for raw observation from mobile and web
 // From mobile and web we accept entity with not all field filled
-interface RawObservationBase<TCommon, TRing, TSpecies, TPlaceCode> {
-  ring: TRing;
+interface RawObservationBase<TCommon, TSpecies> {
   ringMentioned: string;
   speciesMentioned: TSpecies;
   sexMentioned: TCommon;
   ageMentioned: TCommon;
-  latitude?: number;
-  longitude?: number;
-  photos?: string[];
-  distance?: number;
-  direction?: number;
-  remarks?: string;
-  date?: Date;
+  latitude: number;
+  longitude: number;
+  date: Date;
   accuracyOfDate: TCommon;
-  placeCode: TPlaceCode;
+  photos?: string[];
+  remarks?: string;
 }
 
 // Model for observation with all not technical fields
 // Used for dtos for responses
 export interface ObservationBase<TFinder, TOfFinder, TCommon, TRing, TSpecies, TPlaceCode>
-  extends RawObservationBase<TCommon, TRing, TSpecies, TPlaceCode> {
+  extends RawObservationBase<TCommon, TSpecies> {
   id: string;
+  ring: TRing;
   speciesConcluded: TSpecies;
   sexConcluded: TCommon;
   ageConcluded: TCommon;
   finder: TFinder;
   offlineFinder: TOfFinder;
   offlineFinderNote: string | null;
+  distance: number | null;
+  direction: number | null;
   elapsedTime: number | null;
   colorRing: string | null;
   ringingScheme: EntityDto;
@@ -112,13 +106,14 @@ export interface ObservationBase<TFinder, TOfFinder, TCommon, TRing, TSpecies, T
   condition: EntityDto;
   circumstances: EntityDto;
   circumstancesPresumed: EntityDto;
+  placeCode: TPlaceCode;
   placeName: string | null;
   verified: Verified;
 }
 
 // Can't use type due to typescript-swagger restrictions
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
-export interface RawObservationDto extends RawObservationBase<string, string, string, string> {}
+export interface RawObservationDto extends RawObservationBase<string, string> {}
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
 export interface ObservationBaseDto extends ObservationBase<string, string, string, string, string, string> {}
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
@@ -154,6 +149,7 @@ export class Observation implements ObservationDto, AbleToExportAndImportEuring,
   })
   public finder: User;
 
+  @IsOptional()
   @IsUUID()
   @ManyToOne(() => Person, m => m.observation, {
     eager: true,
@@ -172,6 +168,7 @@ export class Observation implements ObservationDto, AbleToExportAndImportEuring,
   @Column('varchar', { array: true, nullable: true, default: null })
   public photos: string[];
 
+  @IsOptional()
   @IsAlpha()
   @Length(3, 3, { message: equalLength(3) })
   @ManyToOne(() => RingingScheme, m => m.observation, {
@@ -179,6 +176,7 @@ export class Observation implements ObservationDto, AbleToExportAndImportEuring,
   })
   public ringingScheme: RingingScheme;
 
+  @IsOptional()
   @IsAlphanumeric()
   @Length(2, 2, { message: equalLength(2) })
   @ManyToOne(() => PrimaryIdentificationMethod, m => m.observation, {
@@ -186,6 +184,7 @@ export class Observation implements ObservationDto, AbleToExportAndImportEuring,
   })
   public primaryIdentificationMethod: PrimaryIdentificationMethod;
 
+  @IsOptional()
   @IsInt()
   @Min(0)
   @Max(9)
@@ -194,6 +193,7 @@ export class Observation implements ObservationDto, AbleToExportAndImportEuring,
   })
   public verificationOfTheMetalRing: VerificationOfTheMetalRing;
 
+  @IsOptional()
   @IsInt()
   @Min(0)
   @Max(7)
@@ -202,6 +202,7 @@ export class Observation implements ObservationDto, AbleToExportAndImportEuring,
   })
   public metalRingInformation: MetalRingInformation;
 
+  @IsOptional()
   @IsAlpha()
   @Length(2, 2, { message: equalLength(2) })
   @ManyToOne(() => OtherMarksInformation, m => m.observation, {
@@ -209,6 +210,7 @@ export class Observation implements ObservationDto, AbleToExportAndImportEuring,
   })
   public otherMarksInformation: OtherMarksInformation;
 
+  @IsOptional()
   @IsInt()
   @Min(0)
   @Max(4)
@@ -217,6 +219,7 @@ export class Observation implements ObservationDto, AbleToExportAndImportEuring,
   })
   public euringCodeIdentifier: EURINGCodeIdentifier;
 
+  @IsOptional()
   @IsNumberStringWithHyphen()
   @Length(2, 2, { message: equalLength(2) })
   @ManyToOne(() => BroodSize, m => m.observation, {
@@ -372,6 +375,7 @@ export class Observation implements ObservationDto, AbleToExportAndImportEuring,
   })
   public longitude: number;
 
+  @IsOptional()
   @IsAlphanumericWithHyphen()
   @Length(4, 4, { message: equalLength(4) })
   @ManyToOne(() => PlaceCode, m => m.ring, {
@@ -460,7 +464,9 @@ export class Observation implements ObservationDto, AbleToExportAndImportEuring,
   })
   public verified: Verified;
 
-  public static async create(observation: RawObservationDto & { finder: string }): Promise<Observation> {
+  public static async create(
+    observation: RawObservationDto & { finder: string; ring: string | null },
+  ): Promise<Observation> {
     return Object.assign(new Observation(), observation);
   }
 
