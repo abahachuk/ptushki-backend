@@ -297,7 +297,7 @@ export class Observation implements ObservationDto, AbleToExportAndImportEuring,
   @Column('integer', { nullable: true, default: null })
   public elapsedTime: number | null;
 
-  // Not presented in euring standart
+  // Not presented in euring standard
   @IsOptional()
   @IsArray()
   @Column('jsonb', { nullable: true, default: null })

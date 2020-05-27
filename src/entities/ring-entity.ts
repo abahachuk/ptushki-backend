@@ -12,6 +12,7 @@ import {
   Max,
   IsNumberString,
   IsNumber,
+  IsArray,
 } from 'class-validator';
 import { IsAlphaWithHyphen, IsAlphanumericWithHyphen, IsNumberStringWithHyphen } from '../validation/custom-decorators';
 import { equalLength } from '../validation/validation-messages';
@@ -46,6 +47,7 @@ import {
 import { User, UserDto } from './user-entity';
 import { Person, PersonDto } from './person-entity';
 import { Observation } from './observation-entity';
+import Mark from './submodels/Mark';
 import { EURINGCodes, AbleToExportAndImportEuring, EntityDto } from './common-interfaces';
 import { ColumnNumericTransformer } from '../utils/ColumnNumericTransformer';
 
@@ -53,6 +55,7 @@ export interface RingDto extends EURINGCodes {
   id: string;
   metalRingInformation: EntityDto;
   otherMarksInformation: EntityDto;
+  otherMarks: Mark[];
   speciesMentioned: SpeciesDto;
   speciesConcluded: SpeciesDto;
   manipulated: EntityDto;
@@ -84,7 +87,7 @@ export interface RingDto extends EURINGCodes {
 }
 
 @Entity()
-export class Ring implements RingDto, AbleToExportAndImportEuring {
+export class Ring implements RingDto, AbleToExportAndImportEuring, EURINGCodes {
   @PrimaryGeneratedColumn('uuid')
   public id: string;
 
@@ -136,6 +139,12 @@ export class Ring implements RingDto, AbleToExportAndImportEuring {
     eager: true,
   })
   public otherMarksInformation: OtherMarksInformation;
+
+  // Not presented in euring standard
+  @IsOptional()
+  @IsArray()
+  @Column('jsonb', { nullable: true, default: null })
+  public otherMarks: Mark[];
 
   @IsNumberString()
   @Length(5, 5, { message: equalLength(5) })
