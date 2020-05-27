@@ -5,21 +5,25 @@ items:
     email: 'admin@mail.com'
     password: '1234'
     role: 'admin'
+    phone: '{{phone.phoneNumber}}'
     firstName: '{{name.firstName}}'
     lastName: '{{name.lastName}}'
   user{1..10}:
     firstName: '{{name.firstName}}'
     lastName: '{{name.lastName}}'
     email: '{{internet.email}}'
+    phone: '{{phone.phoneNumber}}'
     password: '1234'
   user11:
     email: 'observer@mail.com'
     password: '1234'
     role: 'observer'
+    phone: '{{phone.phoneNumber}}'
   user12:
     email: 'ringer@mail.com'
     password: '1234'
     role: 'ringer'
+    phone: '{{phone.phoneNumber}}'
   user13:
     email: 'scientist@mail.com'
     password: '1234'

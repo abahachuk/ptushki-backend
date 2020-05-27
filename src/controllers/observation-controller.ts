@@ -184,13 +184,8 @@ export default class ObservationController extends AbstractController {
     rawObservation: RawObservationDto,
     @ContextRequest req: Request,
   ): Promise<ObservationBaseDto> {
-    let { ring } = rawObservation;
-    if (!ring) {
-      const ringEntity = await this.rings.findOne({ identificationNumber: rawObservation.ringMentioned });
-      if (ringEntity) {
-        ring = ringEntity.id;
-      }
-    }
+    const ringEntity = await this.rings.findOne({ identificationNumber: rawObservation.ringMentioned });
+    const ring = ringEntity ? ringEntity.id : null;
     const newObservation = await Observation.create({ ...rawObservation, ring, finder: req.user.id });
     await this.validate(newObservation);
     // @ts-ignore see https://github.com/typeorm/typeorm/issues/3490
@@ -271,9 +266,9 @@ export default class ObservationController extends AbstractController {
   @Response<CustomError>(422, 'Unprocessable entity.')
   public async editObservation(rawObservation: RawObservationDto, @PathParam('id') id: string): Promise<Observation> {
     // TODO: check user id and role
+    let ring = null;
     const observation = await this.getEntityById<Observation>(id);
-    let { ring } = rawObservation;
-    if (!ring || rawObservation.ringMentioned !== observation.ringMentioned) {
+    if (rawObservation.ringMentioned !== observation.ringMentioned) {
       const ringEntity = await this.rings.findOne({ identificationNumber: rawObservation.ringMentioned });
       ring = ringEntity ? ringEntity.id : null;
     }
