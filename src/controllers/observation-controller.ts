@@ -168,6 +168,19 @@ export default class ObservationController extends AbstractController {
     }, aggregationMap);
   }
 
+  private async connectObservationWithRing(
+    ringMentioned: string | undefined,
+    otherMarks: Mark[] | undefined,
+  ): Promise<Ring | undefined> {
+    let ringEntity = ringMentioned ? await this.rings.findOne({ identificationNumber: ringMentioned }) : undefined;
+    if (ringEntity) return ringEntity;
+    // TODO implement search by marks
+    console.log(otherMarks);
+    ringEntity = undefined;
+
+    return ringEntity;
+  }
+
   /**
    * Create new observation. This observation will be automatically assigned to the sender of this request.
    * The specified field `ringMentioned` will be searched by the table of rings,
