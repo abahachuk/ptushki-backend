@@ -63,6 +63,7 @@ export enum Verified {
 // From mobile and web we accept entity with not all field filled
 interface RawObservationBase<TCommon, TSpecies> {
   ringMentioned: string;
+  otherMarks?: Mark[];
   speciesMentioned: TSpecies;
   sexMentioned: TCommon;
   ageMentioned: TCommon;
