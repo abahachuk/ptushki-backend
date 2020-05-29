@@ -7,7 +7,7 @@ const ids: string[] = [...firstMarks].map(f => `${f}0`);
 
 const makeid = (i: number): string => ids[i];
 
-export default class OtherMarksInformationProcessor implements IProcessor<PrimaryIdentificationMethod> {
+export default class PrimaryIdentificationMethodProcessor implements IProcessor<PrimaryIdentificationMethod> {
   /* eslint-disable class-methods-use-this */
   public preProcess(name: string, object: any): any {
     return {
