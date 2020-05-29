@@ -1,0 +1,47 @@
+entity: MarkPlacement
+items:
+  markPlacement0:
+    id: RLEG
+    desc_eng: 'Right Leg'
+    desc_rus: 'Красный'
+    desc_byn: 'Чырвоны'
+  markPlacement1:
+    id: LLEG
+    desc_eng: 'Left Leg'
+    desc_rus: 'Синий'
+    desc_byn: 'Сіні'
+  markPlacement2:
+    id: LEGS
+    desc_eng: 'Both Legs'
+    desc_rus: 'Черный'
+    desc_byn: 'Чорны'
+  markPlacement3:
+    id: RWING
+    desc_eng: 'Right Wing'
+    desc_rus: 'Белый'
+    desc_byn: 'Белы'
+  markPlacement4:
+    id: LWING
+    desc_eng: 'Left Wing'
+    desc_rus: 'Зеленый'
+    desc_byn: 'Зялёны'
+  markPlacement5:
+    id: WINGS
+    desc_eng: 'Both Wings'
+    desc_rus: 'Желтый'
+    desc_byn: 'Жоўты'
+  markPlacement6:
+    id: NECK
+    desc_eng: 'Neck'
+    desc_rus: 'Оранжевый'
+    desc_byn: 'Аранжавы'
+  markPlacement7:
+    id: NASAL
+    desc_eng: 'Beak'
+    desc_rus: 'Клюв'
+    desc_byn: 'Дзюба'
+  markPlacement8:
+    id: U
+    desc_eng: 'Not coded or unknown'
+    desc_rus: 'Некодирован или неизвестен'
+    desc_byn: 'Някадзіраваны альбо невядомы'

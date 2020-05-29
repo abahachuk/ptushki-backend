@@ -1,0 +1,47 @@
+entity: MarkColor
+items:
+  markColor0:
+    id: RED
+    desc_eng: 'Red'
+    desc_rus: 'Красный'
+    desc_byn: 'Чырвоны'
+  markColor1:
+    id: BLUE
+    desc_eng: 'Blue'
+    desc_rus: 'Синий'
+    desc_byn: 'Сіні'
+  markColor2:
+    id: BLACK
+    desc_eng: 'Black'
+    desc_rus: 'Черный'
+    desc_byn: 'Чорны'
+  markColor3:
+    id: WHITE
+    desc_eng: 'White'
+    desc_rus: 'Белый'
+    desc_byn: 'Белы'
+  markColor4:
+    id: GREEN
+    desc_eng: 'Green'
+    desc_rus: 'Зеленый'
+    desc_byn: 'Зялёны'
+  markColor5:
+    id: YELLOW
+    desc_eng: 'Yellow'
+    desc_rus: 'Желтый'
+    desc_byn: 'Жоўты'
+  markColor6:
+    id: ORANGE
+    desc_eng: 'Orange'
+    desc_rus: 'Оранжевый'
+    desc_byn: 'Аранжавы'
+  markColor7:
+    id: '-'
+    desc_eng: 'Not applicable'
+    desc_rus: 'Не применимо'
+    desc_byn: 'Не применимо'
+  markColor8:
+    id: U
+    desc_eng: 'Not coded or unknown'
+    desc_rus: 'Некодирован или неизвестен'
+    desc_byn: 'Някадзіраваны альбо невядомы'
