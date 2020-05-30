@@ -294,6 +294,7 @@ export default class ObservationsController extends AbstractController {
       throw new CustomError('Id and status are required', 400);
     }
     await this.observations.findOneOrFail(id);
+    // TODO add validation on this step -- will require to distinguish current validation on two leveled requirements
     await this.observations.update(id, { verified: status });
     return { ok: true };
   }
