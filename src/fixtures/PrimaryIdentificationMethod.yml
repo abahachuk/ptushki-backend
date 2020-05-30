@@ -14,12 +14,12 @@ items:
     id: C0
     desc_eng: 'Coloured or numbered neck ring(s)'
     desc_rus: 'Цветное или нумерованное кольцо(а) на шее'
-    desc_byn: 'Каляровае або нумараванае кaльцо(а) на шыі'
+    desc_byn: 'Каляровае або нумараванае кальцо(а) на шыі'
   primaryIdentificationMethod3:
     id: D0
     desc_eng: 'Wing tags'
-    desc_rus: 'Крылометка'
-    desc_byn: 'Крыламетка'
+    desc_rus: 'Крылометки'
+    desc_byn: 'Крыламеткі'
   primaryIdentificationMethod4:
     id: E0
     desc_eng: 'Radio tracking device'
@@ -38,8 +38,8 @@ items:
   primaryIdentificationMethod7:
     id: H0
     desc_eng: 'Nasal mark(s)'
-    desc_rus: 'Клювометка'
-    desc_byn: 'Дзюбаметка'
+    desc_rus: 'Клювометка(и)'
+    desc_byn: 'Дзюбаметка(і)'
   primaryIdentificationMethod8:
     id: K0
     desc_eng: 'GPS loggers'
