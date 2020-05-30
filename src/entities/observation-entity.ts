@@ -280,7 +280,7 @@ export class Observation implements ObservationDto, AbleToExportAndImportEuring,
   @Min(0)
   @Max(99999)
   @Column('integer', { nullable: true, default: null })
-  public distance: number;
+  public distance: number | null;
 
   // Related field in access 'Derived data directions'
   @IsOptional()
@@ -288,7 +288,7 @@ export class Observation implements ObservationDto, AbleToExportAndImportEuring,
   @Min(0)
   @Max(359)
   @Column('smallint', { nullable: true, default: null })
-  public direction: number;
+  public direction: number | null;
 
   // Related field in access 'Derived data elapsed time'
   @IsOptional()
@@ -456,7 +456,7 @@ export class Observation implements ObservationDto, AbleToExportAndImportEuring,
   @Column('varchar', { nullable: true, default: null })
   public remarks: string;
 
-  // Not presented in euring standart
+  // Not presented in euring standard
   @IsOptional()
   @IsEnum(Verified)
   @Column({
@@ -504,8 +504,8 @@ export class Observation implements ObservationDto, AbleToExportAndImportEuring,
       this.circumstances.id,
       this.circumstancesPresumed.id,
       this.euringCodeIdentifier.id,
-      fromNumberToPaddedString(this.distance, 5) || '-'.repeat(5),
-      fromNumberToPaddedString(this.direction, 3) || '-'.repeat(3),
+      fromNumberToPaddedString(this.distance as number, 5) || '-'.repeat(5),
+      fromNumberToPaddedString(this.direction as number, 3) || '-'.repeat(3),
       fromNumberToPaddedString(this.elapsedTime as number, 5) || '-'.repeat(5),
       // Below unsupported parameters that presented in EURING
       '', // wing length
