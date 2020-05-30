@@ -58,7 +58,7 @@ interface AggregationsMap {
 @Path('observations')
 @Tags('observations')
 @Security()
-export default class ObservationController extends AbstractController {
+export default class ObservationsController extends AbstractController {
   private readonly observations: Repository<Observation>;
 
   private readonly rings: Repository<Ring>;

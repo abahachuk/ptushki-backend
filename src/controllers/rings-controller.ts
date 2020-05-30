@@ -18,7 +18,7 @@ interface RingListResponse {
 @Path('rings-by')
 @Tags('rings-by')
 @Security()
-export default class RingsByController extends AbstractController {
+export default class RingsController extends AbstractController {
   private readonly rings: Repository<Ring>;
 
   public constructor() {
@@ -28,7 +28,7 @@ export default class RingsByController extends AbstractController {
   }
 
   /**
-   * Get all available observations.
+   * Get all available rings.
    * @param {number} pageNumber Page number, default value is set in config file
    * @param {number} pageSize Page size, default value is set in config file
    * @param {SortingDirection} sortingDirection Sorting direction
@@ -89,7 +89,7 @@ export default class RingsByController extends AbstractController {
   }
 
   /**
-   * Create new reng.
+   * Create new ring.
    * @param {RingDto} rawRing Data for new ring.
    */
   @POST
