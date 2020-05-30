@@ -15,25 +15,25 @@ const PascalCase = (s: string): string => s[0].toUpperCase() + s.slice(1);
 
 @ValidatorConstraint({ async: true })
 class IsCodeExistConstraint implements ValidatorConstraintInterface {
-  public async validate(code: any, { property }: ValidationArguments): Promise<boolean> {
+  public async validate(codeValue: any, { constraints: [codeName] }: ValidationArguments): Promise<boolean> {
     try {
-      const repository: CachedRepository<any> = getCustomRepository(cachedEURINGCodes[`Cached${PascalCase(property)}`]);
+      const repository: CachedRepository<any> = getCustomRepository(cachedEURINGCodes[`Cached${PascalCase(codeName)}`]);
       const validCodes = await repository.getAllIds();
-      return validCodes.includes(code);
+      return validCodes.includes(codeValue);
     } catch (e) {
-      logger.error(`Unable to get cached data to validate ${property}`);
+      logger.error(`Unable to get cached data to validate ${codeName}`);
       throw e;
     }
   }
 }
 
-export function IsCodeExist(validationOptions?: ValidationOptions) {
+export function IsCodeExist(code: string, validationOptions?: ValidationOptions) {
   return function(object: Record<string, any>, propertyName: string) {
     registerDecorator({
       target: object.constructor,
       propertyName,
       options: validationOptions,
-      constraints: [],
+      constraints: [code],
       validator: IsCodeExistConstraint,
     });
   };
