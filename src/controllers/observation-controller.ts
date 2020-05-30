@@ -200,7 +200,7 @@ export default class ObservationController extends AbstractController {
     @ContextRequest req: Request,
   ): Promise<ObservationBaseDto> {
     const { ringMentioned, otherMarks } = rawObservation;
-    if (otherMarks) {
+    if (Array.isArray(otherMarks)) {
       await Promise.all(otherMarks.map(m => this.validate(Mark.create(m), undefined, Mark)));
     }
 
@@ -245,7 +245,7 @@ export default class ObservationController extends AbstractController {
     const { ringMentioned, otherMarks } = rawObservation;
     const observation = await this.getEntityById<Observation>(id);
     let ring: string | null = observation.ring.id || null;
-    if (otherMarks) {
+    if (Array.isArray(otherMarks)) {
       await Promise.all(otherMarks.map(m => this.validate(Mark.create(m), undefined, Mark)));
     }
 
