@@ -1,39 +1,25 @@
-import { IsString, IsEnum } from 'class-validator';
-
-export enum MarkType {
-  plasticRing = 'PR',
-  transponder = 'Tr',
-}
-
-export enum MarkColor {
-  white = 'We',
-  black = 'Bk',
-  yellow = 'Yw',
-  red = 'Rd',
-  blue = 'Be',
-  green = 'Gn',
-}
-
-export enum MarkPlacement {
-  leftLeg = 'LL',
-  righLeg = 'RL',
-}
+import { IsString } from 'class-validator';
+import { IsCodeExist } from '../../validation/custom-decorators';
 
 export default class Mark {
   @IsString()
   public identificationNumber: string;
 
-  @IsEnum(MarkType)
-  public type: MarkType;
+  @IsString()
+  @IsCodeExist('MarkType')
+  public type: string;
 
-  @IsEnum(MarkColor)
-  public labelColor: MarkColor;
+  @IsString()
+  @IsCodeExist('MarkColor')
+  public labelColor: string;
 
-  @IsEnum(MarkColor)
-  public markColor: MarkColor;
+  @IsString()
+  @IsCodeExist('MarkColor')
+  public markColor: string;
 
-  @IsEnum(MarkPlacement)
-  public place: MarkPlacement;
+  @IsString()
+  @IsCodeExist('MarkPlacement')
+  public place: string;
 
   public static create(values: Mark) {
     return Object.assign(new Mark(), values);
