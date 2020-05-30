@@ -184,7 +184,7 @@ export default class ObservationsController extends AbstractController {
   /**
    * Create new observation. This observation will be automatically assigned to the sender of this request.
    * The specified field `ringMentioned` will be searched by the table of rings,
-   * next search will be made by bird's marks from specified `otherMark` field.
+   * next search will be made by bird's marks from specified `otherMarks` field.
    * If finally ring found, it will be assigned as link to the ring.
    * @param rawObservation Data for new observation.
    */
