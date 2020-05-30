@@ -1,5 +1,5 @@
 import { Entity, PrimaryColumn, Column } from 'typeorm';
-import { IsOptional, IsString } from 'class-validator';
+import { IsOptional, IsString, IsUppercase } from 'class-validator';
 import { IsAlphaWithHyphen } from '../../validation/custom-decorators';
 
 // Custom Code unrelated with EURING for ringing centre purposes
@@ -8,6 +8,7 @@ import { IsAlphaWithHyphen } from '../../validation/custom-decorators';
 @Entity()
 export class MarkColor {
   @IsAlphaWithHyphen()
+  @IsUppercase()
   @PrimaryColumn()
   public id: string;
 
