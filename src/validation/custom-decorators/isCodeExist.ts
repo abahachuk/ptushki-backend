@@ -25,6 +25,10 @@ class IsCodeExistConstraint implements ValidatorConstraintInterface {
       throw e;
     }
   }
+
+  public defaultMessage({ constraints: [codeName], value }: ValidationArguments): string {
+    return `Provided code '${value}' isn't valid ${codeName}`;
+  }
 }
 
 export function IsCodeExist(code: string, validationOptions?: ValidationOptions) {
