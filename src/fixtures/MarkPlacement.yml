@@ -3,38 +3,38 @@ items:
   markPlacement0:
     id: RLEG
     desc_eng: 'Right Leg'
-    desc_rus: 'Красный'
-    desc_byn: 'Чырвоны'
+    desc_rus: 'Правая лапка'
+    desc_byn: 'Правая лапка'
   markPlacement1:
     id: LLEG
     desc_eng: 'Left Leg'
-    desc_rus: 'Синий'
-    desc_byn: 'Сіні'
+    desc_rus: 'Левая лапка'
+    desc_byn: 'Левая лапка'
   markPlacement2:
     id: LEGS
     desc_eng: 'Both Legs'
-    desc_rus: 'Черный'
-    desc_byn: 'Чорны'
+    desc_rus: 'Обе лапки'
+    desc_byn: 'Абедзве лапкі'
   markPlacement3:
     id: RWING
     desc_eng: 'Right Wing'
-    desc_rus: 'Белый'
-    desc_byn: 'Белы'
+    desc_rus: 'Правое крыло'
+    desc_byn: 'Правае крыло'
   markPlacement4:
     id: LWING
     desc_eng: 'Left Wing'
-    desc_rus: 'Зеленый'
-    desc_byn: 'Зялёны'
+    desc_rus: 'Левое крыло'
+    desc_byn: 'Левае крыло'
   markPlacement5:
     id: WINGS
     desc_eng: 'Both Wings'
-    desc_rus: 'Желтый'
-    desc_byn: 'Жоўты'
+    desc_rus: 'Оба крыла'
+    desc_byn: 'Абодва крыла'
   markPlacement6:
     id: NECK
     desc_eng: 'Neck'
-    desc_rus: 'Оранжевый'
-    desc_byn: 'Аранжавы'
+    desc_rus: 'Шея'
+    desc_byn: 'Шыя'
   markPlacement7:
     id: NASAL
     desc_eng: 'Beak'
