@@ -44,6 +44,7 @@ export default abstract class AbstractController {
   // Argument 'data' it is a new data, and argument existedData is optional and needed for refreshing existing data in db
   protected async validate(data: any, existedData: any = {}, entity?: ConstructorFabric): Promise<void> {
     const createdModel = await (entity || this.entity).create(Object.assign(existedData, data));
+    // FIXME validation should be run with { forbidNonWhitelisted: true, forbidUnknownValues: true }
     const errors = await validate(createdModel);
     if (errors.length) {
       const parsedErrors = errors.reduce(
