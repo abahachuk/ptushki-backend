@@ -1,72 +1,64 @@
 entity: MarkType
 items:
-  # Added for mobile use
-  # Will be used as readonly value for rings and marks
-  # todo add check because it's invalid type for otherMarks
-  markType0:
-    id: A0
-    desc_eng: 'Metal ring'
-    desc_rus: 'Металлическое кольцо'
-    desc_byn: 'Металічнае кaльцо'
   # all of them got from Other Marks Information (not a conventional metal ring)
   # Permanent marks:
-  markType1:
+  markType0:
     id: B
     desc_eng: 'Coloured or numbered leg-ring or flag'
     desc_rus: 'Цветное или нумерованное ножное кольцо или флажок'
     desc_byn: 'Каляровае або нумараванае нажное кальцо або сцяжок'
-  markType2:
+  markType1:
     id: C
     desc_eng: 'Coloured or numbered neck-ring'
     desc_rus: 'Цветное или нумерованное кольцо на шее'
     desc_byn: 'Каляровае або нумараванае кaльцо на шыі'
-  markType3:
+  markType2:
     id: D
     desc_eng: 'Coloured or numbered wing tag'
     desc_rus: 'Цветная или нумерованная метка на крыле'
     desc_byn: 'Каляровая або нумараваная пазнака на крыле'
-  markType4:
+  markType3:
     id: E
     desc_eng: 'Radio-tracking device'
     desc_rus: 'Радио-трекер'
     desc_byn: 'Радыё-трэкер'
-  markType5:
+  markType4:
     id: F
     desc_eng: 'Satellite-tracking device'
     desc_rus: 'Спутниковое отслеживающее устройство'
     desc_byn: 'Спадарожнікавая адсочваючая прылада'
-  markType6:
+  markType5:
     id: G
     desc_eng: 'Transponder'
     desc_rus: 'Транспондер'
     desc_byn: 'Транспондзер'
-  markType7:
+  markType6:
     id: H
     desc_eng: 'Nasal mark(s)'
     desc_rus: 'Клювометка'
     desc_byn: 'Дзюбаметка'
-  markType8:
+  markType7:
     id: K
     desc_eng: 'GPS logger'
     desc_rus: 'GPS датчик'
     desc_byn: 'GPS датчык'
-  markType9:
+  markType8:
     id: L
     desc_eng: 'Geolocator logger (recording daylight)'
     desc_rus: 'Геолокационный датчик'
     desc_byn: 'Геолакацыйны датчык'
   # Temporary marks:
-  markType10:
+  markType9:
     id: R
     desc_eng: 'Flight feathers stamped with the ring number'
     desc_rus: 'Летное перо(ья) помеченные номером'
     desc_byn: 'Лётнае пяро(`я) пазначаныя нумарам'
-  markType11:
+  markType10:
     id: S
     desc_eng: 'Tape on the ring'
     desc_rus: 'Лента на кольце'
     desc_byn: 'Стужка на кальцы'
-  markType12:
+  markType11:
     id: T
     desc_eng: 'Dye mark (some part of plumage dyed, painted or bleached)'
     desc_rus: 'Окрашенное тело или крылья'
