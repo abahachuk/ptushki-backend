@@ -3,7 +3,7 @@ import { Ring } from '../../entities/ring-entity';
 import AbstractExporter, { ExporterType } from './AbstractExporter';
 import EURINGSingleEntityExporter from './EURINGSingleEntityExporter';
 
-export default class EURINGExporterForObservation extends AbstractExporter<string[]> {
+export default class EURINGExporterForRing extends AbstractExporter<string[]> {
   public type: ExporterType = ExporterType.euring;
 
   public route: string = 'rings-by';
