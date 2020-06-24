@@ -10,10 +10,10 @@ export default class EURINGExporterForObservation extends AbstractExporter<strin
 
   private observations: Repository<Observation> = getRepository(Observation);
 
-  public async export(rowIds: string[]): Promise<string[]> {
-    this.validateRowIds(rowIds);
+  public async export(ids: string[]): Promise<string[]> {
+    this.validateRowIds(ids);
     const observations: Observation[] = await this.observations.find({
-      where: rowIds.map(id => ({ id })),
+      where: ids.map(id => ({ id })),
     });
     return observations.map(e => EURINGSingleEntityExporter.export(e));
   }

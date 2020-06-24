@@ -10,10 +10,10 @@ export default class EURINGExporterForRing extends AbstractExporter<string[]> {
 
   private rings: Repository<Ring> = getRepository(Ring);
 
-  public async export(rowIds: string[]): Promise<string[]> {
-    this.validateRowIds(rowIds);
+  public async export(ids: string[]): Promise<string[]> {
+    this.validateRowIds(ids);
     const rings: Ring[] = await this.rings.find({
-      where: rowIds.map(id => ({ id })),
+      where: ids.map(id => ({ id })),
     });
     return rings.map(e => EURINGSingleEntityExporter.export(e));
   }
