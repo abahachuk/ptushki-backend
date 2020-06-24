@@ -20,8 +20,8 @@ export default abstract class AbstractExporter<TExport extends ExportOutput = Ex
 
   public abstract async export(ids?: string[], lang?: string): Promise<TExport>;
 
-  protected validateRowIds(rowIds: string[]) {
-    if (!validator.isArray(rowIds) || !validator.arrayNotEmpty(rowIds) || rowIds.some(el => !validator.isUUID(el))) {
+  protected validateRowIds(ids: string[]) {
+    if (!validator.isArray(ids) || !validator.arrayNotEmpty(ids) || ids.some(el => !validator.isUUID(el))) {
       throw new CustomError(rowIdsError, 400);
     }
   }

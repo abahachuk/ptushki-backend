@@ -46,8 +46,9 @@ import {
 import { User, UserDto } from './user-entity';
 import { Person, PersonDto } from './person-entity';
 import { Observation } from './observation-entity';
-import { EURINGCodes, AbleToExportAndImportEuring, EntityDto } from './common-interfaces';
+import { EURINGCodes, AbleToImportEURINGCode, EntityDto } from './common-interfaces';
 import { ColumnNumericTransformer } from '../utils/ColumnNumericTransformer';
+import EURINGCodeParser from '../utils/EURINGCodeParser';
 
 export interface RingDto extends EURINGCodes {
   id: string;
@@ -84,7 +85,7 @@ export interface RingDto extends EURINGCodes {
 }
 
 @Entity()
-export class Ring implements RingDto, AbleToExportAndImportEuring {
+export class Ring implements RingDto, AbleToImportEURINGCode {
   @PrimaryGeneratedColumn('uuid')
   public id: string;
 
@@ -271,6 +272,10 @@ export class Ring implements RingDto, AbleToExportAndImportEuring {
   })
   public placeCode: PlaceCode;
 
+  public get placeName(): null {
+    return null;
+  }
+
   @IsInt()
   @Min(0)
   @Max(9)
@@ -351,14 +356,21 @@ export class Ring implements RingDto, AbleToExportAndImportEuring {
   })
   public statusOfRing: StatusOfRing;
 
-  public exportEURING(): string {
-    // todo
-    return [this.identificationNumber, this.ageConcluded.id, this.ageMentioned.id].join('|');
+  public get distance(): null {
+    return null;
   }
 
-  public importEURING(code: string): any {
-    // todo
-    const [identificationNumber, status] = code.split('|');
-    Object.assign(this, { identificationNumber, status });
+  public get elapsedTime(): null {
+    return null;
+  }
+
+  public get direction(): null {
+    return null;
+  }
+
+  public importEURING(code: string): Ring {
+    const preEntity = EURINGCodeParser(code);
+    // todo add handling of needed props
+    return Object.assign(this, preEntity);
   }
 }
