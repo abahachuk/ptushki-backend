@@ -265,7 +265,7 @@ export class Ring implements RingDto, AbleToImportEURINGCode {
   })
   public longitude: number | null;
 
-  @IsAlphanumeric()
+  @IsAlphanumericWithHyphen()
   @Length(4, 4, { message: equalLength(4) })
   @ManyToOne(() => PlaceCode, m => m.ring, {
     eager: true,
