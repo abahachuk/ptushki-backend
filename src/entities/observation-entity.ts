@@ -3,6 +3,7 @@ import {
   IsUUID,
   Length,
   IsDateString,
+  IsArray,
   IsString,
   IsOptional,
   IsAlpha,
@@ -17,6 +18,7 @@ import {
 import { IsAlphaWithHyphen, IsAlphanumericWithHyphen, IsNumberStringWithHyphen } from '../validation/custom-decorators';
 import { equalLength } from '../validation/validation-messages';
 import { User, UserDto } from './user-entity';
+import Mark from './submodels/Mark';
 import { Person, PersonDto } from './person-entity';
 import { Ring, RingDto } from './ring-entity';
 import {
@@ -58,7 +60,8 @@ export enum Verified {
 
 // From mobile and web we accept entity with not all field filled
 interface RawObservationBase<TCommon, TSpecies> {
-  ringMentioned: string;
+  ringMentioned?: string;
+  otherMarks?: Mark[];
   speciesMentioned: TSpecies;
   sexMentioned: TCommon;
   ageMentioned: TCommon;
@@ -85,7 +88,6 @@ export interface ObservationBase<TFinder, TOfFinder, TCommon, TRing, TSpecies, T
   distance: number | null;
   direction: number | null;
   elapsedTime: number | null;
-  colorRing: string | null;
   ringingScheme: EntityDto;
   primaryIdentificationMethod: EntityDto;
   verificationOfTheMetalRing: EntityDto;
@@ -276,7 +278,7 @@ export class Observation implements ObservationDto, AbleToImportEURINGCode, EURI
   @Min(0)
   @Max(99999)
   @Column('integer', { nullable: true, default: null })
-  public distance: number;
+  public distance: number | null;
 
   // Related field in access 'Derived data directions'
   @IsOptional()
@@ -284,7 +286,7 @@ export class Observation implements ObservationDto, AbleToImportEURINGCode, EURI
   @Min(0)
   @Max(359)
   @Column('smallint', { nullable: true, default: null })
-  public direction: number;
+  public direction: number | null;
 
   // Related field in access 'Derived data elapsed time'
   @IsOptional()
@@ -294,11 +296,11 @@ export class Observation implements ObservationDto, AbleToImportEURINGCode, EURI
   @Column('integer', { nullable: true, default: null })
   public elapsedTime: number | null;
 
-  // Not presented in euring standart
+  // Not presented in euring standard
   @IsOptional()
-  @IsString()
-  @Column('varchar', { nullable: true, default: null })
-  public colorRing: string | null;
+  @IsArray()
+  @Column('jsonb', { nullable: true, default: null })
+  public otherMarks: Mark[];
 
   @IsOptional()
   @IsAlpha()
@@ -452,7 +454,7 @@ export class Observation implements ObservationDto, AbleToImportEURINGCode, EURI
   @Column('varchar', { nullable: true, default: null })
   public remarks: string;
 
-  // Not presented in euring standart
+  // Not presented in euring standard
   @IsOptional()
   @IsEnum(Verified)
   @Column({

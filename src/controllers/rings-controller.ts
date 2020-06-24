@@ -17,11 +17,11 @@ import { Ring, RingDto } from '../entities/ring-entity';
 import Exporter from '../services/export';
 import Importer from '../services/import';
 import { ExporterType } from '../services/export/AbstractExporter';
+import { ImporterType } from '../services/import/AbstractImporter';
 import { CustomError } from '../utils/CustomError';
 import { auth } from '../services/auth-service';
 import { UserRole } from '../entities/user-entity';
 import { parsePageParams, SortingDirection } from '../services/page-service';
-import { ImporterType } from '../services/import/AbstractImporter';
 
 interface RingListResponse {
   content: RingDto[];
@@ -33,7 +33,7 @@ interface RingListResponse {
 @Path('rings-by')
 @Tags('rings-by')
 @Security()
-export default class RingsByController extends AbstractController {
+export default class RingsController extends AbstractController {
   private readonly rings: Repository<Ring>;
 
   private exporter: Exporter;
@@ -49,7 +49,7 @@ export default class RingsByController extends AbstractController {
   }
 
   /**
-   * Get all available observations.
+   * Get all available rings.
    * @param {number} pageNumber Page number, default value is set in config file
    * @param {number} pageSize Page size, default value is set in config file
    * @param {SortingDirection} sortingDirection Sorting direction
