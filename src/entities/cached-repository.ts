@@ -36,6 +36,22 @@ export class CachedRepository<T> extends Repository<T> {
     return cache.get(key);
   }
 
+  public async getAll(): Promise<T[]> {
+    const { name: key } = this.metadata;
+    if (!cache.has(key)) {
+      cache.set(key, await super.find());
+    }
+    return cache.get(key);
+  }
+
+  public async getAllIds(): Promise<(string | number)[]> {
+    const key = `${this.metadata.name}_allIds`;
+    if (!cache.has(key)) {
+      cache.set(key, (await this.getAll()).map(({ id }: Record<string, any>) => id));
+    }
+    return cache.get(key);
+  }
+
   public get tableName(): string {
     return camelCase(this.metadata.name);
   }

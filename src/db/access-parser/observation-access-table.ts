@@ -101,7 +101,8 @@ export const observationMap: ObservationMap = {
   // README тут есть некоторая условность в том, что скорее всего Access не имеет записей не ссылающихся на кольца
   ringMentioned: identificationNumber,
   ring,
-  colorRing: 'Color ring',
+  // colorRing: 'Color ring', // todo when parser will be updated
+  otherMarks: () => null, // todo when parser will be updated
   finder: () => null,
   offlineFinder,
   offlineFinderNote,

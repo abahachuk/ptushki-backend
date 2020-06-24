@@ -73,10 +73,10 @@ export default class UsersController extends AbstractController {
     if (id !== req.user.id) {
       throw new CustomError('Forbidden', 403);
     }
-    const { firstName, lastName } = body;
+    const { firstName, lastName, phone } = body;
 
     const user: User = await this.getEntityById<User>(id);
-    const newUser = Object.assign(user, { lastName, firstName });
+    const newUser = Object.assign(user, { lastName, firstName, phone });
     await this.validate(newUser);
     await this.users.save(newUser);
   }
@@ -106,12 +106,15 @@ export default class UsersController extends AbstractController {
     if (!password || !newPassword) {
       throw new CustomError('Both User old and new passwords are required', 400);
     }
+    if (password === newPassword) {
+      throw new CustomError('Old and new passwords are the same', 400);
+    }
     const user: User = await this.getEntityById<User>(id);
     if (!(await isCorrect(password, user.salt, user.hash))) {
       throw new CustomError('Wrong password', 401);
     }
 
-    await user.setPassword(password);
+    await user.setPassword(newPassword);
     await this.users.save(user);
   }
 
@@ -137,7 +140,7 @@ export default class UsersController extends AbstractController {
     }
     const { password, newEmail } = body;
     // todo check that password corresponds some requirements
-    if (!newEmail && !password) {
+    if (!newEmail || !password) {
       throw new CustomError('Both User password and new email are required', 400);
     }
     const user: User = await this.getEntityById<User>(id);

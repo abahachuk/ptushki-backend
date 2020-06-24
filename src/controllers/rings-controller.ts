@@ -1,8 +1,23 @@
 import { getRepository, Repository } from 'typeorm';
-import { DELETE, GET, Path, PathParam, POST, PreProcessor, Security, QueryParam } from 'typescript-rest';
+import {
+  DELETE,
+  GET,
+  Path,
+  PathParam,
+  POST,
+  PreProcessor,
+  Security,
+  QueryParam,
+  ContextRequest,
+} from 'typescript-rest';
 import { Response, Tags } from 'typescript-rest-swagger';
+import { Request } from 'express';
 import AbstractController from './abstract-controller';
 import { Ring, RingDto } from '../entities/ring-entity';
+import Exporter from '../services/export';
+import Importer from '../services/import';
+import { ExporterType } from '../services/export/AbstractExporter';
+import { ImporterType } from '../services/import/AbstractImporter';
 import { CustomError } from '../utils/CustomError';
 import { auth } from '../services/auth-service';
 import { UserRole } from '../entities/user-entity';
@@ -18,17 +33,23 @@ interface RingListResponse {
 @Path('rings-by')
 @Tags('rings-by')
 @Security()
-export default class RingsByController extends AbstractController {
+export default class RingsController extends AbstractController {
   private readonly rings: Repository<Ring>;
+
+  private exporter: Exporter;
+
+  private importer: Importer;
 
   public constructor() {
     super();
     this.rings = getRepository(Ring);
     this.setMainEntity(this.rings);
+    this.exporter = new Exporter('rings-by');
+    this.importer = new Importer('rings-by');
   }
 
   /**
-   * Get all available observations.
+   * Get all available rings.
    * @param {number} pageNumber Page number, default value is set in config file
    * @param {number} pageSize Page size, default value is set in config file
    * @param {SortingDirection} sortingDirection Sorting direction
@@ -89,7 +110,22 @@ export default class RingsByController extends AbstractController {
   }
 
   /**
-   * Create new reng.
+   * Export rings with passed ids to euring codes.
+   * @param exportedContent Contains ids of rings to export.
+   */
+  @POST
+  @Path('/export/euring')
+  @Response<string[]>(200, 'Euring codes of selected rings.')
+  @PreProcessor(auth.role(UserRole.Ringer))
+  @Response<CustomError>(401, 'Unauthorised.')
+  @Response<CustomError>(403, 'Forbidden.')
+  public async exportEuring(exportedContent: { ids: string[] }): Promise<string[]> {
+    const { ids } = exportedContent;
+    return this.exporter.handle(ExporterType.euring, ids);
+  }
+
+  /**
+   * Create new ring.
    * @param {RingDto} rawRing Data for new ring.
    */
   @POST
@@ -101,5 +137,20 @@ export default class RingsByController extends AbstractController {
     await this.validate(rawRing);
     // @ts-ignore FIXME we need create method for Ring
     return this.rings.save(rawRing);
+  }
+
+  /**
+   * Import rings from EURING codes. All rings will be assigned to the user making request.
+   * @param codes EURING codes to import.
+   */
+  @POST
+  @Path('/import/euring')
+  @PreProcessor(auth.role(UserRole.Ringer))
+  @Response<{ ok: boolean }>(200, 'Successfully imported.')
+  @Response<CustomError>(401, 'Unauthorised.')
+  @Response<CustomError>(403, 'Forbidden.')
+  public async importEuring(@ContextRequest req: Request, codes: string[]): Promise<{ ok: boolean }> {
+    await this.importer.handle(ImporterType.euring, { sources: codes, userId: req.user.id });
+    return { ok: true };
   }
 }

@@ -12,6 +12,7 @@ import {
   Max,
   IsNumberString,
   IsNumber,
+  IsArray,
 } from 'class-validator';
 import { IsAlphaWithHyphen, IsAlphanumericWithHyphen, IsNumberStringWithHyphen } from '../validation/custom-decorators';
 import { equalLength } from '../validation/validation-messages';
@@ -46,13 +47,16 @@ import {
 import { User, UserDto } from './user-entity';
 import { Person, PersonDto } from './person-entity';
 import { Observation } from './observation-entity';
-import { EURINGCodes, AbleToExportAndImportEuring, EURINGEntityDto } from './common-interfaces';
+import Mark from './submodels/Mark';
+import { EURINGCodes, AbleToImportEURINGCode, EURINGEntityDto } from './common-interfaces';
 import { ColumnNumericTransformer } from '../utils/ColumnNumericTransformer';
+import EURINGCodeParser from '../utils/EURINGCodeParser';
 
 export interface RingDto extends EURINGCodes {
   id: string;
   metalRingInformation: EURINGEntityDto;
   otherMarksInformation: EURINGEntityDto;
+  otherMarks: Mark[];
   speciesMentioned: SpeciesDto;
   speciesConcluded: SpeciesDto;
   manipulated: EURINGEntityDto;
@@ -84,7 +88,7 @@ export interface RingDto extends EURINGCodes {
 }
 
 @Entity()
-export class Ring implements RingDto, AbleToExportAndImportEuring {
+export class Ring implements RingDto, AbleToImportEURINGCode, EURINGCodes {
   @PrimaryGeneratedColumn('uuid')
   public id: string;
 
@@ -136,6 +140,12 @@ export class Ring implements RingDto, AbleToExportAndImportEuring {
     eager: true,
   })
   public otherMarksInformation: OtherMarksInformation;
+
+  // Not presented in euring standard
+  @IsOptional()
+  @IsArray()
+  @Column('jsonb', { nullable: true, default: null })
+  public otherMarks: Mark[];
 
   @IsNumberString()
   @Length(5, 5, { message: equalLength(5) })
@@ -264,12 +274,16 @@ export class Ring implements RingDto, AbleToExportAndImportEuring {
   })
   public longitude: number | null;
 
-  @IsAlphanumeric()
+  @IsAlphanumericWithHyphen()
   @Length(4, 4, { message: equalLength(4) })
   @ManyToOne(() => PlaceCode, m => m.ring, {
     eager: true,
   })
   public placeCode: PlaceCode;
+
+  public get placeName(): null {
+    return null;
+  }
 
   @IsInt()
   @Min(0)
@@ -351,14 +365,21 @@ export class Ring implements RingDto, AbleToExportAndImportEuring {
   })
   public statusOfRing: StatusOfRing;
 
-  public exportEURING(): string {
-    // todo
-    return [this.identificationNumber, this.ageConcluded.id, this.ageMentioned.id].join('|');
+  public get distance(): null {
+    return null;
   }
 
-  public importEURING(code: string): any {
-    // todo
-    const [identificationNumber, status] = code.split('|');
-    Object.assign(this, { identificationNumber, status });
+  public get elapsedTime(): null {
+    return null;
+  }
+
+  public get direction(): null {
+    return null;
+  }
+
+  public importEURING(code: string): Ring {
+    const preEntity = EURINGCodeParser(code);
+    // todo add handling of needed props
+    return Object.assign(this, preEntity);
   }
 }
