@@ -1,5 +1,6 @@
 import AbstractImporter, { ImporterType, ImportInput, ImportOutput } from './AbstractImporter';
 import EURINGImporterForObservations from './EURINGImporterForObservations';
+import EURINGImporterForRings from './EURINGImporterForRings';
 import XLSImporterForObservations from './XLSImporterForObservations';
 import { CustomError } from '../../utils/CustomError';
 import { DataCheckDto } from './excel/helper';
@@ -11,7 +12,11 @@ export default class Importer {
 
   public constructor(route: string) {
     this.route = route;
-    this.exporters = [new EURINGImporterForObservations(), new XLSImporterForObservations()];
+    this.exporters = [
+      new EURINGImporterForObservations(),
+      new XLSImporterForObservations(),
+      new EURINGImporterForRings(),
+    ];
   }
 
   private getImporter(type: ImporterType): AbstractImporter | undefined {
