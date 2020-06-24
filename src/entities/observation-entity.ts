@@ -152,6 +152,7 @@ export class Observation implements ObservationDto, AbleToImportEURINGCode, EURI
   })
   public finder: User;
 
+  @IsOptional()
   @IsUUID()
   @ManyToOne(() => Person, m => m.observation, {
     eager: true,
@@ -200,7 +201,7 @@ export class Observation implements ObservationDto, AbleToImportEURINGCode, EURI
   })
   public metalRingInformation: MetalRingInformation;
 
-  @IsAlpha()
+  @IsAlphaWithHyphen()
   @Length(2, 2, { message: equalLength(2) })
   @ManyToOne(() => OtherMarksInformation, m => m.observation, {
     eager: true,
