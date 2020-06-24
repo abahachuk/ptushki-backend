@@ -15,7 +15,7 @@ export class CachedRepository<T> extends Repository<T> {
       return cache.get(key);
     }
 
-    const records = await this.findAll();
+    const records = await this.getAll();
     const result = records.map((item: T & Record<string, any>) => {
       // eslint-disable-next-line @typescript-eslint/camelcase
       const { desc_eng, desc_rus, desc_byn, ...rest } = item;
@@ -25,15 +25,6 @@ export class CachedRepository<T> extends Repository<T> {
     });
     cache.set(key, result);
     return result;
-  }
-
-  public async findAll(): Promise<T[]> {
-    const { name: key } = this.metadata;
-    if (!cache.has(key)) {
-      cache.set(key, await super.find());
-    }
-
-    return cache.get(key);
   }
 
   public async getAll(): Promise<T[]> {

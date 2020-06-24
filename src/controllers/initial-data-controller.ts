@@ -31,7 +31,7 @@ export default class InitialDataController extends AbstractController {
   public async heatUp() {
     try {
       await executeInThreadedQueue(
-        this.cached.map((repository: CachedRepository<any>) => async () => repository.findAll()),
+        this.cached.map((repository: CachedRepository<any>) => async () => repository.getAll()),
       );
       logger.info(`Initial data was heated up`);
     } catch (e) {
