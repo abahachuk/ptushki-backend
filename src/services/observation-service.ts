@@ -1,14 +1,15 @@
 import { FindOneOptions } from 'typeorm';
-import { Search, Locale } from './page-service';
+import { Search } from './page-service';
 import { Observation } from '../entities/observation-entity';
 import { User, UserRole } from '../entities/user-entity';
+import { Lang } from '../common-types/Lang';
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const cartesian = require('cartesian-product');
 
 export type ObservationAggregations = { [key in keyof Observation]: string };
 
-export type ObservationQuery = Search & ObservationAggregations & { lang: Locale };
+export type ObservationQuery = Search & ObservationAggregations & { lang: Lang };
 
 const gettingAllObservations = {
   [UserRole.Observer]: false,

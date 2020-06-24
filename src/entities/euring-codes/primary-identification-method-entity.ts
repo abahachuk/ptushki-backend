@@ -1,13 +1,13 @@
 import { Entity, PrimaryColumn, Column, OneToMany } from 'typeorm';
 import { Length, IsAlphanumeric, IsOptional, IsString } from 'class-validator';
 import { equalLength } from '../../validation/validation-messages';
-import { EntityDto } from '../common-interfaces';
+import { EURINGEntityDto } from '../common-interfaces';
 import { Ring } from '../ring-entity';
 import { Observation } from '../observation-entity';
 
 // Related table in access 'Primary identification mehod'
 @Entity()
-export class PrimaryIdentificationMethod implements EntityDto {
+export class PrimaryIdentificationMethod implements EURINGEntityDto {
   @IsAlphanumeric()
   @Length(2, 2, { message: equalLength(2) })
   @PrimaryColumn()

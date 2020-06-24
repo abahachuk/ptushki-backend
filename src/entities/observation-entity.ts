@@ -48,7 +48,7 @@ import {
   EURINGCodeIdentifier,
   BroodSize,
 } from './euring-codes';
-import { AbleToImportEURINGCode, EntityDto, EURINGCodes } from './common-interfaces';
+import { AbleToImportEURINGCode, EURINGEntityDto, EURINGCodes } from './common-interfaces';
 import { ColumnNumericTransformer } from '../utils/ColumnNumericTransformer';
 import EURINGCodeParser from '../utils/EURINGCodeParser';
 
@@ -88,24 +88,24 @@ export interface ObservationBase<TFinder, TOfFinder, TCommon, TRing, TSpecies, T
   distance: number | null;
   direction: number | null;
   elapsedTime: number | null;
-  ringingScheme: EntityDto;
-  primaryIdentificationMethod: EntityDto;
-  verificationOfTheMetalRing: EntityDto;
-  metalRingInformation: EntityDto;
-  otherMarksInformation: EntityDto;
-  euringCodeIdentifier: EntityDto;
-  broodSize: EntityDto;
-  manipulated: EntityDto;
-  movedBeforeTheCapture: EntityDto;
-  catchingMethod: EntityDto;
-  catchingLures: EntityDto;
-  accuracyOfCoordinates: EntityDto;
-  status: EntityDto;
-  pullusAge: EntityDto;
-  accuracyOfPullusAge: EntityDto;
-  condition: EntityDto;
-  circumstances: EntityDto;
-  circumstancesPresumed: EntityDto;
+  ringingScheme: EURINGEntityDto;
+  primaryIdentificationMethod: EURINGEntityDto;
+  verificationOfTheMetalRing: EURINGEntityDto;
+  metalRingInformation: EURINGEntityDto;
+  otherMarksInformation: EURINGEntityDto;
+  euringCodeIdentifier: EURINGEntityDto;
+  broodSize: EURINGEntityDto;
+  manipulated: EURINGEntityDto;
+  movedBeforeTheCapture: EURINGEntityDto;
+  catchingMethod: EURINGEntityDto;
+  catchingLures: EURINGEntityDto;
+  accuracyOfCoordinates: EURINGEntityDto;
+  status: EURINGEntityDto;
+  pullusAge: EURINGEntityDto;
+  accuracyOfPullusAge: EURINGEntityDto;
+  condition: EURINGEntityDto;
+  circumstances: EURINGEntityDto;
+  circumstancesPresumed: EURINGEntityDto;
   placeCode: TPlaceCode;
   placeName: string | null;
   verified: Verified;
@@ -118,7 +118,7 @@ export interface RawObservationDto extends RawObservationBase<string, string> {}
 export interface ObservationBaseDto extends ObservationBase<string, string, string, string, string, string> {}
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
 export interface ObservationDto
-  extends ObservationBase<UserDto, PersonDto, EntityDto, RingDto, SpeciesDto, PlaceCodeDto> {}
+  extends ObservationBase<UserDto, PersonDto, EURINGEntityDto, RingDto, SpeciesDto, PlaceCodeDto> {}
 
 @Entity()
 export class Observation implements ObservationDto, AbleToImportEURINGCode, EURINGCodes {

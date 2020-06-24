@@ -3,8 +3,6 @@ import { FindManyOptions } from 'typeorm';
 
 const { pageNumberDefault, pageSizeDefault, sortingDirectionDefault } = config.get('paging');
 
-export type Locale = 'eng' | 'rus' | 'byn';
-
 export enum SortingDirection {
   asc = 'ASC',
   desk = 'DESC',

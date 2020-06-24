@@ -1,12 +1,12 @@
 import { Entity, PrimaryColumn, Column, OneToMany } from 'typeorm';
 import { IsInt, Min, Max, IsOptional, IsString } from 'class-validator';
-import { EntityDto } from '../common-interfaces';
+import { EURINGEntityDto } from '../common-interfaces';
 import { Ring } from '../ring-entity';
 import { Observation } from '../observation-entity';
 
 // Related table in access 'Moved before the capture'
 @Entity()
-export class MovedBeforeTheCapture implements EntityDto {
+export class MovedBeforeTheCapture implements EURINGEntityDto {
   @IsInt()
   @Min(0)
   @Max(9)
