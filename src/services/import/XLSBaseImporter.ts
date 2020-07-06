@@ -68,6 +68,11 @@ export default abstract class XLSBaseImporter extends AbstractImporter<
       const workbook: Workbook = await new Excel.Workbook().xlsx.load(file.buffer);
       const importStatus = this.initImportStatus();
       const [worksheet] = workbookParser(workbook, this.expectedColumnHeaders, importStatus);
+
+      if (!worksheet.data.length) {
+        throw new CustomError('XLS Sheet is empty', 400);
+      }
+
       const codes = await XLSBaseImporter.EURINGcodes;
 
       // eslint-disable-next-line no-plusplus
@@ -91,11 +96,14 @@ export default abstract class XLSBaseImporter extends AbstractImporter<
       // to correctly specify row number
       this.checkForClones(importStatus);
 
+      console.log(importStatus);
+
       if (
         !Object.keys(importStatus.EURINGErrors).length &&
         !Object.keys(importStatus.formatErrors).length &&
         !importStatus.clones.length
       ) {
+        console.log('start import');
         await this.repository.insert(importStatus.validEntities);
         importStatus.importedCount = importStatus.validEntities.length;
       }
