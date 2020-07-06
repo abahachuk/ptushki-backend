@@ -52,6 +52,12 @@ import { EURINGCodes, AbleToImportEURINGCode, EURINGEntityDto } from './common-i
 import { ColumnNumericTransformer } from '../utils/ColumnNumericTransformer';
 import EURINGCodeParser from '../utils/EURINGCodeParser';
 
+export interface RawRingDto {
+  // FIXME update DTO
+  latitude: number | null;
+  longitude: number | null;
+}
+
 export interface RingDto extends EURINGCodes {
   id: string;
   metalRingInformation: EURINGEntityDto;
@@ -375,6 +381,10 @@ export class Ring implements RingDto, AbleToImportEURINGCode, EURINGCodes {
 
   public get direction(): null {
     return null;
+  }
+
+  public static create(ring: RawRingDto & { ringer: string }): Ring {
+    return Object.assign(new Ring(), ring);
   }
 
   public importEURING(code: string): Ring {

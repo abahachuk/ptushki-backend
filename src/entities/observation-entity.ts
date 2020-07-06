@@ -464,9 +464,7 @@ export class Observation implements ObservationDto, AbleToImportEURINGCode, EURI
   })
   public verified: Verified;
 
-  public static async create(
-    observation: RawObservationDto & { finder: string; ring: string | null },
-  ): Promise<Observation> {
+  public static create(observation: RawObservationDto & { finder: string; ring: string | null }): Observation {
     return Object.assign(new Observation(), observation);
   }
 

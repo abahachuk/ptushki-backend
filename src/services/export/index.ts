@@ -3,7 +3,8 @@ import EURINGExporterForObservations from './EURINGExporterForObservations';
 import EURINGExporterForRings from './EURINGExporterForRings';
 import PDFExporterForObservations from './PDFExporterForObservations';
 import XLSExporterForObservations from './XLSExporterForObservations';
-import XLSExporterTemplate from './XLSExporterTemplate';
+import XLSTemplateExporterForObservations from './XLSTemplateExporterForObservations';
+import XLSTemplateExporterForRings from './XLSTemplateExporterForRings';
 
 import { CustomError } from '../../utils/CustomError';
 
@@ -21,7 +22,8 @@ export default class Exporter {
       // @ts-ignore FIXME while implementing pdf export
       new PDFExporterForObservations(),
       new XLSExporterForObservations(),
-      new XLSExporterTemplate(),
+      new XLSTemplateExporterForObservations(),
+      new XLSTemplateExporterForRings(),
     ];
   }
 

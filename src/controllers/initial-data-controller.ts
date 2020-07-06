@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/explicit-function-return-type */
 import { getCustomRepository, Repository } from 'typeorm';
 import { GET, Path, QueryParam, Security } from 'typescript-rest';
 import { Tags, Response } from 'typescript-rest-swagger';

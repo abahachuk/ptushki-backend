@@ -1,41 +1,36 @@
 import { getRepository, Repository } from 'typeorm';
 import { ImporterType } from './AbstractImporter';
 import XLSBaseImporter from './XLSBaseImporter';
-import { Observation } from '../../entities/observation-entity';
+import { Ring } from '../../entities/ring-entity';
 
 type Omit<T, K extends keyof T> = Pick<T, Exclude<keyof T, K>>;
-export type ObservationFieldsRequiredForXLS = Omit<
-  Observation,
+export type RingFieldsRequiredForXLS = Omit<
+  Ring,
   | 'id'
-  | 'photos'
-  | 'finder' // for a while skipped for simplicity
-  | 'offlineFinder' // for a while skipped for simplicity
-  | 'offlineFinderNote' // for a while skipped for simplicity
-  | 'otherMarks' // for a while skipped for simplicity
+  | 'observation' // for a while skipped for simplicity
+  | 'ringer' // for a while skipped for simplicity
+  | 'offlineRinger' // for a while skipped for simplicity
   | 'importEURING' // skip model method
-  | 'ring' // unknown -- can be added only by lookup through ring's table
-  // with ringMentioned by this we can fill other fields below:
-  | 'identificationNumber' // filled only if corresponding ring found
-  | 'speciesConcluded' // can be computed only through ring
-  | 'ageConcluded' // can be computed only through ring
-  | 'sexConcluded' // can be computed only through ring
-  | 'verified' // model sets it to pending by default
-  | 'distance' // can be computed only through ring
-  | 'direction' // can be computed only through ring
-  | 'elapsedTime' // can be computed only through ring
+  | 'otherMarks' // for a while skipped for simplicity
+  | 'distance' // skipped because it always null for ring
+  | 'direction' // skipped because it always null for ring
+  | 'elapsedTime' // skipped because it always null for ring
+  | 'speciesConcluded' // todo clarify
+  | 'ageConcluded' // todo clarify
+  | 'sexConcluded' // todo clarify
 >;
 
-export default class XLSImporterForObservations extends XLSBaseImporter {
+export default class XLSImporterForRings extends XLSBaseImporter {
   public readonly type: ImporterType = ImporterType.xls;
 
-  public readonly route: string = 'observations';
+  public readonly route: string = 'rings-by';
 
-  public readonly entity = Observation;
+  public readonly entity = Ring;
 
-  public readonly repository: Repository<Observation> = getRepository(Observation);
+  public readonly repository: Repository<Ring> = getRepository(Ring);
 
-  public static readonly mappers: { [index in keyof ObservationFieldsRequiredForXLS]: [string, (arg: any) => any] } = {
-    ringMentioned: ['Номер кольца', v => v.toString()],
+  public static readonly mappers: { [index in keyof RingFieldsRequiredForXLS]: [string, (arg: any) => any] } = {
+    identificationNumber: ['Идентификационный номер', v => v.toString().toUpperCase()],
     ringingScheme: ['Схема кольцевания', v => v.toString().toUpperCase()],
     primaryIdentificationMethod: ['Первичный метод идентификации', v => v.toString().toUpperCase()],
     verificationOfTheMetalRing: ['Верификация металлического кольца', v => Number(v)],
@@ -45,8 +40,8 @@ export default class XLSImporterForObservations extends XLSBaseImporter {
     speciesMentioned: ['Вид', v => v.toString().toUpperCase()],
     sexMentioned: ['Пол', v => v.toString().toUpperCase()],
     ageMentioned: ['Возраст', v => v.toString().toUpperCase()],
+    placeName: ['Место кольцевания', v => v.toString()],
     placeCode: ['Код места', v => v.toString().toUpperCase()],
-    placeName: ['Место', v => v.toString().toUpperCase()],
     broodSize: ['Размер гнезда', v => v.toString()],
     movedBeforeTheCapture: ['Передвижения до наблюдения', v => v.toString()],
     status: ['Статус', v => v.toString().toUpperCase()],
@@ -56,6 +51,7 @@ export default class XLSImporterForObservations extends XLSBaseImporter {
     date: ['Дата', v => new Date(v.toString()).toISOString()],
     latitude: ['Широта', v => Number(v)],
     longitude: ['Долгота', v => Number(v)],
+    statusOfRing: ['Cтатус кольца', v => v.toString().toUpperCase()],
     remarks: ['Пометки', v => (v ? v.toString() : null)],
     manipulated: ['Проведенные манипуляции', v => v.toString().toUpperCase() || 'U'],
     catchingMethod: ['Метод отлова', v => v.toString().toUpperCase() || 'U'],
@@ -66,11 +62,9 @@ export default class XLSImporterForObservations extends XLSBaseImporter {
     accuracyOfPullusAge: ['Точность возраста птенца', v => v.toString().toUpperCase()],
   };
 
-  public static readonly expectedColumnHeaders: string[] = XLSBaseImporter.getHeaders(
-    XLSImporterForObservations.mappers,
-  );
+  public static readonly expectedColumnHeaders: string[] = XLSBaseImporter.getHeaders(XLSImporterForRings.mappers);
 
-  public readonly expectedColumnHeaders = XLSImporterForObservations.expectedColumnHeaders;
+  public readonly expectedColumnHeaders = XLSImporterForRings.expectedColumnHeaders;
 
-  public readonly mappers = XLSImporterForObservations.mappers;
+  public readonly mappers = XLSImporterForRings.mappers;
 }
