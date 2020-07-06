@@ -4,6 +4,7 @@ import EURINGExporterForRings from './EURINGExporterForRings';
 import PDFExporterForObservations from './PDFExporterForObservations';
 import XLSExporterForObservations from './XLSExporterForObservations';
 import XLSTemplateExporterForObservations from './XLSTemplateExporterForObservations';
+import XLSTemplateExporterForRings from './XLSTemplateExporterForRings';
 
 import { CustomError } from '../../utils/CustomError';
 
@@ -22,6 +23,7 @@ export default class Exporter {
       new PDFExporterForObservations(),
       new XLSExporterForObservations(),
       new XLSTemplateExporterForObservations(),
+      new XLSTemplateExporterForRings(),
     ];
   }
 
