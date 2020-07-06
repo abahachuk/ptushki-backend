@@ -9,8 +9,10 @@ import {
   Security,
   QueryParam,
   ContextRequest,
+  Return,
+  FilesParam,
 } from 'typescript-rest';
-import { Response, Tags } from 'typescript-rest-swagger';
+import { Produces, Response, Tags } from 'typescript-rest-swagger';
 import { Request } from 'express';
 import AbstractController from './abstract-controller';
 import { Ring, RingDto } from '../entities/ring-entity';
@@ -22,6 +24,7 @@ import { CustomError } from '../utils/CustomError';
 import { auth } from '../services/auth-service';
 import { UserRole } from '../entities/user-entity';
 import { parsePageParams, SortingDirection } from '../services/page-service';
+import { ImportWorksheetXLSDto } from '../services/import/XLSBaseImporter';
 
 interface RingListResponse {
   content: RingDto[];
@@ -110,6 +113,22 @@ export default class RingsController extends AbstractController {
   }
 
   /**
+   * Get xls template for rings.
+   * After that, the template should be filled with data with new rings
+   * and imported by the same endpoint only using the POST method.
+   */
+  @GET
+  @Path('/export/xls')
+  @Produces('application/xlsx')
+  @PreProcessor(auth.role(UserRole.Ringer))
+  @Response<CustomError>(401, 'Unauthorised.')
+  @Response<CustomError>(403, 'Forbidden.')
+  public async exportXlsTemplate(): Promise<Return.DownloadBinaryData> {
+    const buffer = await this.exporter.handle(ExporterType.template);
+    return new Return.DownloadBinaryData(buffer, 'application/xlsx', 'template-for-rings.xlsx');
+  }
+
+  /**
    * Export rings with passed ids to euring codes.
    * @param exportedContent Contains ids of rings to export.
    */
@@ -137,6 +156,22 @@ export default class RingsController extends AbstractController {
     await this.validate(rawRing);
     // @ts-ignore FIXME we need create method for Ring
     return this.rings.save(rawRing);
+  }
+
+  /**
+   * Import xls file with rings. First each file is validated, and only then imported.
+   * All rings will be assigned to the user making request.
+   * @param files Files in xls format to import. (for a while is only used first file)
+   */
+
+  @POST
+  @Path('/import/xls')
+  @PreProcessor(auth.role(UserRole.Ringer))
+  @Response<ImportWorksheetXLSDto>(200, 'Object of import result, with errors if needed.')
+  @Response<CustomError>(401, 'Unauthorised.')
+  @Response<CustomError>(403, 'Forbidden.')
+  public async importXls(@FilesParam('files') files: Express.Multer.File[]): Promise<ImportWorksheetXLSDto> {
+    return this.importer.handle(ImporterType.xls, { sources: files });
   }
 
   /**
