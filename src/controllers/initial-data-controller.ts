@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/explicit-function-return-type */
 import { getCustomRepository, Repository } from 'typeorm';
 import { GET, Path, QueryParam, Security } from 'typescript-rest';
 import { Tags, Response } from 'typescript-rest-swagger';
@@ -6,9 +5,14 @@ import { Tags, Response } from 'typescript-rest-swagger';
 import AbstractController from './abstract-controller';
 import { cachedEURINGCodes } from '../entities/euring-codes/cached-entities-fabric';
 import { CachedRepository } from '../entities/cached-repository';
+import { Lang } from '../common-types/Lang';
 import { executeInThreadedQueue } from '../utils/async-queue';
 import { logger } from '../utils/logger';
 import { CustomError } from '../utils/CustomError';
+
+interface InitialDataDto {
+  [index: string]: { id: string; desc: string; [index: string]: any }[];
+}
 
 @Path('initial-data')
 @Tags('initial-data')
@@ -26,7 +30,7 @@ export default class InitialDataController extends AbstractController {
   public async heatUp() {
     try {
       await executeInThreadedQueue(
-        this.cached.map((repository: CachedRepository<any>) => async () => repository.findByLang()),
+        this.cached.map((repository: CachedRepository<any>) => async () => repository.getAll()),
       );
       logger.info(`Initial data was heated up`);
     } catch (e) {
@@ -34,14 +38,19 @@ export default class InitialDataController extends AbstractController {
     }
   }
 
+  /**
+   * Get all EURING codes with descriptions filtered by specified language.
+   * @param lang Language to filter codes descriptions
+   */
+
   @GET
   @Path('/')
-  @Response<{ [index: string]: any[] }>(200, 'All available EURING codes with descriptions.')
+  @Response<InitialDataDto>(200, 'All available EURING codes with descriptions.')
   @Response<CustomError>(401, 'Unauthorised.')
-  public async getInitialData(@QueryParam('lang') lang: string): Promise<{ [index: string]: any[] }> {
+  public async getInitialData(@QueryParam('lang') lang: Lang): Promise<InitialDataDto> {
     return (await Promise.all(
       this.cached.map(async (repository: CachedRepository<any>) => ({
-        records: await repository.findByLang(lang),
+        records: await repository.filterByLang(lang),
         tableName: repository.tableName,
       })),
     )).reduce((acc: { [index: string]: any[] }, { records, tableName }) => {

@@ -78,6 +78,7 @@ export const ringMap: RingMap = {
   verificationOfTheMetalRing: 'Verification of metal ring',
   metalRingInformation: 'Metal ring information',
   otherMarksInformation: 'Other mark information',
+  otherMarks: () => null, // todo when parser will be updated
   speciesMentioned: 'Species by person',
   speciesConcluded: 'Species by Scheme',
   manipulated: 'Manipulated',

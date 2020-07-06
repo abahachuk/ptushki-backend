@@ -1,13 +1,13 @@
 import { Entity, PrimaryColumn, Column, OneToMany } from 'typeorm';
 import { Length, IsAlpha, IsOptional, IsString } from 'class-validator';
 import { equalLength } from '../../validation/validation-messages';
-import { EntityDto } from '../common-interfaces';
+import { EURINGEntityDto } from '../common-interfaces';
 import { Ring } from '../ring-entity';
 import { Observation } from '../observation-entity';
 
 // Related table in access 'Manipulated'
 @Entity()
-export class Manipulated implements EntityDto {
+export class Manipulated implements EURINGEntityDto {
   @IsAlpha()
   @Length(1, 1, { message: equalLength(1) })
   @PrimaryColumn()

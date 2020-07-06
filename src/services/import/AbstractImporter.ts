@@ -1,15 +1,12 @@
 import path from 'path';
-import { validate, ValidationError } from 'class-validator';
-import { DataCheckDto } from './excel/helper';
+import { validate } from 'class-validator';
+import { ImportWorksheetXLSDto } from '../import/XLSBaseImporter';
 import { CustomError } from '../../utils/CustomError';
+import { parseValidationErrors } from '../../validation/validation-results-parser';
 
 export interface MulterOptions {
   extensions: string[];
   any: boolean;
-}
-
-interface ParsedErrors {
-  [key: string]: string[];
 }
 
 export enum ImporterType {
@@ -21,7 +18,7 @@ export interface ImportInput<T = Express.Multer.File | string> {
   sources: T[];
   userId?: string;
 }
-export type ImportOutput = void | DataCheckDto;
+export type ImportOutput = void | ImportWorksheetXLSDto;
 
 export default abstract class AbstractImporter<
   TSource extends ImportInput = ImportInput,
@@ -49,13 +46,7 @@ export default abstract class AbstractImporter<
     const mapWithErrors = await data.reduce(async (accumulator, item, id): Promise<any> => {
       const errors = await validate(item);
       if (errors.length) {
-        const parsedErrors = errors.reduce(
-          (acc: ParsedErrors, error: ValidationError): ParsedErrors => ({
-            ...acc,
-            [error.property]: Object.values(error.constraints),
-          }),
-          {},
-        );
+        const parsedErrors = parseValidationErrors(errors);
         return {
           ...(await accumulator),
           [id]: parsedErrors,

@@ -9,7 +9,7 @@ export const properties: {
   colProperties: Partial<Column>;
   headerCellStyles: Partial<Cell>;
 } = {
-  sheetName: 'Observations',
+  sheetName: 'List',
   wbProperties: {
     date1904: true,
   },

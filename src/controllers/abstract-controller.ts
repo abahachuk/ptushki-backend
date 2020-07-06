@@ -1,13 +1,10 @@
 import config from 'config';
 import { Repository } from 'typeorm';
-import { validate, ValidationError } from 'class-validator';
+import { validate } from 'class-validator';
 import { CustomError } from '../utils/CustomError';
+import { parseValidationErrors } from '../validation/validation-results-parser';
 
 const UUID_LENGTH = config.get('UUID_LENGTH');
-
-interface ParsedErrors {
-  [key: string]: string[];
-}
 
 interface ConstructorFabric {
   create(...args: any): Record<string, any>;
@@ -44,15 +41,10 @@ export default abstract class AbstractController {
   // Argument 'data' it is a new data, and argument existedData is optional and needed for refreshing existing data in db
   protected async validate(data: any, existedData: any = {}, entity?: ConstructorFabric): Promise<void> {
     const createdModel = await (entity || this.entity).create(Object.assign(existedData, data));
+    // FIXME validation should be run with { forbidNonWhitelisted: true, forbidUnknownValues: true }
     const errors = await validate(createdModel);
     if (errors.length) {
-      const parsedErrors = errors.reduce(
-        (acc: ParsedErrors, error: ValidationError): ParsedErrors => ({
-          ...acc,
-          [error.property]: Object.values(error.constraints),
-        }),
-        {},
-      );
+      const parsedErrors = parseValidationErrors(errors);
       throw new CustomError(parsedErrors as string, 422);
     }
   }

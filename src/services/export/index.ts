@@ -1,25 +1,29 @@
 import AbstractExporter, { ExporterType, ExportOutput } from './AbstractExporter';
 import EURINGExporterForObservations from './EURINGExporterForObservations';
+import EURINGExporterForRings from './EURINGExporterForRings';
 import PDFExporterForObservations from './PDFExporterForObservations';
 import XLSExporterForObservations from './XLSExporterForObservations';
-import XLSExporterTemplate from './XLSExporterTemplate';
+import XLSTemplateExporterForObservations from './XLSTemplateExporterForObservations';
+import XLSTemplateExporterForRings from './XLSTemplateExporterForRings';
 
 import { CustomError } from '../../utils/CustomError';
 
 export default class Exporter {
   private exporters: AbstractExporter[];
 
-  private route: string;
+  private readonly route: string;
 
   public constructor(route: string) {
     this.route = route;
 
     this.exporters = [
       new EURINGExporterForObservations(),
+      new EURINGExporterForRings(),
       // @ts-ignore FIXME while implementing pdf export
       new PDFExporterForObservations(),
       new XLSExporterForObservations(),
-      new XLSExporterTemplate(),
+      new XLSTemplateExporterForObservations(),
+      new XLSTemplateExporterForRings(),
     ];
   }
 
