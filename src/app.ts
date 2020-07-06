@@ -1,5 +1,5 @@
 import path from 'path';
-import express, { Application } from 'express';
+import express, { Application, Request, Response } from 'express';
 import bodyParser from 'body-parser';
 import cors from 'cors';
 import { Server } from 'typescript-rest';
@@ -15,6 +15,13 @@ const createApp = async (): Promise<Application> => {
 
   initPassport();
   initMailService();
+
+  app.get(
+    '/health',
+    (_req: Request, res: Response): void => {
+      res.status(200).send('ok');
+    },
+  );
 
   app.use(setLogger);
   app.use(cors()); // Enable All CORS Requests; need to narrow CORS for only one domain
