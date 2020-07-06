@@ -11,7 +11,7 @@ export type ObservationFieldsRequiredForXLS = Omit<
   | 'finder' // for a while skipped for simplicity
   | 'offlineFinder' // for a while skipped for simplicity
   | 'offlineFinderNote' // for a while skipped for simplicity
-  | 'exportEURING' // skip model method
+  | 'otherMarks' // for a while skipped for simplicity
   | 'importEURING' // skip model method
   | 'ring' // unknown -- can be added only by lookup through ring's table
   // with ringMentioned by this we can fill other fields below:
@@ -49,7 +49,6 @@ export default class XLSImporterForObservations extends XLSBaseImporter {
     placeName: ['Место', v => v.toString().toUpperCase()],
     broodSize: ['Размер гнезда', v => v.toString()],
     movedBeforeTheCapture: ['Передвижения до наблюдения', v => v.toString()],
-    colorRing: ['Цветное кольцо', v => (v ? v.toString() : null)],
     status: ['Статус', v => v.toString().toUpperCase()],
     condition: ['Состояние', v => v.toString().toUpperCase()],
     circumstances: ['Обстоятельства', v => v.toString().toUpperCase()],

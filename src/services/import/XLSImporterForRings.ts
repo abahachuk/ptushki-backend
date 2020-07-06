@@ -10,8 +10,11 @@ export type RingFieldsRequiredForXLS = Omit<
   | 'observation' // for a while skipped for simplicity
   | 'ringer' // for a while skipped for simplicity
   | 'offlineRinger' // for a while skipped for simplicity
-  | 'exportEURING' // skip model method
   | 'importEURING' // skip model method
+  | 'otherMarks' // for a while skipped for simplicity
+  | 'distance' // skipped because it always null for ring
+  | 'direction' // skipped because it always null for ring
+  | 'elapsedTime' // skipped because it always null for ring
   | 'speciesConcluded' // todo clarify
   | 'ageConcluded' // todo clarify
   | 'sexConcluded' // todo clarify
@@ -37,6 +40,7 @@ export default class XLSImporterForRings extends XLSBaseImporter {
     speciesMentioned: ['Вид', v => v.toString().toUpperCase()],
     sexMentioned: ['Пол', v => v.toString().toUpperCase()],
     ageMentioned: ['Возраст', v => v.toString().toUpperCase()],
+    placeName: ['Место кольцевания', v => v.toString()],
     placeCode: ['Код места', v => v.toString().toUpperCase()],
     broodSize: ['Размер гнезда', v => v.toString()],
     movedBeforeTheCapture: ['Передвижения до наблюдения', v => v.toString()],
