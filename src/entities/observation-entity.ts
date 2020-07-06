@@ -477,16 +477,17 @@ export class Observation implements ObservationDto, AbleToImportEURINGCode, EURI
     return Object.assign(new Observation(), observation);
   }
 
-  public reFillByRing(ring: Ring): void {
-    if (!ring) return;
+  public reFillByRing(ring: Ring): Partial<Observation> {
+    if (!ring) return {};
     const { speciesConcluded, ageConcluded, sexConcluded } = ring;
-    this.ring.id = ring.id;
-    this.speciesConcluded = speciesConcluded || null;
-    this.ageConcluded = ageConcluded || null;
-    this.sexConcluded = sexConcluded || null;
-    this.direction = directionBy2PointsWithLnLt(this, ring);
-    this.elapsedTime = elapsedTimeBetween2Dates(this, ring);
-    this.distance = distanceBy2PointsWithLnLt(this, ring);
+    return {
+      speciesConcluded: speciesConcluded || null,
+      ageConcluded: ageConcluded || null,
+      sexConcluded: sexConcluded || null,
+      direction: directionBy2PointsWithLnLt(this, ring),
+      elapsedTime: elapsedTimeBetween2Dates(this, ring),
+      distance: distanceBy2PointsWithLnLt(this, ring),
+    };
   }
 
   public importEURING(code: string): Observation {
