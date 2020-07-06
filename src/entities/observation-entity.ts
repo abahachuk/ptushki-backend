@@ -55,10 +55,6 @@ import elapsedTimeBetween2Dates from '../utils/elapsedTimeBetween2Dates';
 import distanceBy2PointsWithLnLt from '../utils/distanceBy2PointsWithLnLt';
 import EURINGCodeParser from '../utils/EURINGCodeParser';
 
-export interface NewObservation {
-  finder: User;
-}
-
 export enum Verified {
   Pending = 'pending',
   Approved = 'approved',
