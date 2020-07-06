@@ -1,5 +1,6 @@
 import AbstractExporter, { ExporterType, ExportOutput } from './AbstractExporter';
 import EURINGExporterForObservations from './EURINGExporterForObservations';
+import EURINGExporterForRings from './EURINGExporterForRings';
 import PDFExporterForObservations from './PDFExporterForObservations';
 import XLSExporterForObservations from './XLSExporterForObservations';
 import XLSTemplateExporterForObservations from './XLSTemplateExporterForObservations';
@@ -16,6 +17,7 @@ export default class Exporter {
 
     this.exporters = [
       new EURINGExporterForObservations(),
+      new EURINGExporterForRings(),
       // @ts-ignore FIXME while implementing pdf export
       new PDFExporterForObservations(),
       new XLSExporterForObservations(),

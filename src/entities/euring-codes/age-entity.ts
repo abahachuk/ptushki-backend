@@ -1,14 +1,14 @@
 import { Entity, PrimaryColumn, Column, OneToMany } from 'typeorm';
 import { Length, IsAlphanumeric, IsOptional, IsString } from 'class-validator';
 import { equalLength } from '../../validation/validation-messages';
-import { EntityDto } from '../common-interfaces';
+import { EURINGEntityDto } from '../common-interfaces';
 import { Ring } from '../ring-entity';
 import { BasaRing } from '../basa-ring-entity';
 import { Observation } from '../observation-entity';
 
 // Related tables in access are 'Age' and 'Age by Schem' (they are similar)
 @Entity()
-export class Age implements EntityDto {
+export class Age implements EURINGEntityDto {
   @IsAlphanumeric()
   @Length(1, 1, { message: equalLength(1) })
   @PrimaryColumn()

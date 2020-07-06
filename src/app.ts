@@ -6,12 +6,15 @@ import { Server } from 'typescript-rest';
 import { setLogger } from './utils/logger';
 import errorHandler from './controllers/error-controller';
 import { initPassport } from './services/auth-service';
+import { initMailService } from './services/mail-service';
 import getServiceFactory from './service-factory';
 
 const createApp = async (): Promise<Application> => {
   const app = express();
 
   initPassport();
+  initMailService();
+
   app.use(setLogger);
   app.use(bodyParser.json());
   app.use(bodyParser.urlencoded({ extended: true }));

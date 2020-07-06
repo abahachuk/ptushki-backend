@@ -3,6 +3,7 @@ import {
   IsUUID,
   Length,
   IsDateString,
+  IsArray,
   IsString,
   IsOptional,
   IsAlpha,
@@ -17,6 +18,7 @@ import {
 import { IsAlphaWithHyphen, IsAlphanumericWithHyphen, IsNumberStringWithHyphen } from '../validation/custom-decorators';
 import { equalLength } from '../validation/validation-messages';
 import { User, UserDto } from './user-entity';
+import Mark from './submodels/Mark';
 import { Person, PersonDto } from './person-entity';
 import { Ring, RingDto } from './ring-entity';
 import {
@@ -46,15 +48,9 @@ import {
   EURINGCodeIdentifier,
   BroodSize,
 } from './euring-codes';
-import { AbleToExportAndImportEuring, EntityDto, EURINGCodes } from './common-interfaces';
+import { AbleToImportEURINGCode, EURINGEntityDto, EURINGCodes } from './common-interfaces';
 import { ColumnNumericTransformer } from '../utils/ColumnNumericTransformer';
-import { fromDateToEuringDate, fromDateToEuringTime, fromEuringToDate } from '../utils/date-parser';
-import { fromDecimalToEuring, DecimalCoordinates, fromEuringToDecimal } from '../utils/coords-parser';
-import { fromStringToValueOrNull, fromNumberToPaddedString } from '../utils/custom-parsers';
-
-export interface NewObservation {
-  finder: User;
-}
+import EURINGCodeParser from '../utils/EURINGCodeParser';
 
 export enum Verified {
   Pending = 'pending',
@@ -62,71 +58,70 @@ export enum Verified {
   Rejected = 'rejected',
 }
 
-// TODO: extract right fields for raw observation from mobile and web
 // From mobile and web we accept entity with not all field filled
-interface RawObservationBase<TCommon, TRing, TSpecies, TPlaceCode> {
-  ring: TRing;
-  ringMentioned: string;
+interface RawObservationBase<TCommon, TSpecies> {
+  ringMentioned?: string;
+  otherMarks?: Mark[];
   speciesMentioned: TSpecies;
   sexMentioned: TCommon;
   ageMentioned: TCommon;
-  latitude?: number;
-  longitude?: number;
-  photos?: string[];
-  distance?: number;
-  direction?: number;
-  remarks?: string;
-  date?: Date;
+  latitude: number;
+  longitude: number;
+  date: Date;
   accuracyOfDate: TCommon;
-  placeCode: TPlaceCode;
+  photos?: string[];
+  remarks?: string;
 }
 
 // Model for observation with all not technical fields
 // Used for dtos for responses
 export interface ObservationBase<TFinder, TOfFinder, TCommon, TRing, TSpecies, TPlaceCode>
-  extends RawObservationBase<TCommon, TRing, TSpecies, TPlaceCode> {
+  extends RawObservationBase<TCommon, TSpecies> {
   id: string;
+  ring: TRing;
   speciesConcluded: TSpecies;
   sexConcluded: TCommon;
   ageConcluded: TCommon;
   finder: TFinder;
   offlineFinder: TOfFinder;
   offlineFinderNote: string | null;
+  distance: number | null;
+  direction: number | null;
   elapsedTime: number | null;
-  colorRing: string | null;
-  ringingScheme: EntityDto;
-  primaryIdentificationMethod: EntityDto;
-  verificationOfTheMetalRing: EntityDto;
-  metalRingInformation: EntityDto;
-  otherMarksInformation: EntityDto;
-  euringCodeIdentifier: EntityDto;
-  broodSize: EntityDto;
-  manipulated: EntityDto;
-  movedBeforeTheCapture: EntityDto;
-  catchingMethod: EntityDto;
-  catchingLures: EntityDto;
-  accuracyOfCoordinates: EntityDto;
-  status: EntityDto;
-  pullusAge: EntityDto;
-  accuracyOfPullusAge: EntityDto;
-  condition: EntityDto;
-  circumstances: EntityDto;
-  circumstancesPresumed: EntityDto;
+  ringingScheme: EURINGEntityDto;
+  primaryIdentificationMethod: EURINGEntityDto;
+  verificationOfTheMetalRing: EURINGEntityDto;
+  metalRingInformation: EURINGEntityDto;
+  otherMarksInformation: EURINGEntityDto;
+  euringCodeIdentifier: EURINGEntityDto;
+  broodSize: EURINGEntityDto;
+  manipulated: EURINGEntityDto;
+  movedBeforeTheCapture: EURINGEntityDto;
+  catchingMethod: EURINGEntityDto;
+  catchingLures: EURINGEntityDto;
+  accuracyOfCoordinates: EURINGEntityDto;
+  status: EURINGEntityDto;
+  pullusAge: EURINGEntityDto;
+  accuracyOfPullusAge: EURINGEntityDto;
+  condition: EURINGEntityDto;
+  circumstances: EURINGEntityDto;
+  circumstancesPresumed: EURINGEntityDto;
+  placeCode: TPlaceCode;
   placeName: string | null;
   verified: Verified;
 }
 
 // Can't use type due to typescript-swagger restrictions
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
-export interface RawObservationDto extends RawObservationBase<string, string, string, string> {}
+export interface RawObservationDto extends RawObservationBase<string, string> {}
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
 export interface ObservationBaseDto extends ObservationBase<string, string, string, string, string, string> {}
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
 export interface ObservationDto
-  extends ObservationBase<UserDto, PersonDto, EntityDto, RingDto, SpeciesDto, PlaceCodeDto> {}
+  extends ObservationBase<UserDto, PersonDto, EURINGEntityDto, RingDto, SpeciesDto, PlaceCodeDto> {}
 
 @Entity()
-export class Observation implements ObservationDto, AbleToExportAndImportEuring, EURINGCodes {
+export class Observation implements ObservationDto, AbleToImportEURINGCode, EURINGCodes {
   @PrimaryGeneratedColumn('uuid')
   public id: string;
 
@@ -173,6 +168,7 @@ export class Observation implements ObservationDto, AbleToExportAndImportEuring,
   @Column('varchar', { array: true, nullable: true, default: null })
   public photos: string[];
 
+  @IsOptional()
   @IsAlpha()
   @Length(3, 3, { message: equalLength(3) })
   @ManyToOne(() => RingingScheme, m => m.observation, {
@@ -180,6 +176,7 @@ export class Observation implements ObservationDto, AbleToExportAndImportEuring,
   })
   public ringingScheme: RingingScheme;
 
+  @IsOptional()
   @IsAlphanumeric()
   @Length(2, 2, { message: equalLength(2) })
   @ManyToOne(() => PrimaryIdentificationMethod, m => m.observation, {
@@ -187,6 +184,7 @@ export class Observation implements ObservationDto, AbleToExportAndImportEuring,
   })
   public primaryIdentificationMethod: PrimaryIdentificationMethod;
 
+  @IsOptional()
   @IsInt()
   @Min(0)
   @Max(9)
@@ -195,6 +193,7 @@ export class Observation implements ObservationDto, AbleToExportAndImportEuring,
   })
   public verificationOfTheMetalRing: VerificationOfTheMetalRing;
 
+  @IsOptional()
   @IsInt()
   @Min(0)
   @Max(7)
@@ -203,13 +202,15 @@ export class Observation implements ObservationDto, AbleToExportAndImportEuring,
   })
   public metalRingInformation: MetalRingInformation;
 
-  @IsAlpha()
+  @IsOptional()
+  @IsAlphaWithHyphen()
   @Length(2, 2, { message: equalLength(2) })
   @ManyToOne(() => OtherMarksInformation, m => m.observation, {
     eager: true,
   })
   public otherMarksInformation: OtherMarksInformation;
 
+  @IsOptional()
   @IsInt()
   @Min(0)
   @Max(4)
@@ -218,6 +219,7 @@ export class Observation implements ObservationDto, AbleToExportAndImportEuring,
   })
   public euringCodeIdentifier: EURINGCodeIdentifier;
 
+  @IsOptional()
   @IsNumberStringWithHyphen()
   @Length(2, 2, { message: equalLength(2) })
   @ManyToOne(() => BroodSize, m => m.observation, {
@@ -276,7 +278,7 @@ export class Observation implements ObservationDto, AbleToExportAndImportEuring,
   @Min(0)
   @Max(99999)
   @Column('integer', { nullable: true, default: null })
-  public distance: number;
+  public distance: number | null;
 
   // Related field in access 'Derived data directions'
   @IsOptional()
@@ -284,7 +286,7 @@ export class Observation implements ObservationDto, AbleToExportAndImportEuring,
   @Min(0)
   @Max(359)
   @Column('smallint', { nullable: true, default: null })
-  public direction: number;
+  public direction: number | null;
 
   // Related field in access 'Derived data elapsed time'
   @IsOptional()
@@ -294,11 +296,11 @@ export class Observation implements ObservationDto, AbleToExportAndImportEuring,
   @Column('integer', { nullable: true, default: null })
   public elapsedTime: number | null;
 
-  // Not presented in euring standart
+  // Not presented in euring standard
   @IsOptional()
-  @IsString()
-  @Column('varchar', { nullable: true, default: null })
-  public colorRing: string | null;
+  @IsArray()
+  @Column('jsonb', { nullable: true, default: null })
+  public otherMarks: Mark[];
 
   @IsOptional()
   @IsAlpha()
@@ -373,7 +375,8 @@ export class Observation implements ObservationDto, AbleToExportAndImportEuring,
   })
   public longitude: number;
 
-  @IsAlphanumeric()
+  @IsOptional()
+  @IsAlphanumericWithHyphen()
   @Length(4, 4, { message: equalLength(4) })
   @ManyToOne(() => PlaceCode, m => m.ring, {
     eager: true,
@@ -451,7 +454,7 @@ export class Observation implements ObservationDto, AbleToExportAndImportEuring,
   @Column('varchar', { nullable: true, default: null })
   public remarks: string;
 
-  // Not presented in euring standart
+  // Not presented in euring standard
   @IsOptional()
   @IsEnum(Verified)
   @Column({
@@ -461,203 +464,14 @@ export class Observation implements ObservationDto, AbleToExportAndImportEuring,
   })
   public verified: Verified;
 
-  public static create(observation: RawObservationDto & { finder: string }): Observation {
+  public static create(observation: RawObservationDto & { finder: string; ring: string | null }): Observation {
     return Object.assign(new Observation(), observation);
   }
 
-  public exportEURING(): string {
-    return [
-      this.ringingScheme.id,
-      this.primaryIdentificationMethod.id,
-      this.identificationNumber, // we are using mentioned instead related
-      this.verificationOfTheMetalRing.id,
-      this.metalRingInformation.id,
-      this.otherMarksInformation.id,
-      this.speciesMentioned.id,
-      this.manipulated.id,
-      this.movedBeforeTheCapture.id,
-      this.catchingMethod.id,
-      this.catchingLures.id,
-      this.sexMentioned.id,
-      this.sexConcluded.id,
-      this.ageMentioned.id,
-      this.ageConcluded.id,
-      this.status.id,
-      this.broodSize.id,
-      this.pullusAge.id,
-      this.accuracyOfPullusAge.id,
-      fromDateToEuringDate(this.date),
-      this.accuracyOfDate.id,
-      fromDateToEuringTime(this.date),
-      this.placeCode.id,
-      fromDecimalToEuring(this.latitude, this.longitude),
-      this.accuracyOfCoordinates.id,
-      this.condition.id,
-      this.circumstances.id,
-      this.circumstancesPresumed.id,
-      this.euringCodeIdentifier.id,
-      fromNumberToPaddedString(this.distance, 5) || '-'.repeat(5),
-      fromNumberToPaddedString(this.direction, 3) || '-'.repeat(3),
-      fromNumberToPaddedString(this.elapsedTime as number, 5) || '-'.repeat(5),
-      // Below unsupported parameters that presented in EURING
-      '', // wing length
-      '', // third primary
-      '', // state of wing point
-      '', // mass
-      '', // moult
-      '', // plumage code
-      '', // hind claw
-      '', // bill length
-      '', // bill method
-      '', // total head length
-      '', // tarsus
-      '', // tarsus method
-      '', // tail length
-      '', // tail differnce
-      '', // fat score
-      '', // fat score method
-      '', // pectoral muscle
-      '', // brood patch
-      '', // primary score
-      '', // primary moult
-      '', // old greater coverts
-      '', // alula
-      '', // carpal covert
-      '', // sexing method
-      this.placeName,
-      this.remarks,
-      '', // reference
-    ].join('|');
-  }
-
-  /* eslint-disable */
   public importEURING(code: string): Observation {
-    const [
-      ringingScheme,
-      primaryIdentificationMethod,
-      identificationNumber,
-      verificationOfTheMetalRing,
-      metalRingInformation,
-      otherMarksInformation,
-      speciesMentioned,
-      manipulated,
-      movedBeforeTheCapture,
-      catchingMethod,
-      catchingLures,
-      sexMentioned,
-      sexConcluded,
-      ageMentioned,
-      ageConcluded,
-      status,
-      broodSize,
-      pullusAge,
-      accuracyOfPullusAge,
-      date,
-      accuracyOfDate,
-      time,
-      placeCode,
-      latitudeLongitude,
-      accuracyOfCoordinates,
-      condition,
-      circumstances,
-      circumstancesPresumed,
-      euringCodeIdentifier,
-      distance,
-      direction,
-      elapsedTime,
-      // Below params except "placeName" and "remarks" are unsupported, but they presented in EURING
-      // @ts-ignore
-      wingLength,
-      // @ts-ignore
-      thirdPrimary,
-      // @ts-ignore
-      stateOfWingPoint,
-      // @ts-ignore
-      mass,
-      // @ts-ignore
-      moult,
-      // @ts-ignore
-      plumageCode,
-      // @ts-ignore
-      hindClaw,
-      // @ts-ignore
-      billLength,
-      // @ts-ignore
-      billMethod,
-      // @ts-ignore
-      totalHeadLength,
-      // @ts-ignore
-      tarsus,
-      // @ts-ignore
-      tarsusMethod,
-      // @ts-ignore
-      tailLength,
-      // @ts-ignore
-      tailDiffernce,
-      // @ts-ignore
-      fatScore,
-      // @ts-ignore
-      fatScoreMethod,
-      // @ts-ignore
-      pectoralMuscle,
-      // @ts-ignore
-      broodPatch,
-      // @ts-ignore
-      primaryScore,
-      // @ts-ignore
-      primaryMoult,
-      // @ts-ignore
-      oldGreaterCoverts,
-      // @ts-ignore
-      alula,
-      // @ts-ignore
-      carpalCovert,
-      // @ts-ignore
-      sexingMethod,
-      // @ts-ignore
-      placeName,
-      remarks,
-      // @ts-ignore
-      reference,
-    ] = code.split('|');
-
-    const { latitude, longitude }: DecimalCoordinates = fromEuringToDecimal(latitudeLongitude);
-
-    return Object.assign(this, {
-      ringingScheme: fromStringToValueOrNull(ringingScheme),
-      primaryIdentificationMethod: fromStringToValueOrNull(primaryIdentificationMethod),
-      verificationOfTheMetalRing: fromStringToValueOrNull(verificationOfTheMetalRing, Number),
-      metalRingInformation: fromStringToValueOrNull(metalRingInformation, Number),
-      otherMarksInformation: fromStringToValueOrNull(otherMarksInformation),
-      broodSize: fromStringToValueOrNull(broodSize),
-      euringCodeIdentifier: fromStringToValueOrNull(euringCodeIdentifier, Number),
-      ringMentioned: fromStringToValueOrNull(identificationNumber),
-      speciesMentioned: fromStringToValueOrNull(speciesMentioned),
-      manipulated: fromStringToValueOrNull(manipulated),
-      movedBeforeTheCapture: fromStringToValueOrNull(movedBeforeTheCapture, Number),
-      catchingMethod: fromStringToValueOrNull(catchingMethod),
-      catchingLures: fromStringToValueOrNull(catchingLures),
-      sexMentioned: fromStringToValueOrNull(sexMentioned),
-      sexConcluded: fromStringToValueOrNull(sexConcluded),
-      ageMentioned: fromStringToValueOrNull(ageMentioned),
-      ageConcluded: fromStringToValueOrNull(ageConcluded),
-      status: fromStringToValueOrNull(status),
-      pullusAge: fromStringToValueOrNull(pullusAge),
-      accuracyOfPullusAge: fromStringToValueOrNull(accuracyOfPullusAge),
-      date: fromEuringToDate(date, time),
-      accuracyOfDate: fromStringToValueOrNull(accuracyOfDate, Number),
-      placeCode: fromStringToValueOrNull(placeCode),
-      latitude,
-      longitude,
-      accuracyOfCoordinates: fromStringToValueOrNull(accuracyOfCoordinates, Number),
-      condition: fromStringToValueOrNull(condition, Number),
-      circumstances: fromStringToValueOrNull(circumstances),
-      circumstancesPresumed: fromStringToValueOrNull(circumstancesPresumed, Number),
-      distance: fromStringToValueOrNull(distance, Number),
-      direction: fromStringToValueOrNull(direction, Number),
-      elapsedTime: fromStringToValueOrNull(elapsedTime, Number),
-      placeName: fromStringToValueOrNull(placeName),
-      remarks: fromStringToValueOrNull(remarks),
-    });
+    const preEntity = EURINGCodeParser(code);
+    const { identificationNumber: ringMentioned } = preEntity;
+    delete preEntity.identificationNumber;
+    return Object.assign(this, preEntity, { ringMentioned });
   }
 }

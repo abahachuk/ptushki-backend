@@ -2,7 +2,7 @@ swagger:
   outputDirectory: ./dist
   entryFile:
     - src/controllers/*-controller.ts
-  outputFormat: OpenApi_2
+  outputFormat: openapi_3
   basePath: /
   name: Ptushki API
   description: This is a sample for ptushki-backend API documentation

@@ -1,6 +1,7 @@
 import AbstractImporter, { ImporterType, ImportInput, ImportOutput } from './AbstractImporter';
 import EURINGImporterForObservations from './EURINGImporterForObservations';
 import { ImportWorksheetXLSDto } from './XLSBaseImporter';
+import EURINGImporterForRings from './EURINGImporterForRings';
 import XLSImporterForObservations from './XLSImporterForObservations';
 import XLSImporterForRings from './XLSImporterForRings';
 import { CustomError } from '../../utils/CustomError';
@@ -12,7 +13,12 @@ export default class Importer {
 
   public constructor(route: string) {
     this.route = route;
-    this.exporters = [new EURINGImporterForObservations(), new XLSImporterForObservations(), new XLSImporterForRings()];
+    this.exporters = [
+      new EURINGImporterForObservations(),
+      new XLSImporterForObservations(),
+      new XLSImporterForRings(),
+      new EURINGImporterForRings(),
+    ];
   }
 
   private getImporter(type: ImporterType): AbstractImporter | undefined {
@@ -31,6 +37,7 @@ export default class Importer {
     if (!importer) {
       throw new CustomError(`Type ${type} isn't supported import type for ${this.route}`, 400);
     }
+
     return importer.import(sources);
   }
   /* eslint-enable no-dupe-class-members, lines-between-class-members */

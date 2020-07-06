@@ -6,6 +6,11 @@ import { parseValidationErrors } from '../validation/validation-results-parser';
 
 const UUID_LENGTH = config.get('UUID_LENGTH');
 
+interface ConstructorFabric {
+  create(...args: any): Record<string, any>;
+  new (): {};
+}
+
 export default abstract class AbstractController {
   private entity: Repository<any>;
 
@@ -29,13 +34,14 @@ export default abstract class AbstractController {
     return instance;
   }
 
-  protected setMainEntity(entity: Repository<any>) {
+  protected setMainEntity(entity: Repository<any>): void {
     this.entity = entity;
   }
 
   // Argument 'data' it is a new data, and argument existedData is optional and needed for refreshing existing data in db
-  protected async validate(data: any, existedData: any = {}): Promise<void> {
-    const createdModel = await this.entity.create(Object.assign(existedData, data));
+  protected async validate(data: any, existedData: any = {}, entity?: ConstructorFabric): Promise<void> {
+    const createdModel = await (entity || this.entity).create(Object.assign(existedData, data));
+    // FIXME validation should be run with { forbidNonWhitelisted: true, forbidUnknownValues: true }
     const errors = await validate(createdModel);
     if (errors.length) {
       const parsedErrors = parseValidationErrors(errors);

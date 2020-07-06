@@ -1,7 +1,62 @@
 entity: PrimaryIdentificationMethod
-processor: ./PrimaryIdentificationMethodProcessor
 items:
-  primaryIdentificationMethod{0..11}:
-    desc_eng: '{{lorem.sentence}}'
-    desc_rus: '{{lorem.sentence}}'
-    desc_byn: '{{lorem.sentence}}'
+  primaryIdentificationMethod0:
+    id: A0
+    desc_eng: 'Metal ring'
+    desc_rus: 'Металлическое кольцо'
+    desc_byn: 'Металічнае кaльцо'
+  primaryIdentificationMethod1:
+    id: B0
+    desc_eng: 'Coloured or numbered leg ring(s)'
+    desc_rus: 'Цветное или нумерованное ножное кольцо(а)'
+    desc_byn: 'Каляровае або нумараванае нажное кальцо(а)'
+  primaryIdentificationMethod2:
+    id: C0
+    desc_eng: 'Coloured or numbered neck ring(s)'
+    desc_rus: 'Цветное или нумерованное кольцо(а) на шее'
+    desc_byn: 'Каляровае або нумараванае кальцо(а) на шыі'
+  primaryIdentificationMethod3:
+    id: D0
+    desc_eng: 'Wing tags'
+    desc_rus: 'Крылометки'
+    desc_byn: 'Крыламеткі'
+  primaryIdentificationMethod4:
+    id: E0
+    desc_eng: 'Radio tracking device'
+    desc_rus: 'Радио-трекер'
+    desc_byn: 'Радыё-трэкер'
+  primaryIdentificationMethod5:
+    id: F0
+    desc_eng: 'Satellite tracking device'
+    desc_rus: 'Спутниковое отслеживающее устройство'
+    desc_byn: 'Спадарожнікавая адсочваючая прылада'
+  primaryIdentificationMethod6:
+    id: G0
+    desc_eng: 'Transponder'
+    desc_rus: 'Транспондер'
+    desc_byn: 'Транспондзер'
+  primaryIdentificationMethod7:
+    id: H0
+    desc_eng: 'Nasal mark(s)'
+    desc_rus: 'Клювометка(и)'
+    desc_byn: 'Дзюбаметка(і)'
+  primaryIdentificationMethod8:
+    id: K0
+    desc_eng: 'GPS loggers'
+    desc_rus: 'GPS датчик'
+    desc_byn: 'GPS датчык'
+  primaryIdentificationMethod9:
+    id: L0
+    desc_eng: 'Geolocator loggers (recording daylight)'
+    desc_rus: 'Геолокационный датчик'
+    desc_byn: 'Геолакацыйны датчык'
+  primaryIdentificationMethod10:
+    id: R0
+    desc_eng: 'Flight feather(s) stamped with a number'
+    desc_rus: 'Летное перо(ья) помеченные номером'
+    desc_byn: 'Лётнае пяро (`я) пазначаныя нумарам'
+  primaryIdentificationMethod11:
+    id: T0
+    desc_eng: 'Body or wing painting or bleaching'
+    desc_rus: 'Окрашенное тело или крылья'
+    desc_byn: 'Афарбаванае цела або крылы'
