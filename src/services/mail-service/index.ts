@@ -1,11 +1,12 @@
 import config from 'config';
-import { MailSender, DummyMailSender, SendGridMailSender } from './MailSender';
+import { MailSender, DummyMailSender, SesMailSender } from './MailSender';
+import { getVerifyMail, getPasswordChangeMail, getPasswordResetMail } from '../../templates/mail';
 
-const { service } = config.get('mailService');
+const { service, from } = config.get('mailService');
 
 const mailSenderMap: { [key: string]: { new (...args: string[]): MailSender } } = {
   Dummy: DummyMailSender,
-  SendGrid: SendGridMailSender,
+  SES: SesMailSender,
 };
 
 export class MailService {
@@ -15,16 +16,23 @@ export class MailService {
     this.mailSender = sender;
   }
 
-  public sendChangeRequestMail(token: string, email: string): Promise<void> {
-    return this.mailSender.sendChangeRequestMail(token, email);
+  public sendSignupVerifyMail(email: string, token: string): Promise<void> {
+    const { subject, body } = getVerifyMail(token);
+    return this.mailSender.sendEmail({ from, to: email, subject, text: body });
+  }
+
+  public sendChangeRequestMail(email: string, token: string): Promise<void> {
+    const { subject, body } = getPasswordChangeMail(token);
+    return this.mailSender.sendEmail({ from, to: email, subject, text: body });
   }
 
   public sendResetCompleteMail(email: string): Promise<void> {
-    return this.mailSender.sendResetCompleteMail(email);
+    const { subject, body } = getPasswordResetMail(email);
+    return this.mailSender.sendEmail({ from, to: email, subject, text: body });
   }
 }
 
-let mailService: MailService | null;
+let mailService: MailService | null = null;
 
 export const getMailServiceInstance = (): MailService => {
   if (mailService === null) {

@@ -17,7 +17,6 @@ export class CachedRepository<T> extends Repository<T> {
 
     const records = await this.getAll();
     const result = records.map((item: T & Record<string, any>) => {
-      // eslint-disable-next-line @typescript-eslint/camelcase
       const { desc_eng, desc_rus, desc_byn, ...rest } = item;
       const desc = `desc_${lang}`;
       const newItem = Object.assign({}, rest, { desc: item[desc] });
@@ -38,7 +37,10 @@ export class CachedRepository<T> extends Repository<T> {
   public async getAllIds(): Promise<(string | number)[]> {
     const key = `${this.metadata.name}_allIds`;
     if (!cache.has(key)) {
-      cache.set(key, (await this.getAll()).map(({ id }: Record<string, any>) => id));
+      cache.set(
+        key,
+        (await this.getAll()).map(({ id }: Record<string, any>) => id),
+      );
     }
     return cache.get(key);
   }

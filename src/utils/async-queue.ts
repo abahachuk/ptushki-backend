@@ -1,6 +1,6 @@
 const run = (tasks: (() => any | Promise<any>)[]) => tasks.map(task => task());
 
-export function executeInThreadedQueue(tasks: (() => any | Promise<any>)[], maxThreads: number = 5) {
+export function executeInThreadedQueue(tasks: (() => any | Promise<any>)[], maxThreads = 5) {
   const ttasks = tasks.slice();
   let currentTask = 0;
   let threads = maxThreads;
@@ -25,7 +25,10 @@ export function executeInThreadedQueue(tasks: (() => any | Promise<any>)[], maxT
   };
   return new Promise((resolve, reject) => {
     if (tasks.length <= maxThreads) {
-      Promise.all(run(tasks)).then(res => resolve(res), err => reject(err));
+      Promise.all(run(tasks)).then(
+        res => resolve(res),
+        err => reject(err),
+      );
     } else
       while (threadsOnStart) {
         threadsOnStart -= 1;

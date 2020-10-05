@@ -8,27 +8,33 @@ items:
     phone: '{{phone.phoneNumber}}'
     firstName: '{{name.firstName}}'
     lastName: '{{name.lastName}}'
+    verifiedEmail: 'true'
   user{1..10}:
     firstName: '{{name.firstName}}'
     lastName: '{{name.lastName}}'
     email: '{{internet.email}}'
     phone: '{{phone.phoneNumber}}'
     password: '1234'
+    verifiedEmail: 'true'
   user11:
     email: 'observer@mail.com'
     password: '1234'
     role: 'observer'
     phone: '{{phone.phoneNumber}}'
+    verifiedEmail: 'true'
   user12:
     email: 'ringer@mail.com'
     password: '1234'
     role: 'ringer'
     phone: '{{phone.phoneNumber}}'
+    verifiedEmail: 'true'
   user13:
     email: 'scientist@mail.com'
     password: '1234'
     role: 'scientist'
+    verifiedEmail: 'true'
   user14:
     email: 'moderator@mail.com'
     password: '1234'
     role: 'moderator'
+    verifiedEmail: 'true'

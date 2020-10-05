@@ -11,6 +11,7 @@ export interface WithCredentials {
   password: string;
 }
 
+// eslint-disable-next-line no-shadow
 export enum UserRole {
   Observer = 'observer',
   Ringer = 'ringer',
@@ -79,6 +80,15 @@ export class User implements UserDto {
   })
   public email: string;
 
+  @IsEmail()
+  @MinLength(6)
+  @MaxLength(64)
+  @Column({
+    type: 'bool',
+    default: false,
+  })
+  public verifiedEmail: boolean;
+
   @IsOptional()
   @IsString()
   @MinLength(1)
@@ -109,13 +119,22 @@ export class User implements UserDto {
   @Column()
   public salt: string;
 
-  @OneToMany(() => Ring, m => m.ringer)
+  @OneToMany(
+    () => Ring,
+    m => m.ringer,
+  )
   public ring: Ring[];
 
-  @OneToMany(() => Observation, m => m.finder)
+  @OneToMany(
+    () => Observation,
+    m => m.finder,
+  )
   public observation: Observation[];
 
-  @OneToMany(() => BasaRing, m => m.ringer)
+  @OneToMany(
+    () => BasaRing,
+    m => m.ringer,
+  )
   public basaRing: BasaRing[];
 
   public static async create(values: CreateUserDto): Promise<User> {

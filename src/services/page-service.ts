@@ -3,6 +3,7 @@ import { FindManyOptions } from 'typeorm';
 
 const { pageNumberDefault, pageSizeDefault, sortingDirectionDefault } = config.get('paging');
 
+// eslint-disable-next-line no-shadow
 export enum SortingDirection {
   asc = 'ASC',
   desk = 'DESC',

@@ -6,7 +6,6 @@ export default class PlaceCodeProcessor implements IProcessor<PlaceCode> {
   public preProcess(_name: string, object: any): any {
     return {
       ...object,
-      /* eslint-disable @typescript-eslint/camelcase */
       desc_eng: `${object.country} ${object.region}`,
     };
   }

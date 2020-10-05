@@ -32,7 +32,7 @@ jest.setTimeout(30000);
 let tokenRepository: Repository<RefreshToken>;
 let userRepository: Repository<User>;
 let resetTokenRepository: Repository<ResetToken>;
-let mailServise: MailService;
+let mailService: MailService;
 
 let spyOnSendChangeRequestMail: jest.SpyInstance<Promise<void>, [string, string]>;
 let spyOnSendResetCompleteMail: jest.SpyInstance<Promise<void>, [string]>;
@@ -43,10 +43,10 @@ beforeAll(async () => {
   tokenRepository = getRepository(RefreshToken);
   userRepository = getRepository(User);
   resetTokenRepository = getRepository(ResetToken);
-  mailServise = getMailServiceInstance();
+  mailService = getMailServiceInstance();
 
-  spyOnSendChangeRequestMail = jest.spyOn(mailServise, 'sendChangeRequestMail');
-  spyOnSendResetCompleteMail = jest.spyOn(mailServise, 'sendResetCompleteMail');
+  spyOnSendChangeRequestMail = jest.spyOn(mailService, 'sendChangeRequestMail');
+  spyOnSendResetCompleteMail = jest.spyOn(mailService, 'sendResetCompleteMail');
 });
 
 afterAll(async () => {
@@ -332,14 +332,16 @@ describe('Auth', () => {
       const clientToLogout = 0;
       const pair = tokenPairs[clientToLogout];
 
-      (await Promise.all(
-        tokenPairs.map(({ token }) =>
-          request(app)
-            .get(urls.test)
-            .set('Accept', 'application/json')
-            .set('Authorization', token),
-        ),
-      )).forEach(({ status }) => expect(status).toEqual(200));
+      (
+        await Promise.all(
+          tokenPairs.map(({ token }) =>
+            request(app)
+              .get(urls.test)
+              .set('Accept', 'application/json')
+              .set('Authorization', token),
+          ),
+        )
+      ).forEach(({ status }) => expect(status).toEqual(200));
 
       await request(app)
         .post(urls.logout)
@@ -349,13 +351,15 @@ describe('Auth', () => {
           closeAllSessions: true,
         });
 
-      (await Promise.all(
-        tokenPairs.map(({ refreshToken }) =>
-          request(app)
-            .post(urls.refresh)
-            .send({ refreshToken }),
-        ),
-      )).forEach(({ status }) => expect(status).toEqual(401));
+      (
+        await Promise.all(
+          tokenPairs.map(({ refreshToken }) =>
+            request(app)
+              .post(urls.refresh)
+              .send({ refreshToken }),
+          ),
+        )
+      ).forEach(({ status }) => expect(status).toEqual(401));
     });
 
     it('logout independently by each token', async () => {
@@ -373,14 +377,16 @@ describe('Auth', () => {
       const clientToLogout = 0;
       const pair = tokenPairs[clientToLogout];
 
-      (await Promise.all(
-        tokenPairs.map(({ token }) =>
-          request(app)
-            .get(urls.test)
-            .set('Accept', 'application/json')
-            .set('Authorization', token),
-        ),
-      )).forEach(({ status }) => expect(status).toEqual(200));
+      (
+        await Promise.all(
+          tokenPairs.map(({ token }) =>
+            request(app)
+              .get(urls.test)
+              .set('Accept', 'application/json')
+              .set('Authorization', token),
+          ),
+        )
+      ).forEach(({ status }) => expect(status).toEqual(200));
 
       await request(app)
         .post(urls.logout)
@@ -390,13 +396,15 @@ describe('Auth', () => {
           closeAllSessions: false,
         });
 
-      (await Promise.all(
-        tokenPairs.map(({ refreshToken }) =>
-          request(app)
-            .post(urls.refresh)
-            .send({ refreshToken }),
-        ),
-      )).forEach(({ status }, i) => expect(status).toEqual(i === clientToLogout ? 401 : 200));
+      (
+        await Promise.all(
+          tokenPairs.map(({ refreshToken }) =>
+            request(app)
+              .post(urls.refresh)
+              .send({ refreshToken }),
+          ),
+        )
+      ).forEach(({ status }, i) => expect(status).toEqual(i === clientToLogout ? 401 : 200));
     });
   });
 
@@ -410,22 +418,25 @@ describe('Auth', () => {
 
     beforeAll(async () => {
       [observer, admin] = await Promise.all(
-        [{ email: observerEmail, password }, { email: adminEmail, password, role: UserRole.Admin }].map(
-          (creds: CreateUserDto) => User.create(creds).then(newUser => userRepository.save(newUser)),
-        ),
+        [
+          { email: observerEmail, password },
+          { email: adminEmail, password, role: UserRole.Admin },
+        ].map((creds: CreateUserDto) => User.create(creds).then(newUser => userRepository.save(newUser))),
       );
       tokenPairs = [observer, admin].map(({ id, role }) => signTokens({ userId: id, userRole: role }));
     });
 
     it('allow to any authenticated user access route with minimal access required (Observer level)', async () => {
-      (await Promise.all(
-        tokenPairs.map(({ token }) =>
-          request(app)
-            .get(urls.test)
-            .set('Accept', 'application/json')
-            .set('Authorization', token),
-        ),
-      )).forEach(({ status }) => expect(status).toEqual(200));
+      (
+        await Promise.all(
+          tokenPairs.map(({ token }) =>
+            request(app)
+              .get(urls.test)
+              .set('Accept', 'application/json')
+              .set('Authorization', token),
+          ),
+        )
+      ).forEach(({ status }) => expect(status).toEqual(200));
     });
 
     it("not allow access admin's route for observer", async () => {
@@ -546,9 +557,10 @@ describe('Auth', () => {
       expiredResetToken = signResetToken({ email: secondUserEmail, userId: secondUser.id }, -1);
 
       await Promise.all(
-        [{ user: firstUser, token: firstUserResetToken }, { user: secondUser, token: expiredResetToken }].map(
-          ({ user, token }) => resetTokenRepository.save(new ResetToken(token, user.id)),
-        ),
+        [
+          { user: firstUser, token: firstUserResetToken },
+          { user: secondUser, token: expiredResetToken },
+        ].map(({ user, token }) => resetTokenRepository.save(new ResetToken(token, user.id))),
       );
     });
 

@@ -11,6 +11,7 @@ export const upload = (options: MulterOptions) => {
   const defaultOptions: Options = {
     fileFilter: (
       _req: Request,
+      // eslint-disable-next-line no-undef
       file: Express.Multer.File,
       callback: (error: Error | null, acceptFile: boolean) => void,
     ): void => {

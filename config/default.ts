@@ -31,15 +31,19 @@ export default {
     resetSecret: process.env.JWT_RESET_TOKEN_SECRET || 'secret',
     accessExpires: Number.parseInt(process.env.JWT_ACCESS_TOKEN_EXPIRES as string, 10) || '1h',
     refreshExpires: process.env.JWT_REFRESH_TOKEN_EXPIRES || '30d',
-    resetExpires: process.env.JWT_RESET_TOKEN_EXPIRES || '30d',
+    resetExpires: process.env.JWT_RESET_TOKEN_EXPIRES || '1m',
   },
   paging: {
     pageNumberDefault: 0,
     pageSizeDefault: 5,
     sortingDirectionDefault: 'ASC',
   },
+  // mailService: {
+  //   service: process.env.MAIL_SERVICE_SERVICE || 'Dummy',
+  //   senderMail: process.env.MAIL_SERVICE_SENDER || 'resetpassword@belring.net',
+  // },
   mailService: {
-    service: process.env.MAIL_SERVICE_SERVICE || 'Dummy',
-    senderMail: process.env.MAIL_SERVICE_SENDER || 'resetpassword@ptushki.by',
+    service: process.env.MAIL_SERVICE_NAME || 'SES',
+    from: process.env.MAIL_SERVICE_SENDER || 'no_reply@belring.net',
   },
 };

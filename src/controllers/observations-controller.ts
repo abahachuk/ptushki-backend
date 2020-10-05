@@ -33,15 +33,15 @@ import Importer from '../services/import';
 import { ObservationQuery, parseWhereParams, sanitizeUser } from '../services/observation-service';
 import { CustomError } from '../utils/CustomError';
 import { auth } from '../services/auth-service';
-import { UserRole } from '../entities/user-entity';
+import { UserRole, User } from '../entities/user-entity';
 import { ExporterType } from '../services/export/AbstractExporter';
 import { ImporterType } from '../services/import/AbstractImporter';
 import { ImportWorksheetXLSDto } from '../services/import/XLSBaseImporter';
 import { parsePageParams, SortingDirection } from '../services/page-service';
 
-interface RequestWithPageParams extends Request {
-  query: ObservationQuery;
-}
+// interface RequestWithPageParams extends Request<{ [key: string]: string }, any, any, ObservationQuery> {
+//   query: ObservationQuery;
+// }
 
 interface ObservationsListResponse {
   content: ObservationDto[];
@@ -90,13 +90,14 @@ export default class ObservationsController extends AbstractController {
   @Response<ObservationsListResponse>(200, 'List of all available observations.')
   @Response<CustomError>(401, 'Unauthorised.')
   public async getObservations(
-    @ContextRequest req: RequestWithPageParams,
+    @ContextRequest req: Request<unknown, unknown, unknown, ObservationQuery>,
     @QueryParam('pageNumber') pageNumber?: number,
     @QueryParam('pageSize') pageSize?: number,
     @QueryParam('sortingDirection') sortingDirection?: SortingDirection,
     @QueryParam('sortingColumn') sortingColumn?: string,
   ): Promise<ObservationsListResponse> {
-    const { query, user } = req;
+    const { query } = req;
+    const user = req.user as User;
 
     const paramsSearch = parsePageParams<Observation>({ pageNumber, pageSize, sortingColumn, sortingDirection });
     const paramsAggregation = parseWhereParams(user, query);
@@ -132,10 +133,10 @@ export default class ObservationsController extends AbstractController {
   @Response<CustomError>(401, 'Unauthorised.')
   // eslint-disable-next-line consistent-return
   public async getAggregations(
-    @ContextRequest req: Request,
-    // @ts-ignore FIXME
+    @ContextRequest req: Request<unknown, unknown, unknown, ObservationQuery>,
   ): Promise<AggregationsMap> {
-    const { query, user } = req;
+    const { query } = req;
+    const user = req.user as User;
 
     const paramsAggregation = parseWhereParams(user, query);
     const observations = await this.observations.find({ ...paramsAggregation });
@@ -208,7 +209,7 @@ export default class ObservationsController extends AbstractController {
     const newObservation = await Observation.create({
       ...rawObservation,
       ring: ring ? ring.id : null,
-      finder: req.user.id,
+      finder: (req.user as User).id,
     });
     await this.validate(newObservation);
     // @ts-ignore see https://github.com/typeorm/typeorm/issues/3490
@@ -378,6 +379,8 @@ export default class ObservationsController extends AbstractController {
   @Response<ImportWorksheetXLSDto>(200, 'Object of import result, with errors if needed.')
   @Response<CustomError>(401, 'Unauthorised.')
   @Response<CustomError>(403, 'Forbidden.')
+
+  // eslint-disable-next-line no-undef
   public async importXls(@FilesParam('files') files: Express.Multer.File[]): Promise<ImportWorksheetXLSDto> {
     return this.importer.handle(ImporterType.xls, { sources: files });
   }
@@ -393,7 +396,7 @@ export default class ObservationsController extends AbstractController {
   @Response<CustomError>(401, 'Unauthorised.')
   @Response<CustomError>(403, 'Forbidden.')
   public async importEuring(@ContextRequest req: Request, codes: string[]): Promise<{ ok: boolean }> {
-    await this.importer.handle(ImporterType.euring, { sources: codes, userId: req.user.id });
+    await this.importer.handle(ImporterType.euring, { sources: codes, userId: (req.user as User).id });
     return { ok: true };
   }
 }

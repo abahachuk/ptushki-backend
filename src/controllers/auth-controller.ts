@@ -1,7 +1,7 @@
 import { NextFunction, Request } from 'express';
 import { getRepository, Repository } from 'typeorm';
 import { TokenExpiredError, JsonWebTokenError } from 'jsonwebtoken';
-import { ContextNext, ContextRequest, Path, POST, Security, GET, PreProcessor } from 'typescript-rest';
+import { ContextNext, ContextRequest, Path, POST, Security, GET, PreProcessor, QueryParam } from 'typescript-rest';
 import { Tags, Response } from 'typescript-rest-swagger';
 
 import AbstractController from './abstract-controller';
@@ -16,7 +16,15 @@ import {
   ResetPasswordReqDto,
 } from '../entities/auth-entity';
 import { ResetToken } from '../entities/reset-token';
-import { signTokens, verifyRefreshToken, signResetToken, verifyResetToken, auth } from '../services/auth-service';
+import {
+  signTokens,
+  verifyRefreshToken,
+  signResetToken,
+  verifyResetToken,
+  auth,
+  signCheckEmailToken,
+  verifyCheckEmailToken,
+} from '../services/auth-service';
 import { addAudit } from '../services/audit-service';
 import { getMailServiceInstance, MailService } from '../services/mail-service';
 import { CustomError } from '../utils/CustomError';
@@ -30,14 +38,14 @@ export default class AuthController extends AbstractController {
 
   private resetTokens: Repository<ResetToken>;
 
-  private mailServise: MailService;
+  private mailService: MailService;
 
   public constructor() {
     super();
     this.users = getRepository(User);
     this.refreshTokens = getRepository(RefreshToken);
     this.resetTokens = getRepository(ResetToken);
-    this.mailServise = getMailServiceInstance();
+    this.mailService = getMailServiceInstance();
   }
 
   /**
@@ -47,26 +55,93 @@ export default class AuthController extends AbstractController {
   // TODO: move error handling to separate layer
   @POST
   @Path('/signup')
-  @Response<SuccessAuthDto>(200, 'Successfully signed up.')
+  @Response(200, 'successfully signed up. ')
   @Response<CustomError>(401, 'Authentication failed.')
-  public async signUp(newUser: CreateUserDto, @ContextNext next: NextFunction): Promise<SuccessAuthDto | void> {
+  public async signUp(newUser: CreateUserDto, @ContextNext next: NextFunction): Promise<{ ok: boolean } | void> {
     try {
       const user = await User.create(newUser);
       await this.users.save(user);
-      const { token, refreshToken } = signTokens({ userId: user.id, userRole: user.role });
-      await this.refreshTokens.save(new RefreshToken(refreshToken, user.id));
-      await addAudit('registration', '', null, user.id);
-      return {
-        user: User.sanitizeUser(user),
-        token,
-        refreshToken,
-      };
+      const checkEmailToken = signCheckEmailToken({ userId: user.id, email: user.email });
+      await this.mailService.sendSignupVerifyMail(user.email, checkEmailToken);
+      return { ok: true };
     } catch (e) {
       if (e.code === '23505') {
         // README with any new user uniq constraint this will become invalid statement
         return next(new CustomError('Such email already exists', 400));
       }
       return next(e);
+    }
+  }
+
+  @GET
+  @Path('/verify')
+  @Response<SuccessAuthDto>(200)
+  @Response<CustomError>(401, 'Authentication failed.')
+  public async verifyEmail(
+    @QueryParam('token') rtoken: string,
+    @ContextNext next: NextFunction,
+  ): Promise<SuccessAuthDto | void> {
+    try {
+      console.log(rtoken);
+      if (!rtoken) {
+        throw new CustomError('bad request', 400);
+      }
+      const { userId } = await verifyCheckEmailToken(rtoken);
+      const user = await this.users.findOne(userId);
+      if (!user) {
+        throw new CustomError("user doesn't exist", 401);
+      }
+      if (user.verifiedEmail) {
+        throw new CustomError('user is already activated', 401);
+      }
+
+      user.verifiedEmail = true;
+      this.users.save(user);
+
+      const { token, refreshToken } = signTokens({ userId: user.id, userRole: user.role });
+
+      await this.refreshTokens.save(new RefreshToken(refreshToken, user.id));
+
+      return {
+        user: User.sanitizeUser(user),
+        token,
+        refreshToken,
+      };
+    } catch (e) {
+      console.log(JSON.stringify(e));
+      if (e instanceof TokenExpiredError) {
+        return next(new CustomError('Token expired', 401));
+      }
+      if (e instanceof JsonWebTokenError) {
+        return next(new CustomError('Token invalid', 401));
+      }
+      return next(e);
+    }
+  }
+
+  @GET
+  @Path('/resendConfirmationEmail')
+  @Response(200)
+  public async sendConfirmationEmail(
+    @QueryParam('email') email: string,
+    @ContextNext next: NextFunction,
+  ): Promise<void> {
+    try {
+      if (!email) {
+        throw new CustomError('bad request', 400);
+      }
+      const user = await this.users.findOne({ where: { email } });
+      if (!user) {
+        throw new CustomError('bad request', 401);
+      }
+      if (user.verifiedEmail) {
+        throw new CustomError('user is already activated', 401);
+      }
+
+      const checkEmailToken = signCheckEmailToken({ userId: user.id, email: user.email });
+      await this.mailService.sendSignupVerifyMail(user.email, checkEmailToken);
+    } catch (e) {
+      next(e);
     }
   }
 
@@ -114,14 +189,27 @@ export default class AuthController extends AbstractController {
    */
   @POST
   @Path('/login')
-  @Security('*', 'local')
+  @Security('local')
   @Response<SuccessAuthDto>(200, 'Successfully logged in.')
   @Response<CustomError>(401, 'Authentication failed.')
   public async login(_userCreds: WithCredentials, @ContextRequest req: Request): Promise<SuccessAuthDto> {
-    const { user } = req;
-    const { token, refreshToken } = signTokens({ userId: user.id, userRole: user.role });
-    await this.refreshTokens.save(new RefreshToken(refreshToken, user.id));
-    return { user, token, refreshToken };
+    console.log('user ---');
+    const user = req.user as User;
+    if (!user) {
+      console.log('user is not confirmed');
+      throw new CustomError('Authentication failed.', 401);
+    }
+    if (!user.verifiedEmail) {
+      console.log('user is not confirmed');
+      throw new CustomError('user is not confirmed', 401);
+    }
+    const { token, refreshToken } = signTokens({ userId: (user as User).id, userRole: (user as User).role });
+    await this.refreshTokens.save(new RefreshToken(refreshToken, (user as User).id));
+    return {
+      user: { id: (user as User).id, role: (user as User).role, email: (user as User).email },
+      token,
+      refreshToken,
+    };
   }
 
   // TODO: move error handling to separate layer
@@ -197,7 +285,7 @@ export default class AuthController extends AbstractController {
       const token = signResetToken({ email, userId: user.id });
 
       await this.resetTokens.save(new ResetToken(token, user.id));
-      await this.mailServise.sendChangeRequestMail(token, email);
+      await this.mailService.sendChangeRequestMail(email, token);
 
       return { ok: true };
     } catch (e) {
@@ -239,7 +327,7 @@ export default class AuthController extends AbstractController {
       await user.setPassword(password);
       await this.users.save(user);
       await this.resetTokens.delete({ token });
-      await this.mailServise.sendResetCompleteMail(email);
+      await this.mailService.sendResetCompleteMail(email);
       return { ok: true };
     } catch (e) {
       if (e instanceof TokenExpiredError) {

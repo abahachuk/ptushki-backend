@@ -18,17 +18,25 @@ export class BasaRing {
   @IsOptional()
   @IsAlpha()
   @Length(1, 1, { message: equalLength(1) })
-  @ManyToOne(() => Sex, m => m.basaRing, {
-    eager: true,
-  })
+  @ManyToOne(
+    () => Sex,
+    m => m.basaRing,
+    {
+      eager: true,
+    },
+  )
   public sex: Sex;
 
   @IsOptional()
   @IsAlphanumeric()
   @Length(1, 1, { message: equalLength(1) })
-  @ManyToOne(() => Age, m => m.basaRing, {
-    eager: true,
-  })
+  @ManyToOne(
+    () => Age,
+    m => m.basaRing,
+    {
+      eager: true,
+    },
+  )
   public age: Age;
 
   @IsOptional()
@@ -59,15 +67,23 @@ export class BasaRing {
   @IsOptional()
   @IsNumberString()
   @Length(5, 5, { message: equalLength(5) })
-  @ManyToOne(() => Species, m => m.basaRing, {
-    eager: true,
-  })
+  @ManyToOne(
+    () => Species,
+    m => m.basaRing,
+    {
+      eager: true,
+    },
+  )
   public species: Species;
 
   @IsOptional()
   @IsUUID()
-  @ManyToOne(() => User, m => m.basaRing, {
-    eager: true,
-  })
+  @ManyToOne(
+    () => User,
+    m => m.basaRing,
+    {
+      eager: true,
+    },
+  )
   public ringer: User;
 }

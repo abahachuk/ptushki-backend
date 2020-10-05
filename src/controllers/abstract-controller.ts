@@ -8,7 +8,7 @@ const UUID_LENGTH = config.get('UUID_LENGTH');
 
 interface ConstructorFabric {
   create(...args: any): Record<string, any>;
-  new (): {};
+  new (): unknown;
 }
 
 export default abstract class AbstractController {
@@ -45,7 +45,7 @@ export default abstract class AbstractController {
     const errors = await validate(createdModel);
     if (errors.length) {
       const parsedErrors = parseValidationErrors(errors);
-      throw new CustomError(parsedErrors as string, 422);
+      throw new CustomError(JSON.stringify(parsedErrors), 422);
     }
   }
 }

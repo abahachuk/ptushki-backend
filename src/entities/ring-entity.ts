@@ -107,44 +107,67 @@ export class Ring implements RingDto, AbleToImportEURINGCode, EURINGCodes {
   })
   public identificationNumber: string;
 
-  @OneToMany(() => Observation, m => m.ring)
+  @OneToMany(
+    () => Observation,
+    m => m.ring,
+  )
   public observation: Observation[];
 
   @IsAlpha()
   @Length(3, 3, { message: equalLength(3) })
-  @ManyToOne(() => RingingScheme, m => m.ring, {
-    eager: true,
-  })
+  @ManyToOne(
+    () => RingingScheme,
+    m => m.ring,
+    {
+      eager: true,
+    },
+  )
   public ringingScheme: RingingScheme;
 
   @IsAlphanumeric()
   @Length(2, 2, { message: equalLength(2) })
-  @ManyToOne(() => PrimaryIdentificationMethod, m => m.ring, {
-    eager: true,
-  })
+  @ManyToOne(
+    () => PrimaryIdentificationMethod,
+    m => m.ring,
+    {
+      eager: true,
+    },
+  )
   public primaryIdentificationMethod: PrimaryIdentificationMethod;
 
   @IsInt()
   @Min(0)
   @Max(9)
-  @ManyToOne(() => VerificationOfTheMetalRing, m => m.ring, {
-    eager: true,
-  })
+  @ManyToOne(
+    () => VerificationOfTheMetalRing,
+    m => m.ring,
+    {
+      eager: true,
+    },
+  )
   public verificationOfTheMetalRing: VerificationOfTheMetalRing;
 
   @IsInt()
   @Min(0)
   @Max(7)
-  @ManyToOne(() => MetalRingInformation, m => m.ring, {
-    eager: true,
-  })
+  @ManyToOne(
+    () => MetalRingInformation,
+    m => m.ring,
+    {
+      eager: true,
+    },
+  )
   public metalRingInformation: MetalRingInformation;
 
   @IsAlpha()
   @Length(2, 2, { message: equalLength(2) })
-  @ManyToOne(() => OtherMarksInformation, m => m.ring, {
-    eager: true,
-  })
+  @ManyToOne(
+    () => OtherMarksInformation,
+    m => m.ring,
+    {
+      eager: true,
+    },
+  )
   public otherMarksInformation: OtherMarksInformation;
 
   // Not presented in euring standard
@@ -155,101 +178,157 @@ export class Ring implements RingDto, AbleToImportEURINGCode, EURINGCodes {
 
   @IsNumberString()
   @Length(5, 5, { message: equalLength(5) })
-  @ManyToOne(() => Species, m => m.mentionedInRing, {
-    eager: true,
-  })
+  @ManyToOne(
+    () => Species,
+    m => m.mentionedInRing,
+    {
+      eager: true,
+    },
+  )
   public speciesMentioned: Species;
 
   @IsNumberString()
   @Length(5, 5, { message: equalLength(5) })
-  @ManyToOne(() => Species, m => m.concludedInRing, {
-    eager: true,
-  })
+  @ManyToOne(
+    () => Species,
+    m => m.concludedInRing,
+    {
+      eager: true,
+    },
+  )
   public speciesConcluded: Species;
 
   @IsAlpha()
   @Length(1, 1, { message: equalLength(1) })
-  @ManyToOne(() => Manipulated, m => m.ring, {
-    eager: true,
-  })
+  @ManyToOne(
+    () => Manipulated,
+    m => m.ring,
+    {
+      eager: true,
+    },
+  )
   public manipulated: Manipulated;
 
   @IsInt()
   @Min(0)
   @Max(9)
-  @ManyToOne(() => MovedBeforeTheCapture, m => m.ring, {
-    eager: true,
-  })
+  @ManyToOne(
+    () => MovedBeforeTheCapture,
+    m => m.ring,
+    {
+      eager: true,
+    },
+  )
   public movedBeforeTheCapture: MovedBeforeTheCapture;
 
   @IsAlphaWithHyphen()
   @Length(1, 1, { message: equalLength(1) })
-  @ManyToOne(() => CatchingMethod, m => m.ring, {
-    eager: true,
-  })
+  @ManyToOne(
+    () => CatchingMethod,
+    m => m.ring,
+    {
+      eager: true,
+    },
+  )
   public catchingMethod: CatchingMethod;
 
   @IsAlphaWithHyphen()
   @Length(1, 1, { message: equalLength(1) })
-  @ManyToOne(() => CatchingLures, m => m.ring, {
-    eager: true,
-  })
+  @ManyToOne(
+    () => CatchingLures,
+    m => m.ring,
+    {
+      eager: true,
+    },
+  )
   public catchingLures: CatchingLures;
 
   @IsAlpha()
   @Length(1, 1, { message: equalLength(1) })
-  @ManyToOne(() => Sex, m => m.mentionedInRing, {
-    eager: true,
-  })
+  @ManyToOne(
+    () => Sex,
+    m => m.mentionedInRing,
+    {
+      eager: true,
+    },
+  )
   public sexMentioned: Sex;
 
   @IsAlpha()
   @Length(1, 1, { message: equalLength(1) })
-  @ManyToOne(() => Sex, m => m.concludedInRing, {
-    eager: true,
-  })
+  @ManyToOne(
+    () => Sex,
+    m => m.concludedInRing,
+    {
+      eager: true,
+    },
+  )
   public sexConcluded: Sex;
 
   @IsAlphanumeric()
   @Length(1, 1, { message: equalLength(1) })
-  @ManyToOne(() => Age, m => m.mentionedInRing, {
-    eager: true,
-  })
+  @ManyToOne(
+    () => Age,
+    m => m.mentionedInRing,
+    {
+      eager: true,
+    },
+  )
   public ageMentioned: Age;
 
   @IsAlphanumeric()
   @Length(1, 1, { message: equalLength(1) })
-  @ManyToOne(() => Age, m => m.concludedInRing, {
-    eager: true,
-  })
+  @ManyToOne(
+    () => Age,
+    m => m.concludedInRing,
+    {
+      eager: true,
+    },
+  )
   public ageConcluded: Age;
 
   @IsAlphaWithHyphen()
   @Length(1, 1, { message: equalLength(1) })
-  @ManyToOne(() => Status, m => m.ring, {
-    eager: true,
-  })
+  @ManyToOne(
+    () => Status,
+    m => m.ring,
+    {
+      eager: true,
+    },
+  )
   public status: Status;
 
   @IsNumberStringWithHyphen()
   @Length(2, 2, { message: equalLength(2) })
-  @ManyToOne(() => BroodSize, m => m.ring, {
-    eager: true,
-  })
+  @ManyToOne(
+    () => BroodSize,
+    m => m.ring,
+    {
+      eager: true,
+    },
+  )
   public broodSize: BroodSize;
 
   @IsNumberStringWithHyphen()
   @Length(2, 2, { message: equalLength(2) })
-  @ManyToOne(() => PullusAge, m => m.ring, {
-    eager: true,
-  })
+  @ManyToOne(
+    () => PullusAge,
+    m => m.ring,
+    {
+      eager: true,
+    },
+  )
   public pullusAge: PullusAge;
 
   @IsAlphanumericWithHyphen()
   @Length(1, 1, { message: equalLength(1) })
-  @ManyToOne(() => AccuracyOfPullusAge, m => m.ring, {
-    eager: true,
-  })
+  @ManyToOne(
+    () => AccuracyOfPullusAge,
+    m => m.ring,
+    {
+      eager: true,
+    },
+  )
   public accuracyOfPullusAge: AccuracyOfPullusAge;
 
   // Related fields in access 'Lat deg', 'Lat min', 'Lat sec'
@@ -282,9 +361,13 @@ export class Ring implements RingDto, AbleToImportEURINGCode, EURINGCodes {
 
   @IsAlphanumericWithHyphen()
   @Length(4, 4, { message: equalLength(4) })
-  @ManyToOne(() => PlaceCode, m => m.ring, {
-    eager: true,
-  })
+  @ManyToOne(
+    () => PlaceCode,
+    m => m.ring,
+    {
+      eager: true,
+    },
+  )
   public placeCode: PlaceCode;
 
   public get placeName(): null {
@@ -294,32 +377,48 @@ export class Ring implements RingDto, AbleToImportEURINGCode, EURINGCodes {
   @IsInt()
   @Min(0)
   @Max(9)
-  @ManyToOne(() => AccuracyOfCoordinates, m => m.ring, {
-    eager: true,
-  })
+  @ManyToOne(
+    () => AccuracyOfCoordinates,
+    m => m.ring,
+    {
+      eager: true,
+    },
+  )
   public accuracyOfCoordinates: AccuracyOfCoordinates;
 
   @IsInt()
   @Min(0)
   @Max(9)
-  @ManyToOne(() => Conditions, m => m.ring, {
-    eager: true,
-  })
+  @ManyToOne(
+    () => Conditions,
+    m => m.ring,
+    {
+      eager: true,
+    },
+  )
   public condition: Conditions;
 
   @IsNumberString()
   @Length(2, 2, { message: equalLength(2) })
-  @ManyToOne(() => Circumstances, m => m.ring, {
-    eager: true,
-  })
+  @ManyToOne(
+    () => Circumstances,
+    m => m.ring,
+    {
+      eager: true,
+    },
+  )
   public circumstances: Circumstances;
 
   @IsInt()
   @Min(0)
   @Max(1)
-  @ManyToOne(() => CircumstancesPresumed, m => m.ring, {
-    eager: true,
-  })
+  @ManyToOne(
+    () => CircumstancesPresumed,
+    m => m.ring,
+    {
+      eager: true,
+    },
+  )
   public circumstancesPresumed: CircumstancesPresumed;
 
   @IsDate()
@@ -329,17 +428,25 @@ export class Ring implements RingDto, AbleToImportEURINGCode, EURINGCodes {
   @IsInt()
   @Min(0)
   @Max(9)
-  @ManyToOne(() => AccuracyOfDate, m => m.ring, {
-    eager: true,
-  })
+  @ManyToOne(
+    () => AccuracyOfDate,
+    m => m.ring,
+    {
+      eager: true,
+    },
+  )
   public accuracyOfDate: AccuracyOfDate;
 
   @IsInt()
   @Min(0)
   @Max(4)
-  @ManyToOne(() => EURINGCodeIdentifier, m => m.ring, {
-    eager: true,
-  })
+  @ManyToOne(
+    () => EURINGCodeIdentifier,
+    m => m.ring,
+    {
+      eager: true,
+    },
+  )
   public euringCodeIdentifier: EURINGCodeIdentifier;
 
   // Related field in access 'Note'
@@ -350,25 +457,37 @@ export class Ring implements RingDto, AbleToImportEURINGCode, EURINGCodes {
 
   // Not presented in euring standart
   @IsUUID()
-  @ManyToOne(() => User, m => m.ring, {
-    eager: true,
-  })
+  @ManyToOne(
+    () => User,
+    m => m.ring,
+    {
+      eager: true,
+    },
+  )
   public ringer: User;
 
   // Related field in access 'Ringer' referred to table 'Ringer Information'
   @IsUUID()
-  @ManyToOne(() => Person, m => m.ring, {
-    eager: true,
-  })
+  @ManyToOne(
+    () => Person,
+    m => m.ring,
+    {
+      eager: true,
+    },
+  )
   public offlineRinger: Person;
 
   // Not presented in euring standart
   @IsOptional()
   @IsAlpha()
   @Length(1, 1, { message: equalLength(1) })
-  @ManyToOne(() => StatusOfRing, m => m.ring, {
-    eager: true,
-  })
+  @ManyToOne(
+    () => StatusOfRing,
+    m => m.ring,
+    {
+      eager: true,
+    },
+  )
   public statusOfRing: StatusOfRing;
 
   public get distance(): null {

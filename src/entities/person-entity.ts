@@ -56,10 +56,16 @@ export class Person implements PersonDto {
   @Column('varchar', { length: 128, nullable: true, default: null })
   public address: string;
 
-  @OneToMany(() => Ring, m => m.ringer)
+  @OneToMany(
+    () => Ring,
+    m => m.ringer,
+  )
   public ring: Ring[];
 
-  @OneToMany(() => Observation, m => m.finder)
+  @OneToMany(
+    () => Observation,
+    m => m.finder,
+  )
   public observation: Observation[];
 
   // @OneToMany(() => BasaRing, m => m.ringer)

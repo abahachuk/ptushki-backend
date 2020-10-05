@@ -22,7 +22,7 @@ import { ExporterType } from '../services/export/AbstractExporter';
 import { ImporterType } from '../services/import/AbstractImporter';
 import { CustomError } from '../utils/CustomError';
 import { auth } from '../services/auth-service';
-import { UserRole } from '../entities/user-entity';
+import { UserRole, User } from '../entities/user-entity';
 import { parsePageParams, SortingDirection } from '../services/page-service';
 import { ImportWorksheetXLSDto } from '../services/import/XLSBaseImporter';
 
@@ -170,6 +170,8 @@ export default class RingsController extends AbstractController {
   @Response<ImportWorksheetXLSDto>(200, 'Object of import result, with errors if needed.')
   @Response<CustomError>(401, 'Unauthorised.')
   @Response<CustomError>(403, 'Forbidden.')
+
+  // eslint-disable-next-line no-undef
   public async importXls(@FilesParam('files') files: Express.Multer.File[]): Promise<ImportWorksheetXLSDto> {
     return this.importer.handle(ImporterType.xls, { sources: files });
   }
@@ -185,7 +187,7 @@ export default class RingsController extends AbstractController {
   @Response<CustomError>(401, 'Unauthorised.')
   @Response<CustomError>(403, 'Forbidden.')
   public async importEuring(@ContextRequest req: Request, codes: string[]): Promise<{ ok: boolean }> {
-    await this.importer.handle(ImporterType.euring, { sources: codes, userId: req.user.id });
+    await this.importer.handle(ImporterType.euring, { sources: codes, userId: (req.user as User).id });
     return { ok: true };
   }
 }

@@ -48,12 +48,14 @@ export default class InitialDataController extends AbstractController {
   @Response<InitialDataDto>(200, 'All available EURING codes with descriptions.')
   @Response<CustomError>(401, 'Unauthorised.')
   public async getInitialData(@QueryParam('lang') lang: Lang): Promise<InitialDataDto> {
-    return (await Promise.all(
-      this.cached.map(async (repository: CachedRepository<any>) => ({
-        records: await repository.filterByLang(lang),
-        tableName: repository.tableName,
-      })),
-    )).reduce((acc: { [index: string]: any[] }, { records, tableName }) => {
+    return (
+      await Promise.all(
+        this.cached.map(async (repository: CachedRepository<any>) => ({
+          records: await repository.filterByLang(lang),
+          tableName: repository.tableName,
+        })),
+      )
+    ).reduce((acc: { [index: string]: any[] }, { records, tableName }) => {
       acc[tableName] = records;
       return acc;
     }, {});

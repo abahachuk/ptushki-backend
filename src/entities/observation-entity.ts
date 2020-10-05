@@ -52,6 +52,7 @@ import { AbleToImportEURINGCode, EURINGEntityDto, EURINGCodes } from './common-i
 import { ColumnNumericTransformer } from '../utils/ColumnNumericTransformer';
 import EURINGCodeParser from '../utils/EURINGCodeParser';
 
+// eslint-disable-next-line no-shadow
 export enum Verified {
   Pending = 'pending',
   Approved = 'approved',
@@ -127,9 +128,13 @@ export class Observation implements ObservationDto, AbleToImportEURINGCode, EURI
 
   @IsOptional()
   @IsUUID()
-  @ManyToOne(() => Ring, m => m.observation, {
-    eager: false,
-  })
+  @ManyToOne(
+    () => Ring,
+    m => m.observation,
+    {
+      eager: false,
+    },
+  )
   public ring: Ring;
 
   @IsOptional()
@@ -144,16 +149,24 @@ export class Observation implements ObservationDto, AbleToImportEURINGCode, EURI
 
   @IsOptional()
   @IsUUID()
-  @ManyToOne(() => User, m => m.observation, {
-    eager: true,
-  })
+  @ManyToOne(
+    () => User,
+    m => m.observation,
+    {
+      eager: true,
+    },
+  )
   public finder: User;
 
   @IsOptional()
   @IsUUID()
-  @ManyToOne(() => Person, m => m.observation, {
-    eager: true,
-  })
+  @ManyToOne(
+    () => Person,
+    m => m.observation,
+    {
+      eager: true,
+    },
+  )
   public offlineFinder: Person;
 
   @IsOptional()
@@ -171,105 +184,157 @@ export class Observation implements ObservationDto, AbleToImportEURINGCode, EURI
   @IsOptional()
   @IsAlpha()
   @Length(3, 3, { message: equalLength(3) })
-  @ManyToOne(() => RingingScheme, m => m.observation, {
-    eager: true,
-  })
+  @ManyToOne(
+    () => RingingScheme,
+    m => m.observation,
+    {
+      eager: true,
+    },
+  )
   public ringingScheme: RingingScheme;
 
   @IsOptional()
   @IsAlphanumeric()
   @Length(2, 2, { message: equalLength(2) })
-  @ManyToOne(() => PrimaryIdentificationMethod, m => m.observation, {
-    eager: true,
-  })
+  @ManyToOne(
+    () => PrimaryIdentificationMethod,
+    m => m.observation,
+    {
+      eager: true,
+    },
+  )
   public primaryIdentificationMethod: PrimaryIdentificationMethod;
 
   @IsOptional()
   @IsInt()
   @Min(0)
   @Max(9)
-  @ManyToOne(() => VerificationOfTheMetalRing, m => m.observation, {
-    eager: true,
-  })
+  @ManyToOne(
+    () => VerificationOfTheMetalRing,
+    m => m.observation,
+    {
+      eager: true,
+    },
+  )
   public verificationOfTheMetalRing: VerificationOfTheMetalRing;
 
   @IsOptional()
   @IsInt()
   @Min(0)
   @Max(7)
-  @ManyToOne(() => MetalRingInformation, m => m.observation, {
-    eager: true,
-  })
+  @ManyToOne(
+    () => MetalRingInformation,
+    m => m.observation,
+    {
+      eager: true,
+    },
+  )
   public metalRingInformation: MetalRingInformation;
 
   @IsOptional()
   @IsAlphaWithHyphen()
   @Length(2, 2, { message: equalLength(2) })
-  @ManyToOne(() => OtherMarksInformation, m => m.observation, {
-    eager: true,
-  })
+  @ManyToOne(
+    () => OtherMarksInformation,
+    m => m.observation,
+    {
+      eager: true,
+    },
+  )
   public otherMarksInformation: OtherMarksInformation;
 
   @IsOptional()
   @IsInt()
   @Min(0)
   @Max(4)
-  @ManyToOne(() => EURINGCodeIdentifier, m => m.observation, {
-    eager: true,
-  })
+  @ManyToOne(
+    () => EURINGCodeIdentifier,
+    m => m.observation,
+    {
+      eager: true,
+    },
+  )
   public euringCodeIdentifier: EURINGCodeIdentifier;
 
   @IsOptional()
   @IsNumberStringWithHyphen()
   @Length(2, 2, { message: equalLength(2) })
-  @ManyToOne(() => BroodSize, m => m.observation, {
-    eager: true,
-  })
+  @ManyToOne(
+    () => BroodSize,
+    m => m.observation,
+    {
+      eager: true,
+    },
+  )
   public broodSize: BroodSize;
 
   @IsNumberString()
   @Length(5, 5, { message: equalLength(5) })
-  @ManyToOne(() => Species, m => m.mentionedInObservation, {
-    eager: true,
-  })
+  @ManyToOne(
+    () => Species,
+    m => m.mentionedInObservation,
+    {
+      eager: true,
+    },
+  )
   public speciesMentioned: Species;
 
   @IsOptional()
   @IsNumberString()
   @Length(5, 5, { message: equalLength(5) })
-  @ManyToOne(() => Species, m => m.concludedInObservation, {
-    eager: true,
-  })
+  @ManyToOne(
+    () => Species,
+    m => m.concludedInObservation,
+    {
+      eager: true,
+    },
+  )
   public speciesConcluded: Species;
 
   @IsAlpha()
   @Length(1, 1, { message: equalLength(1) })
-  @ManyToOne(() => Sex, m => m.mentionedInObservation, {
-    eager: true,
-  })
+  @ManyToOne(
+    () => Sex,
+    m => m.mentionedInObservation,
+    {
+      eager: true,
+    },
+  )
   public sexMentioned: Sex;
 
   @IsOptional()
   @IsAlpha()
   @Length(1, 1, { message: equalLength(1) })
-  @ManyToOne(() => Sex, m => m.concludedInObservation, {
-    eager: true,
-  })
+  @ManyToOne(
+    () => Sex,
+    m => m.concludedInObservation,
+    {
+      eager: true,
+    },
+  )
   public sexConcluded: Species;
 
   @IsAlphanumeric()
   @Length(1, 1, { message: equalLength(1) })
-  @ManyToOne(() => Age, m => m.mentionedInObservation, {
-    eager: true,
-  })
+  @ManyToOne(
+    () => Age,
+    m => m.mentionedInObservation,
+    {
+      eager: true,
+    },
+  )
   public ageMentioned: Age;
 
   @IsOptional()
   @IsAlphanumeric()
   @Length(1, 1, { message: equalLength(1) })
-  @ManyToOne(() => Age, m => m.concludedInObservation, {
-    eager: true,
-  })
+  @ManyToOne(
+    () => Age,
+    m => m.concludedInObservation,
+    {
+      eager: true,
+    },
+  )
   public ageConcluded: Age;
 
   // Related field in access 'Derived data distance'
@@ -305,34 +370,50 @@ export class Observation implements ObservationDto, AbleToImportEURINGCode, EURI
   @IsOptional()
   @IsAlpha()
   @Length(1, 1, { message: equalLength(1) })
-  @ManyToOne(() => Manipulated, m => m.observation, {
-    eager: true,
-  })
+  @ManyToOne(
+    () => Manipulated,
+    m => m.observation,
+    {
+      eager: true,
+    },
+  )
   public manipulated: Manipulated;
 
   @IsOptional()
   @IsInt()
   @Min(0)
   @Max(9)
-  @ManyToOne(() => MovedBeforeTheCapture, m => m.observation, {
-    eager: true,
-  })
+  @ManyToOne(
+    () => MovedBeforeTheCapture,
+    m => m.observation,
+    {
+      eager: true,
+    },
+  )
   public movedBeforeTheCapture: MovedBeforeTheCapture;
 
   @IsOptional()
   @IsAlphaWithHyphen()
   @Length(1, 1, { message: equalLength(1) })
-  @ManyToOne(() => CatchingMethod, m => m.observation, {
-    eager: true,
-  })
+  @ManyToOne(
+    () => CatchingMethod,
+    m => m.observation,
+    {
+      eager: true,
+    },
+  )
   public catchingMethod: CatchingMethod;
 
   @IsOptional()
   @IsAlphaWithHyphen()
   @Length(1, 1, { message: equalLength(1) })
-  @ManyToOne(() => CatchingLures, m => m.observation, {
-    eager: true,
-  })
+  @ManyToOne(
+    () => CatchingLures,
+    m => m.observation,
+    {
+      eager: true,
+    },
+  )
   public catchingLures: CatchingLures;
 
   @IsDateString()
@@ -342,9 +423,13 @@ export class Observation implements ObservationDto, AbleToImportEURINGCode, EURI
   @IsInt()
   @Min(0)
   @Max(9)
-  @ManyToOne(() => AccuracyOfDate, m => m.observation, {
-    eager: true,
-  })
+  @ManyToOne(
+    () => AccuracyOfDate,
+    m => m.observation,
+    {
+      eager: true,
+    },
+  )
   public accuracyOfDate: AccuracyOfDate;
 
   // Related fields in access 'Lat deg', 'Lat min', 'Lat sec'
@@ -378,68 +463,100 @@ export class Observation implements ObservationDto, AbleToImportEURINGCode, EURI
   @IsOptional()
   @IsAlphanumericWithHyphen()
   @Length(4, 4, { message: equalLength(4) })
-  @ManyToOne(() => PlaceCode, m => m.ring, {
-    eager: true,
-  })
+  @ManyToOne(
+    () => PlaceCode,
+    m => m.ring,
+    {
+      eager: true,
+    },
+  )
   public placeCode: PlaceCode;
 
   @IsOptional()
   @IsInt()
   @Min(0)
   @Max(9)
-  @ManyToOne(() => AccuracyOfCoordinates, m => m.observation, {
-    eager: true,
-  })
+  @ManyToOne(
+    () => AccuracyOfCoordinates,
+    m => m.observation,
+    {
+      eager: true,
+    },
+  )
   public accuracyOfCoordinates: AccuracyOfCoordinates;
 
   @IsOptional()
   @IsAlphaWithHyphen()
   @Length(1, 1, { message: equalLength(1) })
-  @ManyToOne(() => Status, m => m.observation, {
-    eager: true,
-  })
+  @ManyToOne(
+    () => Status,
+    m => m.observation,
+    {
+      eager: true,
+    },
+  )
   public status: Status;
 
   @IsOptional()
   @IsNumberStringWithHyphen()
   @Length(2, 2, { message: equalLength(2) })
-  @ManyToOne(() => PullusAge, m => m.observation, {
-    eager: true,
-  })
+  @ManyToOne(
+    () => PullusAge,
+    m => m.observation,
+    {
+      eager: true,
+    },
+  )
   public pullusAge: PullusAge;
 
   @IsOptional()
   @IsAlphanumericWithHyphen()
   @Length(1, 1, { message: equalLength(1) })
-  @ManyToOne(() => AccuracyOfPullusAge, m => m.observation, {
-    eager: true,
-  })
+  @ManyToOne(
+    () => AccuracyOfPullusAge,
+    m => m.observation,
+    {
+      eager: true,
+    },
+  )
   public accuracyOfPullusAge: AccuracyOfPullusAge;
 
   @IsOptional()
   @IsInt()
   @Min(0)
   @Max(9)
-  @ManyToOne(() => Conditions, m => m.ring, {
-    eager: true,
-  })
+  @ManyToOne(
+    () => Conditions,
+    m => m.ring,
+    {
+      eager: true,
+    },
+  )
   public condition: Conditions;
 
   @IsOptional()
   @IsNumberString()
   @Length(2, 2, { message: equalLength(2) })
-  @ManyToOne(() => Circumstances, m => m.ring, {
-    eager: true,
-  })
+  @ManyToOne(
+    () => Circumstances,
+    m => m.ring,
+    {
+      eager: true,
+    },
+  )
   public circumstances: Circumstances;
 
   @IsOptional()
   @IsInt()
   @Min(0)
   @Max(1)
-  @ManyToOne(() => CircumstancesPresumed, m => m.ring, {
-    eager: true,
-  })
+  @ManyToOne(
+    () => CircumstancesPresumed,
+    m => m.ring,
+    {
+      eager: true,
+    },
+  )
   public circumstancesPresumed: CircumstancesPresumed;
 
   // Related fields in access 'Place'

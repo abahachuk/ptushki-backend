@@ -37,6 +37,8 @@ export const initPassport = (): void => {
       session: false,
     },
     async (email: string, password: string, done: (error: null | CustomError, user?: User) => void): Promise<void> => {
+      console.log('local strategy -- ', email, password);
+
       try {
         const user = await repository.findOne({ email });
         const isPasswordCorrect = user ? await isCorrect(password, user.salt, user.hash) : false;
@@ -47,6 +49,7 @@ export const initPassport = (): void => {
         delete user.salt;
         return done(null, user);
       } catch (e) {
+        console.log('----------');
         return done(new CustomError('Authorization Error', 401));
       }
     },
@@ -58,6 +61,7 @@ export const initPassport = (): void => {
       secretOrKey: accessSecret,
     },
     async (jwtPayload: UserPayload, done: VerifiedCallback): Promise<void> => {
+      console.log('jwwt strategy -- ');
       const user = await repository.findOne({ id: jwtPayload.userId });
       if (user) {
         return done(null, user);
@@ -134,6 +138,12 @@ export const signResetToken = (payload: ResetPasswordPayload, expiresIn: string 
 
 export const verifyResetToken = (token: string): Promise<ResetPasswordPayload> => verify(token, resetSecret) as Promise<ResetPasswordPayload>;
 /* eslint-enable */
+
+export const signCheckEmailToken = (payload: ResetPasswordPayload, expiresIn: string | number = resetExpires): string =>
+  jwt.sign({ ...payload }, resetSecret, { expiresIn });
+
+export const verifyCheckEmailToken = (token: string): Promise<ResetPasswordPayload> =>
+  verify(token, resetSecret) as Promise<ResetPasswordPayload>;
 
 export const auth = {
   required: passport.authenticate('jwt', { session: false }),

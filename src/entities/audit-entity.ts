@@ -10,10 +10,16 @@ export class Audit {
   @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
   public timestamp: string;
 
-  @ManyToOne(() => AuditEventsAction, m => m.name)
+  @ManyToOne(
+    () => AuditEventsAction,
+    m => m.name,
+  )
   public action: AuditEventsAction | null;
 
-  @ManyToOne(() => User, m => m.id)
+  @ManyToOne(
+    () => User,
+    m => m.id,
+  )
   public user: User | null;
 
   @Column('varchar', { nullable: true, default: null })

@@ -12,10 +12,12 @@
     "sourceType": "module"
   },
   "rules": {
-    "import/no-unresolved": ["2", { "commonjs": true }],
-    "import/prefer-default-export": "1",
+    "import/no-unresolved": 0,
+    "import/prefer-default-export": 1,
+    "import/extensions": 0,
     "camelcase": "off",
-    "class-methods-use-this": "off"
+    "class-methods-use-this": "off",
+    "@typescript-eslint/ban-ts-comment": "off"
   },
   "env": {
     "jest": true,

@@ -59,7 +59,7 @@ export type EURINGCodeAsArray = [
   string, // sexingMethod
   string, // placeName
   string, // remarks
-  string // reference
+  string, // reference
 ];
 
 export interface EURINGCodeAsRawObject {
