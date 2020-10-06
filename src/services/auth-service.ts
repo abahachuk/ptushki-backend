@@ -34,7 +34,7 @@ export const initPassport = (): void => {
     {
       usernameField: 'email',
       passwordField: 'password',
-      session: false,
+      // session: false,
     },
     async (email: string, password: string, done: (error: null | CustomError, user?: User) => void): Promise<void> => {
       console.log('local strategy -- ', email, password);
@@ -45,11 +45,11 @@ export const initPassport = (): void => {
         if (!user || !isPasswordCorrect) {
           return done(new CustomError('Email or password is invalid', 401));
         }
-        delete user.hash;
-        delete user.salt;
+
+        // delete user.hash;
+        // delete user.salt;
         return done(null, user);
       } catch (e) {
-        console.log('----------');
         return done(new CustomError('Authorization Error', 401));
       }
     },
@@ -136,7 +136,8 @@ const checkUserRole = (userRole: UserRole) => {
 export const signResetToken = (payload: ResetPasswordPayload, expiresIn: string | number = resetExpires): string =>
   jwt.sign({ ...payload }, resetSecret, { expiresIn });
 
-export const verifyResetToken = (token: string): Promise<ResetPasswordPayload> => verify(token, resetSecret) as Promise<ResetPasswordPayload>;
+export const verifyResetToken = (token: string): Promise<ResetPasswordPayload> =>
+  verify(token, resetSecret) as Promise<ResetPasswordPayload>;
 /* eslint-enable */
 
 export const signCheckEmailToken = (payload: ResetPasswordPayload, expiresIn: string | number = resetExpires): string =>

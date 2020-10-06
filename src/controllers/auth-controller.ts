@@ -193,20 +193,20 @@ export default class AuthController extends AbstractController {
   @Response<SuccessAuthDto>(200, 'Successfully logged in.')
   @Response<CustomError>(401, 'Authentication failed.')
   public async login(_userCreds: WithCredentials, @ContextRequest req: Request): Promise<SuccessAuthDto> {
-    console.log('user ---');
+    // console.log('user ---');
     const user = req.user as User;
     if (!user) {
-      console.log('user is not confirmed');
+      // console.log('user is not confirmed');
       throw new CustomError('Authentication failed.', 401);
     }
     if (!user.verifiedEmail) {
-      console.log('user is not confirmed');
+      // console.log('user is not confirmed');
       throw new CustomError('user is not confirmed', 401);
     }
     const { token, refreshToken } = signTokens({ userId: (user as User).id, userRole: (user as User).role });
     await this.refreshTokens.save(new RefreshToken(refreshToken, (user as User).id));
     return {
-      user: { id: (user as User).id, role: (user as User).role, email: (user as User).email },
+      user: { id: user.id, role: user.role, email: user.email },
       token,
       refreshToken,
     };

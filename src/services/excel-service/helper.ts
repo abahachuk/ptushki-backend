@@ -46,7 +46,7 @@ export const createExcelWorkBook = async (columnNames: string[]): Promise<Workbo
 
 export interface WorksheetParsingResult {
   headers: string[];
-  data: object[];
+  data: Record<string, unknown>[];
 }
 interface WorksheetParsingStatus {
   rowCount: number;

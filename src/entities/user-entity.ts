@@ -119,29 +119,20 @@ export class User implements UserDto {
   @Column()
   public salt: string;
 
-  @OneToMany(
-    () => Ring,
-    m => m.ringer,
-  )
+  @OneToMany(() => Ring, m => m.ringer)
   public ring: Ring[];
 
-  @OneToMany(
-    () => Observation,
-    m => m.finder,
-  )
+  @OneToMany(() => Observation, m => m.finder)
   public observation: Observation[];
 
-  @OneToMany(
-    () => BasaRing,
-    m => m.ringer,
-  )
+  @OneToMany(() => BasaRing, m => m.ringer)
   public basaRing: BasaRing[];
 
   public static async create(values: CreateUserDto): Promise<User> {
     const copyValues = Object.assign({}, values);
     const { salt, hash } = await getSaltAndHash(values.password);
-    delete copyValues.password;
-    return Object.assign(new User(), copyValues, { hash, salt });
+    const { email, firstName, lastName } = copyValues;
+    return Object.assign(new User(), copyValues, { hash, salt, email, firstName, lastName });
   }
 
   public async setPassword(password: string): Promise<void> {
