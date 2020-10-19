@@ -50,6 +50,9 @@ import {
 } from './euring-codes';
 import { AbleToImportEURINGCode, EURINGEntityDto, EURINGCodes } from './common-interfaces';
 import { ColumnNumericTransformer } from '../utils/ColumnNumericTransformer';
+import directionBy2PointsWithLnLt from '../utils/directionBy2PointsWithLnLt';
+import elapsedTimeBetween2Dates from '../utils/elapsedTimeBetween2Dates';
+import distanceBy2PointsWithLnLt from '../utils/distanceBy2PointsWithLnLt';
 import EURINGCodeParser from '../utils/EURINGCodeParser';
 
 export enum Verified {
@@ -125,6 +128,7 @@ export class Observation implements ObservationDto, AbleToImportEURINGCode, EURI
   @PrimaryGeneratedColumn('uuid')
   public id: string;
 
+  // Readme it isn't presented in EURING scheme
   @IsOptional()
   @IsUUID()
   @ManyToOne(() => Ring, m => m.observation, {
@@ -132,6 +136,7 @@ export class Observation implements ObservationDto, AbleToImportEURINGCode, EURI
   })
   public ring: Ring;
 
+  // Readme it isn't presented in EURING scheme
   @IsOptional()
   @IsString()
   @Length(10, 10, { message: equalLength(10) })
@@ -142,6 +147,7 @@ export class Observation implements ObservationDto, AbleToImportEURINGCode, EURI
     return this.ringMentioned;
   }
 
+  // Readme it isn't presented in EURING scheme
   @IsOptional()
   @IsUUID()
   @ManyToOne(() => User, m => m.observation, {
@@ -149,6 +155,7 @@ export class Observation implements ObservationDto, AbleToImportEURINGCode, EURI
   })
   public finder: User;
 
+  // Readme it isn't presented in EURING scheme
   @IsOptional()
   @IsUUID()
   @ManyToOne(() => Person, m => m.observation, {
@@ -156,6 +163,7 @@ export class Observation implements ObservationDto, AbleToImportEURINGCode, EURI
   })
   public offlineFinder: Person;
 
+  // Readme it isn't presented in EURING scheme
   @IsOptional()
   @IsString()
   @Column('varchar', { nullable: true, default: null })
@@ -163,6 +171,7 @@ export class Observation implements ObservationDto, AbleToImportEURINGCode, EURI
   // in other words it's alternate to offlineFinder field to store data
   public offlineFinderNote: string | null;
 
+  // Readme ofc that it isn't presented in EURING scheme
   @IsOptional()
   @IsString({ each: true })
   @Column('varchar', { array: true, nullable: true, default: null })
@@ -255,7 +264,7 @@ export class Observation implements ObservationDto, AbleToImportEURINGCode, EURI
   @ManyToOne(() => Sex, m => m.concludedInObservation, {
     eager: true,
   })
-  public sexConcluded: Species;
+  public sexConcluded: Sex;
 
   @IsAlphanumeric()
   @Length(1, 1, { message: equalLength(1) })
@@ -466,6 +475,19 @@ export class Observation implements ObservationDto, AbleToImportEURINGCode, EURI
 
   public static create(observation: RawObservationDto & { finder: string; ring: string | null }): Observation {
     return Object.assign(new Observation(), observation);
+  }
+
+  public reFillByRing(ring: Ring): Partial<Observation> {
+    if (!ring) return {};
+    const { speciesConcluded, ageConcluded, sexConcluded } = ring;
+    return {
+      speciesConcluded: speciesConcluded || null,
+      ageConcluded: ageConcluded || null,
+      sexConcluded: sexConcluded || null,
+      direction: directionBy2PointsWithLnLt(this, ring),
+      elapsedTime: elapsedTimeBetween2Dates(this, ring),
+      distance: distanceBy2PointsWithLnLt(this, ring),
+    };
   }
 
   public importEURING(code: string): Observation {

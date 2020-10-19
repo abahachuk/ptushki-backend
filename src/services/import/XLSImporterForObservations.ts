@@ -13,6 +13,7 @@ export type ObservationFieldsRequiredForXLS = Omit<
   | 'offlineFinderNote' // for a while skipped for simplicity
   | 'otherMarks' // for a while skipped for simplicity
   | 'importEURING' // skip model method
+  | 'reFillByRing' // skip model method
   | 'ring' // unknown -- can be added only by lookup through ring's table
   // with ringMentioned by this we can fill other fields below:
   | 'identificationNumber' // filled only if corresponding ring found
