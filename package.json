@@ -62,7 +62,7 @@
     "typescript-rest": "^2.2.2",
     "typescript-rest-swagger": "^1.0.4",
     "winston": "^3.2.1",
-    "xlsx": "^0.14.3"
+    "xlsx": "^0.17.0"
   },
   "devDependencies": {
     "@types/body-parser": "^1.17.0",
