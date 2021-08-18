@@ -1,0 +1,42 @@
+version: '3.8'
+services:
+  ptushki-api:
+    container_name: ptushki-api
+    image: ptushki-api
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    environment:
+      - PG_HOST=database
+      - PG_PORT=5432
+      - PG_USER=postgres
+      - PG_PASSWORD=ppppppp
+      - PG_DBNAME=ptushki
+    volumes:
+      - .:/app
+      - /app/node_modules
+    networks:
+      - backend
+    ports:
+      - 3001:3001
+    depends_on:
+      - database
+    restart: unless-stopped
+  database:
+    container_name: ptushki-db
+    image: postgres:11-alpine
+    environment:
+      - POSTGRES_DB=ptushki
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=ppppppp
+      - PGDATA=/var/lib/postgresql/data/pgdata
+    volumes:
+      - ../db:/var/lib/postgresql/data
+    networks:
+      - backend
+    ports:
+      - 5432:5432
+    restart: unless-stopped
+
+networks:
+  backend:
