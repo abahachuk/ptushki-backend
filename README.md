@@ -8,16 +8,21 @@ These instructions will running on your local machine for development and testin
 
 ### Prerequisites
 
-To run, you will need an installed node, preferably 10 version. However, it is much more convenient to use [nvm](https://github.com/nvm-sh/nvm#installation-and-update) or its analogues.
-You will also need an postgres instance running locally either directly or in a docker-container, or, easiest of all, you can get a free instance on [elephantsql.com](https://www.elephantsql.com/) -- it will take no more than 5 minutes. Tests also require additional instance (see below).
+- To run application locally you need docker installed.
+- node 14.x.
+- postgreSQL 11.x
 
 ### Installing
 
-When run locally make sure that you added postgres instance creds in `.env` file. To know which variables to use you have to look in `./config/default.js`. In simplest case your `.env` should be look like:
+#### Docker
 
-```dotenv
-PG_URL=postgres://ljfsdl:llfdoDS40_KUppp@dkwjjds.db.elephantsql.com:5432/ljfsdl
+```shell
+docker compose up -d
 ```
+
+#### Local environment
+
+When run locally (without docker) make sure that you added postgres instance creds in `.env` file. To know which variables to use you have to look in `./config/default.js`. In simplest case your `.env` should be look like:
 
 So, now you ready to **start** from:
 
@@ -83,7 +88,7 @@ With adding modifications `:coverage` or `:watch` should be run corresponding co
 
 #### Functional tests
 
-Currently there are only functional tests. Which fully cover authentication and authorization flow.
+Currently, there are only functional tests. Which fully cover authentication and authorization flow.
 
 These tests require additional db instance, as they drop db every time. You can declare this db in environment variables using the same variables as for main db instance but with prefix `_TEST_` like this: `PG_TEST_URL` and so on.
 
@@ -97,7 +102,7 @@ Add additional notes about how to deploy this on a live system
 
 ## Contributing
 
-By default any time you commit will be started linting and fixing which includes `eslint` & `prettier` rules.
+By default, any time you commit will be started linting and fixing which includes `eslint` & `prettier` rules.
 
 There also exists template for Pull Requests. Please fill it as much as possible.
 

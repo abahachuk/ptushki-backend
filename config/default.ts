@@ -3,6 +3,7 @@ export default {
   HOST: 'localhost',
   UUID_LENGTH: 36,
   dbConfig: {
+    logging: true,
     type: 'postgres',
     url: process.env.PG_URL || null,
     host: process.env.PG_HOST || 'localhost',
@@ -12,7 +13,6 @@ export default {
     password: process.env.PG_PASSWORD || 'password',
     entities: ['src/entities/**/*.ts'],
     synchronize: true,
-    logging: false,
     // allow to set max pool size to be able to use free 'DB a service' solution in dev
     // property is not documented, but confirmed to work here
     // https://github.com/typeorm/typeorm/issues/3388#issuecomment-452860552
