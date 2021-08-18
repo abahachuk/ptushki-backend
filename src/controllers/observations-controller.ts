@@ -244,7 +244,8 @@ export default class ObservationsController extends AbstractController {
     // TODO: check user id and role
     const { ringMentioned, otherMarks } = rawObservation;
     const observation = await this.getEntityById<Observation>(id);
-    let ring: string | null = observation.ring.id || null;
+    let ring: Ring | null = observation.ring || null;
+    let partial = {};
     if (Array.isArray(otherMarks)) {
       await Promise.all(otherMarks.map(m => this.validate(m, undefined, Mark)));
     }
@@ -253,15 +254,16 @@ export default class ObservationsController extends AbstractController {
       ringMentioned !== observation.ringMentioned ||
       JSON.stringify(otherMarks) !== JSON.stringify(observation.otherMarks)
     ) {
-      ({ id: ring = null } = (await this.connectObservationWithRing(ringMentioned, otherMarks)) as Ring);
+      ring = (await this.connectObservationWithRing(ringMentioned, otherMarks)) as Ring;
+      partial = observation.reFillByRing(ring);
     }
 
-    const newObservation = Object.assign(rawObservation, { ring });
-    await this.validate(newObservation, observation);
+    const newObservation = Object.assign(observation, rawObservation, partial, { ring });
+
+    await this.validate(newObservation);
     // TODO protect from finder updating
     // @ts-ignore see https://github.com/typeorm/typeorm/issues/3490
-    const updatedObservation = await this.observations.merge(observation, newObservation);
-    return this.observations.save(updatedObservation);
+    return this.observations.save(newObservation);
   }
 
   /**
