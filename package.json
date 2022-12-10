@@ -39,7 +39,7 @@
     "cross-env": "^5.2.0",
     "dotenv": "^7.0.0",
     "exceljs": "^1.12.1",
-    "express": "^4.16.4",
+    "express": "^4.17.3",
     "express-session": "^1.15.6",
     "express-validator": "^5.3.1",
     "jsonwebtoken": "^8.5.1",
